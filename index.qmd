@@ -9,10 +9,43 @@ concise code, and a **book check** that puts the output next to the numbers
 printed in the reference text. Where a method has no R implementation or no
 published target, the example says so instead of showing an unverified number.
 
-Planned structure:
-
-- Difference in differences: cohort-level, staggered with heterogeneous
-  treatment effects, continuous treatment.
-- Panel regression: panel regression and spatial heterogeneity.
+The repo says the same thing at three altitudes: the spec in
+`.docs/panel-spat-PLAN.md`, the *why* in the theory notes, and the running code
+in the examples. `theory/README.md` states that contract; it is a repo document,
+not a page of this book.
 
 Anchor texts are @baltagi2021, @pesaran2015 and @croissant2019.
+
+## Node status
+
+Every document here is a **node**, and this checklist is the only place their
+status is tracked. A box is ticked when the node is written, not when a
+placeholder for it is created. Unticked nodes that already have a link exist as
+placeholders describing what they should cover.
+
+### Chapters
+
+- [x] [Spatial panel data econometrics](panel-spat.qmd) — Stage 0 written
+- [ ] Difference in differences — cohort-level, staggered with heterogeneous
+  treatment effects, continuous treatment
+
+### Examples: panel and spatial
+
+- [x] [0.1 Panel dimensions and balance](panel-spat.qmd#sec-panel-shape)
+- [x] [0.2 The exponent α](panel-spat.qmd#sec-csd-exponent)
+- [x] [0.3 Strong dependence: CCE](panel-spat.qmd#sec-cce)
+- [ ] Stage 1 — panel unit roots
+- [ ] Stage 2 — cointegration
+- [ ] Stage 3 — error structure
+- [ ] Stage 4a — static panel
+- [ ] Stage 4b — dynamic panel
+- [ ] Stage 5 — spatial
+
+### Theory notes
+
+- [x] [01 Cross-sectional dependence](theory/01-cross-sectional-dependence.qmd)
+- [ ] [02 Spatial weights](theory/02-spatial-weights.qmd)
+- [ ] [03 Spatial dependence tests](theory/03-spatial-dependence-tests.qmd)
+- [ ] [04 Common factors and CCE](theory/04-common-factors-cce.qmd)
+- [ ] [05 Spatial model choice](theory/05-spatial-model-choice.qmd)
+- [ ] [06 Direct and indirect effects](theory/06-direct-indirect-effects.qmd)
