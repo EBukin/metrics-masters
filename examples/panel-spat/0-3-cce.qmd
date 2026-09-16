@@ -1,0 +1,53 @@
+### 0.3 Strong-dependence branch: CCE
+
+**Theory.** Under strong dependence, unobserved common factors bias standard
+panel estimators. Common Correlated Effects (CCE) proxies the factors with
+cross-section averages of y and X and adds them to each unit's regression
+[@pesaran2006; @pesaran2015, p. 766]. **CCEMG** averages the unit-by-unit
+slopes (eq. 29.37); **CCEP** pools the units into one slope (eq. 29.41)
+[@pesaran2015, pp. 767–768].
+
+**Data.** `HousePricesUS` [@holly2010], shipped in **pder** [@croissant2019]:
+49 US states × 29 years.
+
+Mean Group (MG) ignores the factors. `model = "cmg"` adds the averages `y.bar`
+and `log(income).bar`, and the income elasticity jumps from 0.30 to 1.14:
+
+```{r}
+#| label: s0-3-pmg
+library(plm)
+data("HousePricesUS", package = "pder")
+mg <- pmg(log(price) ~ log(income), data = HousePricesUS, model = "mg")
+cmg <- pmg(log(price) ~ log(income), data = HousePricesUS, model = "cmg")
+coef(mg)
+coef(cmg)
+```
+
+`pcce` gives the same CCEMG slope and is the only way to get CCEP
+[@croissant2019, sec. 8.3.2.1]:
+
+```{r}
+#| label: s0-3-pcce
+ccemg <- pcce(log(price) ~ log(income), data = HousePricesUS, model = "mg")
+ccep <- pcce(log(price) ~ log(income), data = HousePricesUS, model = "p")
+summary(ccemg)
+summary(ccep)
+```
+
+**Book check.** Slope on log(income), with book values from @croissant2019
+[pp. 197–199]:
+
+```{r}
+#| label: s0-3-book-check
+mods <- list(MG = mg, CCEMG = ccemg, CCEP = ccep)
+b <- sapply(mods, \(m) coef(m)[["log(income)"]])
+se <- sapply(mods, \(m) sqrt(vcov(m)["log(income)", "log(income)"]))
+data.frame(
+  book_coef = c(0.302, 1.135, 1.199), coef = b,
+  book_se = c(0.093, 0.195, 0.207), se = se
+) |> round(3)
+```
+
+The book also prints RSS 5.66 / R² 0.74 (CCEMG) and RSS 6.89 / R² 0.696
+(CCEP); compare with the summaries above. CCEMG and CCEP are close, which
+@croissant2019 [p. 199] read as support for pooling.

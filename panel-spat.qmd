@@ -1,0 +1,15 @@
+---
+title: "Spatial panel data econometrics"
+---
+
+Each section lives in its own self-contained file under `examples/panel-spat/`
+(theory, data, code, book check). This chapter only collects them. Anchor
+texts: @baltagi2021, @pesaran2015 and @croissant2019.
+
+## Stage 0 — Panel shape and the dependence fork
+
+{{< include examples/panel-spat/0-1-panel-shape.qmd >}}
+
+{{< include examples/panel-spat/0-2-csd-exponent.qmd >}}
+
+{{< include examples/panel-spat/0-3-cce.qmd >}}

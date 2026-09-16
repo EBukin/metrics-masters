@@ -1,0 +1,18 @@
+# Preface {.unnumbered}
+
+This project reproduces the seminal methods used in impact evaluation, on the
+canonical datasets the literature demonstrates them on, and checks every result
+against the published source.
+
+Each method gets a self-contained example: a short theory summary, the data,
+concise code, and a **book check** that puts the output next to the numbers
+printed in the reference text. Where a method has no R implementation or no
+published target, the example says so instead of showing an unverified number.
+
+Planned structure:
+
+- Difference in differences: cohort-level, staggered with heterogeneous
+  treatment effects, continuous treatment.
+- Panel regression: panel regression and spatial heterogeneity.
+
+Anchor texts are @baltagi2021, @pesaran2015 and @croissant2019.

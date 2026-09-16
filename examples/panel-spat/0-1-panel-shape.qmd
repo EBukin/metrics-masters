@@ -1,0 +1,40 @@
+### 0.1 Panel dimensions, balance, variation
+
+**Theory.** The shape of the panel decides which methods are usable. *Micro*
+panels have large N (hundreds or thousands) and short T (rarely over 10–20),
+so asymptotics are large N, fixed T. *Macro* panels have moderate N (7 to 200
+countries) over 20–60 years, so asymptotics can be large N and T
+[@baltagi2021, p. 1]. With N large (say over 100) and T small (under 50),
+panel unit-root and cointegration analysis "can proceed only under restrictive
+assumptions such as dynamic homogeneity and/or local cross-sectional
+dependence as in spatial autoregressive or moving average models"
+[@pesaran2015, p. 817].
+
+A panel is *unbalanced* when units are observed over different periods. In the
+one-way model the Within estimator carries over unchanged, while GLS becomes
+weighted least squares with weights that vary with each unit's Tᵢ, and
+variance components lose their optimal estimators [@baltagi2021, pp. 230–232].
+
+**Data.** `TobinQ` (balanced) and `Tileries` (unbalanced), both in **pder**
+[@croissant2019].
+
+```{r}
+#| label: s0-1-pdim
+library(plm)
+data("TobinQ", package = "pder")
+data("Tileries", package = "pder")
+pdim(TobinQ)
+pdim(Tileries)
+```
+
+How unbalanced? Both measures equal 1 for a balanced panel and fall toward 0
+as balance worsens [@ahrens1981]:
+
+```{r}
+#| label: s0-1-punbalancedness
+punbalancedness(Tileries)
+```
+
+**Book check.** @croissant2019 prints `n = 188, T = 35, N = 6580` for TobinQ
+[p. 32] and `n = 25, T = 12-22, N = 483` for Tileries [p. 62]. The book prints
+no `punbalancedness` output.

@@ -1,0 +1,23 @@
+### 0.2 Exponent of cross-sectional dependence α: the routing decision
+
+**Theory.** α measures how fast averaging across units washes out their common
+movement. For the cross-section average z̄ₜ [@bailey2016; @pesaran2015,
+eq. 29.6, p. 754]:
+
+$$
+\operatorname{Var}(\bar z_t) = \kappa_0 N^{2(\alpha-1)} + \kappa_1 N^{-1}
+  + O(N^{\alpha-2}), \qquad \tfrac12 < \alpha \le 1.
+$$
+
+- **α < 1: weak dependence.** Averaging eventually removes it. Almost all
+  spatial models are of this kind [@pesaran2015, pp. 756, 802].
+- **α = 1: strong dependence.** Averaging never removes it. This is the case
+  of common factor models [@pesaran2015, p. 754].
+
+**Routing.** α = 1 → CCE (§0.3). α < 1 → spatial models (Stage 5).
+
+::: {.callout-warning}
+**No code, no book check.** No R implementation of the @bailey2016 estimator
+exists, and no published α is available for data shipped with R. Do not route
+on α alone; corroborate with the `rwtest` vs `pcdtest` contrast (§5.7).
+:::
