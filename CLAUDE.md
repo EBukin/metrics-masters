@@ -31,12 +31,31 @@ A panel is *unbalanced* when units are observed over different periods.
   in a single block after the code, not after each line. Do not override this
   per chunk without a reason.
 - Keep R code inside 80 characters too; `air.toml` sets Air's line width.
+- **Call every function with its package prefix**, `pkg::fun()`, so a reader
+  sees exactly where it comes from: `plm::pdim()`, never a bare `pdim()`.
+- Base R needs no prefix: `base`, `stats`, `utils`, `methods` (so `coef()`,
+  `summary()`, `data()`, `round()` stay plain).
+- Do not call `library()` in examples by default: the `::` prefix loads the
+  namespace and registers the S3 methods, so attaching adds nothing.
+- **Exception**: a function that builds a call and evaluates it in the caller's
+  environment needs its package attached. `plm::pmg()` and `plm::pcce()` call
+  `plm()`, which fails with "could not find function" unless `library(plm)`
+  ran. Keep the `pkg::` prefix anyway, attach the package, and say in a comment
+  why it is attached.
 
 ## Writing the primer
 
 - Each section of `.docs/panel-spat-PLAN.md` gets its own self-contained file
   in `examples/<topic>/`, holding theory, data, code and a book check. Section
   headings are `###`, because the chapter file supplies `#` and `##`.
+- **Never put manual numbers in a heading** (no "0.1", no "Stage 0 —" prefix on
+  a section). Quarto numbers headings itself, and the plan's section number
+  belongs in the text, not the title. Give each section a `{#sec-...}` id so it
+  can be linked.
+- `_quarto.yml` keeps `number-depth: 2`, so only chapters and their top-level
+  sections are numbered, and `toc-depth: 4`, so the right-hand per-page
+  contents reaches the deepest headings. Keep those apart: deep page contents,
+  shallow numbering.
 - `panel-spat.qmd` only collects those files with `{{< include >}}`.
 - Load packages with `library()` in the file that uses them.
 - Keep examples extremely concise and self-explanatory.
