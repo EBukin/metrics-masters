@@ -1,4 +1,4 @@
-### 0.1 Panel dimensions, balance, variation
+### 0.1 Panel dimensions, balance, variation {#sec-panel-shape}
 
 **Theory.** The shape of the panel decides which methods are usable. *Micro*
 panels have large N (hundreds or thousands) and short T (rarely over 10–20),

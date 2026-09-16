@@ -1,4 +1,9 @@
-### 0.3 Strong-dependence branch: CCE
+### 0.3 Strong-dependence branch: CCE {#sec-cce}
+
+::: {.callout-tip appearance="simple"}
+Why cross-section averages stand in for the unobserved factors:
+[theory note 04](theory/04-common-factors-cce.qmd).
+:::
 
 **Theory.** Under strong dependence, unobserved common factors bias standard
 panel estimators. Common Correlated Effects (CCE) proxies the factors with

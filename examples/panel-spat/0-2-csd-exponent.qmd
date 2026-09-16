@@ -1,4 +1,15 @@
-### 0.2 Exponent of cross-sectional dependence α: the routing decision
+### 0.2 Exponent of cross-sectional dependence α: the routing decision {#sec-csd-exponent}
+
+**Intuition.** α counts how many units share the same shock: at α = 1 a fixed
+share of the panel moves together, at α = ½ only a sparse local handful does.
+It does not tell you whether you need fixed effects — it tells you whether fixed
+effects are *enough*, because a common factor with unit-specific loadings is
+exactly what the within transformation cannot remove.
+
+::: {.callout-tip appearance="simple"}
+Full treatment, including the effective-sample-size reading and why the CD test
+cannot substitute for α: [theory note 01](theory/01-cross-sectional-dependence.qmd).
+:::
 
 **Theory.** α measures how fast averaging across units washes out their common
 movement. For the cross-section average z̄ₜ [@bailey2016; @pesaran2015,
