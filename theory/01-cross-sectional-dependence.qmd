@@ -3,8 +3,9 @@ title: "Cross-sectional dependence: how much, and of what kind"
 subtitle: "Theory note 01 — the exponent α and the unordered tests"
 ---
 
-> **Code:** `examples/panel-spat/0-2-csd-exponent.qmd` (α, routing) and the
-> `pcdtest` family in Stage 4a. Spatial-structure tests are
+> **Code:** [the exponent α](../panel-spat.qmd#sec-csd-exponent) for α and the
+> routing, [testing for CSD](../panel-spat.qmd#sec-csd-tests) for the CD
+> family. Spatial-structure tests are
 > [theory note 03](03-spatial-dependence-tests.qmd).
 
 ## The two questions people confuse
@@ -148,6 +149,16 @@ asymptotically. **That is its virtue: small T, enormous N, still valid.**
   non-rejection as "no dependence" is an artefact of the transformation, not
   evidence [@croissant2019, §10.1.2.2].
 
+The general statement of that second point is @juodis2022: with period-specific
+parameters *estimated* rather than known, CD **diverges as T grows even when
+the dependence has been correctly accounted for**. It is an incidental
+parameters problem, and it applies to CCE residuals as much as to two-way FE
+residuals. This is the trap in §8's defactor-then-re-diagnose sequence: the
+obvious diagnostic at step 3 is exactly the one that is invalid there. On
+US house prices, two-way FE moves $\overline{\lvert\rho\rvert}$ only from 0.51
+to 0.49 while collapsing CD from 53.3 to 0.02, p = 0.98 — see
+[testing for CSD](../panel-spat.qmd#sec-csd-tests).
+
 **And its null is not independence.** The implicit null of CD is *weak*
 dependence — α < 1/4 when *N* and *T* grow at the same rate
 [@pesaran2015weak; @pesaran2015, p. 786]. Confirmed from the other direction at
@@ -179,6 +190,20 @@ and the others are history. It exists precisely because the scaled LM's finite-*
 bias, quantified above, makes it unusable at the *N* and *T* that panels
 actually have.
 
+### What `plm` does not have
+
+Three later statistics attack CD's blindness from different directions. None is
+in `plm`; all three are in `dcce::pcd_test` [@wasseja2026].
+
+| `test =` | Statistic | What it changes | Watch out |
+|---|---|---|---|
+| `"cdw"` | Weighted CD [@juodis2022] | Rademacher weights, so estimated period-specific parameters cannot make CD diverge | Buys size with power: it fails to reject even on raw series with $\bar\rho = 0.29$. Seed-dependent |
+| `"pea"` | Power-enhanced [@fan2015] | Adds a screening term that fires on sparse alternatives | Enormous statistics; read it as a flag, not a magnitude |
+| `"cdstar"` | Bias-corrected CD\* [@pesaran2021cd] | A PCA correction valid whether latent factors are weak or strong | Needs the factor count `n_pca`; the default is 1 |
+
+**CD\* is the one to reach for at step 3 of §8.** It keeps power where CDw
+loses it and stays valid where plain CD does not.
+
 ## 6. ρ̄ versus |ρ̄|: the poor man's α
 
 The last row of that table is the most useful and the most ignored. `"rho"` gives
@@ -203,7 +228,8 @@ badly wrong. Compute both; they cost nothing.
 | α clearly below 1 and CD does not fire | Weak dependence. FE is consistent — now ask whether it is *spatial* ([note 03](03-spatial-dependence-tests.qmd)). |
 | α in the 0.8–0.95 middle | **The modal case.** Defactor first, then re-diagnose. See §8. |
 | $\bar\rho \approx 0$ but $\overline{\lvert\rho\rvert}$ large | Sign cancellation. Ignore CD entirely; use the ordered tests. |
-| You only have two-way FE residuals | Global CD is uninformative by construction. Use `"bcsclm"`, or the randomised-W test [@millo2017]. |
+| You only have two-way FE residuals | Global CD is uninformative by construction. Use `"bcsclm"`, CD\* [@pesaran2021cd], or the randomised-W test [@millo2017]. |
+| You have defactored (CCE, PC) residuals | Same problem, general form [@juodis2022]. CD\* or CDw, never plain CD. |
 | Dependence confirmed, structure unknown | Do **not** route on α alone. Corroborate with the `rwtest` vs `pcdtest` contrast (plan §5.7). |
 
 ## 8. The middle is the normal case
@@ -213,10 +239,17 @@ usually a fork at all. It is a **sequence**, and @bailey2016 apply it that way �
 estimating α on the raw series *and* on residuals after removing factors:
 
 1. Estimate α (or read $\bar\rho$ vs $\overline{\lvert\rho\rvert}$) on the raw
-   series.
+   series — `csd_exp(use_residuals = FALSE)`, the @bailey2016 variable method.
 2. If it points strong → **defactor** (CCE, or principal components).
-3. Re-diagnose the residuals. If α has dropped toward 1/2, the remaining
-   dependence is local, and *now* modelling it spatially is legitimate.
+3. Re-diagnose the residuals with `csd_exp(use_residuals = TRUE)`, the
+   @bailey2019 residual method, which is built for exactly this step. If α has
+   dropped toward 1/2, the remaining dependence is local, and *now* modelling
+   it spatially is legitimate. Do **not** use plain CD here — see @juodis2022
+   in §4; use CD\*.
+
+Run on US house prices, the sequence gives α = 0.83 on the raw series and
+α = 0.51 on the CCEMG residuals, which is the clean version of this picture:
+[the exponent α](../panel-spat.qmd#sec-csd-exponent).
 
 Fitting a spatial model to data with an unremoved common factor gets you a
 significant $\hat\rho$ that is picking up the factor, not the geography. That is
@@ -224,13 +257,24 @@ the single most common way this goes wrong.
 
 ## 9. Open
 
-- **No R implementation of the @bailey2016 estimator exists**, and no published α
-  is available for any dataset shipping with R. The estimator inverts the variance
-  formula — $\hat\alpha = 1 + \ln(\hat\sigma^2_{\bar z}) / (2\ln N)$, plus bias
-  corrections for $\kappa_0 \neq 1$ and for the $\kappa_1 N^{-1}$ term — so it is
-  implementable, but it would be **unverified** against any published number.
-  Until then α is a way of *thinking*, and the routing decision must rest on the
-  verifiable `rwtest` vs `pcdtest` contrast.
+- **An implementation now exists, and it is young.** `dcce::csd_exp`
+  [@wasseja2026] implements both the @bailey2016 variable method and the
+  @bailey2019 residual method, and it reproduces its own vignette's
+  α = 0.8348 for `pwt8` exactly. But **dcce** is a single-author package first
+  published in 2026 with no independent validation, so the α numbers here rest
+  on one cross-check: its Pesaran CD agrees with `plm::pcdtest` to four
+  decimals on the same data. Corroborate α with the `rwtest` vs `pcdtest`
+  contrast (plan §5.7) rather than routing on it alone.
+- **The variable method is fragile in exactly the way the theory predicts.**
+  It inverts $\hat\alpha = 1 + \ln(\hat\sigma^2_{\bar z}) / (2\ln N)$ with a
+  correction for the $\kappa_1 N^{-1}$ term, and that correction scales as
+  $\overline{\sigma^2_i} / (2 \ln N \cdot \widehat{\operatorname{Var}}(\bar
+  z_t))$. When the common component does not survive averaging, the correction
+  dominates and the estimate leaves the parameter space entirely — below 1/2 on
+  house prices, and large and negative on an independent panel. That is the
+  callout in §1 made visible: there really is nothing to measure down there.
+  The package does not constrain the output to (1/2, 1], so check the number
+  against $\bar\rho$ before believing it.
 - **The 1/4-to-1/2 band.** The size condition α < 1/4 [@pesaran2015, p. 786] and
   the point at which CD starts diverging are different quantities, and the gap
   between them is not well characterised here. Check against @pesaran2015weak

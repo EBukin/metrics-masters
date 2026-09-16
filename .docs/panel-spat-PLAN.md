@@ -78,9 +78,9 @@ An agent implementing any element should be able to write the code from the CODE
 #### 0.2 Exponent of cross-sectional dependence, α — **the routing decision**
 - **THEORY** — Definition 29 and Proposition 46 **[P p. 753]**; exponent α, eq. (29.6) **[P p. 754]**, identified on 1/2 < α ≤ 1. **CWD ⟺ α < 1; CSD ⟺ α = 1.** Spatial processes generate *weak* dependence **[P §30.3.3, pp. 801–802]**; common factors generate *strong* dependence **[P p. 754]**. Bailey, Kapetanios & Pesaran (2016), *J. Applied Econometrics*.
 - **DATA** — HPUS. **[CM §10.1]** runs the factor-vs-spatial question on exactly this data.
-- **CODE REF** — ✖ **No R implementation exists.** Closest published reference: the BKP paper's own Gauss/MATLAB code. The eigenvalue criterion of Proposition 46 is directly codeable from the proposition.
-- **VERIFY** — ✖ **No verification target.** BKP report α estimates for US macro series and stock returns in their paper; those are the only available benchmarks and they use data not shipped in R. **Flag any α estimate as unvalidated.**
-- **AGENT NOTE** — Because this cannot be verified, do not let it be the sole basis for the weak/strong routing. Corroborate with the `rwtest` vs `pcdtest` contrast at §5.7, which *can* be verified.
+- **CODE REF** — `?dcce::csd_exp` (`use_residuals = FALSE` → BKP 2016 variable method; `TRUE` → BKP 2019 residual method, Sankhya B 81(S1), 46–102). Also `?dcce::pcd_test` for CDw, PEA and CD\*, none of which are in **plm**.
+- **VERIFY** — The **dcce** vignette prints α = 0.8348, SE = 0.0114, 95% CI [0.8124, 0.8573] for log real GDP on `pwt8` (N = 93, T = 48); this reproduces to 4 dp. Second anchor: `dcce::pcd_test(test = "pesaran")` equals `plm::pcdtest(test = "cd")` at z = 53.262 on HPUS log price, which validates the new package against the one **[CM]** documents.
+- **AGENT NOTE** — **dcce** is single-author, first published 2026, unvalidated independently; the two checks above are the only credit it has. Do not let α alone drive the weak/strong routing — corroborate with the `rwtest` vs `pcdtest` contrast at §5.7. The variable method leaves (1/2, 1] whenever the common component does not survive averaging (it returns ≈0.50 on HPUS, where CD = 53); prefer the residual method and sanity-check against ρ̄.
 
 #### 0.3 The strong-dependence branch: CCE
 - **THEORY** — Pesaran (2006) CCE; **[P §29.4, pp. 763–772]**, CCEP at **[P p. 766]**. Holly, Pesaran & Yamagata (2010) for the panel application. CCEP variance: **[CM §8.3.2.2]**.
@@ -331,7 +331,7 @@ An agent must treat these as **blocked**, not as tasks. Each requires either an 
 
 | Element | Blocking reason | Nearest external benchmark |
 |---|---|---|
-| Exponent of CSD, α | No implementation | BKP (2016) paper; own Gauss code |
+| ~~Exponent of CSD, α~~ | **Unblocked**: `dcce::csd_exp` (CRAN, 2026) | dcce vignette α = 0.8348 on `pwt8`, reproduced to 4 dp |
 | Breitung, Harris–Tzavalis unit roots | No implementation | Stata `xtunitroot` |
 | Moon–Perron, Bai–Ng, CSB | No implementation | — |
 | Cross-unit cointegration tests | No implementation | — |
