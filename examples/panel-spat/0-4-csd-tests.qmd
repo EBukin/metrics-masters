@@ -1,0 +1,108 @@
+### Testing for cross-sectional dependence {#sec-csd-tests}
+
+::: {.callout-tip appearance="simple"}
+Why CD's signed summation is both its virtue and its fatal flaw, and what its
+implicit null actually is:
+[theory note 01](theory/01-cross-sectional-dependence.qmd).
+:::
+
+**Theory.** Pesaran's CD [@pesaran2004; @pesaran2015, eq. 29.76, p. 786] is the
+average pairwise residual correlation, scaled:
+
+$$
+CD = \sqrt{\frac{2T}{N(N-1)}} \sum_{i<j} \hat\rho_{ij}
+  \;\xrightarrow{d}\; N(0,1).
+$$
+
+It sums raw $\hat\rho$ rather than $\hat\rho^{\,2}$, which makes it exactly
+centred at zero for any *T* — and blind whenever the correlations cancel in
+sign. Three later statistics attack that blindness from different directions:
+
+| Test | Source | What it changes |
+|---|---|---|
+| CD | @pesaran2004 | The benchmark |
+| CDw | @juodis2022 | Rademacher weights, so estimated period-specific parameters cannot make CD diverge |
+| PEA | @fan2015 | A power-enhancement term that fires on sparse alternatives |
+| CD\* | @pesaran2021cd | A PCA bias correction, valid whether latent factors are weak or strong |
+
+**Data.** `HousePricesUS` [@holly2010] in **pder** [@croissant2019] for the
+alternative; an independent simulated panel of the same shape for the null.
+All four statistics come from `dcce::pcd_test` [@wasseja2026].
+
+```{r}
+#| label: s0-4-setup
+data("HousePricesUS", package = "pder")
+hp <- plm::pdata.frame(HousePricesUS)
+idx <- plm::index(hp)
+as_matrix <- function(v) {
+  m <- tapply(as.numeric(v), list(idx[[1]], idx[[2]]), identity)
+  m[, colSums(is.na(m)) == 0, drop = FALSE]
+}
+# CDw draws Rademacher weights, so the seed matters for that row alone.
+cd_all <- function(m) {
+  set.seed(1)
+  out <- dcce::pcd_test(m, test = c("pesaran", "cdw", "pea", "cdstar"))
+  r <- out$rho_ij
+  diag(r) <- NA
+  list(
+    tests = out$statistics,
+    rho = c(rho_bar = mean(r, na.rm = TRUE),
+            abs_rho_bar = mean(abs(r), na.rm = TRUE))
+  )
+}
+```
+
+**Rejecting the null.** Raw log house prices. Every test but CDw fires, and
+$\bar\rho \approx \overline{\lvert\rho\rvert}$ is the signature of pervasive,
+same-signed co-movement:
+
+```{r}
+#| label: s0-4-reject
+cd_all(as_matrix(log(hp$price)))
+```
+
+**Accepting the null.** The same panel shape with no common component at all.
+All four statistics sit inside ±1.96, which is the nominal N(0,1) they claim:
+
+```{r}
+#| label: s0-4-accept
+set.seed(1)
+cd_all(matrix(rnorm(49 * 29), nrow = 49))
+```
+
+**The non-rejection that means nothing.** Two-way fixed effects force
+$\sum_i \hat e_{it} = 0$, which drives $\bar\rho$ to zero *mechanically*. CD
+duly reports nothing — p ≈ 0.98, a cleaner "acceptance" than the genuine null
+above. But $\overline{\lvert\rho\rvert}$ barely moves from the raw series, and
+PEA and CD\* both still fire:
+
+```{r}
+#| label: s0-4-fe-artefact
+fe <- plm::plm(log(price) ~ log(income), data = HousePricesUS,
+               model = "within", effect = "twoways")
+cd_all(as_matrix(residuals(fe)))
+```
+
+Three readings of one panel, and only the middle column is honest: the within
+transformation removed almost none of the dependence
+($\overline{\lvert\rho\rvert}$ 0.51 → 0.49) while removing all of CD's ability
+to see it. This is the @croissant2019 [§10.1.2.2] artefact, and the general
+statement of it is @juodis2022: estimated period-specific parameters make CD
+diverge even when the dependence *has* been handled.
+
+CDw is the fix for that divergence, but it buys size at a real cost in power —
+it fails to reject on the raw series too, where the dependence is not in doubt.
+Read it as a guard against false positives, not as evidence of absence; CD\* is
+the statistic that keeps power in both columns.
+
+**Book check.** `dcce::pcd_test(test = "pesaran")` should be the same statistic
+`plm::pcdtest(test = "cd")` computes, and **plm** is the implementation
+@croissant2019 documents:
+
+```{r}
+#| label: s0-4-book-check
+plm::pcdtest(log(price) ~ 1, data = HousePricesUS, test = "cd")
+```
+
+z = 53.26 on both, so the new package's CD is the one the book describes, and
+its other three statistics are read on that credit.

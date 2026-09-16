@@ -25,11 +25,102 @@ $$
 - **α = 1: strong dependence.** Averaging never removes it. This is the case
   of common factor models [@pesaran2015, p. 754].
 
-**Routing.** α = 1 → [CCE](panel-spat.qmd#sec-cce). α < 1 → spatial models
-(Stage 5).
+Two estimators exist, and they fail in different places. The **variable**
+method [@bailey2016] inverts the variance equation above directly. The
+**residual** method [@bailey2019] instead sums the pairwise correlations that
+survive a significance threshold, so it does not depend on the common component
+surviving the averaging step.
+
+**Data.** `HousePricesUS` [@holly2010] in **pder** [@croissant2019], 49 states
+× 29 years; `pwt8` in **dcce** [@wasseja2026], 93 countries × 48 years.
+
+Both estimators want an N × T matrix:
+
+```{r}
+#| label: s0-2-matrix
+data("HousePricesUS", package = "pder")
+hp <- plm::pdata.frame(HousePricesUS)
+idx <- plm::index(hp)
+# plm stores a panel stacked long; tapply folds it back to N x T.
+as_matrix <- function(v) {
+  m <- tapply(as.numeric(v), list(idx[[1]], idx[[2]]), identity)
+  m[, colSums(is.na(m)) == 0, drop = FALSE]
+}
+lprice <- as_matrix(log(hp$price))
+dim(lprice)
+```
+
+**Strong case.** Raw log house prices. α sits far above ½, which routes to
+[CCE](panel-spat.qmd#sec-cce):
+
+```{r}
+#| label: s0-2-alpha-strong
+dcce::csd_exp(lprice, use_residuals = TRUE)
+```
+
+**Weak case.** Now run the @bailey2016 sequence: defactor, then re-estimate α
+on the residuals. CCEMG removes the common factors, and α falls to the ½ floor
+— the remaining dependence is local, and only *now* is a spatial model
+legitimate:
+
+```{r}
+#| label: s0-2-alpha-weak
+# pcce() builds a call to plm(), so plm must be attached, not just namespaced.
+library(plm)
+ccemg <- plm::pcce(log(price) ~ log(income), data = HousePricesUS,
+                   model = "mg")
+dcce::csd_exp(as_matrix(residuals(ccemg)), use_residuals = TRUE)
+```
+
+So the same panel reads α ≈ 0.83 before defactoring and α ≈ 0.51 after. That
+gap is the whole routing decision, and it is why fitting a spatial model to the
+raw series would have attributed the common factor to geography.
+
+**Where the variable method breaks.** The variance equation is only informative
+when the common component survives averaging. `price` is an index re-based to
+100 in 1980 for every state, so the cross-section average of log price moves in
+a band of 4.51–4.76 and its variance is small. The correction term for
+$\kappa_1 N^{-1}$ then dominates and the estimate collapses onto ½ — the
+opposite of what CD and the residual method both report:
+
+```{r}
+#| label: s0-2-alpha-variable
+data("pwt8", package = "dcce")
+lgdp <- do.call(rbind, by(pwt8, pwt8$country, \(d) d$log_rgdpo))
+lgdp <- lgdp[, colSums(is.na(lgdp)) == 0, drop = FALSE]
+c(hpus = var(colMeans(lprice)), pwt8 = var(colMeans(lgdp)))
+c(hpus = dcce::csd_exp(lprice)$alpha, pwt8 = dcce::csd_exp(lgdp)$alpha)
+```
+
+Thirteen times more variance in the average is the whole difference. Prefer the
+residual method unless the series is a level whose average carries the common
+trend.
 
 ::: {.callout-warning}
-**No code, no book check.** No R implementation of the @bailey2016 estimator
-exists, and no published α is available for data shipped with R. Do not route
-on α alone; corroborate with the `rwtest` vs `pcdtest` contrast (§5.7).
+**The two methods report standard errors on different footings.** For the
+variable method `csd_exp` returns `se = 1/(2 ln N √N)`, a function of N alone:
+two panels with the same N get the same SE whatever they contain, and the 95%
+CI is ±1.96 times it. The residual method bootstraps instead, so its SE and its
+asymmetric percentile interval do respond to the data — 0.0190 on the raw
+series above against 0.1085 on the CCEMG residuals. Read the first as a point
+estimate only; the second carries genuine sampling information.
 :::
+
+**Book check.** The **dcce** vignette [@wasseja2026] prints α = 0.8348,
+SE = 0.0114 and a 95% CI of [0.8124, 0.8573] for log real GDP on `pwt8`:
+
+```{r}
+#| label: s0-2-book-check
+a <- dcce::csd_exp(lgdp)
+data.frame(
+  vignette = c(0.8348, 0.0114, 0.8124, 0.8573),
+  ours = c(a$alpha, a$se, a$ci),
+  row.names = c("alpha", "se", "ci_lo", "ci_hi")
+) |> round(4)
+1 / (2 * log(a$N) * sqrt(a$N))
+```
+
+The estimate reproduces to four decimals, and the last line confirms that the
+variable method's printed SE is exactly $1/(2\ln N\sqrt{N})$. @bailey2016 report
+α in the 0.77–0.92 range for macroeconomic series, which brackets both the
+0.8348 here and the 0.83 on house prices above.
