@@ -31,9 +31,9 @@ placeholders describing what they should cover.
 
 ### Examples: panel and spatial
 
-- [x] [0.1 Panel dimensions and balance](panel-spat.qmd#sec-panel-shape)
-- [x] [0.2 The exponent α](panel-spat.qmd#sec-csd-exponent)
-- [x] [0.3 Strong dependence: CCE](panel-spat.qmd#sec-cce)
+- [x] [Panel dimensions and balance](panel-spat.qmd#sec-panel-shape)
+- [x] [The exponent α](panel-spat.qmd#sec-csd-exponent)
+- [x] [Strong dependence: CCE](panel-spat.qmd#sec-cce)
 - [ ] Stage 1 — panel unit roots
 - [ ] Stage 2 — cointegration
 - [ ] Stage 3 — error structure
