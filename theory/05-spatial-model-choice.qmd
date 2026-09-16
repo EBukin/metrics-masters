@@ -1,0 +1,27 @@
+---
+title: "Spatial model choice: what each specification claims about spillovers"
+subtitle: "Theory note 05 — SAR, SEM, SDM and SARAR"
+---
+
+> **Code:** Stages 5.2 and 5.5 of the plan, `.docs/panel-spat-PLAN.md`.
+> Related notes: [02 — spatial weights](02-spatial-weights.qmd) and
+> [06 — direct and indirect effects](06-direct-indirect-effects.qmd).
+
+::: {.callout-note}
+**Placeholder.** This note is planned, not written. Tracked in the node
+checklist in [the preface](../index.qmd).
+:::
+
+## What this note should cover
+
+- **The substantive difference**: a spatial lag says your neighbour's *outcome*
+  moves yours; a spatial error says only the *shocks* are correlated. These are
+  different claims about the world, not two ways to fit the same curve.
+- **What is at stake**: under spatial errors, FE and RE stay consistent and
+  merely lose efficiency; under a spatial lag they are inconsistent.
+- **SARAR and the Durbin specification**, and when the encompassing model is
+  the honest answer to two tests that both reject.
+- **The testing battery** — joint, marginal and conditional LM tests — and why
+  a joint test that rejects gives no direction.
+- That SMA and SEC error specifications are **not implemented** in `splm`,
+  which removes the sharpest distinction in the theory.

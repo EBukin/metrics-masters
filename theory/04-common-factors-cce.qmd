@@ -1,0 +1,27 @@
+---
+title: "Common factors and CCE: what cross-section averages are doing"
+subtitle: "Theory note 04 — heterogeneous loadings, CCEMG and CCEP"
+---
+
+> **Code:** [0.3 Strong dependence: CCE](../panel-spat.qmd#sec-cce),
+> Stage 0.3 of the plan. Related note:
+> [01 — cross-sectional dependence](01-cross-sectional-dependence.qmd).
+
+::: {.callout-note}
+**Placeholder.** This note is planned, not written. Tracked in the node
+checklist in [the preface](../index.qmd).
+:::
+
+## What this note should cover
+
+- **Why cross-section averages work as factor proxies**: averaging the
+  observed variables recovers the space spanned by the unobserved factors, so
+  the factors need never be estimated.
+- **Heterogeneous loadings** as the case two-way fixed effects cannot absorb —
+  the identity carried over from [note 01](01-cross-sectional-dependence.qmd).
+- **CCEMG vs CCEP**: averaging unit-by-unit slopes against pooling them, and
+  what each assumes about slope homogeneity.
+- How to read the two together: close estimates support the pooling
+  restriction, as the MG-to-CCEMG jump from 0.30 to 1.14 in the example shows.
+- What CCE does **not** fix, and when interactive fixed effects are the better
+  answer.

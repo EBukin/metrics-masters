@@ -1,0 +1,26 @@
+---
+title: "Direct and indirect effects: why a SAR coefficient is not a marginal effect"
+subtitle: "Theory note 06 — impacts and feedback loops"
+---
+
+> **Code:** Stage 5.8 of the plan, `.docs/panel-spat-PLAN.md`. Related note:
+> [05 — spatial model choice](05-spatial-model-choice.qmd).
+
+::: {.callout-note}
+**Placeholder.** This note is planned, not written. Tracked in the node
+checklist in [the preface](../index.qmd).
+:::
+
+## What this note should cover
+
+- **The mechanism**: with Wy on the right-hand side, a change in one unit's x
+  propagates through (I − ρW)⁻¹ and returns to that unit, so β alone is not the
+  effect of x on y.
+- **Direct, indirect and total impacts**, and why the direct effect already
+  contains the feedback loop.
+- **Reporting**: impacts, not coefficients, are the quantity a reader of an
+  impact evaluation wants.
+- **Computation**: `impacts()` for `splm` fits, and why `type = "mult"`
+  densifies the matrix at moderate N — use `"MC"` or `"moments"` instead.
+- That this is **not covered in Croissant & Millo (2019)**, which predates the
+  methods, so the package documentation is the reference.

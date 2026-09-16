@@ -1,0 +1,243 @@
+---
+title: "Cross-sectional dependence: how much, and of what kind"
+subtitle: "Theory note 01 — the exponent α and the unordered tests"
+---
+
+> **Code:** `examples/panel-spat/0-2-csd-exponent.qmd` (α, routing) and the
+> `pcdtest` family in Stage 4a. Spatial-structure tests are
+> [theory note 03](03-spatial-dependence-tests.qmd).
+
+## The two questions people confuse
+
+Units move together. Almost always, in almost every panel. So "is there
+cross-sectional dependence?" is nearly never the useful question — with a large
+*N*, even an average pairwise correlation of 0.02 will reject.
+
+The two questions that actually matter are different:
+
+1. **Is the co-movement pervasive?** — does it involve a growing *share* of units,
+   or a sparse, local handful? → this is **α**.
+2. **Does it have geographic structure?** — is unit *i* correlated with its
+   *neighbours* specifically? → this is the *ordered* family,
+   [theory note 03](03-spatial-dependence-tests.qmd).
+
+α answers the first. Everything in this note either measures it or is a coarse
+test whose validity is *defined in terms of it*.
+
+## 1. What α counts
+
+Take a factor model where only *some* units load on the common shock:
+
+$$z_{it} = a_i + \gamma_i f_t + \varepsilon_{it}, \qquad
+  \#\{i : \gamma_i \neq 0\} = O(N^{\alpha}).$$
+
+α is the growth rate of the **number of connected units**. That is the whole idea;
+everything else is consequence.
+
+| α | Units sharing the shock | Picture |
+|---|---|---|
+| 1 | a fixed *fraction* of *N* | an oil price shock — everyone feels it |
+| 3/4 | grows, but the *share* vanishes | a regional bloc that widens slower than the panel |
+| 1/2 | about $\sqrt{N}$ | sparse, local — a spatial weight matrix with bounded row sums |
+
+Averaging is how you see it. For the cross-section average $\bar z_t$
+[@bailey2016; @pesaran2015, eq. 29.6, p. 754]:
+
+$$\operatorname{Var}(\bar z_t) = \underbrace{\kappa_0 N^{2(\alpha-1)}}_{\text{co-movement}}
+  + \underbrace{\kappa_1 N^{-1}}_{\text{what independence gives}}
+  + O(N^{\alpha-2}), \qquad \tfrac12 < \alpha \le 1.$$
+
+The second term is the textbook $\sigma^2/N$. The first is the *excess* over it.
+Two readings fall straight out:
+
+- **α = 1** → $N^{0}$ → the excess never shrinks. Pooling more units never removes
+  the common movement. This is **strong dependence**: common factors
+  [@pesaran2015, p. 754].
+- **α < 1** → the excess vanishes as $N \to \infty$. Formally **weak dependence**,
+  which is where essentially all spatial models live
+  [@pesaran2015, pp. 756, 802].
+
+::: {.callout-note}
+**Why the range is 1/2 < α ≤ 1.** Below 1/2 the $\kappa_1 N^{-1}$ term dominates
+the $\kappa_0 N^{2(\alpha-1)}$ term, and α is no longer identified from the
+variance of the average — sparse dependence is simply indistinguishable from
+independence at the aggregate level. The restriction is not a technicality; it
+says *there is nothing left to measure* down there.
+:::
+
+## 2. Reading α: the effective sample size
+
+The label "weak" is asymptotic and can badly mislead in a finite panel. Set
+$\kappa_0 N^{2(\alpha-1)} = \sigma^2/N_{\text{eff}}$ and you get the number that
+actually matters — how many *independent* observations your *N* units are worth:
+
+$$N_{\text{eff}} \;\propto\; N^{2(1-\alpha)}$$
+
+| α | N = 100 | N = 1 000 | N = 9 000 |
+|---|---|---|---|
+| 1.00 | 1 | 1 | 1 |
+| 0.90 | 2.5 | 4.0 | 6.2 |
+| 0.75 | 10 | 32 | 95 |
+| 0.50 | 100 | 1 000 | 9 000 |
+
+Read the α = 0.90 row slowly. Nine thousand individuals carry about as much
+cross-sectional information as **six** independent ones, and going from 1 000 to
+9 000 units bought you two. Yet α = 0.90 is formally "weak dependence", and a
+great many published panels sit near it — @bailey2016 find most macroeconomic
+series in roughly the 0.77–0.92 range, with equity returns essentially at 1.
+
+**So: the weak/strong dichotomy is a limit theorem. α is the finite-sample truth.**
+That gap is the entire reason to estimate it.
+
+## 3. What α does *not* tell you
+
+This is the easiest thing to get backwards, so state it plainly.
+
+α says **nothing** about whether you need fixed effects. FE absorbs the
+*time-invariant* unobserved heterogeneity $a_i$, and you need it for exactly the
+reasons you always did. What α governs is a **different omitted variable**: the
+*time-varying* common factor $f_t$ with *heterogeneous* loadings $\gamma_i$.
+
+The identity that makes this click:
+
+> **Two-way fixed effects is already a factor model — with $\gamma_i = 1$ for
+> everyone.** A common time effect $\delta_t$ absorbs a common shock only if every
+> unit responds by the same amount.
+
+So heterogeneous loadings are precisely the case two-way FE cannot remove, and
+α ≈ 1 is precisely where they bite. The correct summary:
+
+::: {.callout-important}
+**α does not tell you whether you need FE. It tells you whether FE is *enough*.**
+
+- **Low α** → FE is *sufficient*. The omitted common shock, such as it is, washes
+  out. Fix the standard errors and move on.
+- **High α** → FE is *insufficient*. $f_t$ survives the within transformation, and
+  if it correlates with your regressors the estimator is **biased, not merely
+  inefficient**. No standard-error correction rescues a biased point estimate —
+  not Driscoll–Kraay, not clustering, not spatial HAC. You need CCE
+  [@pesaran2006], explained in [theory note 04](04-common-factors-cce.qmd), or
+  interactive fixed effects.
+:::
+
+## 4. The CD test
+
+Pesaran's CD [@pesaran2004; @pesaran2015, eq. 29.76, p. 786] is the average
+pairwise residual correlation, scaled:
+
+$$CD = \sqrt{\frac{2T}{N(N-1)}} \sum_{i<j} \hat\rho_{ij}
+  \;\xrightarrow{d}\; N(0,1).$$
+
+Two design choices explain everything about its behaviour.
+
+**It sums raw $\hat\rho$, not $\hat\rho^{\,2}$.** The Breusch–Pagan LM statistic
+[@breusch1980; @baltagi2021, p. 412] sums $T\hat\rho_{ij}^{\,2}$ into a $\chi^2$,
+which needs $T \gg N$ — with large *N* you are accumulating $N(N-1)/2$ strictly
+positive terms and it diverges. CD is *exactly* centred at zero under the null for
+**any** *T*, because $E(\hat\rho_{ij}) = 0$ in finite samples and not merely
+asymptotically. **That is its virtue: small T, enormous N, still valid.**
+
+**Signed summation is also its fatal flaw**, in two specific ways:
+
+- **Sign cancellation.** Dependence whose pairwise correlations average to zero is
+  invisible, however strong each individual pair. Positive and negative spatial
+  weights are the obvious case.
+- **Demeaned residuals are dead on arrival.** Two-way FE forces
+  $\sum_i \hat e_{it} = 0$, which drives $\bar\rho$ to roughly $-1/(N-1) \approx 0$
+  **mechanically**. Running global CD on two-way FE residuals and reading
+  non-rejection as "no dependence" is an artefact of the transformation, not
+  evidence [@croissant2019, §10.1.2.2].
+
+**And its null is not independence.** The implicit null of CD is *weak*
+dependence — α < 1/4 when *N* and *T* grow at the same rate
+[@pesaran2015weak; @pesaran2015, p. 786]. Confirmed from the other direction at
+[@pesaran2015, p. 839], where CD is found to be the statistic *most robust to*
+spatial alternatives — which is to say, **it does not fire on them.**
+
+::: {.callout-warning}
+**CD is a one-bit read on α, and a coarse one.** Its size is only assured below
+α ≈ 1/4; the statistic starts diverging somewhere above α ≈ 1/2. In between there
+is a band where it is neither reliably valid nor reliably powerful. Do not read a
+CD rejection as "there is dependence"; read it as "there is *pervasive*
+dependence".
+:::
+
+## 5. The LM family: which one, and when
+
+All available through `plm::pcdtest(test = ...)`.
+
+| `test =` | Statistic | Use it when | Watch out |
+|---|---|---|---|
+| `"cd"` | Pesaran CD, eq. 29.76 | Large *N*, small *T*; the default first look | Dies on demeaned residuals; blind to sign cancellation |
+| `"lm"` | Breusch–Pagan LM, eq. 13.32 [@baltagi2021, p. 412] | $T \gg N$ only | Diverges with large *N*; poorly centred at finite *T* |
+| `"sclm"` | Scaled LM | Slightly larger *N* than `"lm"` tolerates | Still badly centred at finite *T*: **14.25% rejection at N=200, T=20 against a nominal 5%** [@pesaran2015, p. 789] |
+| `"bcsclm"` | Bias-corrected scaled LM, eq. 13.36 [@baltagi2012; @baltagi2021, p. 414] | **The FE-appropriate one** | Requires a `within` model with individual or two-way effects |
+| `"rho"`, `"absrho"` | $\bar\rho$ and $\overline{\lvert\rho\rvert}$ | Always — see §6 | Not tests; no null, no p-value |
+
+If you are testing residuals from a fixed-effects model, `"bcsclm"` is the answer
+and the others are history. It exists precisely because the scaled LM's finite-*T*
+bias, quantified above, makes it unusable at the *N* and *T* that panels
+actually have.
+
+## 6. ρ̄ versus |ρ̄|: the poor man's α
+
+The last row of that table is the most useful and the most ignored. `"rho"` gives
+you $\bar\rho$; `"absrho"` gives you $\overline{\lvert\rho\rvert}$. Two numbers,
+no null hypothesis, and together they diagnose the exact failure mode of the test
+sitting next to them:
+
+| Pattern | What it means | What to do |
+|---|---|---|
+| $\bar\rho \approx \overline{\lvert\rho\rvert}$, both large | Pervasive, same-signed co-movement | You are near α = 1. Factor structure. Go to CCE. |
+| $\bar\rho \approx 0$, $\overline{\lvert\rho\rvert}$ large | Real dependence that **cancels in sign** | CD is blind here by construction. Go to the [ordered tests](03-spatial-dependence-tests.qmd). |
+| both small | Little dependence of any kind | Low α. FE plus an honest vcov. |
+
+The middle row is the case where CD reports nothing and something is nonetheless
+badly wrong. Compute both; they cost nothing.
+
+## 7. If / then
+
+| If | Then |
+|---|---|
+| α ≈ 1, or $\bar\rho \approx \overline{\lvert\rho\rvert}$ and large | Strong dependence. **CCE** [@pesaran2006]. FE is biased, not just inefficient. |
+| α clearly below 1 and CD does not fire | Weak dependence. FE is consistent — now ask whether it is *spatial* ([note 03](03-spatial-dependence-tests.qmd)). |
+| α in the 0.8–0.95 middle | **The modal case.** Defactor first, then re-diagnose. See §8. |
+| $\bar\rho \approx 0$ but $\overline{\lvert\rho\rvert}$ large | Sign cancellation. Ignore CD entirely; use the ordered tests. |
+| You only have two-way FE residuals | Global CD is uninformative by construction. Use `"bcsclm"`, or the randomised-W test [@millo2017]. |
+| Dependence confirmed, structure unknown | Do **not** route on α alone. Corroborate with the `rwtest` vs `pcdtest` contrast (plan §5.7). |
+
+## 8. The middle is the normal case
+
+Given that most real panels sit around α ≈ 0.8–0.95, the weak/strong fork is not
+usually a fork at all. It is a **sequence**, and @bailey2016 apply it that way —
+estimating α on the raw series *and* on residuals after removing factors:
+
+1. Estimate α (or read $\bar\rho$ vs $\overline{\lvert\rho\rvert}$) on the raw
+   series.
+2. If it points strong → **defactor** (CCE, or principal components).
+3. Re-diagnose the residuals. If α has dropped toward 1/2, the remaining
+   dependence is local, and *now* modelling it spatially is legitimate.
+
+Fitting a spatial model to data with an unremoved common factor gets you a
+significant $\hat\rho$ that is picking up the factor, not the geography. That is
+the single most common way this goes wrong.
+
+## 9. Open
+
+- **No R implementation of the @bailey2016 estimator exists**, and no published α
+  is available for any dataset shipping with R. The estimator inverts the variance
+  formula — $\hat\alpha = 1 + \ln(\hat\sigma^2_{\bar z}) / (2\ln N)$, plus bias
+  corrections for $\kappa_0 \neq 1$ and for the $\kappa_1 N^{-1}$ term — so it is
+  implementable, but it would be **unverified** against any published number.
+  Until then α is a way of *thinking*, and the routing decision must rest on the
+  verifiable `rwtest` vs `pcdtest` contrast.
+- **The 1/4-to-1/2 band.** The size condition α < 1/4 [@pesaran2015, p. 786] and
+  the point at which CD starts diverging are different quantities, and the gap
+  between them is not well characterised here. Check against @pesaran2015weak
+  before relying on it.
+
+## Next
+
+[Theory note 03](03-spatial-dependence-tests.qmd) takes the other branch: given
+that dependence exists, does it have *spatial* structure? That needs W on the
+table first — [theory note 02](02-spatial-weights.qmd).

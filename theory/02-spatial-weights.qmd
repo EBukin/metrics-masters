@@ -1,0 +1,27 @@
+---
+title: "Spatial weights: what W assumes before it estimates anything"
+subtitle: "Theory note 02 — choosing W, standardisation, sparsity"
+---
+
+> **Code:** Stage 5.1 of the plan, `.docs/panel-spat-PLAN.md`. Related notes:
+> [03 — testing for spatial dependence](03-spatial-dependence-tests.qmd) and
+> [05 — spatial model choice](05-spatial-model-choice.qmd).
+
+::: {.callout-note}
+**Placeholder.** This note is planned, not written. Tracked in the node
+checklist in [the preface](../index.qmd).
+:::
+
+## What this note should cover
+
+- **W is an assumption, not data.** Contiguity, k-nearest-neighbours and
+  inverse distance encode different beliefs about who influences whom, and the
+  estimates inherit that choice.
+- **Row standardisation** and what it does to the interpretation of ρ, plus why
+  the parameter space is |ρ| < 1/τ\* with τ\* = min(‖W‖₁, ‖W‖∞) rather than
+  |ρ| < 1 unless W is row *and* column standardised.
+- **Granularity**: why SAR endogeneity needs non-granular weights.
+- **Sparsity**: W is sparse, but (I − ρW)⁻¹ is not, so a SAR model links every
+  unit to every other one.
+- The four cheap pre-checks that should be computed and reported for the
+  project's own W, rather than asserted from citation.
