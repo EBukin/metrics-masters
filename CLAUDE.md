@@ -45,12 +45,42 @@ A panel is *unbalanced* when units are observed over different periods.
 - Cite every source from `references.bib` as `[@key, p. X]`. Add the entry
   before citing it.
 
+## Nodes and links
+
+- Every document in this system is a **node**: a chapter, a theory note in
+  `theory/`, an example section in `examples/`, or the spec in `.docs/`.
+- Any mention of another node is a **proper link**, never a bare name or a
+  loose section number. Link an example section by its anchor, e.g.
+  `[0.3 CCE](panel-spat.qmd#sec-cce)`, because include files are not pages and
+  a link to their `.qmd` path renders dead. Give each example section an
+  explicit `{#sec-...}` id so it can be linked.
+- If the node being referred to does not exist yet, **create it as a
+  placeholder in the same change**: YAML title, a `Placeholder` callout, and a
+  short "What this note should cover" list. Then link to it. Never leave a
+  dangling mention.
+- The spec in `.docs/` is not rendered into the book, so refer to it by path in
+  code style (`.docs/panel-spat-PLAN.md`) rather than as a link, which would be
+  dead in the built site.
+- Track nodes in the checklist in `index.qmd`. That is the single source of
+  truth for what is written and what is still to do; no status tables
+  elsewhere. Tick a box when the node is written, not when its placeholder is
+  created, and add a line there whenever a node is created.
+
 ## Book structure
 
 - `_quarto.yml` defines the book: chapters are `index.qmd` (preface), the topic
   chapters, and `references.qmd` (the bibliography). Add new chapters to both
   `project: render:` and `book: chapters:`.
 - Files under `examples/` are includes, not chapters, so they are not listed.
+
+## Git
+
+- Commit as the edits are made, not in one batch at the end.
+- Keep each commit a single clear unit: settings and tooling, materials
+  (spec, bibliography, theory notes), examples, tracker.
+- **Never put a `Co-Authored-By: Claude ...` trailer, or any other attribution
+  to Claude Code, in a commit message.** This is not permitted in this repo.
+  Check the message before every commit.
 
 ## R environment
 

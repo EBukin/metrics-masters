@@ -4,6 +4,12 @@ project:
     - index.qmd
     - panel-spat.qmd
     - references.qmd
+    - theory/01-cross-sectional-dependence.qmd
+    - theory/02-spatial-weights.qmd
+    - theory/03-spatial-dependence-tests.qmd
+    - theory/04-common-factors-cce.qmd
+    - theory/05-spatial-model-choice.qmd
+    - theory/06-direct-indirect-effects.qmd
 
 book:
   title: "Metrics Masters"
@@ -15,6 +21,13 @@ book:
     - index.qmd
     - panel-spat.qmd
     - references.qmd
+  appendices:
+    - theory/01-cross-sectional-dependence.qmd
+    - theory/02-spatial-weights.qmd
+    - theory/03-spatial-dependence-tests.qmd
+    - theory/04-common-factors-cce.qmd
+    - theory/05-spatial-model-choice.qmd
+    - theory/06-direct-indirect-effects.qmd
 
 bibliography: references.bib
 
