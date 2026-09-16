@@ -34,6 +34,7 @@ placeholders describing what they should cover.
 - [x] [Panel dimensions and balance](panel-spat.qmd#sec-panel-shape)
 - [x] [The exponent α](panel-spat.qmd#sec-csd-exponent)
 - [x] [Strong dependence: CCE](panel-spat.qmd#sec-cce)
+- [x] [Testing for cross-sectional dependence](panel-spat.qmd#sec-csd-tests)
 - [ ] Stage 1 — panel unit roots
 - [ ] Stage 2 — cointegration
 - [ ] Stage 3 — error structure
