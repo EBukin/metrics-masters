@@ -1,4 +1,4 @@
-### 0.3 Strong-dependence branch: CCE {#sec-cce}
+### Strong-dependence branch: CCE {#sec-cce}
 
 ::: {.callout-tip appearance="simple"}
 Why cross-section averages stand in for the unobserved factors:
@@ -20,10 +20,12 @@ and `log(income).bar`, and the income elasticity jumps from 0.30 to 1.14:
 
 ```{r}
 #| label: s0-3-pmg
+# pmg() and pcce() build a call to plm(), so plm must be attached, not just
+# namespaced.
 library(plm)
 data("HousePricesUS", package = "pder")
-mg <- pmg(log(price) ~ log(income), data = HousePricesUS, model = "mg")
-cmg <- pmg(log(price) ~ log(income), data = HousePricesUS, model = "cmg")
+mg <- plm::pmg(log(price) ~ log(income), data = HousePricesUS, model = "mg")
+cmg <- plm::pmg(log(price) ~ log(income), data = HousePricesUS, model = "cmg")
 coef(mg)
 coef(cmg)
 ```
@@ -33,8 +35,8 @@ coef(cmg)
 
 ```{r}
 #| label: s0-3-pcce
-ccemg <- pcce(log(price) ~ log(income), data = HousePricesUS, model = "mg")
-ccep <- pcce(log(price) ~ log(income), data = HousePricesUS, model = "p")
+ccemg <- plm::pcce(log(price) ~ log(income), data = HousePricesUS, model = "mg")
+ccep <- plm::pcce(log(price) ~ log(income), data = HousePricesUS, model = "p")
 summary(ccemg)
 summary(ccep)
 ```

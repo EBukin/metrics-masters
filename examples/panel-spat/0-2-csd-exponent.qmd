@@ -1,4 +1,4 @@
-### 0.2 Exponent of cross-sectional dependence α: the routing decision {#sec-csd-exponent}
+### Exponent of cross-sectional dependence α {#sec-csd-exponent}
 
 **Intuition.** α counts how many units share the same shock: at α = 1 a fixed
 share of the panel moves together, at α = ½ only a sparse local handful does.
@@ -25,7 +25,8 @@ $$
 - **α = 1: strong dependence.** Averaging never removes it. This is the case
   of common factor models [@pesaran2015, p. 754].
 
-**Routing.** α = 1 → CCE (§0.3). α < 1 → spatial models (Stage 5).
+**Routing.** α = 1 → [CCE](panel-spat.qmd#sec-cce). α < 1 → spatial models
+(Stage 5).
 
 ::: {.callout-warning}
 **No code, no book check.** No R implementation of the @bailey2016 estimator
