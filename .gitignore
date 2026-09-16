@@ -2,3 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# Quarto
+/.quarto/
+/_book/
+/_freeze/
+*_files/
+panel-spat.html
+
+**/*.quarto_ipynb

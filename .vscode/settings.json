@@ -1,0 +1,29 @@
+{
+  // Quarto documents: 80-column guide, and reflow/wrap at 80.
+  // No installed extension formats a whole .qmd, so prose wrapping follows
+  // CLAUDE.md. Use "Quarto: Format Cell" to format the R code in a chunk.
+  "[quarto]": {
+    "editor.rulers": [80],
+    "editor.wordWrapColumn": 80,
+    "editor.formatOnSave": true
+  },
+  "quarto.cells.reflowColumn": 80,
+
+  // R files and R chunks: Air, configured by air.toml (line-width = 80).
+  "[r]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "posit.air-vscode",
+    "editor.rulers": [80]
+  },
+
+  // Plain Markdown (CLAUDE.md, README.md): Prettier, configured by .prettierrc.
+  "[markdown]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.rulers": [80],
+    "editor.wordWrapColumn": 80
+  },
+
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true
+}

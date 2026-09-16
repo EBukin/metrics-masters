@@ -1,0 +1,33 @@
+project:
+  type: book
+  render:
+    - index.qmd
+    - panel-spat.qmd
+    - references.qmd
+
+book:
+  title: "Metrics Masters"
+  subtitle: "Reproducing impact-evaluation methods in R"
+  author: "Eduard Bukin"
+  date: today
+  search: true
+  chapters:
+    - index.qmd
+    - panel-spat.qmd
+    - references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+
+execute:
+  warning: false
+
+# All printed output of a chunk appears in one block, after the code.
+knitr:
+  opts_chunk:
+    results: hold
