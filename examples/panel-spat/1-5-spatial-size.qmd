@@ -49,24 +49,49 @@ as_pseries <- function(m) {
 }
 ```
 
+**The five tests, once.** One draw at λ = 0.8, with every test called in the
+open, so the shape of each call is visible before it disappears into 200
+replications:
+
+```{r}
+#| label: s1-5-one-draw
+set.seed(1)
+m <- rw_panel(0.8)
+plm::purtest(m, test = "levinlin", exo = "none", lags = 1)
+plm::purtest(m, test = "levinlin", exo = "intercept", lags = 1)
+plm::purtest(m, test = "ips", exo = "intercept", lags = 1)
+plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
+plm::cipstest(as_pseries(m), type = "drift", lags = 1)
+```
+
+Every series in `m` is a random walk by construction, so the honest answer is
+"do not reject", five times over. Four of the five give it; Maddala–Wu rejects
+at p = 0.011. That is one false positive on one draw, which is exactly why the
+next step is to draw two hundred.
+
 **The size table.** Rejection frequency of a *true* null at nominal 5%, over
 200 panels of T = 30, with one lagged difference in every test. A correctly
 sized test prints 0.05:
 
 ```{r}
 #| label: s1-5-size
-battery <- function(m) {
-  p <- function(...) unname(plm::purtest(m, lags = 1, ...)$statistic$p.value)
-  c(LLC_none = p(test = "levinlin", exo = "none"),
-    LLC_intercept = p(test = "levinlin", exo = "intercept"),
-    IPS = p(test = "ips", exo = "intercept"),
-    MW = p(test = "madwu", exo = "intercept"),
-    CIPS = plm::cipstest(as_pseries(m), type = "drift", lags = 1)$p.value)
+# One replication: the five calls above, run again for their p-values alone.
+p_values <- function(m) {
+  llc_none <- plm::purtest(m, test = "levinlin", exo = "none", lags = 1)
+  llc_int <- plm::purtest(m, test = "levinlin", exo = "intercept", lags = 1)
+  ips <- plm::purtest(m, test = "ips", exo = "intercept", lags = 1)
+  mw <- plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
+  cips <- plm::cipstest(as_pseries(m), type = "drift", lags = 1)
+  c(LLC_none = unname(llc_none$statistic$p.value),
+    LLC_intercept = unname(llc_int$statistic$p.value),
+    IPS = unname(ips$statistic$p.value),
+    MW = unname(mw$statistic$p.value),
+    CIPS = unname(cips$p.value))
 }
 set.seed(1)
 lambdas <- c(0, 0.4, 0.8)
 size <- sapply(lambdas, function(l) {
-  rowMeans(replicate(200, battery(rw_panel(l))) <= 0.05)
+  rowMeans(replicate(200, p_values(rw_panel(l))) <= 0.05)
 })
 colnames(size) <- paste0("lambda_", lambdas)
 size
