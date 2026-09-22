@@ -49,10 +49,6 @@ ccemg <- plm::pcce(log(price) ~ log(income), data = HousePricesUS,
                    model = "mg")
 ccep <- plm::pcce(log(price) ~ log(income), data = HousePricesUS,
                   model = "p")
-cips <- function(x, type) {
-  r <- plm::cipstest(x, type = type)
-  c(statistic = unname(r$statistic), p.value = unname(r$p.value))
-}
 ```
 
 `cipstest` takes a `pseries` and nothing else — no formula interface, no
@@ -67,12 +63,10 @@ series, and rejections for both sets of CCE residuals:
 
 ```{r}
 #| label: s1-3-book-check
-round(rbind(
-  level_drift = cips(log(php$price), "drift"),
-  diff_none = cips(diff(log(php$price)), "none"),
-  ccemg_residuals = cips(residuals(ccemg), "none"),
-  ccep_residuals = cips(residuals(ccep), "none")
-), 4)
+plm::cipstest(log(php$price), type = "drift")
+plm::cipstest(diff(log(php$price)), type = "none")
+plm::cipstest(residuals(ccemg), type = "none")
+plm::cipstest(residuals(ccep), type = "none")
 ```
 
 −2.0342 against a target of about −2, −1.8199 against about −1.8, and both
@@ -80,16 +74,16 @@ residual tests rejecting. Four numbers, four matches.
 
 **Reading the p-value.** `cipstest` has no exact p-values: the CIPS
 distribution is non-standard, so **plm** returns the nearest tabulated level
-and warns. `p.value = 0.10` above means *greater than* 0.10 and
-`p.value = 0.01` means *less than* 0.01 — the warnings that say so are
+and warns. `p-value = 0.1` above means *greater than* 0.10 and
+`p-value = 0.01` means *less than* 0.01 — the warnings that say so are
 suppressed in this book's chunk options, so the qualification has to travel in
 the text. Never quote a CIPS p-value as if it were exact.
 
-What the four rows say: log house prices carry a unit root that survives
+What the four calls say: log house prices carry a unit root that survives
 controlling for a common factor (levels, not rejected); their growth rates do
 not (differences, rejected); and the residuals of both CCE regressions are
 stationary, so the levels regression of log price on log income is a
-cointegrating one. That last row is the pragmatic substitute for a panel
+cointegrating one. That last call is the pragmatic substitute for a panel
 cointegration test that Stage 2 of `.docs/panel-spat-PLAN.md` falls back on,
 and it is verifiable, which nothing in Stage 2 is.
 
