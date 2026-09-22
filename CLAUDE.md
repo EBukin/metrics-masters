@@ -43,6 +43,33 @@ A panel is *unbalanced* when units are observed over different periods.
   ran. Keep the `pkg::` prefix anyway, attach the package, and say in a comment
   why it is attached.
 
+### One test, one call
+
+- **Write every test out, one call per test, in the open.** When a section
+  applies several tests, the calls go one after another so the reader sees each
+  function, its arguments, and its own output. Never hide them in a wrapper
+  that takes the test name as an argument and returns one combined table: those
+  calls are the whole reason the reader is here.
+
+```r
+# No — the reader never sees purtest called, and the arguments are gone.
+battery <- function(test) plm::purtest(m, test = test, exo = "intercept")
+sapply(c("levinlin", "ips", "madwu"), battery)
+
+# Yes — three calls, three outputs, in the order the text discusses them.
+plm::purtest(m, test = "levinlin", exo = "intercept", lags = 1)
+plm::purtest(m, test = "ips", exo = "intercept", lags = 1)
+plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
+```
+
+- Give each of those calls its own chunk when the text says something about
+  each result in turn, and keep them in one chunk only when the point is the
+  comparison itself.
+- A helper is for plumbing that is *not* the point of the section: reshaping a
+  panel, generating a DGP, one Monte Carlo replication. Even inside a
+  replication function, spell every test out on its own line; never loop over a
+  vector of test names.
+
 ## Writing the primer
 
 - Each section of `.docs/panel-spat-PLAN.md` gets its own self-contained file
