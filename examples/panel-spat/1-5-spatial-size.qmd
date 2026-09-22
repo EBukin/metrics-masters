@@ -74,8 +74,8 @@ size
 
 Read the λ = 0 column before anything else. These series are independent —
 there is no spatial dependence to distort anything — and four of the five tests
-already reject a true null between three and twelve times too often. Only CIPS
-is where it should be, at 0.04.
+already reject a true null between two and a half and twelve times too often.
+Only CIPS is where it should be, at 0.04.
 
 Then read across. The spatial effect is real and it is the smaller of the two:
 LLC without an intercept goes 0.13 → 0.31, IPS 0.18 → 0.28, CIPS 0.04 → 0.07.
