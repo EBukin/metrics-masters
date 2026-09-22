@@ -15,3 +15,7 @@ texts: @baltagi2021, @pesaran2015 and @croissant2019.
 {{< include examples/panel-spat/0-3-cce.qmd >}}
 
 {{< include examples/panel-spat/0-4-csd-tests.qmd >}}
+
+## Stage 1 — Panel unit roots
+
+{{< include examples/panel-spat/1-1-unit-root-alternative.qmd >}}

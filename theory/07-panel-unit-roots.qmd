@@ -8,7 +8,8 @@ subtitle: "Theory note 07 — the three alternatives, and size before power"
 > [second-generation tests](../panel-spat.qmd#sec-ur-second-gen),
 > [the fraction of stationary series](../panel-spat.qmd#sec-ur-fraction) and
 > [size under spatial dependence](../panel-spat.qmd#sec-ur-spatial-size).
-> Related note: [01 — cross-sectional dependence](01-cross-sectional-dependence.qmd).
+> Related note:
+> [01 — cross-sectional dependence](01-cross-sectional-dependence.qmd).
 
 ::: {.callout-note}
 **Placeholder.** This note is planned, not written. Tracked in the node
