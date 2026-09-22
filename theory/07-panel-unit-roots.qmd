@@ -1,0 +1,36 @@
+---
+title: "Panel unit roots: what a rejection is worth"
+subtitle: "Theory note 07 — the three alternatives, and size before power"
+---
+
+> **Code:** [state the alternative first](../panel-spat.qmd#sec-ur-alternative),
+> [first-generation tests](../panel-spat.qmd#sec-ur-first-gen),
+> [second-generation tests](../panel-spat.qmd#sec-ur-second-gen),
+> [the fraction of stationary series](../panel-spat.qmd#sec-ur-fraction) and
+> [size under spatial dependence](../panel-spat.qmd#sec-ur-spatial-size).
+> Related note: [01 — cross-sectional dependence](01-cross-sectional-dependence.qmd).
+
+::: {.callout-note}
+**Placeholder.** This note is planned, not written. Tracked in the node
+checklist in [the preface](../index.qmd).
+:::
+
+## What this note should cover
+
+- **One null, three alternatives.** Every panel unit-root test shares the null
+  "a unit root in every series". They differ in what they claim when they
+  reject: a common stationary root, a fixed *share* of stationary series, or a
+  fixed *count* of them. Only the first two are testable at large *N*.
+- **Why the printed p-value does not carry that difference**, and what has to
+  be written down beside it for the number to mean anything.
+- **First vs second generation** as one distinction only: what the test assumes
+  about cross-sectional dependence. Cross-section demeaning handles a single
+  common factor; CADF augmentation handles one factor with heterogeneous
+  loadings; nothing in **plm** handles several.
+- **Size before power.** Every comparative ranking in the textbooks is a power
+  ranking conditional on correct size, and the conditions for correct size —
+  *T* large relative to *N*, weak or absent cross-sectional dependence — are
+  exactly what a large-*N*, short-*T* spatial panel violates.
+- **What a rejection licenses**: stationarity for *some* units, which is not a
+  licence to pool, and the multiple-testing route that turns it into a list of
+  named units.

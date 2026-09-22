@@ -10,6 +10,7 @@ project:
     - theory/04-common-factors-cce.qmd
     - theory/05-spatial-model-choice.qmd
     - theory/06-direct-indirect-effects.qmd
+    - theory/07-panel-unit-roots.qmd
 
 book:
   title: "Metrics Masters"
@@ -28,6 +29,7 @@ book:
     - theory/04-common-factors-cce.qmd
     - theory/05-spatial-model-choice.qmd
     - theory/06-direct-indirect-effects.qmd
+    - theory/07-panel-unit-roots.qmd
 
 bibliography: references.bib
 

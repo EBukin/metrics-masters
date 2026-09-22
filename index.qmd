@@ -50,3 +50,4 @@ placeholders describing what they should cover.
 - [ ] [04 Common factors and CCE](theory/04-common-factors-cce.qmd)
 - [ ] [05 Spatial model choice](theory/05-spatial-model-choice.qmd)
 - [ ] [06 Direct and indirect effects](theory/06-direct-indirect-effects.qmd)
+- [ ] [07 Panel unit roots](theory/07-panel-unit-roots.qmd)
