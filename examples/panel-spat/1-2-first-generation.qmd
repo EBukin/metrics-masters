@@ -44,12 +44,11 @@ that all three give the same number:
 data("Grunfeld", package = "plm")
 wide <- data.frame(split(Grunfeld$inv, Grunfeld$firm))
 pG <- plm::pdata.frame(Grunfeld, index = c("firm", "year"))
-mw <- function(x, ...) {
-  unname(plm::purtest(x, test = "madwu", pmax = 4, ...)$statistic$statistic)
-}
-c(matrix = mw(wide, exo = "intercept"),
-  formula = mw(inv ~ 1, data = Grunfeld, index = "firm"),
-  pseries = mw(pG$inv, exo = "intercept"))
+# The same test three times, once per interface, nothing shared but the data.
+plm::purtest(wide, test = "madwu", pmax = 4, exo = "intercept")
+plm::purtest(inv ~ 1, data = Grunfeld, index = "firm", test = "madwu",
+             pmax = 4)
+plm::purtest(pG$inv, test = "madwu", pmax = 4, exo = "intercept")
 ```
 
 **The interface trap.** The three are not interchangeable in how they take the
@@ -59,31 +58,39 @@ only thing that sets them:
 
 ```{r}
 #| label: s1-2-exo-trap
-c(formula_1_exo_trend = mw(inv ~ 1, data = Grunfeld, index = "firm",
-                           exo = "trend"),
-  formula_trend = mw(inv ~ trend, data = Grunfeld, index = "firm"),
-  pseries_exo_trend = mw(pG$inv, exo = "trend"))
+plm::purtest(inv ~ 1, data = Grunfeld, index = "firm", test = "madwu",
+             pmax = 4, exo = "trend")
+plm::purtest(inv ~ trend, data = Grunfeld, index = "firm", test = "madwu",
+             pmax = 4)
+plm::purtest(pG$inv, test = "madwu", pmax = 4, exo = "trend")
 ```
 
-The first call asks for a trend and gets individual intercepts. Nothing warns;
-the statistic just changes by a factor of five. Pick one interface per project
-and keep to it.
+The first call asks for a trend and gets individual intercepts — the printed
+header says "Individual Intercepts" and nothing else warns. The statistic
+changes by a factor of five, 14.719 against 78.977, between two spellings of
+the same intention. Pick one interface per project and keep to it.
 
 **What refuses to run.** LLC and Hadri need a balanced panel; the Fisher and
 IPS statistics do not, and run on the unbalanced `EmplUK` [@arellano1991]:
 
 ```{r}
 #| label: s1-2-unbalanced
+#| error: true
+#| results: markup
 data("EmplUK", package = "plm")
 pE <- plm::pdata.frame(EmplUK, index = c("firm", "year"))
-unbalanced <- function(test) {
-  tryCatch({
-    plm::purtest(log(pE$emp), test = test, exo = "intercept", lags = 0)
-    "runs"
-  }, error = conditionMessage)
-}
-sapply(c("levinlin", "ips", "madwu", "hadri"), unbalanced)
+# Two of the four refuse. `error: true` prints the refusal and carries on;
+# `results: markup` overrides the book's `hold` so each answer stays under
+# the call that produced it.
+plm::purtest(log(pE$emp), test = "levinlin", exo = "intercept", lags = 0)
+plm::purtest(log(pE$emp), test = "ips", exo = "intercept", lags = 0)
+plm::purtest(log(pE$emp), test = "madwu", exo = "intercept", lags = 0)
+plm::purtest(log(pE$emp), test = "hadri", exo = "intercept", lags = 0)
 ```
+
+The refusals are **plm**'s own words, and they are the reason to run the four
+calls separately rather than to collect them: a wrapper would have turned
+"not applicable to unbalanced panels" into a row in a table.
 
 IPS has a second statistic, `tbar`, which is exact for fixed *T* — and which is
 unavailable with `lags > 0` and returns tabulated critical values instead of a
@@ -118,17 +125,16 @@ Those same per-series p-values are the input
 
 Without **urca** installed, `padf` falls back to the MacKinnon (1994)
 approximation instead. That is why **urca** is in the project renv, though on
-this series the choice moves the fourth digit and nothing else:
+this series it moves the statistic from 99.843 to 99.768 and the p-value from
+0.4292 to 0.4313 — visible, and not enough to change a reading:
 
 ```{r}
 #| label: s1-2-padf
 data("HousePricesUS", package = "pder")
 php <- plm::pdata.frame(HousePricesUS)
-mw_hp <- function(...) {
-  unname(plm::purtest(log(php$price), test = "madwu", lags = 2,
-                      exo = "trend", ...)$statistic$statistic)
-}
-c(MacKinnon1996 = mw_hp(), MacKinnon1994 = mw_hp(p.approx = "MacKinnon1994"))
+plm::purtest(log(php$price), test = "madwu", lags = 2, exo = "trend")
+plm::purtest(log(php$price), test = "madwu", lags = 2, exo = "trend",
+             p.approx = "MacKinnon1994")
 ```
 
 **Book check.** @croissant2019 [§8.4.2] runs LLC, Maddala–Wu and IPS on
@@ -138,13 +144,10 @@ added here because its reversed null is the cheapest corroboration available:
 
 ```{r}
 #| label: s1-2-book-check
-first_gen <- function(test) {
-  r <- plm::purtest(log(php$price), test = test, lags = 2, exo = "trend")
-  c(statistic = unname(r$statistic$statistic),
-    p.value = unname(r$statistic$p.value))
-}
-round(rbind(LLC = first_gen("levinlin"), MW = first_gen("madwu"),
-            IPS = first_gen("ips"), Hadri = first_gen("hadri")), 4)
+plm::purtest(log(php$price), test = "levinlin", lags = 2, exo = "trend")
+plm::purtest(log(php$price), test = "madwu", lags = 2, exo = "trend")
+plm::purtest(log(php$price), test = "ips", lags = 2, exo = "trend")
+plm::purtest(log(php$price), test = "hadri", lags = 2, exo = "trend")
 ```
 
 Three tests of "unit root in every series" fail to reject (p = 0.10, 0.43,
