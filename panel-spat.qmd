@@ -27,3 +27,5 @@ texts: @baltagi2021, @pesaran2015 and @croissant2019.
 {{< include examples/panel-spat/1-4-fraction-stationary.qmd >}}
 
 {{< include examples/panel-spat/1-5-spatial-size.qmd >}}
+
+{{< include examples/panel-spat/1-6-cross-unit-cointegration.qmd >}}

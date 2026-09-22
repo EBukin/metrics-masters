@@ -7,7 +7,8 @@ subtitle: "Theory note 07 — the three alternatives, and size before power"
 > [first-generation tests](../panel-spat.qmd#sec-ur-first-gen),
 > [second-generation tests](../panel-spat.qmd#sec-ur-second-gen),
 > [the fraction of stationary series](../panel-spat.qmd#sec-ur-fraction) and
-> [size under spatial dependence](../panel-spat.qmd#sec-ur-spatial-size).
+> [size under spatial dependence](../panel-spat.qmd#sec-ur-spatial-size) and
+> [cross-unit cointegration](../panel-spat.qmd#sec-ur-cross-coint).
 > Related note:
 > [01 — cross-sectional dependence](01-cross-sectional-dependence.qmd).
 

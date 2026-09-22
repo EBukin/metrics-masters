@@ -1,0 +1,95 @@
+### Cross-unit cointegration {#sec-ur-cross-coint}
+
+::: {.callout-tip appearance="simple"}
+The assumption every second-generation test makes and none of them tests:
+[theory note 07](theory/07-panel-unit-roots.qmd).
+:::
+
+**Theory.** Cross-*correlation* is units moving together. Cross-unit
+*cointegration* is stronger: a linear combination of *different units'* series
+is stationary, so the units share a stochastic trend rather than merely
+correlated shocks. @pesaran2015 [p. 836] separates the two and warns that panel
+unit-root tests may be "severely biased" under the second while tolerating the
+first.
+
+The tests of [the previous sections](panel-spat.qmd#sec-ur-second-gen) divide
+on it. Moon–Perron and Pesaran's CADF assume it away — CADF allows every unit
+to load on one common I(1) factor, which is what the cross-section averages
+remove, and rules out further cointegrating relations among what is left
+[@pesaran2015, p. 837]. Bai–Ng's PANIC allows it, but @pesaran2015
+[pp. 837–838] records that the pooled version of those tests is asymptotically
+invalid and that a later alternative was needed. Subsampling
+[@choi2007] handles it directly and needs *N* small relative to *T*
+[@pesaran2015, p. 838] — the opposite of the shape this project works at.
+
+**Data.** Simulated pairs, because the distinction is a property of the
+data-generating process and no diagnostic in this book reports it. Both pairs
+below are built from I(1) series and both are strongly correlated; only the
+first is cointegrated:
+
+```{r}
+#| label: s1-6-pairs
+t <- 100
+factor_pair <- function() {
+  f <- cumsum(rnorm(t))
+  cbind(a = 0.8 * f + rnorm(t), b = 1.3 * f + rnorm(t))
+}
+spatial_pair <- function() {
+  shocks <- matrix(rnorm(2 * t), t, 2) %*% chol(matrix(c(1, .8, .8, 1), 2))
+  m <- apply(shocks, 2, cumsum)
+  colnames(m) <- c("a", "b")
+  m
+}
+```
+
+The first pair shares one stochastic trend, so $1.3 a_t - 0.8 b_t$ is
+stationary. The second has two separate stochastic trends whose *increments*
+are correlated at 0.8 — the spatial case — and no stationary combination
+exists. Johansen's trace test tells them apart; correlation does not:
+
+```{r}
+#| label: s1-6-johansen
+johansen <- function(dgp, reps = 200) {
+  out <- replicate(reps, {
+    x <- dgp()
+    z <- urca::ca.jo(x, type = "trace", ecdet = "none", K = 2)
+    c(unname(z@teststat[2]) > z@cval[2, "5pct"], abs(cor(x)[1, 2]))
+  })
+  c(reject_r0 = mean(out[1, ]), mean_abs_cor = mean(out[2, ]))
+}
+set.seed(1)
+round(rbind(common_factor = johansen(factor_pair),
+            correlated_increments = johansen(spatial_pair)), 3)
+```
+
+The rank test rejects "no cointegration" every time on the first pair and 5% of
+the time on the second, which is exactly its nominal size. The correlations are
+0.90 and 0.77 — close enough that no correlation-based diagnostic in this book,
+CD or α included, could tell the two panels apart. That is the whole problem:
+the quantity that breaks the tests is invisible to the quantities that get
+reported.
+
+::: {.callout-important appearance="simple"}
+**Gap.** There is no R implementation of a *panel* test for cross-unit
+cointegration and no verification target for one, so this has to travel as a
+stated limitation rather than a result. The pairwise route above does not
+substitute for it: at N = 49 it is 1176 rank tests, at the project's N ≈ 170 it
+is 14 365, and this book has no aggregation rule for them that any of its
+sources validates.
+:::
+
+**Book check.** None, and none is possible: nothing in @baltagi2021,
+@pesaran2015 or @croissant2019 prints a number for an implementation that does
+not exist. What the simulation above verifies is only its own arithmetic — a
+rank test separates two DGPs that a correlation cannot — and `urca::ca.jo`
+reproduces Johansen's published money-demand examples on its own help page,
+which is the credit the function is used on here.
+
+So the limitation, stated once, in the form it has to be carried into every
+later stage: the CIPS results of
+[the second-generation section](panel-spat.qmd#sec-ur-second-gen) hold under
+the assumption that no cointegrating relation links the idiosyncratic
+components of different states. That assumption is untested here, it is not
+testable with the packages in this project, and the panel it is made on is one
+where a common factor is strong enough to move the income elasticity from 0.30
+to 1.14.
