@@ -37,6 +37,7 @@ placeholders describing what they should cover.
 - [x] [Testing for cross-sectional dependence](panel-spat.qmd#sec-csd-tests)
 - [x] [State the alternative first](panel-spat.qmd#sec-ur-alternative)
 - [x] [First-generation tests](panel-spat.qmd#sec-ur-first-gen)
+- [x] [Second-generation tests](panel-spat.qmd#sec-ur-second-gen)
 - [ ] Stage 1 — panel unit roots, remaining sections
 - [ ] Stage 2 — cointegration
 - [ ] Stage 3 — error structure
