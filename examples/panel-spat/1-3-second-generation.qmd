@@ -1,0 +1,100 @@
+### Second-generation tests {#sec-ur-second-gen}
+
+::: {.callout-tip appearance="simple"}
+What the cross-section averages are doing inside the ADF regression:
+[theory note 07](theory/07-panel-unit-roots.qmd), and
+[theory note 01](theory/01-cross-sectional-dependence.qmd) for why the
+first-generation assumption fails here.
+:::
+
+**Theory.** The tests of
+[the previous section](panel-spat.qmd#sec-ur-first-gen) assume the series are
+independent across units. On `HousePricesUS`
+[that assumption is rejected](panel-spat.qmd#sec-csd-tests) at z = 53, so the
+whole battery has to be redone under dependence.
+
+Pesaran's CADF regression adds the cross-section averages $\bar y_{t-1}$ and
+$\Delta \bar y_t$ to each unit's ADF equation, which sweeps out a single common
+factor whatever its loadings, and **CIPS** is the average of the resulting *t*
+statistics [@pesaran2007; @baltagi2021, pp. 352–353]:
+
+$$
+CIPS = \frac{1}{N} \sum_{i=1}^{N} t_i(N, T).
+$$
+
+One factor. With several, the averages have to be augmented further, which is
+@pesaran2013's CIPS and its companion CSB statistic [@pesaran2015, p. 836].
+The other route defactors first and tests afterwards: Moon–Perron
+[@moon2004; @baltagi2021, pp. 350–351], Bai–Ng's PANIC
+[@bai2004; @baltagi2021, p. 352] and Phillips–Sul
+[@phillips2003; @baltagi2021, pp. 351–352].
+
+::: {.callout-important appearance="simple"}
+**Gap.** Of that list, only CIPS is implemented. Moon–Perron, Bai–Ng, CSB and
+Phillips–Sul have no R implementation here and no verification target, so a
+multi-factor error structure cannot be tested in this book — only assumed away.
+:::
+
+**Data.** `HousePricesUS` [@holly2010] again, in levels, in first differences,
+and as the residuals of the two CCE models of
+[the CCE section](panel-spat.qmd#sec-cce).
+
+```{r}
+#| label: s1-3-setup
+# pcce() builds a call to plm(), so plm must be attached, not just namespaced.
+library(plm)
+data("HousePricesUS", package = "pder")
+php <- plm::pdata.frame(HousePricesUS)
+ccemg <- plm::pcce(log(price) ~ log(income), data = HousePricesUS,
+                   model = "mg")
+ccep <- plm::pcce(log(price) ~ log(income), data = HousePricesUS,
+                  model = "p")
+cips <- function(x, type) {
+  r <- plm::cipstest(x, type = type)
+  c(statistic = unname(r$statistic), p.value = unname(r$p.value))
+}
+```
+
+`cipstest` takes a `pseries` and nothing else — no formula interface, no
+matrix. The deterministic part is `type`, and it is the one choice that has to
+be made by hand: levels of a price series get a drift, first differences get
+neither drift nor trend, and regression residuals get neither.
+
+**Book check.** @croissant2019 [§8.4.3] runs exactly these four tests;
+`.docs/panel-spat-PLAN.md` records its printed values as the target — CIPS
+about −2 with p ≈ 0.1 in levels, about −1.8 with p ≈ 0.01 on the differenced
+series, and rejections for both sets of CCE residuals:
+
+```{r}
+#| label: s1-3-book-check
+round(rbind(
+  level_drift = cips(log(php$price), "drift"),
+  diff_none = cips(diff(log(php$price)), "none"),
+  ccemg_residuals = cips(residuals(ccemg), "none"),
+  ccep_residuals = cips(residuals(ccep), "none")
+), 4)
+```
+
+−2.0342 against a target of about −2, −1.8199 against about −1.8, and both
+residual tests rejecting. Four numbers, four matches.
+
+**Reading the p-value.** `cipstest` has no exact p-values: the CIPS
+distribution is non-standard, so **plm** returns the nearest tabulated level
+and warns. `p.value = 0.10` above means *greater than* 0.10 and
+`p.value = 0.01` means *less than* 0.01 — the warnings that say so are
+suppressed in this book's chunk options, so the qualification has to travel in
+the text. Never quote a CIPS p-value as if it were exact.
+
+What the four rows say: log house prices carry a unit root that survives
+controlling for a common factor (levels, not rejected); their growth rates do
+not (differences, rejected); and the residuals of both CCE regressions are
+stationary, so the levels regression of log price on log income is a
+cointegrating one. That last row is the pragmatic substitute for a panel
+cointegration test that Stage 2 of `.docs/panel-spat-PLAN.md` falls back on,
+and it is verifiable, which nothing in Stage 2 is.
+
+One caveat carries into the spatial stages. CIPS defactors, and defactoring is
+the right move against *strong* dependence only. Under weak, spatially
+generated dependence the factor correction is not just unnecessary but invalid
+[@pesaran2015, p. 839] — which is the subject of
+[size under spatial dependence](panel-spat.qmd#sec-ur-spatial-size).
