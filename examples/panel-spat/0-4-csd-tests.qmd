@@ -38,27 +38,32 @@ as_matrix <- function(v) {
   m <- tapply(as.numeric(v), list(idx[[1]], idx[[2]]), identity)
   m[, colSums(is.na(m)) == 0, drop = FALSE]
 }
-# CDw draws Rademacher weights, so the seed matters for that row alone.
-cd_all <- function(m) {
-  set.seed(1)
-  out <- dcce::pcd_test(m, test = c("pesaran", "cdw", "pea", "cdstar"))
-  r <- out$rho_ij
+# pcd_test()$rho_ij is exactly cor() across the N series, so the two averages
+# CD is built on need no test of their own.
+rho_bars <- function(m) {
+  r <- stats::cor(t(m))
   diag(r) <- NA
-  list(
-    tests = out$statistics,
-    rho = c(rho_bar = mean(r, na.rm = TRUE),
-            abs_rho_bar = mean(abs(r), na.rm = TRUE))
-  )
+  c(rho_bar = mean(r, na.rm = TRUE),
+    abs_rho_bar = mean(abs(r), na.rm = TRUE))
 }
 ```
 
 **Rejecting the null.** Raw log house prices. Every test but CDw fires, and
-$\bar\rho \approx \overline{\lvert\rho\rvert}$ is the signature of pervasive,
-same-signed co-movement:
+$\bar\rho$ stays far from zero — 0.29, against an
+$\overline{\lvert\rho\rvert}$ of 0.51 — which is the signature of pervasive,
+same-signed co-movement rather than local correlations cancelling out. Each
+statistic is asked for on its own line:
 
 ```{r}
 #| label: s0-4-reject
-cd_all(as_matrix(log(hp$price)))
+logp <- as_matrix(log(hp$price))
+dcce::pcd_test(logp, test = "pesaran")
+# CDw draws Rademacher weights; it is the only one of the four needing a seed.
+set.seed(1)
+dcce::pcd_test(logp, test = "cdw")
+dcce::pcd_test(logp, test = "pea")
+dcce::pcd_test(logp, test = "cdstar")
+rho_bars(logp)
 ```
 
 **Accepting the null.** The same panel shape with no common component at all.
@@ -67,7 +72,13 @@ All four statistics sit inside ±1.96, which is the nominal N(0,1) they claim:
 ```{r}
 #| label: s0-4-accept
 set.seed(1)
-cd_all(matrix(rnorm(49 * 29), nrow = 49))
+iid <- matrix(rnorm(49 * 29), nrow = 49)
+dcce::pcd_test(iid, test = "pesaran")
+set.seed(1)
+dcce::pcd_test(iid, test = "cdw")
+dcce::pcd_test(iid, test = "pea")
+dcce::pcd_test(iid, test = "cdstar")
+rho_bars(iid)
 ```
 
 **The non-rejection that means nothing.** Two-way fixed effects force
@@ -80,11 +91,17 @@ PEA and CD\* both still fire:
 #| label: s0-4-fe-artefact
 fe <- plm::plm(log(price) ~ log(income), data = HousePricesUS,
                model = "within", effect = "twoways")
-cd_all(as_matrix(residuals(fe)))
+e <- as_matrix(residuals(fe))
+dcce::pcd_test(e, test = "pesaran")
+set.seed(1)
+dcce::pcd_test(e, test = "cdw")
+dcce::pcd_test(e, test = "pea")
+dcce::pcd_test(e, test = "cdstar")
+rho_bars(e)
 ```
 
-Three readings of one panel, and only the middle column is honest: the within
-transformation removed almost none of the dependence
+Two readings of one panel, and only the average absolute correlation is honest
+in both: the within transformation removed almost none of the dependence
 ($\overline{\lvert\rho\rvert}$ 0.51 → 0.49) while removing all of CD's ability
 to see it. This is the @croissant2019 [§10.1.2.2] artefact, and the general
 statement of it is @juodis2022: estimated period-specific parameters make CD
@@ -93,7 +110,7 @@ diverge even when the dependence *has* been handled.
 CDw is the fix for that divergence, but it buys size at a real cost in power —
 it fails to reject on the raw series too, where the dependence is not in doubt.
 Read it as a guard against false positives, not as evidence of absence; CD\* is
-the statistic that keeps power in both columns.
+the statistic that keeps power on the raw series and on the residuals alike.
 
 **Book check.** `dcce::pcd_test(test = "pesaran")` should be the same statistic
 `plm::pcdtest(test = "cd")` computes, and **plm** is the implementation
