@@ -1,0 +1,97 @@
+### The fraction of stationary series {#sec-ur-fraction}
+
+::: {.callout-tip appearance="simple"}
+Why a panel rejection is not a licence to pool:
+[theory note 07](theory/07-panel-unit-roots.qmd).
+:::
+
+**Theory.** Every test so far answers one question — "do *all* series have a
+unit root?" — and stops. Remark 8 of @pesaran2015 [p. 820] is the consequence:
+at short *T* the answer is informative only in an average sense. @pesaran2015
+[p. 832] gives the way out, and it is a multiple-testing device rather than a
+new statistic.
+
+Take the per-series p-values that a Fisher-type test already computes. Simes'
+inequality [@simes1986] turns them into a global test of the intersection null
+that stays valid under general patterns of cross-sectional dependence, and
+Hommel's procedure [@hommel1988] controls the family-wise error rate across the
+*N* individual hypotheses, so each series can be judged on its own.
+@hanck2013 puts the two together for panel unit roots: instead of "some series
+are stationary", a named list of which ones.
+
+**Data.** `HousePricesUS` [@holly2010], through the Maddala–Wu object of
+[the first-generation section](panel-spat.qmd#sec-ur-first-gen), and the
+19 countries of @hanck2013 [Table 11] for the check.
+
+```{r}
+#| label: s1-4-hpus
+data("HousePricesUS", package = "pder")
+php <- plm::pdata.frame(HousePricesUS)
+mw <- plm::purtest(log(php$price), test = "madwu", lags = 2, exo = "trend")
+hp <- plm::phansitest(mw)
+c(states = length(hp$p), rejected = hp$rejected.no)
+```
+
+Not one of the 49 states rejects its own unit root once the multiplicity of
+testing 49 hypotheses is controlled for. The global tests agree, but not by the
+same margin:
+
+```{r}
+#| label: s1-4-global
+simes <- function(p) min(length(p) * sort(p) / seq_along(p))
+round(c(simes = simes(hp$p), fisher = unname(mw$statistic$p.value)), 4)
+```
+
+0.12 against 0.43. Simes is much the sharper of the two here, and it is also
+the one that survives the cross-sectional dependence this panel has, so it is
+the number to quote — and it still does not reject at 5%.
+
+**The evaluation line is wrong.** `phansitest` returns the individual verdicts
+but never computes a global decision, and its print method says the same thing
+either way. On the object above, where no individual null is rejected and
+Simes' global p-value is 0.12:
+
+```{r}
+#| label: s1-4-print-trap
+hp
+```
+
+"H0 rejected (globally)" is printed unconditionally in **plm** 2.6.7: the
+`H0.not.rej.txt` string that belongs in that branch is defined in
+`plm:::print.phansitest` and never used. Read `$rejected.no` and compute the
+global p-value as above; do not read the sentence.
+
+One input constraint: the test needs a panel test that produces a p-value per
+series, so `madwu`, `Pm`, `invnormal`, `logit` and `ips` are usable and Hadri,
+whose statistic is not built from individual p-values, is refused by name:
+
+```{r}
+#| label: s1-4-hadri
+hadri <- plm::purtest(log(php$price), test = "hadri", lags = 2, exo = "trend")
+tryCatch(plm::phansitest(hadri), error = conditionMessage)
+```
+
+**Book check.** The p-values of @hanck2013 [Table 11], for 19 countries' real
+exchange rates, as `?phansitest` transcribes them. Hommel's procedure should
+reject the individual unit-root null for the first ten and no others:
+
+```{r}
+#| label: s1-4-book-check
+pvals <- c(0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0050, 0.0050,
+           0.0050, 0.0050, 0.0175, 0.0175, 0.0200, 0.0250, 0.0400, 0.0500,
+           0.0575, 0.2375, 0.2475)
+names(pvals) <- c("Argentina", "Sweden", "Norway", "Mexico", "Italy",
+                  "Finland", "France", "Germany", "Belgium", "U.K.", "Brazil",
+                  "Australia", "Netherlands", "Portugal", "Canada", "Spain",
+                  "Denmark", "Switzerland", "Japan")
+h <- plm::phansitest(pvals)
+c(rejected = h$rejected.no, of = length(pvals))
+c(simes_global_p = round(simes(pvals), 5))
+h$name[h$rejected]
+```
+
+Ten of nineteen, and the ten are the ten with the smallest p-values, which is
+the split @hanck2013 reports. Note what the second line adds: Simes' global
+p-value is 0.0003, so this panel rejects the intersection null *and* names the
+units — the two answers Remark 8 asks for. Spain, at an individual p-value of
+0.05, is not among them; testing 19 hypotheses at once is what costs it.
