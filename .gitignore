@@ -11,3 +11,4 @@
 panel-spat.html
 
 **/*.quarto_ipynb
+/theory/*.html
