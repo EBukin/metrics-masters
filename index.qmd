@@ -25,7 +25,8 @@ placeholders describing what they should cover.
 
 ### Chapters
 
-- [x] [Spatial panel data econometrics](panel-spat.qmd) — Stage 0 written
+- [x] [Spatial panel data econometrics](panel-spat.qmd) — Stages 0 and 1
+  written
 - [ ] Difference in differences — cohort-level, staggered with heterogeneous
   treatment effects, continuous treatment
 
@@ -40,7 +41,7 @@ placeholders describing what they should cover.
 - [x] [Second-generation tests](panel-spat.qmd#sec-ur-second-gen)
 - [x] [The fraction of stationary series](panel-spat.qmd#sec-ur-fraction)
 - [x] [Size under spatial dependence](panel-spat.qmd#sec-ur-spatial-size)
-- [ ] Stage 1 — panel unit roots, remaining sections
+- [x] [Cross-unit cointegration](panel-spat.qmd#sec-ur-cross-coint)
 - [ ] Stage 2 — cointegration
 - [ ] Stage 3 — error structure
 - [ ] Stage 4a — static panel
