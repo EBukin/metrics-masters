@@ -6,33 +6,296 @@ subtitle: "Theory note 07 — the three alternatives, and size before power"
 > **Code:** [state the alternative first](../panel-spat.qmd#sec-ur-alternative),
 > [first-generation tests](../panel-spat.qmd#sec-ur-first-gen),
 > [second-generation tests](../panel-spat.qmd#sec-ur-second-gen),
-> [the fraction of stationary series](../panel-spat.qmd#sec-ur-fraction) and
+> [the fraction of stationary series](../panel-spat.qmd#sec-ur-fraction),
 > [size under spatial dependence](../panel-spat.qmd#sec-ur-spatial-size) and
 > [cross-unit cointegration](../panel-spat.qmd#sec-ur-cross-coint).
-> Related note:
-> [01 — cross-sectional dependence](01-cross-sectional-dependence.qmd).
+> Related notes:
+> [01 — cross-sectional dependence](01-cross-sectional-dependence.qmd) and
+> [04 — common factors and CCE](04-common-factors-cce.qmd).
 
-::: {.callout-note}
-**Placeholder.** This note is planned, not written. Tracked in the node
-checklist in [the preface](../index.qmd).
+## Why pool at all
+
+A single unit-root test on 20 or 30 annual observations has almost no power:
+the Dickey–Fuller distribution is wide, and a root of 0.9 looks much like a
+root of 1 over that span. Panel tests buy power by adding units instead of
+years. *N* series of length *T* carry more evidence against a unit root than
+one series of length *T*, provided the series bring *independent* evidence.
+
+That proviso is the whole subject of this note. The extra power comes from
+averaging, and averaging only helps when the things averaged are not the same
+thing counted twice. Everything below is a consequence of asking what is being
+averaged, and over what.
+
+## 1. One null, three alternatives
+
+Every test in `plm::purtest` and `plm::cipstest`, except Hadri's, shares one
+null. Write each unit's ADF regression as
+
+$$\Delta y_{it} = \alpha_i + \beta_i y_{i,t-1}
+  + \sum_{j=1}^{p_i} \gamma_{ij} \Delta y_{i,t-j} + \varepsilon_{it},
+  \qquad \beta_i = \rho_i - 1.$$
+
+The null is $H_0: \beta_i = 0$ for **every** *i*. The tests differ in what they
+claim when they reject [@pesaran2015, pp. 818–820, eqs. 31.4–31.6]:
+
+| | Alternative | In words | Tests |
+|---|---|---|---|
+| H₁ₐ | $\beta_i = \beta < 0$ for all *i* | one common stationary root | LLC, Harris–Tzavalis, Breitung |
+| H₁b | $\beta_i < 0$ for $N_1$ units, $N_1/N \to \kappa > 0$ | a *share* of the panel is stationary | IPS, Fisher-type, CIPS |
+| H₁c | $\beta_i < 0$ for a fixed number of units, $\kappa = 0$ | a *handful* is stationary | none |
+
+H₁ₐ is strong: it says every unit reverts, and at the same speed. Few
+economists believe that of 49 states or 170 regions, which is why the
+heterogeneous alternative H₁b became the default after @im2003.
+
+H₁c is the case no averaging test can see. With a fixed count of stationary
+units, their signal is divided by an *N* that keeps growing. The
+[simulation in the examples](../panel-spat.qmd#sec-ur-alternative) shows it:
+IPS power against two stationary series *falls* from 0.40 to 0.25 as *N*
+goes from 10 to 90, while power against a 40% share rises to 1.
+
+::: {.callout-important}
+**The printed p-value does not carry the alternative.** `purtest` labels the
+alternative "stationarity" for LLC and IPS alike, though LLC rejects towards
+H₁ₐ and IPS towards H₁b. The alternative has to be written into the text by
+hand, every time a panel unit-root result is reported.
 :::
 
-## What this note should cover
+Remark 8 of @pesaran2015 [p. 820] sets the limit on that text. When *T* is
+short — around 15 — a panel rejection is informative only "in an average
+sense". It says the panel, taken as a whole, does not look like *N* random
+walks. It does not say which units are stationary.
 
-- **One null, three alternatives.** Every panel unit-root test shares the null
-  "a unit root in every series". They differ in what they claim when they
-  reject: a common stationary root, a fixed *share* of stationary series, or a
-  fixed *count* of them. Only the first two are testable at large *N*.
-- **Why the printed p-value does not carry that difference**, and what has to
-  be written down beside it for the number to mean anything.
-- **First vs second generation** as one distinction only: what the test assumes
-  about cross-sectional dependence. Cross-section demeaning handles a single
-  common factor; CADF augmentation handles one factor with heterogeneous
-  loadings; nothing in **plm** handles several.
-- **Size before power.** Every comparative ranking in the textbooks is a power
-  ranking conditional on correct size, and the conditions for correct size —
-  *T* large relative to *N*, weak or absent cross-sectional dependence — are
-  exactly what a large-*N*, short-*T* spatial panel violates.
-- **What a rejection licenses**: stationarity for *some* units, which is not a
-  licence to pool, and the multiple-testing route that turns it into a list of
-  named units.
+## 2. How the first generation builds a statistic
+
+Each first-generation test runs the ADF regression above on every unit and
+then combines the results. They differ only in *what* they combine.
+
+| Family | What it combines | Tests in **plm** | Source |
+|---|---|---|---|
+| Pooled | one $\hat\beta$ from all units stacked | `"levinlin"` | @levin2002 |
+| Mean of *t* | the average of the *N* ADF *t* statistics | `"ips"` | @im2003 |
+| Fisher | the *N* individual p-values | `"madwu"`, `"Pm"`, `"invnormal"`, `"logit"` | @maddala1999, @choi2001 |
+| Reversed null | the *N* KPSS statistics | `"hadri"` | @hadri2000 |
+
+**Pooled.** LLC stacks all units and estimates one $\beta$. Pooling only makes
+sense if $\beta$ is common, so LLC's alternative is H₁ₐ by construction. The
+pooled *t* is biased because each unit has its own intercept and lag
+structure, and @levin2002 correct it with tabulated mean and variance
+adjustments [@baltagi2021, pp. 340–343]. Harris–Tzavalis [@harris1999] and
+Breitung [@breitung2000] are in the same family. Neither is in **plm**.
+
+**Mean of *t*.** IPS averages the individual ADF statistics,
+$\bar t = N^{-1}\sum_i t_i$, then standardises
+[@baltagi2021, pp. 344–345]. Each unit keeps its own $\beta_i$, so the
+alternative is H₁b. The unstandardised `tbar` is exact for fixed *T* but is
+read against tabulated critical values, and only without lags.
+
+**Fisher.** @maddala1999 combine the individual p-values instead of the
+statistics: under the null, $-2\sum_i \ln p_i \sim \chi^2_{2N}$.
+@choi2001 adds three variants. `"invnormal"` sums $\Phi^{-1}(p_i)$, `"logit"`
+sums $\ln[p_i/(1-p_i)]$, and `"Pm"` standardises the Maddala–Wu statistic so
+that it stays valid as $N \to \infty$. The Fisher family needs neither a
+balanced panel nor equal lag lengths, which is why it runs on `EmplUK` where
+LLC refuses [@baltagi2021, pp. 346–348].
+
+A Fisher test is only as good as its p-values, and those come from the
+non-standard Dickey–Fuller distribution. **plm** reads them off the response
+surfaces of @mackinnon1996 through **urca** [@pfaff2008]. Without **urca** it
+falls back to the older approximation of @mackinnon1994. On US house prices
+the switch moves the Maddala–Wu p-value from 0.4292 to 0.4313 — visible in
+the fourth decimal, irrelevant to a reading.
+
+**Reversed null.** @hadri2000 tests the opposite hypothesis: every series is
+stationary, against a unit root in at least one. It is the panel version of the
+KPSS test [@kwiatkowski1992], an LM statistic averaged over units. Its value is
+corroboration. When LLC, IPS and Maddala–Wu fail to reject a unit root and
+Hadri rejects stationarity, two tests with opposite nulls point the same way.
+That is the pattern on log house prices: p = 0.10, 0.43 and 0.78 for the first
+three, p ≈ 0 for Hadri.
+
+**Lag length.** Every test except Hadri needs the $p_i$ lags of the ADF
+regression. `purtest` fixes them by hand or chooses them per unit by AIC, SIC,
+or the general-to-specific rule of @hall1994. Too few lags leave serial
+correlation in $\varepsilon_{it}$ and over-reject. Too many waste the short *T*
+the panel was meant to compensate for.
+
+## 3. First and second generation: one assumption
+
+"Second generation" is not a date. It is one assumption dropped: that units
+are independent once a common time effect is removed.
+
+The first generation allows exactly one form of dependence. Subtract the
+cross-section mean each period and a common shock that hits every unit
+*equally* disappears. That is the two-way fixed-effects identity of
+[theory note 01](01-cross-sectional-dependence.qmd): a time effect is a factor
+model with every loading equal to one. If the loadings differ, demeaning
+leaves the factor in the residuals and every unit's evidence is partly the
+same evidence.
+
+Pesaran's CADF regression [@pesaran2007] allows heterogeneous loadings. It
+adds the cross-section averages $\bar y_{t-1}$ and $\Delta \bar y_t$ to each
+unit's ADF equation:
+
+$$\Delta y_{it} = \alpha_i + \beta_i y_{i,t-1} + c_i \bar y_{t-1}
+  + d_i \Delta \bar y_t + \dots + e_{it}.$$
+
+The averages proxy the single unobserved factor, and each unit gets its own
+coefficients on them, so each unit gets its own loading. CIPS is the mean of
+the resulting *t* statistics — IPS on defactored regressions
+[@baltagi2021, pp. 352–353]. The idea is the same one that drives CCE
+estimation, in [theory note 04](04-common-factors-cce.qmd).
+
+`plm::cipstest` exposes all three levels of this argument through `model`:
+
+| `model =` | Regression | Handles |
+|---|---|---|
+| `"mg"` | plain ADF per unit, averaged | independence only — this is IPS |
+| `"dmg"` | ADF on cross-sectionally demeaned data | one factor, equal loadings |
+| `"cmg"` (default) | CADF, with cross-section averages | one factor, any loadings |
+
+Nothing in **plm** handles more than one factor. @pesaran2013 extend CIPS by
+adding further cross-section averages of other variables, and add the CSB
+statistic [@pesaran2015, p. 836]. Moon–Perron [@moon2004], Bai–Ng's PANIC
+[@bai2004] and Phillips–Sul [@phillips2003] defactor by principal components
+first and test afterwards. None has an R implementation in this project.
+
+CIPS has a cost: its distribution is non-standard and depends on *N*, *T* and
+the deterministic terms. `cipstest` returns the nearest tabulated significance
+level, not an exact p-value. A printed `p-value = 0.1` means *above* 0.10, and
+`0.01` means *below* 0.01.
+
+## 4. Size before power
+
+Every comparative ranking of these tests in the textbooks is a ranking of
+*power* — and power only means something when the test rejects a true null at
+its nominal rate. Both standard rankings assume that:
+
+- LLC has higher local power than IPS [@pesaran2015, p. 819];
+- LLC and Breitung have the smallest size distortions, and Fisher does at
+  least as well as IPS [@pesaran2015, p. 838; @baltagi2021, p. 348].
+
+Two things break size in a large-*N*, short-*T* panel, and they compound.
+
+**The shape of the panel.** LLC's asymptotics need *T* to grow faster than *N*
+[@levin2002; @baltagi2021, pp. 340–343]. On independent random walks, with no
+dependence at all, the
+[examples' simulation](../panel-spat.qmd#sec-ur-spatial-size) gives LLC a size
+of 0.09 at N/T = 0.04 and 0.855 at N/T = 3.33. IPS is better but not right:
+0.085 to 0.15 at T = 30. The target shape of this project is N/T ≈ 8.5, off
+the end of that table.
+
+**Cross-sectional dependence.** When units move together, *N* series are worth
+fewer than *N* independent ones, and a test that counts them as *N*
+over-rejects. @baltagi2007 ran 1600 experiments under spatial error
+dependence: distortions are largest under a spatial autoregressive error and
+grow with the density of W [@baltagi2021, pp. 353–354].
+
+@pesaran2015 [p. 839] draws two rules from that literature, and they pull in
+opposite directions:
+
+- The CD-based approach (CIPS) is the most robust to spatial alternatives.
+- Factor-based corrections are *invalid* under weak dependence, because they
+  remove a "factor" that is not there.
+
+In the project's own simulation, on a 7 × 7 rook W, CIPS held its size: 0.04
+at λ = 0 and 0.07 at λ = 0.8. The four first-generation tests rejected a true
+null two and a half to twelve times too often even at λ = 0. Shape, not space,
+did most of the damage.
+
+::: {.callout-warning}
+**At N/T ≫ 1, a first-generation rejection is not evidence.** It is what those
+tests do to random walks at that shape. Report CIPS, and read every
+first-generation p-value as an upper bound on the evidence rather than a
+measurement of it.
+:::
+
+## 5. What a rejection licenses
+
+Under H₁b, a rejection means *some* share of units is stationary. It does not
+say which, and it is not a licence to treat the panel as stationary and pool
+it.
+
+@hanck2013 turns the rejection into a list. Take the individual p-values a
+Fisher-type test already computes, sort them, and apply two classical
+multiple-testing results:
+
+- **Simes' test** [@simes1986] of the intersection null. With sorted p-values
+  $p_{(1)} \le \dots \le p_{(N)}$, reject when
+  $\min_j N p_{(j)}/j \le \alpha$. Unlike the Fisher combination, it stays
+  valid under general cross-sectional dependence.
+- **Hommel's procedure** [@hommel1988] for the individual hypotheses. It
+  controls the family-wise error rate, so each unit is judged on its own
+  without the multiplicity of *N* tests inflating false rejections.
+
+`plm::phansitest` implements both. It accepts any `purtest` object with
+per-series p-values (`madwu`, `Pm`, `invnormal`, `logit`, `ips`) and refuses
+Hadri, whose statistic is not built from individual p-values.
+
+The two cases in the examples show both outcomes:
+
+| Panel | Simes global p | Units rejected (Hommel) |
+|---|---|---|
+| 19 real exchange rates [@hanck2013, Table 11] | 0.0003 | 10 of 19 |
+| 49 US state house prices | 0.12 | 0 of 49 |
+
+The exchange-rate panel rejects the intersection null *and* names the ten
+stationary countries — the two answers Remark 8 asks for. The house-price
+panel rejects neither. Note that its Simes p-value of 0.12 is far sharper than
+the Maddala–Wu p-value of 0.43 on the same data.
+
+## 6. The assumption no test checks
+
+Cross-sectional *correlation* is units moving together. Cross-unit
+*cointegration* is stronger: a linear combination of different units' series is
+stationary, so the units share a stochastic trend. @pesaran2015 [p. 836]
+warns that panel unit-root tests may be "severely biased" under the second
+while tolerating the first.
+
+CADF allows one common I(1) factor — that is what the cross-section averages
+absorb — and rules out further cointegration among what is left
+[@pesaran2015, p. 837]. The subsampling test of @choi2007 allows it but needs
+*N* small relative to *T* [@pesaran2015, p. 838], the opposite of a spatial
+panel.
+
+Correlation does not reveal it. In the
+[examples](../panel-spat.qmd#sec-ur-cross-coint), a cointegrated pair and a
+pair with correlated increments have correlations of 0.90 and 0.77. A
+Johansen rank test separates them perfectly; no CD statistic or α could. So
+every CIPS result in this book holds under an assumption the book cannot test.
+
+## 7. If / then
+
+| If | Then |
+|---|---|
+| CD rejects, or α is near 1 | First-generation tests are invalid. Use CIPS. |
+| N/T well above 1 | First-generation size is broken even without dependence. Use CIPS. |
+| CIPS rejects | A share of units is stationary (H₁b). Name them with `phansitest`. |
+| CIPS does not reject | Treat the panel as I(1). Corroborate with Hadri's reversed null. |
+| Dependence is weak and spatial, not factor-driven | CIPS defactors needlessly. Its size survived λ ≤ 0.8 here, but that is not a general licence. |
+| Several common factors are plausible | Not testable in this book. State it as a limitation. |
+| The text says "the panel is stationary" | Rewrite it. Say which alternative was tested, and how many units. |
+
+## 8. Open
+
+- **Missing tests.** Breitung and Harris–Tzavalis — the two tests with the
+  best size record in the comparisons — are not in `purtest`. The benchmark
+  is Stata's `xtunitroot`.
+- **Several factors.** CIPS with multiple factors and CSB [@pesaran2013],
+  Moon–Perron and PANIC have no R implementation and no verification target.
+- **Cross-unit cointegration.** No panel test exists in R. The assumption has
+  to be carried as a stated limitation into Stage 2 of
+  `.docs/panel-spat-PLAN.md`.
+- **The target shape.** No published size table covers N ≈ 170, T ≈ 20 with a
+  spatial W. The examples' Monte Carlo is the only evidence, and it covers
+  this code on one W.
+- **A software trap.** In **plm** 2.6.7, the print method of `phansitest`
+  says "H0 rejected (globally)" whatever the result. Read `$rejected.no` and
+  compute Simes' p-value directly.
+
+## Next
+
+With the unit-root question settled for a panel, the next one is whether its
+I(1) series are cointegrated. That is Stage 2 of `.docs/panel-spat-PLAN.md`,
+where the only verifiable route is the CCE-plus-CIPS substitute of
+[the second-generation section](../panel-spat.qmd#sec-ur-second-gen).

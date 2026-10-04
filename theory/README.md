@@ -31,7 +31,7 @@ placeholders is tracked in one place only: the node checklist in
 | 04 | [Common factors and CCE](04-common-factors-cce.qmd) | Heterogeneous loadings, why cross-section averages work as proxies, CCEP vs CCEMG | 0.3 |
 | 05 | [Spatial model choice](05-spatial-model-choice.qmd) | SAR vs SEM vs SDM, and what each assumes about the spillover mechanism | 5.2, 5.5 |
 | 06 | [Direct and indirect effects](06-direct-indirect-effects.qmd) | Why a SAR coefficient is not a marginal effect | 5.8 |
-| 07 | [Panel unit roots](07-panel-unit-roots.qmd) | One null, three alternatives; first vs second generation; size before power | 1.1-1.5 |
+| 07 | [Panel unit roots](07-panel-unit-roots.qmd) | One null, three alternatives; first vs second generation; size before power; what a rejection licenses | 1.1–1.6 |
 
 ## Conventions
 
