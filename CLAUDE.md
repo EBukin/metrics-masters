@@ -1,5 +1,28 @@
 # metrics-masters
 
+<!-- caveman-begin -->
+Respond terse like smart caveman. All technical substance stay. Only fluff die.
+
+Rules:
+- Answer first: Answer, then reason, then next step.
+- Kill ceremony: No greeting, hedging, pleasantries, recap, or closer.
+- Short word: "fix" not "implement a solution for".
+- Articles optional, meaning never: Drop a/an/the when the sentence still reads in one pass.
+- One idea per sentence: ASD-STE100 is the floor: 20 words max, active voice, imperative for instructions, one term per thing, pronoun only with an obvious referent.
+- Payload verbatim: Code blocks unchanged.
+- Tool runs: bounded status: No text between routine calls.
+- User's language: Compress the style, not the language.
+- Never perform caveman: No "caveman mode on", no "me think", no "Caveman:" prefix, no normal answer plus caveman copy.
+
+Switch: /caveman (default), /ultracave (fragments, each fact once), /megacave (Classical Chinese 文言文)
+Stop: "stop caveman" or "normal mode"
+
+Auto-Clarity: plain prose for security warnings, irreversible actions, step order a fragment could scramble, user confused. Resume after.
+
+Boundaries: code, comments, commits, PRs, docs written normal.
+Floor: code, commands, paths, numbers and error strings verbatim; never drop not/never/no/only.
+<!-- caveman-end -->
+
 Reproductions of seminal econometric methods on canonical datasets, written for
 economists to read. The project is a Quarto **book** website.
 
@@ -119,6 +142,7 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
   `project: render:` and `book: chapters:`.
 - Files under `examples/` are includes, not chapters, so they are not listed.
 
+<!-- eb:git -->
 ## Git
 
 - Commit as the edits are made, not in one batch at the end.
@@ -127,7 +151,14 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
 - **Never put a `Co-Authored-By: Claude ...` trailer, or any other attribution
   to Claude Code, in a commit message.** This is not permitted in this repo.
   Check the message before every commit.
+- Commit messages and pull-request text carry no email address and no AI
+  attribution: no `Co-Authored-By`, no "Generated with". The hook in
+  `.claude/hooks/no-coauthor.sh` blocks a violation; write different text,
+  never work around it.
+- Stage explicit paths, never `git add -A`.
+<!-- /eb:git -->
 
+<!-- eb:r -->
 ## R environment
 
 - Install every package used into the project renv, then `renv::snapshot()`.
@@ -135,6 +166,30 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
   environment, override it for the command:
   `QUARTO_R="C:/Program Files/R/R-4.6.1/bin" quarto render`.
 - Output goes to `_book/`, which is git-ignored.
+- Run R through the `run-r` skill (`mcp__r__repl` and its siblings). It covers
+  the `Rscript` fallback when those tools are missing; do not improvise one.
+- When you write or change R code, use Posit's `r-lib` skills, enabled for this
+  project, before your own habits:
+  - `r-lib:r-package-development` for package layout, roxygen2 documentation,
+    the devtools and usethis workflow;
+  - `r-lib:testing-r-packages` for every test: testthat 3, fixtures,
+    snapshots, mocking;
+  - `r-lib:cli` for every user-facing message, error or progress bar
+    (`cli_abort()`, `cli_warn()`, `cli_inform()`, not bare `stop()`,
+    `warning()`, `message()`);
+  - `r-lib:lifecycle` when deprecating, renaming or superseding a function or
+    argument;
+  - `r-lib:mirai` for parallel or asynchronous R;
+  - `r-lib:r-cli-app` when a script becomes a command-line tool;
+  - `r-lib:cran-extrachecks`, `r-lib:r-cran-status` and `r-lib:alt-text` for a
+    release, a CRAN check, or figure alt text.
+- `R/` holds shared functions only, one topic per file, roxygen-documented.
+  Load them with `devtools::load_all()`.
+- `examples/` holds the documents (`.qmd`) that call those functions; results
+  saved to disk go to `output/`.
+- The R session's working directory is where Claude Code was started, not the
+  script's folder: build paths from the project root.
+<!-- /eb:r -->
 
 ## Editor
 
@@ -142,3 +197,50 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
 (`air.toml`), Prettier formats plain Markdown (`.prettierrc`). No installed
 extension formats a whole `.qmd`, so the 80-character prose rule above is
 applied by hand.
+
+<!-- eb:conversation -->
+## How to answer
+
+- Short replies: bullets, no preamble, no recap. Lead with the result.
+- Code, commands, paths and error text go in fenced blocks, not in prose.
+- One question at a time, and only when the answer changes what you do next.
+  Otherwise state the assumption and proceed.
+- Do not narrate what you are about to do or restate what you did. Say what
+  changed and what is left.
+<!-- /eb:conversation -->
+
+<!-- eb:docs -->
+## Documentation lives in `.docs/`
+
+Three numbered series, `NNNN-short-name.md`: four digits, next number = highest
+existing + 1, lowercase words joined by hyphens. Start from the template in
+`.docs/_templates/`; do not write one from memory.
+
+| Folder | Write one when | It starts with |
+|---|---|---|
+| `.docs/plans/` | before any multi-step task; update its status as work moves | date, author, status, goal |
+| `.docs/handoffs/` | a session ends with work unfinished; written for an agent with no context | date, where things stand, how to verify, next steps |
+| `.docs/notes/` | the user says "note this" or "record this", or a decision is worth keeping | date, author, one-line summary, then the instruction quoted verbatim |
+
+Quote the user's instruction verbatim in a note before paraphrasing it. Never
+renumber, rename or delete an existing file in these folders.
+<!-- /eb:docs -->
+
+<!-- eb:data -->
+## Data and outputs
+
+- Raw data lives outside this repository at `{{DATA_PATH}}`. Read it in place;
+  never copy it into the repo.
+- Only results are saved here: tables in `output/tables/`, figures in
+  `output/figures/`. Everything under `output/` is produced by code and never
+  edited by hand.
+<!-- /eb:data -->
+
+<!-- eb:stata -->
+## Stata
+
+- Stata code lives in `code/`. Run `.do` files through the `stata-run` skill
+  (`stata_run_file`); it covers the fallback when those tools are missing.
+- Stata's batch exit code is `0` even on failure. Read the log for `r(` errors
+  before reporting success. Logs (`*.log`, `*.smcl`) are gitignored.
+<!-- /eb:stata -->
