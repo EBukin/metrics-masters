@@ -29,7 +29,8 @@ the references came from the **plm** sources on GitHub (`man/*.Rd`,
   the rendered example sections.
 - [x] Update the note 07 row in `theory/README.md` to cover 1.1–1.6.
 - [x] Tick note 07 in `index.qmd`.
-- [ ] Render the book with `quarto render` to check links and citations.
+- [x] Render note 07 with `quarto render`: 27 references resolve, no
+  unresolved citations.
 
 ## Open questions
 
@@ -38,4 +39,5 @@ the references came from the **plm** sources on GitHub (`man/*.Rd`,
 
 ## Outcome
 
-Note 07 written. The render was not run in this session because R hung.
+Note 07 written and rendered. The R session (`mcp__r__repl`, `Rscript`) hung
+in this session; the note has no R code, so the render did not need it.
