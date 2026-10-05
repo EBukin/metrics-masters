@@ -95,18 +95,23 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
 
 ## Writing the primer
 
-- Each section of `.docs/panel-spat-PLAN.md` gets its own self-contained file
-  in `examples/<topic>/`, holding theory, data, code and a book check. Section
-  headings are `###`, because the chapter file supplies `#` and `##`.
+- One chapter per question (e.g. `unit-roots.qmd`), grouped into book parts.
+  Each section is its own file in `examples/<topic>/`, built from
+  `.docs/_templates/section.qmd`: Question, Intuition, The test, Run it, Read
+  it (rejects / does not reject / misleads), Next, then collapsed Recipe,
+  Pitfalls and Book check. Section headings are `##`; the chapter supplies `#`.
+- `panel-spat.qmd` still uses the old layout (`###` sections under `##`
+  stages) until it is split; see `.docs/plans/0002-restructure-panel-spat.md`.
 - **Never put manual numbers in a heading** (no "0.1", no "Stage 0 —" prefix on
   a section). Quarto numbers headings itself, and the plan's section number
   belongs in the text, not the title. Give each section a `{#sec-...}` id so it
   can be linked.
 - `_quarto.yml` keeps `number-depth: 2`, so only chapters and their top-level
-  sections are numbered, and `toc-depth: 4`, so the right-hand per-page
-  contents reaches the deepest headings. Keep those apart: deep page contents,
-  shallow numbering.
-- `panel-spat.qmd` only collects those files with `{{< include >}}`.
+  sections are numbered, and `toc-depth: 3` with `toc-expand: 1`, so the
+  right-hand contents stays short. `assets/sidebar-toc.html` nests the open
+  page's sections under its entry in the left sidebar; Quarto has no option
+  for this. Theme lives in `assets/theme.scss` and `assets/theme-dark.scss`.
+- Chapter files hold the intro, the setup chunk and `{{< include >}}` lines.
 - Load packages with `library()` in the file that uses them.
 - Keep examples extremely concise and self-explanatory.
 - No test-style assertions (`stopifnot`, `all.equal`). Verification is a **Book
