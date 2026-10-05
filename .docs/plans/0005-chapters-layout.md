@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-05
 - **Author:** Eduard Bukin
-- **Status:** in progress
+- **Status:** done
 
 ## Goal
 
@@ -78,11 +78,11 @@ Each step ends in its own commit. Use `git mv` so history follows the files.
   chapters; keep ticks only for written nodes.
 - [x] **Clean up.** Delete `panel-spat.qmd`, `unit-roots.qmd`, `examples/`
   and `theory/` once nothing links to them. Mark plan 0002 superseded.
-- [ ] **Render.** Clear `_freeze/` and `_book/`, then render in full:
+- [x] **Render.** Clear `_freeze/` and `_book/`, then render in full:
   `QUARTO_R="C:/Program Files/R/R-4.6.1/bin" quarto render`. Read the log for
   unresolved cross-references and R errors. Open the book and click through
   each chapter and each theory link in the pane.
-- [ ] **Outcome.** Fill in the outcome below; set status to done.
+- [x] **Outcome.** Fill in the outcome below; set status to done.
 
 ## Decisions
 
@@ -100,3 +100,21 @@ Settled with the user on 2026-10-05, before the work started:
 
 ## Outcome
 
+Done on 2026-10-05. The book lives in `chapters/00-road-map` to
+`chapters/05-core`; `panel-spat.qmd`, `unit-roots.qmd`, `examples/` and
+`theory/` are gone. A full render from a clean `_freeze/` and `_book/` builds
+15 pages with no R errors, and a crawl of `_book/` finds no dead links or
+anchors. Book checks print the same numbers as before (CD z = 53.26, CCE
+elasticity 1.14).
+
+- Moving the CD tests ahead of CCE exposed a hidden dependency:
+  `plm::pcdtest()` on a formula needs `library(plm)`, which the CCE step used
+  to attach. The tests step now attaches it itself.
+- Theory notes are appendices headed "Theory" (see Decisions).
+- `devtools` was missing from `renv.lock`; it is now installed and recorded.
+- renv resolves this project's library to an external cache folder
+  (`AppData/Local/R/cache/R/renv/library/metrics-masters-*`) that holds only
+  renv, not to `renv/library/`. The render ran with
+  `RENV_PATHS_LIBRARY=<project>/renv/library` set for the command. The cause
+  is not yet found.
+- Not done: clicking through the pane links by hand in a browser.
