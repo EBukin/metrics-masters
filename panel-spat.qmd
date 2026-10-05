@@ -1,12 +1,90 @@
 ---
-title: "Spatial panel data econometrics"
+title: "Same data, two answers"
 ---
 
-Each section lives in its own self-contained file under `examples/panel-spat/`
-(theory, data, code, book check). This chapter only collects them. Anchor
-texts: @baltagi2021, @pesaran2015 and @croissant2019.
+How much do house prices rise when incomes rise? Take the 48 contiguous US
+states and the District of Columbia, 1975 to 2003, and regress log house prices
+on log income in each state. The average of the 49 slopes is 0.30: a 10% rise
+in income goes with a 3% rise in prices. Now allow for one more thing. Every
+state feels the same national forces, interest rates and credit conditions,
+each to its own degree. With that allowed for, the elasticity is 1.14. Same
+data, almost four times the answer [@holly2010; @croissant2019, pp. 197–199].
+This Part is about why.
 
-## Stage 0 — Panel shape and the dependence fork
+A **panel** follows the same units, here states, over several periods. Its
+promise is that each state is compared with itself over time, so everything
+fixed about a state drops out. Its catch is that the states are not
+independent of each other. A national shock moves them all at once, and in
+the picture below it is hard to see 49 separate stories:
+
+```{r}
+#| label: s0-0-together
+#| fig-cap: "Log house prices (left) and their annual growth (right) in 49
+#|   US states, 1975–2003. Grey: one line per state. Black: the cross-state
+#|   average. Prices are an index with 1980 = 100 in every state, which is
+#|   why the lines pinch together in 1980."
+#| fig-alt: "Two line charts with 49 thin grey lines and one thick black
+#|   line each. On the left, log price indices rise and fall in waves that
+#|   most states share, around the average. On the right, annual growth
+#|   rates swing together: booms and busts hit most states in the same
+#|   years, by different amounts."
+data("HousePricesUS", package = "pder")
+lp <- with(HousePricesUS, tapply(log(price), list(year, names), identity))
+growth <- diff(lp)
+op <- graphics::par(mfrow = c(1, 2))
+graphics::matplot(as.numeric(rownames(lp)), lp, type = "l", lty = 1,
+                  col = "grey75", xlab = "year", ylab = "log price index",
+                  main = "Levels")
+graphics::lines(as.numeric(rownames(lp)), rowMeans(lp), lwd = 3)
+graphics::matplot(as.numeric(rownames(growth)), growth, type = "l", lty = 1,
+                  col = "grey75", xlab = "year", ylab = "annual growth",
+                  main = "Growth rates")
+graphics::lines(as.numeric(rownames(growth)), rowMeans(growth), lwd = 3)
+graphics::par(op)
+```
+
+In equations, state *i* in year *t* follows
+
+$$
+y_{it} = \alpha_i + \beta x_{it} + u_{it}, \qquad
+u_{it} = \lambda_i f_t + \varepsilon_{it}.
+$$
+
+Here $\alpha_i$ is everything fixed about the state, $f_t$ is the national
+shock in year *t*, and $\lambda_i$ is how strongly state *i* feels it. Fixed
+effects remove $\alpha_i$. Year effects remove $f_t$, but only if every state
+feels it equally, $\lambda_i = 1$. When the loadings differ and the shock also
+moves income, the shock leaks into $\hat\beta$. That leak is the gap between
+0.30 and 1.14.
+
+**In this Part.**
+
+1. **Panel shape.** How many units, how many years, and whether every unit is
+   observed every year decide which tools work
+   ([panel shape](panel-spat.qmd#sec-panel-shape)).
+2. **Common shocks.** Do the units move together more than chance allows,
+   and how strongly? The CD test answers the first question
+   ([CD tests](panel-spat.qmd#sec-csd-tests)); the exponent α, which counts
+   how many units a shock reaches, answers the second
+   ([α](panel-spat.qmd#sec-csd-exponent)).
+3. **Removing common shocks.** Add the cross-state averages of prices and
+   income to each state's regression, so they stand in for $f_t$. This is
+   common correlated effects, CCE, and it gives the 1.14
+   ([CCE](panel-spat.qmd#sec-cce)).
+4. **Unit roots.** Do prices drift with no level to return to? If so, a
+   regression of one drifting series on another can find a link that is not
+   there ([unit roots](unit-roots.qmd)).
+5. **Still to come.** Long-run relations between drifting series, the
+   structure of the errors, static and dynamic panel estimators, and spatial
+   spillovers between neighbours.
+
+::: {.callout-note appearance="simple"}
+The sections below still use the old layout. They will be rewritten to the
+standard of the [unit roots](unit-roots.qmd) chapter and split into their own
+chapters.
+:::
+
+## Panel shape and common shocks {#sec-panel-diagnostics}
 
 {{< include examples/panel-spat/0-1-panel-shape.qmd >}}
 
@@ -15,6 +93,3 @@ texts: @baltagi2021, @pesaran2015 and @croissant2019.
 {{< include examples/panel-spat/0-3-cce.qmd >}}
 
 {{< include examples/panel-spat/0-4-csd-tests.qmd >}}
-
-Panel unit roots, Stage 1 of the spec, have their own chapter:
-[do the series wander?](unit-roots.qmd).

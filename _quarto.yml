@@ -21,7 +21,7 @@ book:
   search: true
   chapters:
     - index.qmd
-    - part: "Panels where units are not independent"
+    - part: "Panel data"
       chapters:
         - panel-spat.qmd
         - unit-roots.qmd

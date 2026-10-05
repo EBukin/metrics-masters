@@ -25,9 +25,9 @@ placeholders describing what they should cover.
 
 ### Chapters
 
-- [x] [Spatial panel data econometrics](panel-spat.qmd) — Stage 0 written;
-  to be split into question chapters
-  (`.docs/plans/0002-restructure-panel-spat.md`)
+- [x] [Same data, two answers](panel-spat.qmd) — Part overview in the new
+  standard; its Stage 0 sections are still in the old layout, to be split
+  into chapters (`.docs/plans/0002-restructure-panel-spat.md`)
 - [x] [Do the series wander? Panel unit roots](unit-roots.qmd) — Stage 1, in
   the new section template
 - [ ] Difference in differences — cohort-level, staggered with heterogeneous
