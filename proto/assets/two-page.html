@@ -193,6 +193,10 @@
   var paneBar = el("div", "tp-bar tp-pane-bar");
   var title = el("div", "tp-bar-title tp-pane-title", "Second page");
   title.setAttribute("aria-live", "polite");
+  var back = iconButton("back", "bi-arrow-left", "Back");
+  var fwd = iconButton("forward", "bi-arrow-right", "Forward");
+  paneBar.appendChild(back);
+  paneBar.appendChild(fwd);
   paneBar.appendChild(title);
   paneBar.appendChild(
     iconButton("main", "bi-box-arrow-up-left", "Open as the main page"));
@@ -283,9 +287,47 @@
     return up.concat(b.slice(i)).join("/") + to.search + to.hash;
   }
   var current = null;   // address of the page shown in the pane
-  function open(url) {
+
+  // Pane history, for this page load only: the addresses the pane has
+  // shown, and where in that list it is. A page the pane reports that is
+  // not the current entry is pushed, dropping the entries ahead of it;
+  // Back and Forward move the index and say so, so the report that
+  // follows does not push.
+  var past = [], at = -1, moving = false;
+  function syncButtons() {
+    back.disabled = at <= 0;
+    fwd.disabled = at >= past.length - 1;
+  }
+  function paneSrc(url) {
     var src = new URL(url, location.href);
     src.searchParams.set("tp-pane", "1");
+    return src;
+  }
+  function go(step) {
+    var i = at + step;
+    if (i < 0 || i >= past.length) return;
+    at = i;
+    moving = true;
+    var src = paneSrc(past[at]).href;
+    // replace() keeps these moves out of the browser's own history.
+    try { frame.contentWindow.location.replace(src); }
+    catch (e) { frame.src = src; }
+    syncButtons();
+  }
+  function record(url) {
+    if (moving) {
+      moving = false;
+      past[at] = url;
+    } else if (past[at] !== url) {
+      past = past.slice(0, at + 1);
+      past.push(url);
+      at = past.length - 1;
+    }
+    syncButtons();
+  }
+
+  function open(url) {
+    var src = paneSrc(url);
     frame.src = src.href;
     // Until the page reports its own title, show its file name.
     setTitle(decodeURIComponent(src.pathname.replace(/^.*\//, "")),
@@ -299,12 +341,17 @@
     if (!d || d.tp !== "loaded" || typeof d.url !== "string") return;
     if (!pane.classList.contains("is-open")) return;
     current = d.url;
+    record(d.url);
     setTitle(String(d.title || ""), String(d.section || ""));
     setQuery(relative(d.url));
   });
   function close() {
     frame.removeAttribute("src");
     current = null;
+    past = [];
+    at = -1;
+    moving = false;
+    syncButtons();
     pane.classList.remove("is-open");
     setQuery(null);
   }
@@ -312,6 +359,8 @@
     var b = e.target.closest("[data-act]");
     var act = b && b.getAttribute("data-act");
     if (act === "close") close();
+    if (act === "back") go(-1);
+    if (act === "forward") go(1);
     if (act === "main" && current) location.href = current;
   });
   document.addEventListener("keydown", function (e) {
@@ -361,6 +410,7 @@
   var start = new URL(location.href).searchParams.get("pane");
   if (start) open(start);
 
+  syncButtons();
   window.addEventListener("resize", layout);
   desktop.addEventListener("change", layout);
   layout();
