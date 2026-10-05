@@ -18,14 +18,7 @@ book:
   subtitle: "Reproducing impact-evaluation methods in R"
   author: "Eduard Bukin"
   date: today
-  search:
-    location: sidebar
-    type: textbox
-  reader-mode: true
-  page-navigation: true
-  sidebar:
-    style: floating
-    collapse-level: 1
+  search: true
   chapters:
     - index.qmd
     - part: "Panels where units are not independent"
@@ -46,28 +39,13 @@ bibliography: references.bib
 
 format:
   html:
-    theme:
-      light: [cosmo, assets/theme.scss]
-      dark: [cosmo, assets/theme.scss, assets/theme-dark.scss]
-    respect-user-color-scheme: true
-    highlight-style:
-      light: github
-      dark: github-dark
-    # Left sidebar: chapters, with the open page's sections nested below
-    # (assets/sidebar-toc.html). Right contents: two levels, only the
-    # current group expanded. Heading numbers: shallow.
-    include-after-body: assets/sidebar-toc.html
+    theme: sandstone
+    # Right-hand per-page contents: deep. Heading numbers: shallow.
     toc: true
     toc-title: "On this page"
-    toc-depth: 3
-    toc-expand: 1
+    toc-depth: 4
+    toc-expand: 3
     number-depth: 2
-    code-copy: true
-    code-overflow: wrap
-    anchor-sections: true
-    smooth-scroll: true
-    link-external-newwindow: true
-    fig-align: center
 
 execute:
   warning: false
