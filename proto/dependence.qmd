@@ -1,8 +1,12 @@
 # Do units move together? {#sec-dependence}
 
 Units in a panel are rarely independent. States share a business cycle, and
-neighbours share shocks. This chapter asks whether that co-movement is present
-and how strong it is. The math lives in @sec-cd-theory.
+neighbours share shocks.[^cycle] This [cross-sectional dependence]{.term} is the
+subject of the chapter: is the co-movement present, and how strong is it? The
+math lives in @sec-cd-theory; the reading of the result is in @sec-cd-read.
+
+[^cycle]: A shared cycle is a common factor; a shock that spreads to
+    neighbours is spatial. The two call for different remedies.
 
 ## Question {#sec-dep-question}
 
@@ -18,8 +22,12 @@ CD = \sqrt{\frac{2T}{N(N-1)}} \sum_{i<j} \hat\rho_{ij}
   \;\xrightarrow{d}\; N(0,1).
 $$
 
-It sums raw $\hat\rho$, so correlations of opposite sign cancel. Unit roots
-change the picture again; see @sec-ips.
+It sums raw $\hat\rho$, so correlations of opposite sign cancel.[^cancel]
+Unit roots change the picture again; see @sec-ips.
+
+[^cancel]: Two-way fixed effects remove the cross-section mean in each
+    period, which forces the average correlation towards zero. A small CD
+    after that transformation says little.
 
 ### Run it {#sec-cd-run}
 
@@ -59,7 +67,9 @@ panel tools apply.
 ## How strong is it? {#sec-exponent}
 
 The exponent $\alpha$ says how many units a shock reaches. Near 1 means a
-common factor; near 0.5 means local, spatial spillovers.
+[common factor]{.term key="common-factor"}; near 0.5 means local, spatial
+spillovers. The CD statistic from @sec-cd-test says only that dependence is
+there, not how far it reaches.
 
 ### Run it {#sec-exponent-run}
 

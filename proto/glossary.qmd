@@ -1,0 +1,25 @@
+# Index {.unnumbered}
+
+Terms of the book, each with a one-line definition and the sections that use
+it.
+
+::: {#term-common-factor .tp-entry}
+**common factor**: an unobserved variable that moves every unit at once, each
+with its own loading.
+
+Used in: @sec-exponent, @sec-second-gen.
+:::
+
+::: {#term-cross-sectional-dependence .tp-entry}
+**cross-sectional dependence**: correlation between the errors of different
+units in the same period.
+
+Used in: @sec-dependence, @sec-cd-test, @sec-cd-theory.
+:::
+
+::: {#term-unit-root .tp-entry}
+**unit root**: a series whose shocks never die out, so it wanders without a
+fixed mean.
+
+Used in: @sec-unit-roots, @sec-ips, @sec-cips.
+:::

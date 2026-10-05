@@ -195,7 +195,7 @@ then screenshot or `--dump-dom`; delete both files after. Test light, dark
 (`--force-dark-mode --blink-settings=preferredColorScheme=0`), 1440 and
 1100 px wide, and the page wrapped in an outer iframe (editor preview case).
 
-- [ ] **Test content.** Add to `proto/` pages: two footnotes, three
+- [x] **Test content.** Add to `proto/` pages: two footnotes, three
   `.term` spans, two same-page cross-references, one wide table. Add
   `glossary.qmd` with three entries.
 - [ ] **Top bars.** Implement the three 3rem bars and move the "On this

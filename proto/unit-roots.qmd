@@ -1,8 +1,9 @@
 # Do the series wander? {#sec-unit-roots}
 
 A regression of one wandering series on another finds a relationship even when
-there is none. This chapter tests for unit roots in a panel. Dependence across
-units, from @sec-dependence, changes which test is valid.
+there is none. This chapter tests for a [unit root]{.term} in a panel.
+Dependence across units, from @sec-dependence, changes which test is valid; the
+tests that allow it are in @sec-second-gen.
 
 ## First-generation tests {#sec-first-gen}
 
@@ -49,6 +50,13 @@ CIPS under-rejects when dependence is spatial rather than factor-driven.
 :::
 
 ## Summary {#sec-ur-summary}
+
+| Test | Generation | Null | Alternative | Lags | Dependence | Statistic | p-value | Reading |
+|---|---|---|---|---|---|---|---|---|
+| IPS | First | All units have a unit root | Some units stationary | 1 | Not allowed | Wtbar = 1.84 | 0.967 | Wander |
+| LLC | First | All units have a unit root | All units stationary, common root | 1 | Not allowed | t* = 0.52 | 0.698 | Wander |
+| CIPS | Second | All units have a unit root | Some units stationary | 1 | One common factor | −1.92 | > 0.10 | Wander |
+
 
 Levels wander; growth rates do not. Estimate in differences, or check for
 cointegration first.
