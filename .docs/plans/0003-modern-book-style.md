@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-04
 - **Author:** Eduard Bukin
-- **Status:** active
+- **Status:** done
 
 ## Goal
 
@@ -56,7 +56,8 @@ Findings:
 - [x] Iterate the two-page layout (plan 0004): shared top bars, visible
   handles, pane Back / Forward and contents, same-page links, footnotes and
   index terms in the pane.
-- [ ] Agree the prototype with the user, then port it back to the main book.
+- [x] Agree the prototype with the user, then port it back to the main book
+  (theme and layout back in `assets/`, shared by the main book and `proto/`).
 
 ## Open questions
 
@@ -69,3 +70,9 @@ On hold in `proto/` (commits beaf1c2, 22c6c67). The two-page layout is
 prototyped in `proto/assets/two-page.*`; iteration 2 (plan 0004, commits
 `bbd9531` to `483c382`) adds the shared top bars, pane history, snippet mode
 for footnotes and index terms, and `proto/assets/terms.lua`.
+
+Adopted in the main book on 2026-10-05: `assets/` holds the theme and
+layout again, used by the root `_quarto.yml` and by `proto/` (`../assets`).
+Code blocks scroll sideways instead of wrapping. The index filter
+(`assets/terms.lua`) is not enabled in the main book until it has a
+glossary page.
