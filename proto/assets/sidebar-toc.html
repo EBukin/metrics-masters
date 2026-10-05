@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
       var copy = document.createElement("a");
       copy.href = a.getAttribute("href");
       copy.innerHTML = a.innerHTML;
+      row.appendChild(copy);
       var sub = srcLi.querySelector(":scope > ul");
       if (sub && depth < 2) {
         var btn = document.createElement("button");
@@ -40,7 +41,6 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         li.appendChild(row);
       }
-      row.appendChild(copy);
       ul.appendChild(li);
     });
     return ul;

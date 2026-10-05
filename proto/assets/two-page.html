@@ -2,7 +2,8 @@
 // Two-page layout: the book page stays on the left; a cross-reference or
 // any link to another page of the book opens that page in a pane on the
 // right. The sidebar is fixed, resizable, and collapses to a rail only on
-// request. Styles: assets/two-page.scss. Phones keep the normal layout.
+// request. Each column has a top bar of the same height (--tp-bar).
+// Styles: assets/two-page.scss. Phones keep the normal layout.
 (function () {
   if (document.documentElement.classList.contains("tp-in-pane")) {
     // Inside the pane: flash the heading the link pointed at.
@@ -16,7 +17,7 @@
 
   var root = document.documentElement;
   var desktop = window.matchMedia("(min-width: 768px)");
-  var RAIL = 44, SB_MIN = 180, SB_MAX = 440, MAIN_MIN = 420, PANE_MIN = 320;
+  var RAIL = 44, SB_MIN = 200, SB_MAX = 440, MAIN_MIN = 420, PANE_MIN = 320;
   var GAP = 40;
 
   // Per-viewer layout memory; the page works without it.
@@ -34,26 +35,104 @@
   var main = document.querySelector("main.content");
   if (!sidebar || !main) return;
 
-  // Lift the page contents out of Quarto's grid, whose stacking context
-  // would keep it under the pane.
-  var toc = document.getElementById("quarto-margin-sidebar");
-  if (toc) document.body.appendChild(toc);
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html) e.innerHTML = html;
+    return e;
+  }
+  function iconButton(act, icon, label) {
+    var b = el("button", "tp-icon", '<i class="bi ' + icon + '"></i>');
+    b.type = "button";
+    b.setAttribute("data-act", act);
+    b.setAttribute("aria-label", label);
+    b.title = label;
+    return b;
+  }
 
-  // Sidebar toggle.
-  var toggle = document.createElement("button");
-  toggle.type = "button";
-  toggle.className = "tp-sb-toggle";
-  sidebar.appendChild(toggle);
+  // Desktop moves a few of Quarto's elements into the bars; phones get them
+  // back where Quarto put them.
+  var moves = [];
+  function movable(node, target) {
+    if (node) {
+      moves.push({ node: node, home: node.parentNode,
+                   next: node.nextSibling, target: target });
+    }
+  }
+  var placed = null;
+  function place() {
+    if (placed === desktop.matches) return;
+    placed = desktop.matches;
+    moves.forEach(function (m) {
+      if (desktop.matches) m.target.appendChild(m.node);
+      else m.home.insertBefore(m.node, m.next);
+    });
+  }
+
+  // Sidebar bar: book title and the collapse toggle on one row. The dark
+  // mode and reader toggles sit beside the search box.
+  var sbBar = el("div", "tp-bar tp-sb-bar");
+  var sbTitle = el("div", "tp-bar-title");
+  var toggle = iconButton("sidebar", "bi-chevron-left", "Narrow the sidebar");
+  toggle.classList.add("tp-sb-toggle");
+  sbBar.appendChild(sbTitle);
+  sbBar.appendChild(toggle);
+  sidebar.insertBefore(sbBar, sidebar.firstChild);
+  var titleLink = sidebar.querySelector(".sidebar-title > a");
+  if (titleLink) titleLink.title = titleLink.textContent.trim();
+  movable(titleLink, sbTitle);
+  var tools = sidebar.querySelector(".sidebar-tools-main");
+  var search = sidebar.querySelector(".sidebar-search");
+  if (tools && search) movable(tools, search);
   toggle.addEventListener("click", function () {
     state.collapsed = !state.collapsed;
     save();
     layout();
   });
 
+  // Book bar: breadcrumb on the left, "On this page" on the right.
+  var bookBar = el("div", "tp-bar tp-book-bar");
+  var crumbs = el("div", "tp-crumbs");
+  var tocSlot = el("div", "tp-toc-slot");
+  bookBar.appendChild(crumbs);
+  bookBar.appendChild(tocSlot);
+  document.body.appendChild(bookBar);
+  movable(main.querySelector(".quarto-title-breadcrumbs"), crumbs);
+  var toc = document.getElementById("quarto-margin-sidebar");
+  movable(toc, tocSlot);
+
+  // The contents is a dropdown: hover or click opens it, a click on an
+  // entry, outside, or Esc closes it.
+  var tocTitle = document.getElementById("toc-title");
+  if (toc && tocTitle) {
+    tocTitle.setAttribute("tabindex", "0");
+    tocTitle.setAttribute("role", "button");
+    tocTitle.addEventListener("click", function () {
+      toc.classList.toggle("is-open");
+    });
+    tocTitle.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toc.classList.toggle("is-open");
+      }
+    });
+    toc.addEventListener("click", function (e) {
+      if (e.target.closest("a")) {
+        toc.classList.remove("is-open");
+        toc.classList.add("is-shut");
+      }
+    });
+    toc.addEventListener("mouseleave", function () {
+      toc.classList.remove("is-shut");
+    });
+    document.addEventListener("click", function (e) {
+      if (!toc.contains(e.target)) toc.classList.remove("is-open");
+    });
+  }
+
   // Handles.
   function handle(cls) {
-    var h = document.createElement("div");
-    h.className = "tp-handle " + cls;
+    var h = el("div", "tp-handle " + cls);
     document.body.appendChild(h);
     return h;
   }
@@ -61,26 +140,27 @@
   var hSplit = handle("tp-handle-split");
 
   // Pane.
-  var pane = document.createElement("div");
-  pane.className = "tp-pane";
+  var pane = el("div", "tp-pane");
   pane.setAttribute("role", "complementary");
   pane.setAttribute("aria-label", "Second page");
-  pane.innerHTML =
-    '<div class="tp-pane-bar">' +
-    '<span class="tp-pane-title">Second page</span>' +
-    '<button type="button" data-act="main" title="Open as the main page">' +
-    'Open here</button>' +
-    '<button type="button" data-act="close" title="Close (Esc)">' +
-    'Close</button></div>' +
-    '<div class="tp-pane-empty">Click a cross-reference or a link to ' +
-    'another page.<br>It opens here, and this page stays put.</div>' +
-    '<iframe title="Second page"></iframe>';
-  document.body.appendChild(pane);
-  var frame = pane.querySelector("iframe");
+  var paneBar = el("div", "tp-bar tp-pane-bar");
+  var title = el("div", "tp-bar-title tp-pane-title", "Second page");
+  paneBar.appendChild(title);
+  paneBar.appendChild(
+    iconButton("main", "bi-box-arrow-up-left", "Open as the main page"));
+  paneBar.appendChild(iconButton("close", "bi-x-lg", "Close (Esc)"));
+  pane.appendChild(paneBar);
+  pane.appendChild(el("div", "tp-pane-empty",
+    "Click a cross-reference or a link to another page.<br>" +
+    "It opens here, and this page stays put."));
+  var frame = el("iframe");
+  frame.title = "Second page";
   frame.name = "tp-pane";
-  var title = pane.querySelector(".tp-pane-title");
+  pane.appendChild(frame);
+  document.body.appendChild(pane);
 
   function layout() {
+    place();
     if (!desktop.matches) return;
     var vw = root.clientWidth;
     var sb = state.collapsed ? RAIL : state.sb;
@@ -95,8 +175,10 @@
     pane.style.left = paneLeft + "px";
     hSb.style.left = sb + "px";
     hSplit.style.left = paneLeft + "px";
-    toggle.textContent = state.collapsed ? "›" : "‹";
+    toggle.innerHTML = '<i class="bi ' +
+      (state.collapsed ? "bi-chevron-right" : "bi-chevron-left") + '"></i>';
     toggle.title = state.collapsed ? "Show the sidebar" : "Narrow the sidebar";
+    toggle.setAttribute("aria-label", toggle.title);
   }
 
   function drag(h, onMove) {
@@ -147,7 +229,8 @@
     setQuery(null);
   }
   pane.addEventListener("click", function (e) {
-    var act = e.target.getAttribute && e.target.getAttribute("data-act");
+    var b = e.target.closest("[data-act]");
+    var act = b && b.getAttribute("data-act");
     if (act === "close") close();
     if (act === "main" && frame.src) {
       var u = new URL(frame.src);
@@ -156,7 +239,12 @@
     }
   });
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && pane.classList.contains("is-open")) close();
+    if (e.key !== "Escape") return;
+    if (toc && toc.classList.contains("is-open")) {
+      toc.classList.remove("is-open");
+    } else if (pane.classList.contains("is-open")) {
+      close();
+    }
   });
 
   // Which links open in the pane: links in the page body to another page

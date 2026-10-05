@@ -2,17 +2,76 @@
 
 // Two-page layout (assets/two-page.html), from 768px up:
 //   fixed sidebar | book page | divider | second page (iframe)
-// The page contents floats as a pill in the top-right corner.
+// Each column starts with a bar of the same height (--tp-bar); everything
+// clickable in a bar is --tp-btn tall and centred on one line.
 // Widths come from CSS variables that the script sets.
 
 :root {
   --tp-sb: 17rem;      // sidebar width; 2.75rem when collapsed to a rail
   --tp-main: 40rem;    // book page width
   --tp-gap: 2.5rem;    // space either side of the book page
+  --tp-bar: 3rem;      // height of the three top bars
+  --tp-btn: 1.9rem;    // height of every button in a bar
+}
+
+// One bar style for all three columns.
+.tp-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: var(--tp-bar);
+  box-sizing: border-box;
+  border-bottom: 1px solid $border-color;
+  font-family: $font-family-sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  color: $secondary;
+}
+.tp-bar-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: $body-color;
+}
+
+// Square icon buttons, the same in every bar.
+.tp-icon,
+html:not(.tp-in-pane) .sidebar-tools-main .quarto-navigation-tool {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tp-btn);
+  height: var(--tp-btn);
+  padding: 0 !important;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: $secondary;
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.tp-icon:hover:not(:disabled),
+html:not(.tp-in-pane) .sidebar-tools-main .quarto-navigation-tool:hover {
+  color: $primary;
+  border-color: $border-color;
+  background: rgba($primary, 0.06);
+}
+.tp-icon:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 @media (min-width: 768px) {
   html:not(.tp-in-pane) {
+    // Room under the three bars when the reader jumps to an anchor.
+    scroll-padding-top: calc(var(--tp-bar) + 1rem);
+
     body {
       padding-top: 0 !important;
     }
@@ -33,7 +92,7 @@
       max-height: none !important;
       height: 100vh !important;
       margin: 0 !important;
-      padding: 1rem 0.9rem 2rem 0.9rem !important;
+      padding: 0 0.9rem 2rem 0.9rem !important;
       z-index: 30;
       background: $sidebar-bg;
       border-right: 1px solid $border-color;
@@ -42,8 +101,44 @@
     #quarto-sidebar-glass {
       display: none !important;
     }
+    // The title moved into the bar; its old block is empty.
+    #quarto-sidebar .sidebar-header {
+      display: none !important;
+    }
+    .tp-sb-bar {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      margin: 0 -0.9rem 0.75rem -0.9rem;
+      padding: 0 0.5rem 0 1.05rem;
+      background: $sidebar-bg;
+      font-size: 0.92rem;
+    }
+    .tp-sb-bar .tp-bar-title a {
+      color: $body-color;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+    }
+    // Search box with the dark mode and reader toggles on its right.
+    #quarto-sidebar .sidebar-search {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      #quarto-search {
+        flex: 1;
+        min-width: 0;
+        margin: 0;
+      }
+    }
+    #quarto-sidebar .sidebar-tools-main {
+      display: flex;
+      flex: none;
+      gap: 0.15rem;
+      margin: 0;
+    }
 
-    // Book page at the far left, next to the sidebar.
+    // Book page at the far left, next to the sidebar, under its bar.
     #quarto-content.page-columns {
       display: block;
     }
@@ -54,25 +149,75 @@
       width: var(--tp-main) !important;
       max-width: none !important;
     }
+    main.content {
+      margin-top: 0 !important;
+      padding-top: calc(var(--tp-bar) + 1.75rem) !important;
+    }
+    #title-block-header {
+      margin-top: 0;
+    }
 
-    // Page contents: a pill that opens on hover, over everything.
-    #quarto-margin-sidebar {
-      display: block !important;
-      position: fixed !important;
-      top: 0.75rem !important;
-      right: 0.75rem !important;
-      left: auto !important;
-      width: auto !important;
-      max-width: 19rem;
-      max-height: calc(100vh - 1.5rem) !important;
-      padding: 0.35rem 0.85rem !important;
-      z-index: 50 !important;
+    .tp-book-bar {
+      position: fixed;
+      top: 0;
+      left: var(--tp-sb);
+      width: calc(var(--tp-main) + 2 * var(--tp-gap));
+      z-index: 25;
+      padding: 0 var(--tp-gap);
+      gap: 1rem;
       background: $body-bg;
-      border: 1px solid $border-color;
-      border-radius: 1.2rem;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-      overflow: hidden;
-      transition: border-radius 0.15s ease;
+    }
+    .tp-crumbs {
+      flex: 1;
+      min-width: 0;
+      .quarto-title-breadcrumbs {
+        display: block !important;
+      }
+      .breadcrumb {
+        flex-wrap: nowrap;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: 0.82rem;
+      }
+      // Every crumb can shrink to an ellipsis; the parts give way first.
+      .breadcrumb-item {
+        flex: 0 4 auto;
+        min-width: 3rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .breadcrumb-item:last-child {
+        flex: 0 1 auto;
+        min-width: 0;
+      }
+      a {
+        color: $secondary;
+        text-decoration: none;
+      }
+      a:hover {
+        color: $primary;
+      }
+    }
+
+    // "On this page": a button in the book bar, a list below it.
+    .tp-toc-slot {
+      flex: none;
+      position: relative;
+      height: var(--tp-btn);
+    }
+    .tp-toc-slot #quarto-margin-sidebar {
+      display: block !important;
+      position: static !important;
+      width: auto !important;
+      max-height: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: visible !important;
+      background: none;
+      border: 0;
+      z-index: auto !important;
 
       nav#TOC {
         margin: 0;
@@ -80,24 +225,65 @@
         border: 0;
       }
       #toc-title {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        height: var(--tp-btn);
         margin: 0;
-        cursor: default;
+        padding: 0 0.65rem;
+        border: 1px solid $border-color;
+        border-radius: 0.35rem;
+        background: $body-bg;
+        color: $secondary;
+        font-size: 0.72rem;
+        cursor: pointer;
         white-space: nowrap;
       }
       #toc-title::after {
-        content: " \25BE";
+        content: "";
+        width: 0.4rem;
+        height: 0.4rem;
+        margin-top: -0.2rem;
+        border-right: 1.5px solid currentColor;
+        border-bottom: 1.5px solid currentColor;
+        transform: rotate(45deg);
+      }
+      #toc-title:hover,
+      &.is-open #toc-title {
+        color: $primary;
+        border-color: $primary;
       }
       nav#TOC > ul {
         display: none;
+        position: absolute;
+        top: calc(100% + (var(--tp-bar) - var(--tp-btn)) / 2 + 0.25rem);
+        right: 0;
+        width: max-content;
+        min-width: 14rem;
+        max-width: 22rem;
         max-height: 70vh;
         overflow-y: auto;
-        margin-top: 0.4rem;
-      }
-      &:hover,
-      &:focus-within {
+        margin: 0;
+        padding: 0.5rem 0.75rem 0.5rem 0.25rem;
+        background: $body-bg;
+        border: 1px solid $border-color;
         border-radius: $border-radius;
         box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
-        nav#TOC > ul {
+      }
+      // A bridge over the gap between button and list keeps hover alive.
+      nav#TOC::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        height: 1rem;
+        display: none;
+      }
+      &:hover:not(.is-shut),
+      &.is-open {
+        nav#TOC > ul,
+        nav#TOC::after {
           display: block;
         }
       }
@@ -106,34 +292,24 @@
 
   // Sidebar collapsed to a rail: only the toggle stays.
   html.tp-sb-collapsed:not(.tp-in-pane) #quarto-sidebar {
-    padding: 0.75rem 0.25rem !important;
+    padding: 0 !important;
     overflow: hidden;
-    > *:not(.tp-sb-toggle) {
+    > *:not(.tp-sb-bar) {
       display: none !important;
+    }
+    .tp-sb-bar {
+      margin: 0;
+      padding: 0;
+      justify-content: center;
+    }
+    .tp-bar-title {
+      display: none;
     }
   }
 }
 
-// Sidebar toggle (collapse to rail / restore).
-.tp-sb-toggle {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.5rem;
-  z-index: 2;
-  width: 1.8rem;
-  height: 1.8rem;
-  border: 1px solid $border-color;
-  border-radius: 0.4rem;
-  background: $body-bg;
-  color: $secondary;
-  line-height: 1;
-  cursor: pointer;
-}
-.tp-sb-toggle:hover {
-  color: $primary;
-}
-
-// Drag handles: sidebar edge and book/pane divider.
+// Drag handles: sidebar edge and book/pane divider. A rule is always
+// visible on the column edge; a grip shows on hover.
 .tp-handle {
   position: fixed;
   top: 0;
@@ -184,36 +360,7 @@ html.tp-sb-collapsed .tp-handle-sb {
 }
 .tp-pane-bar {
   flex: none;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  // Room on the right for the contents pill.
-  padding: 0.55rem 11rem 0.55rem 0.9rem;
-  border-bottom: 1px solid $border-color;
-  font-family: $font-family-sans-serif;
-  font-size: 0.82rem;
-  color: $secondary;
-  min-height: 3rem;
-}
-.tp-pane-title {
-  flex: 1;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-weight: 600;
-  color: $body-color;
-}
-.tp-pane-bar button {
-  border: 1px solid $border-color;
-  border-radius: 0.35rem;
-  background: transparent;
-  color: $secondary;
-  padding: 0.1rem 0.5rem;
-  cursor: pointer;
-}
-.tp-pane-bar button:hover {
-  color: $primary;
-  border-color: $primary;
+  padding: 0 0.5rem 0 0.9rem;
 }
 .tp-pane iframe {
   flex: 1;
@@ -233,9 +380,13 @@ html.tp-sb-collapsed .tp-handle-sb {
   color: $secondary;
 }
 .tp-pane:not(.is-open) iframe,
-.tp-pane:not(.is-open) .tp-pane-bar button,
+.tp-pane:not(.is-open) .tp-pane-bar .tp-icon,
 .tp-pane.is-open .tp-pane-empty {
   display: none;
+}
+.tp-pane:not(.is-open) .tp-pane-title {
+  color: $secondary;
+  font-weight: 500;
 }
 
 // Links that open in the pane get a small marker on hover.
@@ -262,8 +413,11 @@ html.tp-in-pane {
   }
   main.content {
     margin: 0 auto !important;
-    padding: 0.5rem 1.75rem 3rem 1.75rem;
+    padding: 1.5rem 1.75rem 3rem 1.75rem;
     max-width: 46rem !important;
+  }
+  #title-block-header {
+    margin-top: 0;
   }
   .tp-flash {
     animation: tp-flash 1.6s ease-out;
@@ -278,7 +432,7 @@ html.tp-in-pane {
 @media (max-width: 767.98px) {
   .tp-pane,
   .tp-handle,
-  .tp-sb-toggle {
+  .tp-bar {
     display: none !important;
   }
 }
