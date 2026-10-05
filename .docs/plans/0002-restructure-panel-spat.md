@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-04
 - **Author:** Eduard Bukin
-- **Status:** draft
+- **Status:** active
 
 ## Goal
 
@@ -142,11 +142,13 @@ in the main text.
 
 ## Steps
 
-- [ ] Agree the Part outline and the section template with the user.
-- [ ] Write the template as `.docs/_templates/section.qmd`.
-- [ ] Move plumbing helpers into `R/`, one topic per file.
-- [ ] Rebuild chapter 3 (CD) first as the pilot; review with the user.
-- [ ] Rebuild chapters 1, 2, 4, 6, 5, 7 from existing material.
+- [x] Agree the Part outline and the section template with the user.
+- [x] Write the template as `.docs/_templates/section.qmd`.
+- [x] Move plumbing helpers into `R/`, one topic per file (unit-root
+  simulators and reshapers; Stage 0's `as_matrix()` still inline).
+- [x] Pilot on chapter 5 instead of 3, at the user's request: unit roots are
+  now `unit-roots.qmd`, rendered 2026-10-04. Review with the user.
+- [ ] Rebuild chapters 1, 2, 3, 4, 6, 7 from the Stage 0 material.
 - [ ] Add missing negative cases (CCE on a factor-free panel; first-generation
   rejection on a stationary panel).
 - [ ] Trim appendices 01 and 07 to "going deeper" content.
@@ -155,8 +157,11 @@ in the main text.
 ## Open questions
 
 - One chapter with seven sections, or a Part with seven short chapters?
-  Recommendation: a Part, because each question then has its own page and
-  table of contents.
+  Taken as a Part: the user asked to implement the outline chapter by
+  chapter.
+- `renv/activate.R` hangs at startup on this machine (Rscript, mcp-repl and
+  quarto alike). The render worked with `R_PROFILE_USER` pointing to a profile
+  that only sets `.libPaths()` to the renv library. Cause not diagnosed.
 - Keep the theory appendices, or fold them fully into the chapters?
   Recommendation: keep, trimmed to "going deeper".
 

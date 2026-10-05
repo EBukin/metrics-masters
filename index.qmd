@@ -25,8 +25,11 @@ placeholders describing what they should cover.
 
 ### Chapters
 
-- [x] [Spatial panel data econometrics](panel-spat.qmd) — Stages 0 and 1
-  written
+- [x] [Spatial panel data econometrics](panel-spat.qmd) — Stage 0 written;
+  to be split into question chapters
+  (`.docs/plans/0002-restructure-panel-spat.md`)
+- [x] [Do the series wander? Panel unit roots](unit-roots.qmd) — Stage 1, in
+  the new section template
 - [ ] Difference in differences — cohort-level, staggered with heterogeneous
   treatment effects, continuous treatment
 
@@ -36,12 +39,15 @@ placeholders describing what they should cover.
 - [x] [The exponent α](panel-spat.qmd#sec-csd-exponent)
 - [x] [Strong dependence: CCE](panel-spat.qmd#sec-cce)
 - [x] [Testing for cross-sectional dependence](panel-spat.qmd#sec-csd-tests)
-- [x] [State the alternative first](panel-spat.qmd#sec-ur-alternative)
-- [x] [First-generation tests](panel-spat.qmd#sec-ur-first-gen)
-- [x] [Second-generation tests](panel-spat.qmd#sec-ur-second-gen)
-- [x] [The fraction of stationary series](panel-spat.qmd#sec-ur-fraction)
-- [x] [Size under spatial dependence](panel-spat.qmd#sec-ur-spatial-size)
-- [x] [Cross-unit cointegration](panel-spat.qmd#sec-ur-cross-coint)
+- [x] [Why it matters](unit-roots.qmd#sec-ur-why)
+- [x] [What a rejection means](unit-roots.qmd#sec-ur-alternative)
+- [x] [Tests that assume independent units](unit-roots.qmd#sec-ur-first-gen)
+- [x] [Tests that allow a common factor](unit-roots.qmd#sec-ur-second-gen)
+- [x] [Which series are stationary?](unit-roots.qmd#sec-ur-fraction)
+- [x] [When the tests lie](unit-roots.qmd#sec-ur-traps): [panel shape and
+  spatial shocks](unit-roots.qmd#sec-ur-spatial-size), [shared trends across
+  units](unit-roots.qmd#sec-ur-cross-coint)
+- [x] [Unit roots: summary](unit-roots.qmd#sec-ur-summary)
 - [ ] Stage 2 — cointegration
 - [ ] Stage 3 — error structure
 - [ ] Stage 4a — static panel
