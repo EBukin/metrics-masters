@@ -1,5 +1,5 @@
 # Style prototype: a small R-free copy of the book's layout.
-# Theme lives in proto/assets; the main book keeps its default design.
+# Shares the main book theme in ../assets; try layout changes here first.
 # Render: quarto render proto   (seconds; no R, no renv)
 project:
   type: book
@@ -31,28 +31,28 @@ book:
 bibliography: ../references.bib
 engine: markdown
 filters:
-  - assets/terms.lua
+  - ../assets/terms.lua
 
 format:
   html:
     theme:
-      light: [cosmo, assets/theme.scss, assets/two-page.scss]
-      dark: [cosmo, assets/theme.scss, assets/theme-dark.scss, assets/two-page.scss]
+      light: [cosmo, ../assets/theme.scss, ../assets/two-page.scss]
+      dark: [cosmo, ../assets/theme.scss, ../assets/theme-dark.scss, ../assets/two-page.scss]
     respect-user-color-scheme: true
     highlight-style:
       light: github
       dark: github-dark
-    include-in-header: assets/in-pane.html
+    include-in-header: ../assets/in-pane.html
     include-after-body:
-      - assets/sidebar-toc.html
-      - assets/two-page.html
+      - ../assets/sidebar-toc.html
+      - ../assets/two-page.html
     toc: true
     toc-title: "On this page"
     toc-depth: 3
     toc-expand: 1
     number-depth: 2
     code-copy: true
-    code-overflow: wrap
+    code-overflow: scroll
     anchor-sections: true
     smooth-scroll: true
     link-external-newwindow: true

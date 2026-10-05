@@ -89,6 +89,10 @@ div.sourceCode, pre.sourceCode {
   border: 1px solid $border-color;
   border-radius: $border-radius;
 }
+// Keep long lines clear of the copy button.
+.code-copy-outer-scaffold pre.sourceCode {
+  padding-right: 2.6rem;
+}
 pre code, code {
   font-size: 0.84em;
   // Show `<-` and `!=` as typed, not as arrows.

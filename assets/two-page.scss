@@ -97,6 +97,8 @@ html:not(.tp-in-pane) .sidebar-tools-main .quarto-navigation-tool:hover {
       background: $sidebar-bg;
       border-right: 1px solid $border-color;
       overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: $border-color transparent;
     }
     #quarto-sidebar-glass {
       display: none !important;
