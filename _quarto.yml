@@ -2,16 +2,20 @@ project:
   type: book
   render:
     - index.qmd
-    - panel-spat.qmd
-    - unit-roots.qmd
+    - chapters/00-road-map/index.qmd
+    - chapters/01-explore/index.qmd
+    - chapters/02-cross-dependence/index.qmd
+    - chapters/03-spatial/index.qmd
+    - chapters/04-time/index.qmd
+    - chapters/05-core/index.qmd
     - references.qmd
-    - theory/01-cross-sectional-dependence.qmd
-    - theory/02-spatial-weights.qmd
-    - theory/03-spatial-dependence-tests.qmd
-    - theory/04-common-factors-cce.qmd
-    - theory/05-spatial-model-choice.qmd
-    - theory/06-direct-indirect-effects.qmd
-    - theory/07-panel-unit-roots.qmd
+    - chapters/02-cross-dependence/theory-cross-sectional-dependence.qmd
+    - chapters/02-cross-dependence/theory-common-factors-cce.qmd
+    - chapters/03-spatial/theory-spatial-weights.qmd
+    - chapters/03-spatial/theory-spatial-dependence-tests.qmd
+    - chapters/03-spatial/theory-spatial-model-choice.qmd
+    - chapters/03-spatial/theory-direct-indirect-effects.qmd
+    - chapters/04-time/theory-panel-unit-roots.qmd
 
 book:
   title: "Metrics Masters"
@@ -28,21 +32,38 @@ book:
     collapse-level: 3
   chapters:
     - index.qmd
-    - part: "Panel data"
+    - part: "Set-up"
       chapters:
-        - panel-spat.qmd
-        - unit-roots.qmd
+        - chapters/00-road-map/index.qmd
+        - chapters/01-explore/index.qmd
+    - part: "Dependence"
+      chapters:
+        - chapters/02-cross-dependence/index.qmd
+        - chapters/03-spatial/index.qmd
+        - chapters/04-time/index.qmd
+    - part: "Models"
+      chapters:
+        - chapters/05-core/index.qmd
     - references.qmd
+  # Theory notes sit outside the reading order. A book cannot carry a custom
+  # sidebar group, and a page listed only in project: render: is not built,
+  # so they are appendices, with the heading renamed below.
   appendices:
-    - theory/01-cross-sectional-dependence.qmd
-    - theory/02-spatial-weights.qmd
-    - theory/03-spatial-dependence-tests.qmd
-    - theory/04-common-factors-cce.qmd
-    - theory/05-spatial-model-choice.qmd
-    - theory/06-direct-indirect-effects.qmd
-    - theory/07-panel-unit-roots.qmd
+    - chapters/02-cross-dependence/theory-cross-sectional-dependence.qmd
+    - chapters/02-cross-dependence/theory-common-factors-cce.qmd
+    - chapters/03-spatial/theory-spatial-weights.qmd
+    - chapters/03-spatial/theory-spatial-dependence-tests.qmd
+    - chapters/03-spatial/theory-spatial-model-choice.qmd
+    - chapters/03-spatial/theory-direct-indirect-effects.qmd
+    - chapters/04-time/theory-panel-unit-roots.qmd
+
+language:
+  section-title-appendices: "Theory"
 
 bibliography: references.bib
+
+filters:
+  - assets/terms.lua
 
 format:
   html:
