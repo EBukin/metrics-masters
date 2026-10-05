@@ -1,0 +1,42 @@
+---
+title: "Spatial dependence"
+---
+
+::: {.callout-note}
+**Placeholder.** This chapter is planned, not written. Tracked in the node
+checklist in [the preface](../../index.qmd).
+:::
+
+Spatial dependence is *weak, local* dependence: unit *i* correlates with its
+*neighbours*, as given by a map or a distance matrix, and that correlation
+fades with distance. This is a different claim from the one in
+[cross-sectional dependence](../02-cross-dependence/index.qmd), where a common
+shock hits many units at once regardless of who is near whom. A panel can show
+both: a national shock removed by fixed effects, and a local spillover left
+behind in the residuals.
+
+**Planned sections.** Numbers in brackets refer to
+`.docs/panel-spat-PLAN.md`.
+
+1. **Spatial weights.** Build the matrix W that encodes who is a neighbour,
+   and the checks it must pass before any model uses it (5.1). Theory:
+   [spatial weights](theory-spatial-weights.qmd).
+2. **Model choice.** A spatial lag says a neighbour's outcome moves yours; a
+   spatial error says only the shocks are correlated (5.2). Theory:
+   [spatial model choice](theory-spatial-model-choice.qmd).
+3. **Estimation, fixed effects.** Fit the lag and error models under the
+   within transformation (5.3).
+4. **Estimation, random effects.** Fit the same models under GLS (5.4).
+5. **Testing which structure fits.** Joint, marginal and conditional LM tests
+   choose between lag, error and no spatial structure at all (5.5). Theory:
+   [spatial model choice](theory-spatial-model-choice.qmd).
+6. **Residual spatial diagnostics.** Ask whether dependence left in the
+   residuals has map structure, and why the plain CD test cannot answer that
+   (5.7). Theory:
+   [testing for spatial dependence](theory-spatial-dependence-tests.qmd).
+7. **Direct and indirect effects.** In a spatial lag model, a coefficient is
+   not a marginal effect; a neighbour's response feeds back on the unit
+   itself (5.8). Theory:
+   [direct and indirect effects](theory-direct-indirect-effects.qmd).
+8. **Heterogeneous spatial panels.** Allow the spatial and slope parameters
+   to vary by unit, with a mean-group estimator (5.9).

@@ -4,11 +4,11 @@ subtitle: "Theory note 06 — impacts and feedback loops"
 ---
 
 > **Code:** Stage 5.8 of the plan, `.docs/panel-spat-PLAN.md`. Related note:
-> [05 — spatial model choice](05-spatial-model-choice.qmd).
+> [spatial model choice](theory-spatial-model-choice.qmd).
 
 ::: {.callout-note}
 **Placeholder.** This note is planned, not written. Tracked in the node
-checklist in [the preface](../index.qmd).
+checklist in [the preface](../../index.qmd).
 :::
 
 ## What this note should cover

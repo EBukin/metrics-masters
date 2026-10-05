@@ -4,12 +4,12 @@ subtitle: "Theory note 02 — choosing W, standardisation, sparsity"
 ---
 
 > **Code:** Stage 5.1 of the plan, `.docs/panel-spat-PLAN.md`. Related notes:
-> [03 — testing for spatial dependence](03-spatial-dependence-tests.qmd) and
-> [05 — spatial model choice](05-spatial-model-choice.qmd).
+> [testing for spatial dependence](theory-spatial-dependence-tests.qmd) and
+> [spatial model choice](theory-spatial-model-choice.qmd).
 
 ::: {.callout-note}
 **Placeholder.** This note is planned, not written. Tracked in the node
-checklist in [the preface](../index.qmd).
+checklist in [the preface](../../index.qmd).
 :::
 
 ## What this note should cover

@@ -4,12 +4,12 @@ subtitle: "Theory note 03 — ordered alternatives and the randomised-W test"
 ---
 
 > **Code:** Stage 5.7 of the plan, `.docs/panel-spat-PLAN.md`. Related notes:
-> [01 — cross-sectional dependence](01-cross-sectional-dependence.qmd) and
-> [02 — spatial weights](02-spatial-weights.qmd).
+> [cross-sectional dependence](../02-cross-dependence/theory-cross-sectional-dependence.qmd)
+> and [spatial weights](theory-spatial-weights.qmd).
 
 ::: {.callout-note}
 **Placeholder.** This note is planned, not written. Tracked in the node
-checklist in [the preface](../index.qmd).
+checklist in [the preface](../../index.qmd).
 :::
 
 ## What this note should cover
@@ -18,7 +18,7 @@ checklist in [the preface](../index.qmd).
   *neighbours* specifically: CD_Moran and the W-weighted local CD.
 - **Why plain CD cannot answer this**: its implicit null *is* weak dependence,
   so it does not fire on spatial alternatives — the point picked up from
-  [note 01](01-cross-sectional-dependence.qmd).
+  [cross-sectional dependence](../02-cross-dependence/theory-cross-sectional-dependence.qmd).
 - **Why local CD produces false positives** when non-spatial dependence is
   present: it draws spatially related pairs from a population of correlated
   ones, and so favours a spatial verdict.

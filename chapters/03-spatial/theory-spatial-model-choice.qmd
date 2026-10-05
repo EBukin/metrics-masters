@@ -4,12 +4,12 @@ subtitle: "Theory note 05 — SAR, SEM, SDM and SARAR"
 ---
 
 > **Code:** Stages 5.2 and 5.5 of the plan, `.docs/panel-spat-PLAN.md`.
-> Related notes: [02 — spatial weights](02-spatial-weights.qmd) and
-> [06 — direct and indirect effects](06-direct-indirect-effects.qmd).
+> Related notes: [spatial weights](theory-spatial-weights.qmd) and
+> [direct and indirect effects](theory-direct-indirect-effects.qmd).
 
 ::: {.callout-note}
 **Placeholder.** This note is planned, not written. Tracked in the node
-checklist in [the preface](../index.qmd).
+checklist in [the preface](../../index.qmd).
 :::
 
 ## What this note should cover
