@@ -1,0 +1,77 @@
+<script>
+// Nest the open page's sections under its entry in the book sidebar.
+// Quarto has no option for this: the sidebar lists pages only. The script
+// copies the top two levels of the page's own TOC (#TOC), makes groups
+// collapsible, and mirrors Quarto's scroll-spy highlight.
+document.addEventListener("DOMContentLoaded", function () {
+  var toc = document.querySelector("nav#TOC > ul");
+  var link = document.querySelector("#quarto-sidebar .sidebar-link.active");
+  if (!toc || !link) return;
+  var item = link.closest("li.sidebar-item");
+  if (!item) return;
+
+  function build(srcList, depth) {
+    var ul = document.createElement("ul");
+    Array.prototype.forEach.call(srcList.children, function (srcLi) {
+      var a = srcLi.querySelector(":scope > a");
+      if (!a) return;
+      var li = document.createElement("li");
+      var row = document.createElement("div");
+      row.className = "toc-row";
+      var copy = document.createElement("a");
+      copy.href = a.getAttribute("href");
+      copy.innerHTML = a.innerHTML;
+      var sub = srcLi.querySelector(":scope > ul");
+      if (sub && depth < 2) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "toc-toggle";
+        btn.setAttribute("aria-label", "Toggle subsections");
+        btn.innerHTML = '<i class="bi bi-chevron-down"></i>';
+        btn.addEventListener("click", function () {
+          li.classList.toggle("collapsed");
+          btn.setAttribute("aria-expanded", !li.classList.contains("collapsed"));
+        });
+        row.appendChild(btn);
+        li.appendChild(row);
+        li.appendChild(build(sub, depth + 1));
+        li.classList.add("collapsed");
+        btn.setAttribute("aria-expanded", "false");
+      } else {
+        li.appendChild(row);
+      }
+      row.appendChild(copy);
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  var nested = build(toc, 1);
+  nested.className = "sidebar-page-toc";
+  item.appendChild(nested);
+
+  // Mirror the right-hand TOC's active link; open its group.
+  function sync() {
+    var active = document.querySelectorAll("nav#TOC a.nav-link.active");
+    var target = active.length ? active[active.length - 1].getAttribute("href") : null;
+    nested.querySelectorAll("a.is-current").forEach(function (a) {
+      a.classList.remove("is-current");
+    });
+    if (!target) return;
+    var hit = nested.querySelector('a[href="' + target + '"]');
+    if (!hit) return;
+    hit.classList.add("is-current");
+    var li = hit.closest("li");
+    while (li && nested.contains(li)) {
+      if (li.querySelector(":scope > ul") && li.classList.contains("collapsed")) {
+        li.classList.remove("collapsed");
+      }
+      li = li.parentElement.closest("li");
+    }
+  }
+  new MutationObserver(sync).observe(document.querySelector("nav#TOC"), {
+    subtree: true, attributes: true, attributeFilter: ["class"]
+  });
+  sync();
+});
+</script>

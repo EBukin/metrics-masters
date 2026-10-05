@@ -1,0 +1,16 @@
+/*-- scss:defaults --*/
+
+// Dark mode: overrides only; layered after assets/theme.scss.
+$body-bg: #15181c;
+$body-color: #d9dde2;
+$primary: #5cc3be;
+$secondary: #96a0ab;
+$link-color: $primary;
+$border-color: #2c3239;
+$code-color: #f0a46c;
+$code-bg: #1e2227;
+$code-block-bg: #1b1f24;
+$sidebar-bg: #111417;
+$sidebar-fg: #b9c0c8;
+$toc-color: #96a0ab;
+$navbar-bg: $body-bg;
