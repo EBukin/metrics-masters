@@ -1,0 +1,167 @@
+## When the tests lie {#sec-ur-traps}
+
+Every result so far assumes the test rejects a true null 5% of the time. Two
+things break that, and neither shows up in the output. Both checks here are
+simulations, with no published number to match: they are evidence about this
+code on these designs, and nothing more.
+
+### Panel shape and spatial shocks {#sec-ur-spatial-size}
+
+**Question.** At my N, T and spatial structure, how often does each test
+reject a unit root that is really there?
+
+**Intuition.** Two forces push a test to reject too often. First, **shape**:
+LLC's theory needs T to grow faster than N [@levin2002], and many panels have
+far more units than years. Second, **spatial shocks**: when a shock in one
+state spills into its neighbours, neighbours stop being independent evidence
+[@baltagi2007]. Factor-based fixes like CIPS target a shock common to all, not
+a local spillover, and @pesaran2015 [p. 839] warns they can be invalid there.
+
+**Run it.** 49 random walks on a 7 × 7 grid, where each cell neighbours the
+cells beside it (`rook_w(7)`). Shocks spill over with strength λ: 0 is none,
+0.8 is strong. Every series truly has a unit root, so a correct test rejects
+5% of the time. First one draw at λ = 0.8, every test in the open:
+
+```{r}
+#| label: s1-6-one-draw
+W <- rook_w(7)
+set.seed(1)
+m <- sim_spatial_rw_panel(W, lambda = 0.8)
+plm::purtest(m, test = "levinlin", exo = "none", lags = 1)
+plm::purtest(m, test = "levinlin", exo = "intercept", lags = 1)
+plm::purtest(m, test = "ips", exo = "intercept", lags = 1)
+plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
+plm::cipstest(as_pseries(m), type = "drift", lags = 1)
+```
+
+Four say "do not reject"; Maddala–Wu rejects at p = 0.011. One draw proves
+nothing, so repeat 200 times at three values of λ:
+
+```{r}
+#| label: s1-6-size
+# One replication: the five calls above, kept for their p-values.
+p_values <- function(m) {
+  llc_none <- plm::purtest(m, test = "levinlin", exo = "none", lags = 1)
+  llc_int <- plm::purtest(m, test = "levinlin", exo = "intercept", lags = 1)
+  ips <- plm::purtest(m, test = "ips", exo = "intercept", lags = 1)
+  mw <- plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
+  cips <- plm::cipstest(as_pseries(m), type = "drift", lags = 1)
+  c(LLC_none = unname(llc_none$statistic$p.value),
+    LLC_intercept = unname(llc_int$statistic$p.value),
+    IPS = unname(ips$statistic$p.value),
+    MW = unname(mw$statistic$p.value),
+    CIPS = unname(cips$p.value))
+}
+set.seed(1)
+lambdas <- c(0, 0.4, 0.8)
+size <- sapply(lambdas, function(l) {
+  rowMeans(replicate(200, p_values(sim_spatial_rw_panel(W, l))) <= 0.05)
+})
+colnames(size) <- paste0("lambda_", lambdas)
+size
+```
+
+**Read it.**
+
+- **Holds its size: CIPS.** 0.04 at λ = 0, 0.07 at λ = 0.8. Close to 5%
+  throughout.
+- **Over-rejects already at λ = 0: the four first-generation tests.** With no
+  spatial link at all, they reject a true null 2.5 to 12 times too often.
+- **Spatial shocks add to it, but less.** LLC without intercept 0.13 → 0.31,
+  IPS 0.18 → 0.28. With 200 draws, the noise in these rates is about ±0.015
+  near 0.05 and ±0.035 near 0.5.
+
+So at λ = 0 the damage comes from shape, not space. Fix λ at 0 and vary only
+N and T, for LLC:
+
+```{r}
+#| label: s1-6-shape
+llc_size <- function(n, t, reps = 200) {
+  p <- replicate(reps, unname(plm::purtest(sim_rw_panel(n, t),
+                                           test = "levinlin",
+                                           exo = "intercept",
+                                           lags = 1)$statistic$p.value))
+  mean(p <= 0.05)
+}
+set.seed(1)
+shape <- data.frame(N = c(10, 25, 49, 100), T = c(250, 100, 30, 30))
+shape$N_over_T <- round(shape$N / shape$T, 2)
+shape$size <- mapply(llc_size, shape$N, shape$T)
+shape
+```
+
+At N/T = 0.04, LLC's design regime, size is 0.09. At N/T = 3.33 it is 0.855:
+five false alarms in six. A panel of 170 regions over 20 years has N/T ≈ 8.5.
+
+::: {.callout-note appearance="simple"}
+**Next.** When N/T is well above 1, report CIPS and read every
+first-generation p-value as an upper bound on the evidence. Rerun this table
+with your own N, T and W before you trust any of them.
+:::
+
+### Shared trends across units {#sec-ur-cross-coint}
+
+**Question.** Could two units share a long-run trend, and would any
+dependence test notice?
+
+**Intuition.** Units can move together in two ways. Their *shocks* can be
+correlated: each still wanders on its own path. Or they can share one
+*trend*: then some mix of the two does not wander at all. The second is
+*cross-unit cointegration*, and @pesaran2015 [p. 836] warns that it can bias
+panel unit-root tests severely. CIPS allows one common trend for all units
+and rules out any other [@pesaran2015, p. 837].
+
+**Run it.** Two simulated pairs of random walks. `sim_factor_pair()` loads two
+series on one shared trend: cointegrated. `sim_correlated_pair()` gives each
+series its own trend with shocks correlated at 0.8: not cointegrated.
+Johansen's rank test [@pfaff2008] checks for a shared trend; the correlation
+is what CD and α see:
+
+```{r}
+#| label: s1-6-johansen
+johansen <- function(dgp, reps = 200) {
+  out <- replicate(reps, {
+    x <- dgp()
+    z <- urca::ca.jo(x, type = "trace", ecdet = "none", K = 2)
+    c(unname(z@teststat[2]) > z@cval[2, "5pct"], abs(cor(x)[1, 2]))
+  })
+  c(reject_r0 = mean(out[1, ]), mean_abs_cor = mean(out[2, ]))
+}
+set.seed(1)
+round(rbind(shared_trend = johansen(sim_factor_pair),
+            correlated_shocks = johansen(sim_correlated_pair)), 3)
+```
+
+**Read it.**
+
+- **Rejects (shared trend).** Johansen finds the shared trend in every draw.
+- **Does not reject (correlated shocks).** 5% of draws: its nominal size.
+- **Misleads (the correlation).** 0.90 against 0.77. No correlation-based
+  check, CD or α included, can tell these two pairs apart. The quantity that
+  breaks the unit-root tests is invisible to the diagnostics that get reported.
+
+::: {.callout-note appearance="simple"}
+**Next.** No panel test for cross-unit cointegration exists in R, so carry it
+as a stated limitation: "CIPS results assume no shared trends between units
+beyond one common factor."
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+- **Pairwise Johansen is not a fix.** At N = 49 it is 1176 tests, at N = 170
+  it is 14 365, and none of this book's sources gives a rule for combining
+  them.
+- **Subsampling needs N small.** The test of @choi2007 allows shared trends
+  but needs N small relative to T [@pesaran2015, p. 838].
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+None, for either subsection. `.docs/panel-spat-PLAN.md` records no canned
+target: @baltagi2007's size tables need their exact design, and no source
+prints a number for a cross-unit cointegration test that has no
+implementation. `urca::ca.jo` reproduces Johansen's money-demand examples on
+its own help page; that is the credit it is used on here.
+:::

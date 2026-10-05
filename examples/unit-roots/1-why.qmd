@@ -1,0 +1,78 @@
+## Why it matters {#sec-ur-why}
+
+**Question.** If two series both wander, will a regression find a relationship
+that does not exist?
+
+**Intuition.** A random walk has no level it returns to. Any two of them drift,
+and over a short window two drifts look like a trend in common. A regression
+reads that coincidence as a slope and, worse, as a *precise* slope. This is the
+spurious regression of @granger1974. Stationary series cannot do this: each one
+keeps returning to its mean, so a chance co-movement does not last.
+
+```{r}
+#| label: s1-1-picture
+#| fig-cap: "Five random walks (left) and five stationary AR(1) series (right)."
+#| fig-alt: "Two panels of five lines each over 60 periods. On the left the
+#|   random walks drift far apart and none returns to zero. On the right the
+#|   stationary series stay in a narrow band around zero."
+set.seed(2)
+op <- graphics::par(mfrow = c(1, 2))
+graphics::matplot(sim_ar_panel(5, 60, k = 0), type = "l", lty = 1,
+                  main = "Random walks", xlab = "period", ylab = "")
+graphics::matplot(sim_ar_panel(5, 60, k = 5), type = "l", lty = 1,
+                  main = "Stationary, root 0.5", xlab = "period", ylab = "")
+graphics::par(op)
+```
+
+**The experiment.** No test yet, only the damage. Draw 49 independent random
+walks for `y` and 49 more for `x`, 30 periods each, so the true slope is zero.
+Regress `y` on `x` with unit fixed effects and record whether the slope is
+"significant" at 5%. Repeat 200 times. A sound procedure says "significant" 5%
+of the time.
+
+```{r}
+#| label: s1-1-spurious
+spurious <- function(model) {
+  d <- as_pdata(sim_rw_panel(49, 30), sim_rw_panel(49, 30))
+  fit <- plm::plm(y ~ x, data = d, model = model)
+  summary(fit)$coefficients["x", "Pr(>|t|)"] < 0.05
+}
+set.seed(1)
+c(levels = mean(replicate(200, spurious("within"))),
+  differences = mean(replicate(200, spurious("fd"))))
+```
+
+**Read it.**
+
+- **In levels, it misleads.** The fixed-effects regression finds a
+  relationship that is not there in 57% of panels. Having 49 units does not
+  help.
+- **In first differences, it does not.** Regressing changes on changes gives
+  3.5%, close to the nominal 5%. Differencing removes the wandering, and with
+  it the spurious fit.
+
+**What the panel does buy.** @phillips1999 show that the pooled slope itself
+is not the problem. With many units it settles on a meaningful long-run
+average, here zero. The problem is the default standard error, which assumes
+the errors forget their past. Errors from two random walks never do. Standard
+errors clustered by unit allow any pattern over time within a unit, and they
+bring the rejection rate back near 5%:
+
+```{r}
+#| label: s1-1-clustered
+spurious_clustered <- function() {
+  d <- as_pdata(sim_rw_panel(49, 30), sim_rw_panel(49, 30))
+  fit <- plm::plm(y ~ x, data = d, model = "within")
+  v <- plm::vcovHC(fit, cluster = "group")
+  summary(fit, vcov = v)$coefficients["x", "Pr(>|t|)"] < 0.05
+}
+set.seed(1)
+mean(replicate(200, spurious_clustered()))
+```
+
+That fix only works if you know the series wander. So test first.
+
+::: {.callout-note appearance="simple"}
+**Next.** Find out whether your series wander:
+[what a rejection means](unit-roots.qmd#sec-ur-alternative).
+:::

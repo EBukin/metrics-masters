@@ -1,0 +1,36 @@
+## Summary {#sec-ur-summary}
+
+**What this panel says.** Log house prices in 49 US states wander; their
+growth rates do not. The states share a strong common shock, so only CIPS can
+be trusted here, and it agrees. No single state's price level is shown to be
+stationary. The residuals of the CCE regression of log price on log income do
+not wander: the two are cointegrated, and the levels regression is meaningful.
+
+**Decision table.**
+
+| If | Then |
+|---|---|
+| Both series wander and you regress one on the other | Test the residuals for a unit root first ([why](unit-roots.qmd#sec-ur-why)) |
+| CD does not reject and N/T is small | LLC or IPS; state which alternative ([first generation](unit-roots.qmd#sec-ur-first-gen)) |
+| CD rejects, or N/T is well above 1 | CIPS ([second generation](unit-roots.qmd#sec-ur-second-gen)) |
+| The panel rejects | Name the units with `phansitest` ([which series](unit-roots.qmd#sec-ur-fraction)) |
+| The panel does not reject | Treat as I(1); difference, or test cointegration |
+| Shocks spill over locally | Simulate size at your own W ([traps](unit-roots.qmd#sec-ur-spatial-size)) |
+| Your text says "the panel is stationary" | Rewrite it: say which alternative, and how many units |
+
+**The whole recipe**, for a variable `y` in a `pdata.frame`:
+
+```r
+plm::pcdtest(y, test = "cd")                 # 1. do units move together?
+plm::cipstest(y, type = "drift")             # 2a. if yes
+plm::purtest(y, test = "ips", exo = "intercept",
+             lags = "AIC", pmax = 4)         # 2b. if no
+mw <- plm::purtest(y, test = "madwu", exo = "intercept",
+                   lags = "AIC", pmax = 4)
+plm::phansitest(mw)$rejected.no              # 3. how many units?
+plm::cipstest(residuals(fit), type = "none") # 4. regression residuals
+```
+
+**Next.** If the series wander and the residuals do not, the next question is
+how to estimate the long-run relationship. That is Stage 2 of
+`.docs/panel-spat-PLAN.md`, still to be written.

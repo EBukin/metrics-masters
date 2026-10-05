@@ -16,16 +16,5 @@ texts: @baltagi2021, @pesaran2015 and @croissant2019.
 
 {{< include examples/panel-spat/0-4-csd-tests.qmd >}}
 
-## Stage 1 — Panel unit roots
-
-{{< include examples/panel-spat/1-1-unit-root-alternative.qmd >}}
-
-{{< include examples/panel-spat/1-2-first-generation.qmd >}}
-
-{{< include examples/panel-spat/1-3-second-generation.qmd >}}
-
-{{< include examples/panel-spat/1-4-fraction-stationary.qmd >}}
-
-{{< include examples/panel-spat/1-5-spatial-size.qmd >}}
-
-{{< include examples/panel-spat/1-6-cross-unit-cointegration.qmd >}}
+Panel unit roots, Stage 1 of the spec, have their own chapter:
+[do the series wander?](unit-roots.qmd).

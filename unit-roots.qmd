@@ -1,0 +1,61 @@
+---
+title: "Do the series wander? Panel unit roots"
+---
+
+**The question of this chapter.** Before regressing one panel variable on
+another, find out whether each series returns to a stable level or wanders off
+with no anchor. A wandering series has a *unit root*. Two of them can look
+related when they are not, so this question comes before any estimate.
+
+**The running example.** House prices in 49 US states over 29 years,
+`HousePricesUS` [@holly2010] in **pder** [@croissant2019]. The earlier chapter
+found that the states move together strongly: the CD test gives z = 53
+([testing for cross-sectional dependence](panel-spat.qmd#sec-csd-tests)).
+That one fact decides which tests below can be trusted.
+
+**The map.** Each section answers one box and sends you to the next.
+
+```{mermaid}
+flowchart TD
+  Q["Do the series wander?"] --> CD{"Do units move together?<br/>CD test"}
+  CD -->|"no"| G1["Tests that assume<br/>independent units"]
+  CD -->|"yes"| G2["Tests that allow<br/>a common factor: CIPS"]
+  G1 --> R{"Unit root rejected?"}
+  G2 --> R
+  R -->|"yes"| W["Which series?<br/>Hanck / Simes"]
+  R -->|"no"| I1["Treat as I(1):<br/>difference, or test cointegration"]
+  W --> L["Check the traps:<br/>panel shape, spatial shocks,<br/>shared trends"]
+  I1 --> L
+```
+
+Every section has the same shape. **Question** in one sentence, **intuition**
+in one paragraph, **the test** in words, **run it**, then **read it**: a case
+where the test rejects, a case where it does not, and a case where it misleads.
+A **next** box says where to go. **Recipe**, **pitfalls** and **book check**
+sit in boxes at the end of each section; open them when you need them.
+
+The math and the full literature are in
+[theory note 07](theory/07-panel-unit-roots.qmd). This chapter does not need
+it.
+
+```{r}
+#| label: s1-0-setup
+# Shared simulators and reshapers live in R/; see R/simulate-panels.R.
+devtools::load_all(quiet = TRUE)
+data("HousePricesUS", package = "pder")
+php <- plm::pdata.frame(HousePricesUS)
+```
+
+{{< include examples/unit-roots/1-why.qmd >}}
+
+{{< include examples/unit-roots/2-alternative.qmd >}}
+
+{{< include examples/unit-roots/3-first-generation.qmd >}}
+
+{{< include examples/unit-roots/4-second-generation.qmd >}}
+
+{{< include examples/unit-roots/5-which-series.qmd >}}
+
+{{< include examples/unit-roots/6-traps.qmd >}}
+
+{{< include examples/unit-roots/7-summary.qmd >}}

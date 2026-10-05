@@ -1,0 +1,161 @@
+## Tests that assume independent units {#sec-ur-first-gen}
+
+**Question.** Do log house prices carry a unit root in every state, if the
+states are independent of each other?
+
+**Intuition.** Run a Dickey–Fuller regression on each state, then combine the
+49 answers into one. The tests differ only in what they combine:
+
+| Test | Combines | Alternative | `test =` |
+|---|---|---|---|
+| Levin–Lin–Chu [@levin2002] | one slope from all states stacked | all, alike | `"levinlin"` |
+| Im–Pesaran–Shin [@im2003] | the average of 49 *t* statistics | a share | `"ips"` |
+| Maddala–Wu [@maddala1999] | the 49 p-values | a share | `"madwu"` |
+| Hadri [@hadri2000] | 49 stationarity statistics; **null reversed** | — | `"hadri"` |
+
+Hadri is the odd one out. Its null is "every series is stationary". When the
+first three fail to reject a unit root and Hadri rejects stationarity, two
+opposite questions give one answer.
+
+**The test.** Null: every series has a unit root (Hadri: every series is
+stationary). Key assumption: states are independent once a common year effect
+is removed. That assumption is what the next section drops.
+
+**Run it.** Log prices in levels, with a trend and two lags in each state's
+regression, as in @croissant2019 [§8.4.2]:
+
+```{r}
+#| label: s1-3-levels
+plm::purtest(log(php$price), test = "levinlin", lags = 2, exo = "trend")
+plm::purtest(log(php$price), test = "ips", lags = 2, exo = "trend")
+plm::purtest(log(php$price), test = "madwu", lags = 2, exo = "trend")
+plm::purtest(log(php$price), test = "hadri", lags = 2, exo = "trend")
+```
+
+**Read it: does not reject (levels).** LLC, IPS and Maddala–Wu give
+p = 0.10, 0.78 and 0.43: no evidence against a unit root. Hadri rejects
+stationarity at p ≈ 0. All four agree: price *levels* wander.
+
+Now the growth rates, the first difference of log prices. A growth rate should
+not wander, so the tests should reject:
+
+```{r}
+#| label: s1-3-growth
+dlp <- diff(log(php$price))
+plm::purtest(dlp, test = "levinlin", lags = 1, exo = "intercept")
+plm::purtest(dlp, test = "ips", lags = 1, exo = "intercept")
+plm::purtest(dlp, test = "madwu", lags = 1, exo = "intercept")
+plm::purtest(dlp, test = "hadri", lags = 1, exo = "intercept")
+```
+
+**Read it: rejects (growth rates).** LLC, IPS and Maddala–Wu all reject at
+p < 2.2 × 10⁻¹⁶. Growth rates do not wander.
+
+**Read it: misleads (Hadri on growth rates).** Hadri *also* rejects, z = 12.3:
+it says growth rates are not stationary either. The two families now
+contradict each other, and the reason is the assumption they share. The states
+are far from independent: the CD test gives z = 53 on levels and z = 71 on
+growth rates.
+
+```{r}
+#| label: s1-3-cd
+plm::pcdtest(dlp, test = "cd")
+```
+
+When 49 states move together, they are not 49 independent pieces of evidence.
+Every test in this section counts them as if they were. Treat its numbers as
+the ones to beat, not the ones to report.
+
+::: {.callout-note appearance="simple"}
+**Next.** CD rejects here, so go to
+[tests that allow a common factor](unit-roots.qmd#sec-ur-second-gen). On a
+panel where CD does not reject, report LLC or IPS with its alternative, and go
+to [which series are stationary](unit-roots.qmd#sec-ur-fraction).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# y: a pseries, e.g. plm::pdata.frame(df, index = c("id", "year"))$y
+plm::pcdtest(y, test = "cd")  # first: are units independent?
+plm::purtest(y, test = "ips", exo = "intercept", lags = "AIC", pmax = 4)
+plm::purtest(y, test = "hadri", exo = "intercept", lags = "AIC", pmax = 4)
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**A formula silently ignores `exo`.** `purtest` takes a matrix, a `pseries`
+or a formula. With a formula, the right-hand side sets the deterministic part
+and `exo` is dropped without a warning:
+
+```{r}
+#| label: s1-3-exo-trap
+data("Grunfeld", package = "plm")
+pG <- plm::pdata.frame(Grunfeld, index = c("firm", "year"))
+plm::purtest(inv ~ 1, data = Grunfeld, index = "firm", test = "madwu",
+             pmax = 4, exo = "trend")
+plm::purtest(inv ~ trend, data = Grunfeld, index = "firm", test = "madwu",
+             pmax = 4)
+plm::purtest(pG$inv, test = "madwu", pmax = 4, exo = "trend")
+```
+
+The first call asks for a trend and gets intercepts only: 14.719 against
+78.977. Pick one interface and keep to it.
+
+**LLC and Hadri need a balanced panel.** IPS and Maddala–Wu do not. On the
+unbalanced `EmplUK` [@arellano1991], two of four refuse:
+
+```{r}
+#| label: s1-3-unbalanced
+#| error: true
+#| results: markup
+data("EmplUK", package = "plm")
+pE <- plm::pdata.frame(EmplUK, index = c("firm", "year"))
+# `error: true` prints each refusal and carries on; `results: markup` keeps
+# each answer under the call that produced it.
+plm::purtest(log(pE$emp), test = "levinlin", exo = "intercept", lags = 0)
+plm::purtest(log(pE$emp), test = "ips", exo = "intercept", lags = 0)
+plm::purtest(log(pE$emp), test = "madwu", exo = "intercept", lags = 0)
+plm::purtest(log(pE$emp), test = "hadri", exo = "intercept", lags = 0)
+```
+
+**Install urca.** Maddala–Wu combines per-state p-values. **plm** reads them
+from @mackinnon1996 through **urca**; without it, it falls back to
+@mackinnon1994. On house prices that moves p from 0.4292 to 0.4313:
+
+```{r}
+#| label: s1-3-padf
+plm::purtest(log(php$price), test = "madwu", lags = 2, exo = "trend",
+             p.approx = "MacKinnon1994")
+```
+
+**IPS `tbar`.** `ips.stat = "tbar"` is exact for fixed T, but only without
+lags, and it returns tabulated critical values instead of a p-value.
+
+**Missing tests.** Breitung [@breitung2000] and Harris–Tzavalis
+[@harris1999], which have the best size record [@pesaran2015, p. 838], are not
+in **plm**. The benchmark is Stata's `xtunitroot`.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [§8.4.2] runs LLC, Maddala–Wu and IPS on log house prices with
+`lags = 2, exo = "trend"`; the levels run above is that run. The second check
+is the `?purtest` example: Maddala–Wu on Grunfeld investment must give the same
+statistic through all three interfaces.
+
+```{r}
+#| label: s1-3-book-check
+wide <- data.frame(split(Grunfeld$inv, Grunfeld$firm))
+plm::purtest(wide, test = "madwu", pmax = 4, exo = "intercept")
+plm::purtest(inv ~ 1, data = Grunfeld, index = "firm", test = "madwu",
+             pmax = 4)
+plm::purtest(pG$inv, test = "madwu", pmax = 4, exo = "intercept")
+```
+
+14.719 from all three.
+:::

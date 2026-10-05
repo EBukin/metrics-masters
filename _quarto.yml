@@ -3,6 +3,7 @@ project:
   render:
     - index.qmd
     - panel-spat.qmd
+    - unit-roots.qmd
     - references.qmd
     - theory/01-cross-sectional-dependence.qmd
     - theory/02-spatial-weights.qmd
@@ -20,7 +21,10 @@ book:
   search: true
   chapters:
     - index.qmd
-    - panel-spat.qmd
+    - part: "Panels where units are not independent"
+      chapters:
+        - panel-spat.qmd
+        - unit-roots.qmd
     - references.qmd
   appendices:
     - theory/01-cross-sectional-dependence.qmd

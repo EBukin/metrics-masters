@@ -1,0 +1,125 @@
+## Which series are stationary? {#sec-ur-fraction}
+
+**Question.** The panel rejects a unit root. Which units are behind it?
+
+**Intuition.** A panel rejection says "some share is stationary" and stops.
+To name the units, test each one on its own, then correct for having run N
+tests: at 5%, 49 tests produce two or three false alarms by chance alone.
+@hanck2013 does this with two classical tools. **Simes' test** [@simes1986]
+gives one global p-value that stays valid when units are correlated.
+**Hommel's procedure** [@hommel1988] then decides unit by unit, keeping the
+chance of *any* false alarm at 5%.
+
+**The test.** Input: the per-unit p-values that a Maddala–Wu or IPS test has
+already computed. Output: a global verdict and a list of named units.
+
+**Run it.** Price levels, through the Maddala–Wu test of the
+[first-generation section](unit-roots.qmd#sec-ur-first-gen):
+
+```{r}
+#| label: s1-5-levels
+mw <- plm::purtest(log(php$price), test = "madwu", lags = 2, exo = "trend")
+h_lev <- plm::phansitest(mw)
+c(states = length(h_lev$p), named = h_lev$rejected.no)
+```
+
+`phansitest` names units but does not print Simes' global p-value correctly
+(see Pitfalls), so compute it from its formula: sort the p-values and take
+the smallest N·p₍ⱼ₎/j.
+
+```{r}
+#| label: s1-5-simes
+simes <- function(p) min(length(p) * sort(p) / seq_along(p))
+simes(h_lev$p)
+```
+
+**Read it: does not reject (price levels).** None of the 49 states is named,
+and Simes' global p-value is 0.12. No state's price level is shown to be
+stationary.
+
+**Read it: rejects (real exchange rates).** The 19 countries of @hanck2013
+[Table 11], with the per-country p-values printed in `?phansitest`:
+
+```{r}
+#| label: s1-5-hanck
+pvals <- c(0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0050, 0.0050,
+           0.0050, 0.0050, 0.0175, 0.0175, 0.0200, 0.0250, 0.0400, 0.0500,
+           0.0575, 0.2375, 0.2475)
+names(pvals) <- c("Argentina", "Sweden", "Norway", "Mexico", "Italy",
+                  "Finland", "France", "Germany", "Belgium", "U.K.", "Brazil",
+                  "Australia", "Netherlands", "Portugal", "Canada", "Spain",
+                  "Denmark", "Switzerland", "Japan")
+h_rer <- plm::phansitest(pvals)
+simes(pvals)
+h_rer$name[h_rer$rejected]
+```
+
+Simes' p-value is 0.0003, and ten countries are named. Both answers a short-T
+panel can give: the panel is not all random walks, *and* these ten are the
+stationary ones.
+
+**Read it: misleads (growth rates).** Growth rates rejected the panel null at
+p < 2.2 × 10⁻¹⁶. How many states are named?
+
+```{r}
+#| label: s1-5-growth
+mw_g <- plm::purtest(diff(log(php$price)), test = "madwu", lags = 1,
+                     exo = "intercept")
+h_g <- plm::phansitest(mw_g)
+c(states = length(h_g$p), named = h_g$rejected.no)
+```
+
+Only four. The other 45 are not shown to wander; their individual tests have
+28 years each and too little power to clear the multiple-testing bar. A
+missing name means "not proven stationary", never "has a unit root".
+
+::: {.callout-note appearance="simple"}
+**Next.** Report the global verdict *and* the named units. Then check whether
+the test itself can be trusted at your panel's shape:
+[when the tests lie](unit-roots.qmd#sec-ur-traps).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+mw <- plm::purtest(y, test = "madwu", exo = "intercept", lags = "AIC",
+                   pmax = 4)
+h <- plm::phansitest(mw)
+h$name[h$rejected]                          # the named units
+min(length(h$p) * sort(h$p) / seq_along(h$p))  # Simes' global p-value
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**The printed verdict is wrong.** In **plm** 2.6.7 the print method says "H0
+rejected (globally)" whatever the result. Here it is on price levels, where
+no state is named and Simes gives 0.12:
+
+```{r}
+#| label: s1-5-print-trap
+h_lev
+```
+
+Read `$rejected.no` and compute Simes' p-value yourself.
+
+**Hadri is refused.** `phansitest` needs per-unit p-values; Hadri's statistic
+is not built from them:
+
+```{r}
+#| label: s1-5-hadri
+hadri <- plm::purtest(log(php$price), test = "hadri", lags = 2, exo = "trend")
+tryCatch(plm::phansitest(hadri), error = conditionMessage)
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@hanck2013 [Table 11] rejects the individual unit-root null for the ten
+countries with the smallest p-values and no others. The run above names the
+same ten: Argentina to the U.K. Spain, at an individual p of 0.05, is not
+among them: testing 19 hypotheses at once is what costs it.
+:::

@@ -1,0 +1,99 @@
+## What a rejection means {#sec-ur-alternative}
+
+**Question.** When a panel unit-root test rejects, what exactly has it found?
+
+**Intuition.** One series of 30 years can barely tell a root of 0.9 from a
+root of 1. A panel adds units instead of years: 49 short series carry more
+evidence than one. But "the panel rejects a unit root" can mean three different
+things, and the test you pick decides which one you found
+[@pesaran2015, pp. 818–820]:
+
+| | What is stationary under the alternative | Tests built for it |
+|---|---|---|
+| **All, alike** | every series, with the same root | LLC |
+| **A share** | some series, a fixed fraction of the panel | IPS, Fisher, CIPS |
+| **A handful** | a fixed number of series, however large N gets | none |
+
+Every test averages over units. Averaging finds a share easily, because more
+units bring more evidence. It loses a handful, because their signal is diluted
+by the growing number of units that carry none.
+
+**The test.** All tests share one null: *every* series has a unit root. They
+differ in the alternative, and the printed output does not say which one. You
+have to state it yourself.
+
+**Run it.** Simulated panels, because only a simulation knows how many series
+are truly stationary. `sim_ar_panel(n, t, k)` draws `n` independent series of
+length `t`, of which the first `k` are stationary (root 0.5) and the rest are
+random walks. For each panel size N, we count how often IPS rejects at 5% over
+200 panels of T = 30:
+
+```{r}
+#| label: s1-2-power
+reject_rate <- function(n, k, reps = 200, t = 30) {
+  p <- replicate(reps, plm::purtest(sim_ar_panel(n, t, k), test = "ips",
+                                    exo = "intercept",
+                                    lags = 0)$statistic$p.value)
+  mean(p < 0.05)
+}
+set.seed(1)
+ns <- c(10, 30, 90)
+data.frame(
+  N = ns,
+  none = sapply(ns, function(n) reject_rate(n, k = 0)),
+  two = sapply(ns, function(n) reject_rate(n, k = 2)),
+  share_40 = sapply(ns, function(n) reject_rate(n, k = 0.4 * n))
+)
+```
+
+**Read it.**
+
+- **Rejects (a share is stationary).** Column `share_40`: 40% of series are
+  stationary. Power goes 0.92 → 1.00 → 1.00 as N grows. More units, more
+  evidence.
+- **Does not reject (nothing is stationary).** Column `none`: every series is
+  a random walk, so this is the false-alarm rate. It should be 0.05. It is
+  0.085–0.15, because T = 30 is short. Keep this number in mind: the test
+  over-rejects even when nothing is wrong.
+- **Misleads (a handful is stationary).** Column `two`: two series are
+  stationary whatever N is. Power *falls* from 0.40 to 0.25 as N grows, while
+  the false-alarm rate rises to 0.15. At N = 90 the test can no longer tell two
+  stationary series from none.
+
+So a rejection says "the panel as a whole does not look like N random walks".
+It does not say which series are stationary, nor that all of them are. At short
+T, @pesaran2015 [p. 820, Remark 8] limit the reading to this "average sense".
+
+::: {.callout-note appearance="simple"}
+**Next.** Pick a test. If your units are independent:
+[tests that assume independent units](unit-roots.qmd#sec-ur-first-gen). If
+they move together: [tests that allow a common
+factor](unit-roots.qmd#sec-ur-second-gen).
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**The output does not name the alternative.** LLC rejects towards "all,
+alike" and IPS towards "a share", but both print the same word:
+
+```{r}
+#| label: s1-2-label
+set.seed(1)
+m <- sim_ar_panel(n = 20, t = 30, k = 8)
+llc <- plm::purtest(m, test = "levinlin", exo = "intercept", lags = 0)
+ips <- plm::purtest(m, test = "ips", exo = "intercept", lags = 0)
+c(llc = llc$statistic$alternative, ips = ips$statistic$alternative)
+```
+
+`"stationarity"` for both, which is true of neither. Write the alternative
+into the text by hand.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+None. The three alternatives are a classification
+[@pesaran2015, pp. 818–820, eqs. 31.4–31.6], not a statistic, and
+`.docs/panel-spat-PLAN.md` records no numerical target for this section.
+:::

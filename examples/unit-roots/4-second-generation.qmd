@@ -1,0 +1,106 @@
+## Tests that allow a common factor {#sec-ur-second-gen}
+
+**Question.** Do house prices still look like random walks once we allow all
+states to be hit by one common shock, each state to its own degree?
+
+**Intuition.** A national credit boom lifts every state's prices, some more
+than others. That shared shock makes 49 states look like fewer independent
+pieces of evidence. The fix is to give each state's Dickey–Fuller regression a
+proxy for the shock: the cross-state average of prices, last year and this
+year's change. Each state gets its own coefficient on the average, so each
+state can react to the shock by its own amount. Then average the 49 *t*
+statistics, as IPS does. That average is **CIPS** [@pesaran2007].
+
+**The test.** Null: every series has a unit root. Alternative: a share is
+stationary. Assumption: one common factor, and no other link between states.
+CIPS has no exact p-value; **plm** returns the nearest tabulated level, so
+`0.1` means *above* 0.10 and `0.01` means *below* 0.01.
+
+**Run it.** Levels get a drift; growth rates get neither drift nor trend:
+
+```{r}
+#| label: s1-4-levels
+plm::cipstest(log(php$price), type = "drift")
+```
+
+```{r}
+#| label: s1-4-growth
+plm::cipstest(diff(log(php$price)), type = "none")
+```
+
+**Read it.**
+
+- **Does not reject (levels).** CIPS = −2.03, p above 0.10. After the common
+  shock is allowed for, price levels still wander. This now carries weight,
+  because the test no longer assumes the states are independent.
+- **Rejects (growth rates).** CIPS = −1.82, p below 0.01. Growth rates do not
+  wander. There is no contradiction left: the Hadri result of the
+  [previous section](unit-roots.qmd#sec-ur-first-gen) was the common shock
+  speaking.
+
+**Rejects, and it means something: the residuals of a regression.** Prices
+wander, and so do incomes. If a regression of one on the other leaves
+residuals that do *not* wander, the two share one trend: they are
+*cointegrated*, and the levels regression is meaningful rather than spurious
+([why it matters](unit-roots.qmd#sec-ur-why)). Take the two CCE regressions of
+the [CCE section](panel-spat.qmd#sec-cce) and test their residuals:
+
+```{r}
+#| label: s1-4-residuals
+# pcce() builds a call to plm(), so plm must be attached, not just namespaced.
+library(plm)
+ccemg <- plm::pcce(log(price) ~ log(income), data = HousePricesUS,
+                   model = "mg")
+ccep <- plm::pcce(log(price) ~ log(income), data = HousePricesUS,
+                  model = "p")
+plm::cipstest(residuals(ccemg), type = "none")
+plm::cipstest(residuals(ccep), type = "none")
+```
+
+Both reject. Log price and log income move together in the long run, and the
+CCE estimates of the income elasticity, 1.14 and 1.20, describe that long-run
+link.
+
+::: {.callout-note appearance="simple"}
+**Next.** Levels wander, residuals do not: estimate in levels with CCE
+([CCE](panel-spat.qmd#sec-cce)). To find out which states drive a rejection:
+[which series are stationary](unit-roots.qmd#sec-ur-fraction). Before you
+trust any of it: [when the tests lie](unit-roots.qmd#sec-ur-traps).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# y: a pseries. Levels of a trending variable: "drift" or "trend".
+# Differences and regression residuals: "none".
+plm::cipstest(y, type = "drift")
+plm::cipstest(diff(y), type = "none")
+plm::cipstest(residuals(fit), type = "none")  # fit: a pcce() model
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+- **`pseries` only.** `cipstest` takes no formula and no matrix. Wrap a matrix
+  with `as_pseries()` (in `R/panel-reshape.R`).
+- **`type` is your choice, not the data's.** Levels of a price get a drift;
+  differences and residuals get neither.
+- **Never quote the p-value as exact.** The warnings that say "p-value
+  greater/smaller than printed" are hidden in this book's chunk options, so the
+  qualification has to travel in your text.
+- **One factor only.** With several common shocks the averages are not enough.
+  CIPS with more factors and CSB [@pesaran2013], Moon–Perron [@moon2004],
+  PANIC [@bai2004] and Phillips–Sul [@phillips2003] have no R implementation
+  here.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [§8.4.3] runs exactly these four tests. Targets: CIPS about −2
+with p ≈ 0.1 in levels, about −1.8 with p ≈ 0.01 on differences, and
+rejections for both CCE residuals. Results above: −2.0342, −1.8199, and two
+rejections. Four of four.
+:::
