@@ -53,6 +53,9 @@ Findings:
 - [x] Prototype the two-page layout in `proto/`: fixed resizable sidebar
   that collapses to a rail on request, book page at the left, internal links
   open in an iframe pane on the right, page contents as a hover pill.
+- [x] Iterate the two-page layout (plan 0004): shared top bars, visible
+  handles, pane Back / Forward and contents, same-page links, footnotes and
+  index terms in the pane.
 - [ ] Agree the prototype with the user, then port it back to the main book.
 
 ## Open questions
@@ -62,4 +65,7 @@ Findings:
 
 ## Outcome
 
-On hold in `proto/` (commits beaf1c2, 22c6c67). The two-page layout is prototyped in `proto/assets/two-page.*`.
+On hold in `proto/` (commits beaf1c2, 22c6c67). The two-page layout is
+prototyped in `proto/assets/two-page.*`; iteration 2 (plan 0004, commits
+`bbd9531` to `483c382`) adds the shared top bars, pane history, snippet mode
+for footnotes and index terms, and `proto/assets/terms.lua`.

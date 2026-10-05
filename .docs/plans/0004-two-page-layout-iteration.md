@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-04
 - **Author:** Eduard Bukin
-- **Status:** active
+- **Status:** done; awaiting the user's review
 
 ## Goal
 
@@ -209,7 +209,7 @@ then screenshot or `--dump-dom`; delete both files after. Test light, dark
 - [x] **Same-page links** open in the pane.
 - [x] **Footnotes** in snippet mode.
 - [x] **Index:** `terms.lua`, `glossary.qmd`, snippet mode for entries.
-- [ ] **Review pass:** screenshots of every case above; list any remaining
+- [x] **Review pass:** screenshots of every case above; list any remaining
   misalignment and fix it. Update this plan's Outcome and plan 0003.
 
 Commit after each step, staging explicit paths under `proto/` and
@@ -224,3 +224,52 @@ Commit after each step, staging explicit paths under `proto/` and
 - Pane history: keep it per page load only, or store it in the address?
 
 ## Outcome
+
+Shipped in `proto/` (commits `bbd9531` to `483c382`), checked with headless
+Edge at 1440 and 1100 px, light and dark, at 600 px, and inside an outer
+iframe:
+
+- **One top line.** Sidebar, book page and pane each start with a 3rem bar;
+  every bar button is 1.9rem and centred. The book title sits on one line
+  with the `‹` toggle; the dark-mode and reader toggles moved beside the
+  search box. Breadcrumb and an "On this page" dropdown share the book bar
+  (hover or click opens it, Esc or a click outside closes it). All
+  chevrons in the sidebar sit on one x position.
+- **Handles.** A rule on each column edge, always visible; on hover it turns
+  to the accent with a dotted grip in the middle.
+- **Pane protocol.** The pane page posts `{tp: "loaded", url, title,
+  section, toc}`; the parent answers `{tp: "goto", id}`. The pane title reads
+  "page › section"; an unnumbered subsection gets its parent in front
+  ("1.2 The test › Read it"). Anchors land 1.25rem below the bar.
+- **Back / Forward** with disabled states, history per page load.
+- **Pane "On this page"** menu (list icon), fed by the `toc` message.
+- **Same-page links** open in the pane. Quarto's smooth scroll ignores
+  `preventDefault`, so the handler also stops propagation.
+- **Snippet mode** `?tp-only=<id>`: footnotes show "Note n, from <chapter>"
+  plus a "Show in the chapter" link; index terms show "From the index" and
+  the entry. Open here leaves snippet mode and opens the page at the
+  element.
+- **Index.** `assets/terms.lua` turns `[term]{.term}` and
+  `[words]{.term key="..."}` into `tp-term` links (with `../` from
+  subfolders); `glossary.qmd` holds three hand-written entries.
+- **Added in review:** wide tables scroll sideways in their own box, on the
+  page and in the pane, instead of squeezing their columns.
+
+Dropped or changed: the plan's `[⤢]` button is `bi-box-arrow-up-left`;
+nothing else was dropped.
+
+Open issues:
+
+- The browser's own Back button moves the iframe too, and the pane history
+  treats that as a new page (pushes). Back and Forward in the bar work.
+- Pane history lives only for the page load; `?pane=` keeps the current
+  pane page, not the history.
+- Inside the pane, a footnote reference on the pane page jumps to the note
+  at the page end (native behaviour), not to a snippet.
+- At the default 272px sidebar the book title is cut with an ellipsis; at
+  1100px both breadcrumb items are cut.
+- Wide tables give no visual cue that they scroll.
+- Not yet tried over http (`quarto preview`), only `file://`.
+- Headless Edge renders a hash-scrolled page blank and freezes CSS
+  transitions, so those states were checked with probes (transitions
+  switched off, sections hidden), not plain screenshots.
