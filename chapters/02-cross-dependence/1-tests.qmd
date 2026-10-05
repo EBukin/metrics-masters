@@ -111,6 +111,8 @@ the statistic that keeps power on the raw series and on the residuals alike.
 
 ```{r}
 #| label: c02-1-book-check
+# Attached because pcdtest() on a formula calls plm() by its bare name.
+library(plm)
 plm::pcdtest(log(price) ~ 1, data = HousePricesUS, test = "cd")
 ```
 
