@@ -566,3 +566,23 @@ html.tp-in-pane {
     display: none !important;
   }
 }
+
+// Tables in a scrolling box (assets/two-page.html); a wide table keeps its
+// columns readable and scrolls sideways.
+.tp-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  > table {
+    margin-bottom: 0;
+  }
+}
+table.tp-table-wide {
+  width: max-content;
+  max-width: none;
+  th,
+  td {
+    min-width: 5.5rem;
+    max-width: 14rem;
+  }
+}

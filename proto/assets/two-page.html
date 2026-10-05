@@ -5,6 +5,18 @@
 // request. Each column has a top bar of the same height (--tp-bar).
 // Styles: assets/two-page.scss. Phones keep the normal layout.
 (function () {
+  // Wide tables scroll sideways in their own box instead of squeezing their
+  // columns or running out of the column; in the pane as on the page.
+  document.querySelectorAll("main.content table").forEach(function (t) {
+    if (t.parentElement.classList.contains("tp-table-scroll")) return;
+    var box = document.createElement("div");
+    box.className = "tp-table-scroll";
+    t.parentNode.insertBefore(box, t);
+    box.appendChild(t);
+    var row = t.querySelector("tr");
+    if (row && row.children.length > 5) t.classList.add("tp-table-wide");
+  });
+
   if (document.documentElement.classList.contains("tp-in-pane")) {
     inPane();
     return;
@@ -15,13 +27,26 @@
   // titles, and its contents. The parent may ask it to go to an anchor.
   function inPane() {
     function clean(t) { return (t || "").replace(/\s+/g, " ").trim(); }
+    var HEADS = ":scope > h1, :scope > h2, :scope > h3, :scope > h4, " +
+      ":scope > h5, :scope > h6";
+    // The heading of the section that holds el. An unnumbered subsection
+    // ("Read it") gets its parent's heading in front, so it can be told
+    // apart from its namesakes.
     function headingOf(el) {
       if (!el) return "";
-      if (/^H[1-6]$/.test(el.tagName)) return clean(el.textContent);
-      var sec = el.tagName === "SECTION" ? el : el.closest("section[id]");
-      var h = sec && sec.querySelector(":scope > h1, :scope > h2, " +
-        ":scope > h3, :scope > h4, :scope > h5, :scope > h6");
-      return h ? clean(h.textContent) : "";
+      var sec = el.closest("section[id]");
+      var h = /^H[1-6]$/.test(el.tagName) ? el :
+        sec && sec.querySelector(HEADS);
+      if (!h) return "";
+      var text = clean(h.textContent);
+      if (!h.querySelector(".header-section-number") && sec) {
+        var up = sec.parentElement && sec.parentElement.closest("section[id]");
+        var uh = up && up.querySelector(HEADS);
+        if (uh && uh.tagName !== "H1") {
+          text = clean(uh.textContent) + " › " + text;
+        }
+      }
+      return text;
     }
     var h1 = document.querySelector("main.content h1");
     var pageTitle = h1 ? clean(h1.textContent) : clean(document.title);
