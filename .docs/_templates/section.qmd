@@ -1,0 +1,47 @@
+## {{Title as a plain question or task}} {#sec-{{chapter}}-{{what}}}
+
+**Question.** One sentence in plain words, about the running example.
+
+**Intuition.** One short paragraph. What the problem does to an estimate, in
+everyday terms. At most one equation; a picture if it helps.
+
+**The test.** Null and alternative in words. The one assumption that matters,
+and what the test cannot see.
+
+**Run it.** One sentence on the data, then the call, in the open.
+
+```{r}
+#| label: s{{n}}-{{m}}-run
+pkg::test(...)
+```
+
+**Read it.**
+
+- **Rejects.** A case where the test fires, and what that means.
+- **Does not reject.** A case where it stays quiet, and what that means.
+- **Misleads.** A case where the output points the wrong way, and why.
+
+::: {.callout-note appearance="simple"}
+**Next.** Rejects: [section](chapter.qmd#sec-...). Does not reject:
+[section](chapter.qmd#sec-...).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# The minimal code to run this on your own panel. Not evaluated.
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+Interface traps, software bugs, refusals, missing implementations.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+The output beside the published numbers, with pages. Or: "None", and why.
+:::
