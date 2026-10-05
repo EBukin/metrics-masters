@@ -6,7 +6,8 @@ title: "{{Short plain term, e.g. Unit roots}}"
 question about real data that a reader already cares about. No jargon yet. -->
 
 <!-- Then the definition, in one plain sentence: what {{term}} is and why it
-matters for the question above. -->
+matters for the question above. Follow with the picture that makes it
+visible, and the equation that makes it precise. -->
 
 **In this chapter.**
 

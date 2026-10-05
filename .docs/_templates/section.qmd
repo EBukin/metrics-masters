@@ -6,9 +6,11 @@ chapter's "Under the hood" section, not here. -->
 
 <!-- The question, in the running example's words, in one sentence. -->
 
-<!-- How the test works: one paragraph of intuition. At most one small
-equation, only if it backs up the intuition. Bold each new term where it is
-defined. Gloss any term from another chapter in one line and link back. -->
+<!-- How the test works: one paragraph of intuition, then the math that
+tells the story. Several equations are fine when each one earns its place,
+e.g. the test regression and the statistic built from it. Bold each new term
+where it is defined. Gloss any term from another chapter in one line and
+link back. -->
 
 **The test.** {{Name}} [@key]. Null: {{in words}}. A rejection means
 {{in words}}.
@@ -18,6 +20,17 @@ defined. Gloss any term from another chapter in one line and link back. -->
 ```{r}
 #| label: s{{n}}-{{m}}-run
 pkg::test(...)
+```
+
+<!-- Show it: a picture of the evidence behind the result: the data, a
+simulated contrast, a distribution against its critical value, a threshold.
+Vary the kind of picture across sections. Every figure has fig-cap and
+fig-alt. -->
+
+```{r}
+#| label: s{{n}}-{{m}}-picture
+#| fig-cap: "{{What the picture shows, in one line.}}"
+#| fig-alt: "{{What a reader would see, for a screen reader.}}"
 ```
 
 **Read it.**

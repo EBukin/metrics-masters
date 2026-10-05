@@ -56,9 +56,11 @@ Econometrics* (2009).
 1. **Open with the world, then name the thing.** The first paragraph is a
    relatable economic example. The first definition comes right after it,
    in one plain sentence: what this is and why we care. Only then go deeper.
-2. **Just enough math.** One small equation when it backs up the example,
-   never a derivation. Economist vocabulary stays (shock, long run,
-   elasticity), jargon gets explained the first time.
+2. **Math where it tells the story.** Use as many equations as the idea
+   and the test need, and no more; never a derivation for its own sake. A
+   test may be shown in more than one form, e.g. its regression and its
+   statistic. Economist vocabulary stays (shock, long run, elasticity),
+   jargon gets explained the first time. *Amended 2026-10-04, see below.*
 3. **Short headers.** Part, chapter and section titles are a few plain
    words: "Unit roots", not "Do the series wander? Panel unit roots".
 4. **No term before it is explained.** A term from another chapter gets a
@@ -70,3 +72,25 @@ Econometrics* (2009).
    later.
 6. **Each test: name it, run it, read it.** State the test, show the call,
    and give the implication of each result in one intuitive sentence.
+7. **Show it.** Every idea and every test result gets visual evidence where
+   a picture can carry it: the data itself, a simulated contrast, a
+   distribution, a threshold. Use many kinds of picture, not one kind
+   repeated. *Added 2026-10-04, see below.*
+
+## Amendment, 2026-10-04 (verbatim)
+
+> that's using I think that using visual evidence is really important. And
+> perhaps this is something that is being underused right now. And um, we
+> should actually use it more for different phenomena. So I like the fact
+> that it's able to check the hand the picture, the image to compare um,
+> different spaces for with and without feeling through, uh, wondering or
+> um, synchronous series. And I think that we need to try to use them as
+> possible, but not necessarily these pictures, also different pictures. So,
+> um, yeah, this is this should be included if possible. Then the math. The
+> math is important. And if the math is important to tell the story in the
+> theory, it should be included more in theory. In tests, math is also
+> important. And perhaps we should also include we should permit when
+> necessary to have more than one uh, formula or one pattern of describing
+> tests.
+
+Rules 2 and 7 above carry this amendment.

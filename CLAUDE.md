@@ -96,8 +96,9 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
 ## Writing the primer
 
 - Write like *Mastering 'Metrics*: relatable example first, then a plain
-  definition, just enough math, economist vocabulary. The rules are in
-  `.docs/notes/0001-writing-standard.md`.
+  definition, a picture of the evidence, the math that tells the story (more
+  than one equation per test when needed), economist vocabulary. The rules
+  are in `.docs/notes/0001-writing-standard.md`.
 - One chapter per topic, titled with the plain term (e.g. `unit-roots.qmd`,
   "Unit roots"), grouped into short-titled book parts. Start from
   `.docs/_templates/chapter.qmd`. Each section is its own file in

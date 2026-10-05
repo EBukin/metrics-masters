@@ -100,6 +100,22 @@ Unit roots
   9 Under the hood    pitfalls, book checks, link to theory note 07
 ```
 
+Pictures, one or more per section, each a different kind:
+
+| Section | Picture |
+|---|---|
+| The idea | random walks vs stationary series; one shock's decay at ρ = 1, 0.9, 0.5 |
+| Why it matters | two independent random walks with a fitted line; t statistics in levels vs differences against ±1.96 |
+| One series | Dickey–Fuller distribution against the normal |
+| Many series | 49 states' log prices vs their growth rates; per-state ADF *t* against its null |
+| Common shocks | state growth rates with the cross-state average on top |
+| Which states | sorted p-values against the Simes / Hommel line |
+| When tests mislead | size against N/T and against λ; a shared-trend pair vs a correlated pair over time |
+
+Math per test: the regression, the statistic, and its null distribution
+where each helps (e.g. ADF regression, IPS *t̄*, Maddala–Wu
+−2Σ ln pᵢ ~ χ²₂N, the CADF regression and CIPS).
+
 ## Chapter template
 
 `.docs/_templates/chapter.qmd`:
@@ -127,6 +143,9 @@ Unit roots
 6. **Read it.** Rejects / does not reject / misleads (only if there is one),
    each with its number and a one-sentence *So:* implication.
 7. **Next.** Where each result sends the reader.
+
+Between 4 and 6: **Show it**, a picture of the evidence. Math in 3 and 4 may
+run to several equations when each one tells part of the story.
 
 ## Where things live
 
