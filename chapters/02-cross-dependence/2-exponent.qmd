@@ -1,4 +1,4 @@
-### Exponent of cross-sectional dependence α {#sec-csd-exponent}
+## Exponent of cross-sectional dependence α {#sec-csd-exponent}
 
 **Intuition.** α counts how many units share the same shock: at α = 1 a fixed
 share of the panel moves together, at α = ½ only a sparse local handful does.
@@ -7,8 +7,9 @@ effects are *enough*, because a common factor with unit-specific loadings is
 exactly what the within transformation cannot remove.
 
 ::: {.callout-tip appearance="simple"}
-Full treatment, including the effective-sample-size reading and why the CD test
-cannot substitute for α: [theory note 01](theory/01-cross-sectional-dependence.qmd).
+Full treatment, including the effective-sample-size reading and why the CD
+test cannot substitute for α:
+[theory note 01](theory-cross-sectional-dependence.qmd).
 :::
 
 **Theory.** α measures how fast averaging across units washes out their common
@@ -34,27 +35,19 @@ surviving the averaging step.
 **Data.** `HousePricesUS` [@holly2010] in **pder** [@croissant2019], 49 states
 × 29 years; `pwt8` in **dcce** [@wasseja2026], 93 countries × 48 years.
 
-Both estimators want an N × T matrix:
+Both estimators want an N × T matrix, already built in the setup chunk:
 
 ```{r}
-#| label: s0-2-matrix
-data("HousePricesUS", package = "pder")
-hp <- plm::pdata.frame(HousePricesUS)
-idx <- plm::index(hp)
-# plm stores a panel stacked long; tapply folds it back to N x T.
-as_matrix <- function(v) {
-  m <- tapply(as.numeric(v), list(idx[[1]], idx[[2]]), identity)
-  m[, colSums(is.na(m)) == 0, drop = FALSE]
-}
+#| label: c02-2-matrix
 lprice <- as_matrix(log(hp$price))
 dim(lprice)
 ```
 
 **Strong case.** Raw log house prices. α sits far above ½, which routes to
-[CCE](panel-spat.qmd#sec-cce):
+[CCE](index.qmd#sec-cce):
 
 ```{r}
-#| label: s0-2-alpha-strong
+#| label: c02-2-alpha-strong
 dcce::csd_exp(lprice, use_residuals = TRUE)
 ```
 
@@ -64,7 +57,7 @@ on the residuals. CCEMG removes the common factors, and α falls to the ½ floor
 legitimate:
 
 ```{r}
-#| label: s0-2-alpha-weak
+#| label: c02-2-alpha-weak
 # pcce() builds a call to plm(), so plm must be attached, not just namespaced.
 library(plm)
 ccemg <- plm::pcce(log(price) ~ log(income), data = HousePricesUS,
@@ -84,7 +77,7 @@ $\kappa_1 N^{-1}$ then dominates and the estimate collapses onto ½ — the
 opposite of what CD and the residual method both report:
 
 ```{r}
-#| label: s0-2-alpha-variable
+#| label: c02-2-alpha-variable
 data("pwt8", package = "dcce")
 lgdp <- do.call(rbind, by(pwt8, pwt8$country, \(d) d$log_rgdpo))
 lgdp <- lgdp[, colSums(is.na(lgdp)) == 0, drop = FALSE]
@@ -110,7 +103,7 @@ estimate only; the second carries genuine sampling information.
 SE = 0.0114 and a 95% CI of [0.8124, 0.8573] for log real GDP on `pwt8`:
 
 ```{r}
-#| label: s0-2-book-check
+#| label: c02-2-book-check
 a <- dcce::csd_exp(lgdp)
 data.frame(
   vignette = c(0.8348, 0.0114, 0.8124, 0.8573),

@@ -1,0 +1,54 @@
+---
+title: "Cross-sectional dependence"
+---
+
+A bank pricing a thirty-year mortgage in Ohio and one in Texas does not treat
+them as two unrelated bets. Both react when the Federal Reserve moves, and
+both calm down in the same quiet years. A model that scores them as
+independent draws is quietly wrong about how much is actually known.
+
+**Cross-sectional dependence** is the name for that shared shock: the error
+in one unit's equation is correlated with the error in another's, because
+both are exposed to a force the model has not captured. The running example
+is `HousePricesUS` [@holly2010], 49 US states from 1975 to 2003, shipped in
+**pder** [@croissant2019].
+
+This chapter assumes the panel's shape is already settled — how many units,
+how many periods, how balanced
+([panel shape](../01-explore/index.qmd#sec-panel-shape)) — and asks a
+different question: do the states move together more than chance allows, how
+strongly, and what an estimate should do about it.
+
+**In this chapter.**
+
+1. **Is it there?** Test whether the states move together more than chance
+   allows, with Pesaran's CD and three later refinements of it
+   ([testing for CSD](index.qmd#sec-csd-tests); theory in
+   [cross-sectional dependence](theory-cross-sectional-dependence.qmd)).
+2. **How strong?** The exponent α counts how many states a shock reaches —
+   a fixed share, or a shrinking one
+   ([the exponent α](index.qmd#sec-csd-exponent); same theory note).
+3. **What to do about it.** Strong dependence means a common factor that
+   fixed effects cannot remove. Proxy it with cross-state averages: common
+   correlated effects, CCE
+   ([CCE](index.qmd#sec-cce); theory in
+   [common factors and CCE](theory-common-factors-cce.qmd)).
+
+```{r}
+#| label: c02-0-setup
+devtools::load_all(quiet = TRUE)
+data("HousePricesUS", package = "pder")
+hp <- plm::pdata.frame(HousePricesUS)
+idx <- plm::index(hp)
+# plm stores a panel stacked long; tapply folds it back to N x T.
+as_matrix <- function(v) {
+  m <- tapply(as.numeric(v), list(idx[[1]], idx[[2]]), identity)
+  m[, colSums(is.na(m)) == 0, drop = FALSE]
+}
+```
+
+{{< include 1-tests.qmd >}}
+
+{{< include 2-exponent.qmd >}}
+
+{{< include 3-cce.qmd >}}

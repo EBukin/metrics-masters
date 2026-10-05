@@ -1,9 +1,9 @@
-### Testing for cross-sectional dependence {#sec-csd-tests}
+## Testing for cross-sectional dependence {#sec-csd-tests}
 
 ::: {.callout-tip appearance="simple"}
 Why CD's signed summation is both its virtue and its fatal flaw, and what its
 implicit null actually is:
-[theory note 01](theory/01-cross-sectional-dependence.qmd).
+[theory note 01](theory-cross-sectional-dependence.qmd).
 :::
 
 **Theory.** Pesaran's CD [@pesaran2004; @pesaran2015, eq. 29.76, p. 786] is the
@@ -30,14 +30,7 @@ alternative; an independent simulated panel of the same shape for the null.
 All four statistics come from `dcce::pcd_test` [@wasseja2026].
 
 ```{r}
-#| label: s0-4-setup
-data("HousePricesUS", package = "pder")
-hp <- plm::pdata.frame(HousePricesUS)
-idx <- plm::index(hp)
-as_matrix <- function(v) {
-  m <- tapply(as.numeric(v), list(idx[[1]], idx[[2]]), identity)
-  m[, colSums(is.na(m)) == 0, drop = FALSE]
-}
+#| label: c02-1-setup
 # pcd_test()$rho_ij is exactly cor() across the N series, so the two averages
 # CD is built on need no test of their own.
 rho_bars <- function(m) {
@@ -55,7 +48,7 @@ same-signed co-movement rather than local correlations cancelling out. Each
 statistic is asked for on its own line:
 
 ```{r}
-#| label: s0-4-reject
+#| label: c02-1-reject
 logp <- as_matrix(log(hp$price))
 dcce::pcd_test(logp, test = "pesaran")
 # CDw draws Rademacher weights; it is the only one of the four needing a seed.
@@ -70,7 +63,7 @@ rho_bars(logp)
 All four statistics sit inside ±1.96, which is the nominal N(0,1) they claim:
 
 ```{r}
-#| label: s0-4-accept
+#| label: c02-1-accept
 set.seed(1)
 iid <- matrix(rnorm(49 * 29), nrow = 49)
 dcce::pcd_test(iid, test = "pesaran")
@@ -88,7 +81,7 @@ above. But $\overline{\lvert\rho\rvert}$ barely moves from the raw series, and
 PEA and CD\* both still fire:
 
 ```{r}
-#| label: s0-4-fe-artefact
+#| label: c02-1-fe-artefact
 fe <- plm::plm(log(price) ~ log(income), data = HousePricesUS,
                model = "within", effect = "twoways")
 e <- as_matrix(residuals(fe))
@@ -117,7 +110,7 @@ the statistic that keeps power on the raw series and on the residuals alike.
 @croissant2019 documents:
 
 ```{r}
-#| label: s0-4-book-check
+#| label: c02-1-book-check
 plm::pcdtest(log(price) ~ 1, data = HousePricesUS, test = "cd")
 ```
 

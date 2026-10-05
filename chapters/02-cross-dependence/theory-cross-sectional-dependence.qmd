@@ -3,10 +3,10 @@ title: "Cross-sectional dependence: how much, and of what kind"
 subtitle: "Theory note 01 — the exponent α and the unordered tests"
 ---
 
-> **Code:** [the exponent α](../panel-spat.qmd#sec-csd-exponent) for α and the
-> routing, [testing for CSD](../panel-spat.qmd#sec-csd-tests) for the CD
-> family. Spatial-structure tests are
-> [theory note 03](03-spatial-dependence-tests.qmd).
+> **Code:** [the exponent α](index.qmd#sec-csd-exponent) for α and the
+> routing, [testing for CSD](index.qmd#sec-csd-tests) for the CD family.
+> Spatial-structure tests are
+> [theory note 03](../03-spatial/theory-spatial-dependence-tests.qmd).
 
 ## The two questions people confuse
 
@@ -20,7 +20,7 @@ The two questions that actually matter are different:
    or a sparse, local handful? → this is **α**.
 2. **Does it have geographic structure?** — is unit *i* correlated with its
    *neighbours* specifically? → this is the *ordered* family,
-   [theory note 03](03-spatial-dependence-tests.qmd).
+   [theory note 03](../03-spatial/theory-spatial-dependence-tests.qmd).
 
 α answers the first. Everything in this note either measures it or is a coarse
 test whose validity is *defined in terms of it*.
@@ -117,8 +117,9 @@ So heterogeneous loadings are precisely the case two-way FE cannot remove, and
   if it correlates with your regressors the estimator is **biased, not merely
   inefficient**. No standard-error correction rescues a biased point estimate —
   not Driscoll–Kraay, not clustering, not spatial HAC. You need CCE
-  [@pesaran2006], explained in [theory note 04](04-common-factors-cce.qmd), or
-  interactive fixed effects.
+  [@pesaran2006], explained in
+  [theory note 04](theory-common-factors-cce.qmd), or interactive fixed
+  effects.
 :::
 
 ## 4. The CD test
@@ -157,7 +158,7 @@ residuals. This is the trap in §8's defactor-then-re-diagnose sequence: the
 obvious diagnostic at step 3 is exactly the one that is invalid there. On
 US house prices, two-way FE moves $\overline{\lvert\rho\rvert}$ only from 0.51
 to 0.49 while collapsing CD from 53.3 to 0.02, p = 0.98 — see
-[testing for CSD](../panel-spat.qmd#sec-csd-tests).
+[testing for CSD](index.qmd#sec-csd-tests).
 
 **And its null is not independence.** The implicit null of CD is *weak*
 dependence — α < 1/4 when *N* and *T* grow at the same rate
@@ -214,7 +215,7 @@ sitting next to them:
 | Pattern | What it means | What to do |
 |---|---|---|
 | $\bar\rho \approx \overline{\lvert\rho\rvert}$, both large | Pervasive, same-signed co-movement | You are near α = 1. Factor structure. Go to CCE. |
-| $\bar\rho \approx 0$, $\overline{\lvert\rho\rvert}$ large | Real dependence that **cancels in sign** | CD is blind here by construction. Go to the [ordered tests](03-spatial-dependence-tests.qmd). |
+| $\bar\rho \approx 0$, $\overline{\lvert\rho\rvert}$ large | Real dependence that **cancels in sign** | CD is blind here by construction. Go to the [ordered tests](../03-spatial/theory-spatial-dependence-tests.qmd). |
 | both small | Little dependence of any kind | Low α. FE plus an honest vcov. |
 
 The middle row is the case where CD reports nothing and something is nonetheless
@@ -225,7 +226,7 @@ badly wrong. Compute both; they cost nothing.
 | If | Then |
 |---|---|
 | α ≈ 1, or $\bar\rho \approx \overline{\lvert\rho\rvert}$ and large | Strong dependence. **CCE** [@pesaran2006]. FE is biased, not just inefficient. |
-| α clearly below 1 and CD does not fire | Weak dependence. FE is consistent — now ask whether it is *spatial* ([note 03](03-spatial-dependence-tests.qmd)). |
+| α clearly below 1 and CD does not fire | Weak dependence. FE is consistent — now ask whether it is *spatial* ([note 03](../03-spatial/theory-spatial-dependence-tests.qmd)). |
 | α in the 0.8–0.95 middle | **The modal case.** Defactor first, then re-diagnose. See §8. |
 | $\bar\rho \approx 0$ but $\overline{\lvert\rho\rvert}$ large | Sign cancellation. Ignore CD entirely; use the ordered tests. |
 | You only have two-way FE residuals | Global CD is uninformative by construction. Use `"bcsclm"`, CD\* [@pesaran2021cd], or the randomised-W test [@millo2017]. |
@@ -249,7 +250,7 @@ estimating α on the raw series *and* on residuals after removing factors:
 
 Run on US house prices, the sequence gives α = 0.83 on the raw series and
 α = 0.51 on the CCEMG residuals, which is the clean version of this picture:
-[the exponent α](../panel-spat.qmd#sec-csd-exponent).
+[the exponent α](index.qmd#sec-csd-exponent).
 
 Fitting a spatial model to data with an unremoved common factor gets you a
 significant $\hat\rho$ that is picking up the factor, not the geography. That is
@@ -282,6 +283,7 @@ the single most common way this goes wrong.
 
 ## Next
 
-[Theory note 03](03-spatial-dependence-tests.qmd) takes the other branch: given
-that dependence exists, does it have *spatial* structure? That needs W on the
-table first — [theory note 02](02-spatial-weights.qmd).
+[Theory note 03](../03-spatial/theory-spatial-dependence-tests.qmd) takes the
+other branch: given that dependence exists, does it have *spatial* structure?
+That needs W on the table first —
+[theory note 02](../03-spatial/theory-spatial-weights.qmd).

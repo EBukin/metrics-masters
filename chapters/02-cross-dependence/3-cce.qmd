@@ -1,8 +1,8 @@
-### Strong-dependence branch: CCE {#sec-cce}
+## Strong-dependence branch: CCE {#sec-cce}
 
 ::: {.callout-tip appearance="simple"}
 Why cross-section averages stand in for the unobserved factors:
-[theory note 04](theory/04-common-factors-cce.qmd).
+[theory note 04](theory-common-factors-cce.qmd).
 :::
 
 **Theory.** Under strong dependence, unobserved common factors bias standard
@@ -19,11 +19,10 @@ Mean Group (MG) ignores the factors. `model = "cmg"` adds the averages `y.bar`
 and `log(income).bar`, and the income elasticity jumps from 0.30 to 1.14:
 
 ```{r}
-#| label: s0-3-pmg
+#| label: c02-3-pmg
 # pmg() and pcce() build a call to plm(), so plm must be attached, not just
 # namespaced.
 library(plm)
-data("HousePricesUS", package = "pder")
 mg <- plm::pmg(log(price) ~ log(income), data = HousePricesUS, model = "mg")
 cmg <- plm::pmg(log(price) ~ log(income), data = HousePricesUS, model = "cmg")
 coef(mg)
@@ -34,7 +33,7 @@ coef(cmg)
 [@croissant2019, sec. 8.3.2.1]:
 
 ```{r}
-#| label: s0-3-pcce
+#| label: c02-3-pcce
 ccemg <- plm::pcce(log(price) ~ log(income), data = HousePricesUS, model = "mg")
 ccep <- plm::pcce(log(price) ~ log(income), data = HousePricesUS, model = "p")
 summary(ccemg)
@@ -45,7 +44,7 @@ summary(ccep)
 [pp. 197–199]:
 
 ```{r}
-#| label: s0-3-book-check
+#| label: c02-3-book-check
 mods <- list(MG = mg, CCEMG = ccemg, CCEP = ccep)
 b <- sapply(mods, \(m) coef(m)[["log(income)"]])
 se <- sapply(mods, \(m) sqrt(vcov(m)["log(income)", "log(income)"]))
