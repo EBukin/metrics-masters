@@ -48,8 +48,9 @@ Findings:
   (`toc-depth: 3`, `toc-expand: 1`), floating sidebar, repo-free tools.
 - [x] Update `CLAUDE.md` where it fixes `toc-depth: 4`.
 - [x] Check theme and sidebar on an R-free demo book: light, dark, 600 px.
-- [ ] Render the full book (session metrics-masters-36 owns the render;
-  renv/activate.R hangs at R startup here) and check every page.
+- [x] Move the style into `proto/`, an R-free prototype book; revert the
+  main book to sandstone (user request).
+- [ ] Agree the prototype with the user, then port it back to the main book.
 
 ## Open questions
 
@@ -57,3 +58,6 @@ Findings:
   Mono for code. Change if the user prefers an all-sans look.
 
 ## Outcome
+
+On hold in `proto/` (commits beaf1c2, 22c6c67). A side pane that opens
+internal links on the right was discussed, not built.
