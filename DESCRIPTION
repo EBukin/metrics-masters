@@ -1,0 +1,14 @@
+Package: metricsmasters
+Title: Shared Helpers for the Metrics Masters Book
+Version: 0.0.0.9000
+Authors@R: person("Eduard", "Bukin", role = c("aut", "cre"))
+Description: Plumbing for the book's examples: data-generating processes
+    for simulations and reshaping between wide matrices and panel series.
+    Every test the book discusses is called in the chapters, not here.
+License: CC BY 4.0
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports:
+    plm,
+    stats
