@@ -1,4 +1,4 @@
-### Panel dimensions, balance, variation {#sec-panel-shape}
+## Panel dimensions, balance, variation {#sec-panel-shape}
 
 **Theory.** The shape of the panel decides which methods are usable. *Micro*
 panels have large N (hundreds or thousands) and short T (rarely over 10–20),
@@ -19,7 +19,7 @@ variance components lose their optimal estimators [@baltagi2021, pp. 230–232].
 [@croissant2019].
 
 ```{r}
-#| label: s0-1-pdim
+#| label: c01-1-pdim
 data("TobinQ", package = "pder")
 data("Tileries", package = "pder")
 plm::pdim(TobinQ)
@@ -30,7 +30,7 @@ How unbalanced? Both measures equal 1 for a balanced panel and fall toward 0
 as balance worsens [@ahrens1981]:
 
 ```{r}
-#| label: s0-1-punbalancedness
+#| label: c01-1-punbalancedness
 plm::punbalancedness(Tileries)
 ```
 

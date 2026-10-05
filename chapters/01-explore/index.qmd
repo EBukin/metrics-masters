@@ -1,0 +1,26 @@
+---
+title: "Explore the panel"
+---
+
+The book's running example is `HousePricesUS` [@holly2010], 49 US states from
+1975 to 2003, in **pder** [@croissant2019]. Before asking whether these states'
+house prices move together, or whether the series wander, start with a plainer
+question: what shape is the panel in.
+
+A panel's shape, how many units, how many periods, and whether every unit is
+observed every period, decides which tools even apply, before any test runs.
+This chapter asks that question on two canonical panels built to show balance
+and its absence.
+
+**In this chapter.**
+
+1. **Panel shape.** Dimensions, balance, and within-unit variation, and why
+   they gate every method used later
+   ([panel dimensions, balance, variation](#sec-panel-shape)).
+
+```{r}
+#| label: c01-0-setup
+devtools::load_all(quiet = TRUE)
+```
+
+{{< include 1-shape.qmd >}}
