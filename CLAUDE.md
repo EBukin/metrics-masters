@@ -49,7 +49,9 @@ A panel is *unbalanced* when units are observed over different periods.
 
 - Every chunk carries a label, given as a `#| label:` option on the first line
   of the chunk. Labels are unique across the whole book.
-- Name a label `s<section>-<what>`, e.g. `s0-1-pdim`, `s0-3-book-check`.
+- Name a label `c<chapter>-<step>-<what>`, after the chapter folder and step
+  file, e.g. `c01-1-pdim` in `chapters/01-explore/1-shape.qmd`. Labels still
+  named `s<section>-<what>` are renamed when their file moves.
 - `_quarto.yml` sets `results: hold`, so the printed output of a chunk appears
   in a single block after the code, not after each line. Do not override this
   per chunk without a reason.
@@ -99,16 +101,26 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
   definition, a picture of the evidence, the math that tells the story (more
   than one equation per test when needed), economist vocabulary. The rules
   are in `.docs/notes/0001-writing-standard.md`.
-- One chapter per topic, titled with the plain term (e.g. `unit-roots.qmd`,
-  "Unit roots"), grouped into short-titled book parts. Start from
-  `.docs/_templates/chapter.qmd`. Each section is its own file in
-  `examples/<topic>/`, built from `.docs/_templates/section.qmd`. Section
-  headings are `##` and a few words long; the chapter supplies `#`.
+- The book follows the practical workflow of a panel analysis, not the order
+  of the sources. The outline is fixed in
+  `.docs/notes/0002-book-outline.md`; change it there first.
+- All book material lives in `chapters/`. Each subfolder is one chapter,
+  numbered in reading order: `chapters/<NN>-<short-name>/`. It holds:
+  - `index.qmd`, the chapter: title, intro, setup chunk, `{{< include >}}`
+    lines. Start from `.docs/_templates/chapter.qmd`.
+  - the steps, one file each, `<n>-<what>.qmd`, built from
+    `.docs/_templates/section.qmd`. Steps are includes, not pages. Section
+    headings are `##` and a few words long; the chapter supplies `#`.
+  - the theory notes, `theory-<what>.qmd`. Each is its own page, so a link
+    from a step opens it in the right pane.
+- Steps carry the story: what to run, then how to read the result. Theory
+  notes explain why, and steps link to them at the point of use.
 - Never use a term before it is explained. A term from another chapter gets
   a one-line gloss and a link back. Road maps are numbered points, not
-  flowcharts.
-- `panel-spat.qmd` still uses the old layout (`###` sections under `##`
-  stages) until it is split; see `.docs/plans/0002-restructure-panel-spat.md`.
+  flowcharts. **Exception**: the road map chapter carries one decision
+  diagram of the whole process.
+- `panel-spat.qmd`, `unit-roots.qmd`, `examples/` and `theory/` are the old
+  layout. They move into `chapters/` and are then deleted.
 - **Never put manual numbers in a heading** (no "0.1", no "Stage 0 —" prefix on
   a section). Quarto numbers headings itself, and the plan's section number
   belongs in the text, not the title. Give each section a `{#sec-...}` id so it
@@ -131,13 +143,14 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
 
 ## Nodes and links
 
-- Every document in this system is a **node**: a chapter, a theory note in
-  `theory/`, an example section in `examples/`, or the spec in `.docs/`.
+- Every document in this system is a **node**: a chapter, a step, a theory
+  note, or the spec in `.docs/`.
 - Any mention of another node is a **proper link**, never a bare name or a
-  loose section number. Link an example section by its anchor, e.g.
-  `[0.3 CCE](panel-spat.qmd#sec-cce)`, because include files are not pages and
-  a link to their `.qmd` path renders dead. Give each example section an
-  explicit `{#sec-...}` id so it can be linked.
+  loose section number. Link a step by its chapter and anchor, e.g.
+  `[CCE](../02-cross-dependence/index.qmd#sec-cce)`, because steps are
+  includes, not pages, and a link to their `.qmd` path renders dead. Give each
+  step an explicit `{#sec-...}` id so it can be linked. Link a theory note by
+  its path; it opens in the pane.
 - If the node being referred to does not exist yet, **create it as a
   placeholder in the same change**: YAML title, a `Placeholder` callout, and a
   short "What this note should cover" list. Then link to it. Never leave a
@@ -152,10 +165,12 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
 
 ## Book structure
 
-- `_quarto.yml` defines the book: chapters are `index.qmd` (preface), the topic
-  chapters, and `references.qmd` (the bibliography). Add new chapters to both
-  `project: render:` and `book: chapters:`.
-- Files under `examples/` are includes, not chapters, so they are not listed.
+- `_quarto.yml` defines the book: `index.qmd` (preface), each
+  `chapters/<NN>-<name>/index.qmd`, and `references.qmd` (the bibliography).
+  Add a new chapter to both `project: render:` and `book: chapters:`.
+- Theory notes are rendered pages: list each in `project: render:`, and under
+  the "Theory" group in the sidebar, outside the reading order.
+- Step files are includes, not pages, so they are not listed.
 
 <!-- eb:git -->
 ## Git
@@ -200,7 +215,7 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
     release, a CRAN check, or figure alt text.
 - `R/` holds shared functions only, one topic per file, roxygen-documented.
   Load them with `devtools::load_all()`.
-- `examples/` holds the documents (`.qmd`) that call those functions; results
+- `chapters/` holds the documents (`.qmd`) that call those functions; results
   saved to disk go to `output/`.
 - The R session's working directory is where Claude Code was started, not the
   script's folder: build paths from the project root.
