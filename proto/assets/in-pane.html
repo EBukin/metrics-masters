@@ -1,7 +1,13 @@
 <script>
 // A page loaded inside the right-hand pane shows its content only.
-// Runs in <head> so the page never paints its sidebar first.
-if (window.self !== window.top) {
-  document.documentElement.classList.add("tp-in-pane");
-}
+// Runs in <head> so the page never paints its sidebar first. The pane
+// opens pages with ?tp-pane=1; the page then names its window "tp-pane",
+// so links followed inside the pane keep the mode. Any other frame (an
+// editor preview, say) gets the full layout.
+(function () {
+  if (/[?&]tp-pane=1\b/.test(location.search)) window.name = "tp-pane";
+  if (window.name === "tp-pane") {
+    document.documentElement.classList.add("tp-in-pane");
+  }
+})();
 </script>

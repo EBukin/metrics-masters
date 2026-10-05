@@ -77,6 +77,7 @@
     '<iframe title="Second page"></iframe>';
   document.body.appendChild(pane);
   var frame = pane.querySelector("iframe");
+  frame.name = "tp-pane";
   var title = pane.querySelector(".tp-pane-title");
 
   function layout() {
@@ -133,7 +134,9 @@
     history.replaceState(null, "", u);
   }
   function open(url, label) {
-    frame.src = url;
+    var src = new URL(url, location.href);
+    src.searchParams.set("tp-pane", "1");
+    frame.src = src.href;
     title.textContent = label || url.replace(/^.*\//, "");
     pane.classList.add("is-open");
     setQuery(url);
@@ -146,7 +149,11 @@
   pane.addEventListener("click", function (e) {
     var act = e.target.getAttribute && e.target.getAttribute("data-act");
     if (act === "close") close();
-    if (act === "main" && frame.src) location.href = frame.src;
+    if (act === "main" && frame.src) {
+      var u = new URL(frame.src);
+      u.searchParams.delete("tp-pane");
+      location.href = u.href;
+    }
   });
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && pane.classList.contains("is-open")) close();
