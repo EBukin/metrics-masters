@@ -11,8 +11,8 @@ published target, the example says so instead of showing an unverified number.
 
 The repo says the same thing at three altitudes: the spec in
 `.docs/panel-spat-PLAN.md`, the *why* in the theory notes, and the running code
-in the examples. `theory/README.md` states that contract; it is a repo document,
-not a page of this book.
+in the chapter steps. Each chapter folder under `chapters/` holds its own steps
+and theory notes.
 
 Anchor texts are @baltagi2021, @pesaran2015 and @croissant2019.
 
@@ -23,43 +23,73 @@ status is tracked. A box is ticked when the node is written, not when a
 placeholder for it is created. Unticked nodes that already have a link exist as
 placeholders describing what they should cover.
 
-### Chapters
+### Road map
 
-- [x] [Same data, two answers](panel-spat.qmd) — Part overview in the new
-  standard; its Stage 0 sections are still in the old layout, to be split
-  into chapters (`.docs/plans/0002-restructure-panel-spat.md`)
-- [x] [Do the series wander? Panel unit roots](unit-roots.qmd) — Stage 1, in
-  the new section template
+- [x] [Road map](chapters/00-road-map/index.qmd) — the house-price puzzle, the
+  workflow, and a decision diagram of the whole process
+
+### Explore the panel
+
+- [x] [Explore the panel](chapters/01-explore/index.qmd) — panel shape and
+  balance, which gate every method used later
+- [x] [Panel dimensions, balance,
+  variation](chapters/01-explore/index.qmd#sec-panel-shape)
+
+### Cross-sectional dependence
+
+- [x] [Cross-sectional dependence](chapters/02-cross-dependence/index.qmd) —
+  whether units move together, how strongly, and what to do about it
+- [x] [Testing for cross-sectional
+  dependence](chapters/02-cross-dependence/index.qmd#sec-csd-tests)
+- [x] [Exponent of cross-sectional dependence
+  α](chapters/02-cross-dependence/index.qmd#sec-csd-exponent)
+- [x] [Strong-dependence branch:
+  CCE](chapters/02-cross-dependence/index.qmd#sec-cce)
+- [x] [Cross-sectional dependence: how much, and of what
+  kind](chapters/02-cross-dependence/theory-cross-sectional-dependence.qmd)
+- [ ] [Common factors and CCE: what cross-section averages are
+  doing](chapters/02-cross-dependence/theory-common-factors-cce.qmd)
+
+### Spatial dependence
+
+- [ ] [Spatial dependence](chapters/03-spatial/index.qmd) — weak, local
+  dependence that follows a map; not yet written
+- [ ] [Spatial weights: what W assumes before it estimates
+  anything](chapters/03-spatial/theory-spatial-weights.qmd)
+- [ ] [Spatial model choice: what each specification claims about
+  spillovers](chapters/03-spatial/theory-spatial-model-choice.qmd)
+- [ ] [Testing for spatial dependence: does the co-movement follow the
+  map?](chapters/03-spatial/theory-spatial-dependence-tests.qmd)
+- [ ] [Direct and indirect effects: why a SAR coefficient is not a marginal
+  effect](chapters/03-spatial/theory-direct-indirect-effects.qmd)
+
+### Time dependence
+
+- [x] [Time dependence](chapters/04-time/index.qmd) — whether a series wanders,
+  before regressing one panel variable on another
+- [x] [Why it matters](chapters/04-time/index.qmd#sec-ur-why)
+- [x] [What a rejection means](chapters/04-time/index.qmd#sec-ur-alternative)
+- [x] [Tests that assume independent
+  units](chapters/04-time/index.qmd#sec-ur-first-gen)
+- [x] [Tests that allow a common
+  factor](chapters/04-time/index.qmd#sec-ur-second-gen)
+- [x] [Which series are stationary?](chapters/04-time/index.qmd#sec-ur-fraction)
+- [x] [When the tests lie](chapters/04-time/index.qmd#sec-ur-traps): [panel
+  shape and spatial shocks](chapters/04-time/index.qmd#sec-ur-spatial-size),
+  [shared trends across units](chapters/04-time/index.qmd#sec-ur-cross-coint)
+- [x] [Summary](chapters/04-time/index.qmd#sec-ur-summary)
+- [x] [Panel unit roots: what a rejection is
+  worth](chapters/04-time/theory-panel-unit-roots.qmd)
+- [ ] Cointegration
+- [ ] Serial correlation
+- [ ] Dynamic panels
+
+### Core panel models
+
+- [ ] [Core panel models](chapters/05-core/index.qmd) — poolability, fixed vs
+  random effects, robust standard errors; not yet written
+
+### Beyond panels
+
 - [ ] Difference in differences — cohort-level, staggered with heterogeneous
   treatment effects, continuous treatment
-
-### Examples: panel and spatial
-
-- [x] [Panel dimensions and balance](panel-spat.qmd#sec-panel-shape)
-- [x] [The exponent α](panel-spat.qmd#sec-csd-exponent)
-- [x] [Strong dependence: CCE](panel-spat.qmd#sec-cce)
-- [x] [Testing for cross-sectional dependence](panel-spat.qmd#sec-csd-tests)
-- [x] [Why it matters](unit-roots.qmd#sec-ur-why)
-- [x] [What a rejection means](unit-roots.qmd#sec-ur-alternative)
-- [x] [Tests that assume independent units](unit-roots.qmd#sec-ur-first-gen)
-- [x] [Tests that allow a common factor](unit-roots.qmd#sec-ur-second-gen)
-- [x] [Which series are stationary?](unit-roots.qmd#sec-ur-fraction)
-- [x] [When the tests lie](unit-roots.qmd#sec-ur-traps): [panel shape and
-  spatial shocks](unit-roots.qmd#sec-ur-spatial-size), [shared trends across
-  units](unit-roots.qmd#sec-ur-cross-coint)
-- [x] [Unit roots: summary](unit-roots.qmd#sec-ur-summary)
-- [ ] Stage 2 — cointegration
-- [ ] Stage 3 — error structure
-- [ ] Stage 4a — static panel
-- [ ] Stage 4b — dynamic panel
-- [ ] Stage 5 — spatial
-
-### Theory notes
-
-- [x] [01 Cross-sectional dependence](theory/01-cross-sectional-dependence.qmd)
-- [ ] [02 Spatial weights](theory/02-spatial-weights.qmd)
-- [ ] [03 Spatial dependence tests](theory/03-spatial-dependence-tests.qmd)
-- [ ] [04 Common factors and CCE](theory/04-common-factors-cce.qmd)
-- [ ] [05 Spatial model choice](theory/05-spatial-model-choice.qmd)
-- [ ] [06 Direct and indirect effects](theory/06-direct-indirect-effects.qmd)
-- [x] [07 Panel unit roots](theory/07-panel-unit-roots.qmd)
