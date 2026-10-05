@@ -8,6 +8,13 @@
   if (/[?&]tp-pane=1\b/.test(location.search)) window.name = "tp-pane";
   if (window.name === "tp-pane") {
     document.documentElement.classList.add("tp-in-pane");
+    // ?tp-only=<id>: show only that element (a footnote, an index entry).
+    var only = /[?&]tp-only=([^&#]+)/.exec(location.search);
+    if (only) {
+      document.documentElement.classList.add("tp-only");
+      document.documentElement.setAttribute("data-tp-only",
+        decodeURIComponent(only[1]));
+    }
   }
 })();
 </script>

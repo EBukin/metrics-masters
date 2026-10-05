@@ -503,7 +503,7 @@ html.tp-in-pane {
   }
   main.content {
     margin: 0 auto !important;
-    padding: 1.5rem 1.75rem 3rem 1.75rem;
+    padding: 1.75rem 1.75rem 3rem 1.75rem !important;
     max-width: 46rem !important;
   }
   #title-block-header {
@@ -515,6 +515,32 @@ html.tp-in-pane {
   }
   .tp-flash {
     animation: tp-flash 1.6s ease-out;
+  }
+
+  // Snippet mode: the note or entry only.
+  &.tp-only main.content > :not(.tp-snippet) {
+    display: none !important;
+  }
+  .tp-snippet {
+    padding-top: 0.25rem;
+  }
+  .tp-snippet-head {
+    margin: 0 0 0.75rem 0;
+    font-family: $font-family-sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $secondary;
+  }
+  .tp-snippet-body > :last-child {
+    margin-bottom: 0;
+  }
+  .tp-snippet-more {
+    display: inline-block;
+    margin-top: 1rem;
+    font-family: $font-family-sans-serif;
+    font-size: 0.82rem;
   }
 }
 @keyframes tp-flash {

@@ -23,12 +23,73 @@
         ":scope > h3, :scope > h4, :scope > h5, :scope > h6");
       return h ? clean(h.textContent) : "";
     }
+    var h1 = document.querySelector("main.content h1");
+    var pageTitle = h1 ? clean(h1.textContent) : clean(document.title);
+
+    // Snippet mode (?tp-only=<id>, set up by assets/in-pane.html): show only
+    // that element, a footnote or an index entry, instead of the whole page.
+    var snippet = null;
+    var only = document.documentElement.getAttribute("data-tp-only");
+    var part = only ? document.getElementById(only) : null;
+    if (part) {
+      snippet = buildSnippet(part);
+    } else {
+      document.documentElement.classList.remove("tp-only");
+    }
+    function buildSnippet(part) {
+      var box = document.createElement("div");
+      box.className = "tp-snippet";
+      var note = /^fn\d+$/.test(part.id) && part.closest("#footnotes");
+      var label = "";
+      if (note) {
+        var n = part.id.slice(2);
+        label = "Note " + n;
+        var head = document.createElement("p");
+        head.className = "tp-snippet-head";
+        head.textContent = label + ", from " + pageTitle;
+        box.appendChild(head);
+      } else {
+        var strong = part.querySelector("strong");
+        label = clean(strong ? strong.textContent : part.textContent);
+      }
+      // A copy without ids, so the page keeps one element per id.
+      var body = document.createElement("div");
+      body.className = "tp-snippet-body";
+      Array.prototype.forEach.call(part.childNodes, function (c) {
+        body.appendChild(c.cloneNode(true));
+      });
+      body.querySelectorAll("[id]").forEach(function (e) {
+        e.removeAttribute("id");
+      });
+      body.querySelectorAll(".footnote-back").forEach(function (e) {
+        e.remove();
+      });
+      box.appendChild(body);
+      if (note) {
+        // The full page, at the place the note is called from.
+        var u = new URL(location.href);
+        u.searchParams.delete("tp-pane");
+        u.searchParams.delete("tp-only");
+        u.hash = "fnref" + part.id.slice(2);
+        var more = document.createElement("a");
+        more.className = "tp-snippet-more";
+        more.href = u.href;
+        more.textContent = "Show in the chapter";
+        box.appendChild(more);
+      }
+      var main = document.querySelector("main.content");
+      main.insertBefore(box, main.firstChild);
+      return { label: label };
+    }
+
     function report() {
       var id = decodeURIComponent(location.hash.slice(1));
       var target = id ? document.getElementById(id) : null;
-      var h1 = document.querySelector("main.content h1");
+      // The contents, with each entry's depth; none for a snippet.
       var toc = [];
-      document.querySelectorAll("nav#TOC a.nav-link").forEach(function (a) {
+      var links = snippet ? [] :
+        document.querySelectorAll("nav#TOC a.nav-link");
+      Array.prototype.forEach.call(links, function (a) {
         var level = 0;
         for (var n = a.parentElement; n && n.id !== "TOC"; n = n.parentElement) {
           if (n.tagName === "UL") level++;
@@ -41,8 +102,9 @@
       window.parent.postMessage({
         tp: "loaded",
         url: u.href,
-        title: h1 ? clean(h1.textContent) : clean(document.title),
-        section: target && target !== h1 ? headingOf(target) : "",
+        title: pageTitle,
+        section: snippet ? snippet.label :
+          target && target !== h1 ? headingOf(target) : "",
         toc: toc
       }, "*");
       // Flash the element the link pointed at.
@@ -411,7 +473,16 @@
     if (act === "toc") showToc(!paneToc.classList.contains("is-open"));
     if (act === "back") go(-1);
     if (act === "forward") go(1);
-    if (act === "main" && current) location.href = current;
+    if (act === "main" && current) {
+      // The main window shows the whole page, at the snippet's element.
+      var u = new URL(current);
+      var part = u.searchParams.get("tp-only");
+      if (part) {
+        u.searchParams.delete("tp-only");
+        u.hash = part;
+      }
+      location.href = u.href;
+    }
   });
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
@@ -451,7 +522,13 @@
       if (!url.hash) return null;
       url.search = "";
     }
+    // A footnote shows only the note.
+    if (a.matches(".footnote-ref")) asSnippet(url);
     return url;
+  }
+  function asSnippet(url) {
+    url.searchParams.set("tp-only", decodeURIComponent(url.hash.slice(1)));
+    url.hash = "";
   }
   main.querySelectorAll("a[href]").forEach(function (a) {
     if (paneTarget(a)) a.classList.add("tp-pane-link");
