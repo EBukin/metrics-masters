@@ -424,23 +424,33 @@
     }
   });
 
-  // Which links open in the pane: links in the page body to another page
-  // of this book. Same-page anchors, the sidebar, the contents, the page
-  // navigation and external sites behave as usual.
+  // Which links open in the pane: every link in the page body to a page
+  // of this book, including anchors on this same page (the reader keeps
+  // their place on the left). The sidebar, the contents, breadcrumbs, page
+  // navigation, heading anchors, footnote back-links, tabs and external
+  // sites behave as usual.
   function paneTarget(a) {
     if (!a || !main.contains(a)) return null;
     if (a.closest(".page-navigation, .quarto-title-breadcrumbs, #TOC")) {
       return null;
     }
+    if (a.matches(".anchorjs-link, .footnote-back, [data-bs-toggle], " +
+                  "[role=tab]")) {
+      return null;
+    }
     if (a.target === "_blank" || a.hasAttribute("download")) return null;
     var href = a.getAttribute("href");
-    if (!href || href.charAt(0) === "#") return null;
+    if (!href || href === "#") return null;
     var url = new URL(href, location.href);
     if (url.protocol !== location.protocol || url.host !== location.host) {
       return null;
     }
     if (!/\.html$/.test(url.pathname)) return null;
-    if (url.pathname === location.pathname) return null;
+    if (url.pathname === location.pathname) {
+      // This page: an anchor only, never this page's own ?pane= state.
+      if (!url.hash) return null;
+      url.search = "";
+    }
     return url;
   }
   main.querySelectorAll("a[href]").forEach(function (a) {
@@ -455,6 +465,9 @@
     var url = paneTarget(a);
     if (!url) return;
     e.preventDefault();
+    // Quarto's smooth scroll listens on window and ignores preventDefault;
+    // without this it would also scroll the left page to the anchor.
+    e.stopPropagation();
     open(url.href);
   });
 
