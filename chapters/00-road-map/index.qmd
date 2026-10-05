@@ -1,5 +1,5 @@
 ---
-title: "Same data, two answers"
+title: "Road map"
 ---
 
 How much do house prices rise when incomes rise? Take the 48 contiguous US
@@ -9,7 +9,7 @@ in income goes with a 3% rise in prices. Now allow for one more thing. Every
 state feels the same national forces, interest rates and credit conditions,
 each to its own degree. With that allowed for, the elasticity is 1.14. Same
 data, almost four times the answer [@holly2010; @croissant2019, pp. 197–199].
-This Part is about why.
+This book is about why.
 
 A **panel** follows the same units, here states, over several periods. Its
 promise is that each state is compared with itself over time, so everything
@@ -18,7 +18,7 @@ independent of each other. A national shock moves them all at once, and in
 the picture below it is hard to see 49 separate stories:
 
 ```{r}
-#| label: s0-0-together
+#| label: c00-0-together
 #| fig-cap: "Log house prices (left) and their annual growth (right) in 49
 #|   US states, 1975–2003. Grey: one line per state. Black: the cross-state
 #|   average. Prices are an index with 1980 = 100 in every state, which is
@@ -57,39 +57,59 @@ feels it equally, $\lambda_i = 1$. When the loadings differ and the shock also
 moves income, the shock leaks into $\hat\beta$. That leak is the gap between
 0.30 and 1.14.
 
-**In this Part.**
+A panel analysis follows one workflow, not a fixed menu of tests. Build the
+panel first, since its shape and balance limit every tool that comes after.
+Then test whether units move together: dependence that is strong and global
+calls for common factors, dependence that is weak and local calls for a
+spatial model. Time dependence is a separate layer, asked once the
+cross-sectional question is settled. Core panel models, fixed and random
+effects among them, come last, once the error structure is known. The diagram
+below maps the whole process; each box is a chapter.
 
-1. **Panel shape.** How many units, how many years, and whether every unit is
-   observed every year decide which tools work
-   ([panel shape](panel-spat.qmd#sec-panel-shape)).
-2. **Common shocks.** Do the units move together more than chance allows,
-   and how strongly? The CD test answers the first question
-   ([CD tests](panel-spat.qmd#sec-csd-tests)); the exponent α, which counts
-   how many units a shock reaches, answers the second
-   ([α](panel-spat.qmd#sec-csd-exponent)).
-3. **Removing common shocks.** Add the cross-state averages of prices and
-   income to each state's regression, so they stand in for $f_t$. This is
-   common correlated effects, CCE, and it gives the 1.14
-   ([CCE](panel-spat.qmd#sec-cce)).
-4. **Unit roots.** Do prices drift with no level to return to? If so, a
-   regression of one drifting series on another can find a link that is not
-   there ([unit roots](unit-roots.qmd)).
-5. **Still to come.** Long-run relations between drifting series, the
-   structure of the errors, static and dynamic panel estimators, and spatial
-   spillovers between neighbours.
+```{mermaid}
+flowchart TD
+  P["Build the panel<br/>shape, balance"] --> CD{"Do units move together?<br/>CD test"}
+  CD -->|"no"| UR{"Do series wander?<br/>unit roots"}
+  CD -->|"yes"| A{"How strong?<br/>exponent α"}
+  A -->|"strong, global"| CF["Common factors:<br/>CCE"]
+  A -->|"weak, local"| W["Spatial weights"]
+  W --> SM["Spatial model:<br/>SAR / SEM, FE or RE"]
+  CF --> UR
+  SM --> UR
+  UR -->|"yes, I(1)"| CO["Cointegration,<br/>or difference"]
+  UR -->|"no, I(0)"| SC["Serial correlation,<br/>dynamic panels"]
+  CO --> CORE["Core panel models:<br/>FE, RE, pooling"]
+  SC --> CORE
+```
 
-::: {.callout-note appearance="simple"}
-The sections below still use the old layout. They will be rewritten to the
-standard of the [unit roots](unit-roots.qmd) chapter and split into their own
-chapters.
-:::
 
-## Panel shape and common shocks {#sec-panel-diagnostics}
+**The chapters.**
 
-{{< include examples/panel-spat/0-1-panel-shape.qmd >}}
-
-{{< include examples/panel-spat/0-2-csd-exponent.qmd >}}
-
-{{< include examples/panel-spat/0-3-cce.qmd >}}
-
-{{< include examples/panel-spat/0-4-csd-tests.qmd >}}
+1. **Explore the panel.** How many units, how many periods, and whether every
+   unit is observed every period decide which tools apply
+   ([panel shape](../01-explore/index.qmd#sec-panel-shape)).
+2. **Cross-sectional dependence.** Do units move together more than chance
+   allows? The CD test answers that
+   ([CD tests](../02-cross-dependence/index.qmd#sec-csd-tests)), the
+   exponent α says how strong
+   ([α](../02-cross-dependence/index.qmd#sec-csd-exponent)), and when
+   dependence is strong and global, common correlated effects removes it
+   ([CCE](../02-cross-dependence/index.qmd#sec-cce)). This chapter gives the
+   1.14 above.
+3. **Spatial dependence.** When dependence is weak and local, neighbours
+   matter more than the whole panel; still to come
+   ([spatial dependence](../03-spatial/index.qmd)).
+4. **Time dependence.** Do series wander with no level to return to
+   ([why it matters](../04-time/index.qmd#sec-ur-why))? First-generation
+   tests assume independent units
+   ([first generation](../04-time/index.qmd#sec-ur-first-gen)),
+   second-generation tests allow a common factor
+   ([second generation](../04-time/index.qmd#sec-ur-second-gen)), and the
+   fraction of series that reject the null needs its own test
+   ([fraction](../04-time/index.qmd#sec-ur-fraction)), past a set of traps
+   ([traps](../04-time/index.qmd#sec-ur-traps),
+   [summary](../04-time/index.qmd#sec-ur-summary)). Cointegration, serial
+   correlation and dynamic panels are still to come.
+5. **Core panel models.** Fixed and random effects, pooling, and the tests
+   between them close the process; still to come
+   ([core panel models](../05-core/index.qmd)).
