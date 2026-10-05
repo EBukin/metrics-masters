@@ -1,0 +1,36 @@
+---
+title: "Core panel models"
+---
+
+::: {.callout-note}
+**Placeholder.** This chapter is planned, not written. Tracked in the node
+checklist in [the preface](../../index.qmd).
+:::
+
+This chapter steps back from dependence, spatial or cross-sectional, and asks
+the questions a panel raises on its own: can the units be pooled into one
+regression, do fixed or random effects fit better, and are the standard
+errors trustworthy. Chapters
+[cross-sectional dependence](../02-cross-dependence/index.qmd),
+[spatial dependence](../03-spatial/index.qmd) and
+[time dependence](../04-time/index.qmd) already lean on fixed-effects
+residuals before this chapter explains what fixed effects assume and when
+random effects is the better choice; this chapter is where that gloss is
+redeemed.
+
+**Planned sections.** Numbers in brackets refer to
+`.docs/panel-spat-PLAN.md`.
+
+1. **Poolability.** Can one regression serve every unit, or does each need
+   its own intercept and slopes? The classical Chow-type F test and Swamy's
+   random-coefficients alternative (3.1).
+2. **Slope homogeneity.** A modern alternative to poolability, the
+   Pesaran–Yamagata Δ tests, built for the N large, T moderate case (3.2).
+3. **Heteroskedasticity.** Testing for it, and why its presence routes
+   spatial estimation toward IV and GMM instead of maximum likelihood (3.3).
+4. **Effects tests.** Breusch–Pagan LM, Honda, and the conditional LM family
+   decide whether fixed or random effects beat pooled OLS at all (4a.1).
+5. **Fixed vs random effects.** The Hausman test and its robust variants,
+   plus the two-way case and its five distinct hypotheses (4a.2).
+6. **Robust standard errors.** Driscoll–Kraay, Beck–Katz, and clustered
+   variants for the dependence a plain vcov misses (4a.4).
