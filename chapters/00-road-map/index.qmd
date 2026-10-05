@@ -82,7 +82,6 @@ flowchart TD
   SC --> CORE
 ```
 
-
 **The chapters.**
 
 1. **Explore the panel.** How many units, how many periods, and whether every
