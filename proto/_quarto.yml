@@ -16,7 +16,7 @@ book:
   page-navigation: true
   sidebar:
     style: floating
-    collapse-level: 1
+    collapse-level: 3
   chapters:
     - index.qmd
     - part: "Panels where units are not independent"
@@ -33,13 +33,16 @@ engine: markdown
 format:
   html:
     theme:
-      light: [cosmo, assets/theme.scss]
-      dark: [cosmo, assets/theme.scss, assets/theme-dark.scss]
+      light: [cosmo, assets/theme.scss, assets/two-page.scss]
+      dark: [cosmo, assets/theme.scss, assets/theme-dark.scss, assets/two-page.scss]
     respect-user-color-scheme: true
     highlight-style:
       light: github
       dark: github-dark
-    include-after-body: assets/sidebar-toc.html
+    include-in-header: assets/in-pane.html
+    include-after-body:
+      - assets/sidebar-toc.html
+      - assets/two-page.html
     toc: true
     toc-title: "On this page"
     toc-depth: 3

@@ -50,6 +50,9 @@ Findings:
 - [x] Check theme and sidebar on an R-free demo book: light, dark, 600 px.
 - [x] Move the style into `proto/`, an R-free prototype book; revert the
   main book to sandstone (user request).
+- [x] Prototype the two-page layout in `proto/`: fixed resizable sidebar
+  that collapses to a rail on request, book page at the left, internal links
+  open in an iframe pane on the right, page contents as a hover pill.
 - [ ] Agree the prototype with the user, then port it back to the main book.
 
 ## Open questions
@@ -59,5 +62,4 @@ Findings:
 
 ## Outcome
 
-On hold in `proto/` (commits beaf1c2, 22c6c67). A side pane that opens
-internal links on the right was discussed, not built.
+On hold in `proto/` (commits beaf1c2, 22c6c67). The two-page layout is prototyped in `proto/assets/two-page.*`.

@@ -1,0 +1,197 @@
+<script>
+// Two-page layout: the book page stays on the left; a cross-reference or
+// any link to another page of the book opens that page in a pane on the
+// right. The sidebar is fixed, resizable, and collapses to a rail only on
+// request. Styles: assets/two-page.scss. Phones keep the normal layout.
+(function () {
+  if (document.documentElement.classList.contains("tp-in-pane")) {
+    // Inside the pane: flash the heading the link pointed at.
+    window.addEventListener("load", function () {
+      var id = decodeURIComponent(location.hash.slice(1));
+      var el = id && document.getElementById(id);
+      if (el) el.classList.add("tp-flash");
+    });
+    return;
+  }
+
+  var root = document.documentElement;
+  var desktop = window.matchMedia("(min-width: 768px)");
+  var RAIL = 44, SB_MIN = 180, SB_MAX = 440, MAIN_MIN = 420, PANE_MIN = 320;
+  var GAP = 40;
+
+  // Per-viewer layout memory; the page works without it.
+  function load() {
+    try { return JSON.parse(localStorage.getItem("tp-layout")) || {}; }
+    catch (e) { return {}; }
+  }
+  function save() {
+    try { localStorage.setItem("tp-layout", JSON.stringify(state)); }
+    catch (e) {}
+  }
+  var state = Object.assign({ sb: 272, collapsed: false, split: 0.5 }, load());
+
+  var sidebar = document.getElementById("quarto-sidebar");
+  var main = document.querySelector("main.content");
+  if (!sidebar || !main) return;
+
+  // Lift the page contents out of Quarto's grid, whose stacking context
+  // would keep it under the pane.
+  var toc = document.getElementById("quarto-margin-sidebar");
+  if (toc) document.body.appendChild(toc);
+
+  // Sidebar toggle.
+  var toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "tp-sb-toggle";
+  sidebar.appendChild(toggle);
+  toggle.addEventListener("click", function () {
+    state.collapsed = !state.collapsed;
+    save();
+    layout();
+  });
+
+  // Handles.
+  function handle(cls) {
+    var h = document.createElement("div");
+    h.className = "tp-handle " + cls;
+    document.body.appendChild(h);
+    return h;
+  }
+  var hSb = handle("tp-handle-sb");
+  var hSplit = handle("tp-handle-split");
+
+  // Pane.
+  var pane = document.createElement("div");
+  pane.className = "tp-pane";
+  pane.setAttribute("role", "complementary");
+  pane.setAttribute("aria-label", "Second page");
+  pane.innerHTML =
+    '<div class="tp-pane-bar">' +
+    '<span class="tp-pane-title">Second page</span>' +
+    '<button type="button" data-act="main" title="Open as the main page">' +
+    'Open here</button>' +
+    '<button type="button" data-act="close" title="Close (Esc)">' +
+    'Close</button></div>' +
+    '<div class="tp-pane-empty">Click a cross-reference or a link to ' +
+    'another page.<br>It opens here, and this page stays put.</div>' +
+    '<iframe title="Second page"></iframe>';
+  document.body.appendChild(pane);
+  var frame = pane.querySelector("iframe");
+  var title = pane.querySelector(".tp-pane-title");
+
+  function layout() {
+    if (!desktop.matches) return;
+    var vw = root.clientWidth;
+    var sb = state.collapsed ? RAIL : state.sb;
+    var room = vw - sb - 2 * GAP;
+    var mainW = Math.max(MAIN_MIN, Math.min(room - PANE_MIN, room * state.split));
+    mainW = Math.min(mainW, 820);
+    root.classList.toggle("tp-sb-collapsed", state.collapsed);
+    root.style.setProperty("--tp-sb", sb + "px");
+    root.style.setProperty("--tp-main", mainW + "px");
+    root.style.setProperty("--tp-gap", GAP + "px");
+    var paneLeft = sb + GAP + mainW + GAP;
+    pane.style.left = paneLeft + "px";
+    hSb.style.left = sb + "px";
+    hSplit.style.left = paneLeft + "px";
+    toggle.textContent = state.collapsed ? "›" : "‹";
+    toggle.title = state.collapsed ? "Show the sidebar" : "Narrow the sidebar";
+  }
+
+  function drag(h, onMove) {
+    h.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      h.setPointerCapture(e.pointerId);
+      h.classList.add("is-active");
+      document.body.classList.add("tp-dragging");
+      function move(ev) { onMove(ev.clientX); layout(); }
+      function up() {
+        h.removeEventListener("pointermove", move);
+        h.removeEventListener("pointerup", up);
+        h.classList.remove("is-active");
+        document.body.classList.remove("tp-dragging");
+        save();
+      }
+      h.addEventListener("pointermove", move);
+      h.addEventListener("pointerup", up);
+    });
+  }
+  drag(hSb, function (x) {
+    state.sb = Math.max(SB_MIN, Math.min(SB_MAX, x));
+  });
+  drag(hSplit, function (x) {
+    var sb = state.collapsed ? RAIL : state.sb;
+    var room = root.clientWidth - sb - 2 * GAP;
+    state.split = Math.max(0.25, Math.min(0.8, (x - sb - 2 * GAP) / room));
+  });
+
+  // Open and close.
+  function setQuery(href) {
+    var u = new URL(location.href);
+    if (href) u.searchParams.set("pane", href);
+    else u.searchParams.delete("pane");
+    history.replaceState(null, "", u);
+  }
+  function open(url, label) {
+    frame.src = url;
+    title.textContent = label || url.replace(/^.*\//, "");
+    pane.classList.add("is-open");
+    setQuery(url);
+  }
+  function close() {
+    frame.removeAttribute("src");
+    pane.classList.remove("is-open");
+    setQuery(null);
+  }
+  pane.addEventListener("click", function (e) {
+    var act = e.target.getAttribute && e.target.getAttribute("data-act");
+    if (act === "close") close();
+    if (act === "main" && frame.src) location.href = frame.src;
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && pane.classList.contains("is-open")) close();
+  });
+
+  // Which links open in the pane: links in the page body to another page
+  // of this book. Same-page anchors, the sidebar, the contents, the page
+  // navigation and external sites behave as usual.
+  function paneTarget(a) {
+    if (!a || !main.contains(a)) return null;
+    if (a.closest(".page-navigation, .quarto-title-breadcrumbs, #TOC")) {
+      return null;
+    }
+    if (a.target === "_blank" || a.hasAttribute("download")) return null;
+    var href = a.getAttribute("href");
+    if (!href || href.charAt(0) === "#") return null;
+    var url = new URL(href, location.href);
+    if (url.protocol !== location.protocol || url.host !== location.host) {
+      return null;
+    }
+    if (!/\.html$/.test(url.pathname)) return null;
+    if (url.pathname === location.pathname) return null;
+    return url;
+  }
+  main.querySelectorAll("a[href]").forEach(function (a) {
+    if (paneTarget(a)) a.classList.add("tp-pane-link");
+  });
+  main.addEventListener("click", function (e) {
+    if (!desktop.matches) return;
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
+      return;
+    }
+    var a = e.target.closest("a[href]");
+    var url = paneTarget(a);
+    if (!url) return;
+    e.preventDefault();
+    open(url.href, a.textContent.trim());
+  });
+
+  // Reopen the pane named in the address (shared link, reload).
+  var start = new URL(location.href).searchParams.get("pane");
+  if (start) open(start);
+
+  window.addEventListener("resize", layout);
+  desktop.addEventListener("change", layout);
+  layout();
+})();
+</script>

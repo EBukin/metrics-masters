@@ -1,0 +1,284 @@
+/*-- scss:rules --*/
+
+// Two-page layout (assets/two-page.html), from 768px up:
+//   fixed sidebar | book page | divider | second page (iframe)
+// The page contents floats as a pill in the top-right corner.
+// Widths come from CSS variables that the script sets.
+
+:root {
+  --tp-sb: 17rem;      // sidebar width; 2.75rem when collapsed to a rail
+  --tp-main: 40rem;    // book page width
+  --tp-gap: 2.5rem;    // space either side of the book page
+}
+
+@media (min-width: 768px) {
+  html:not(.tp-in-pane) {
+    body {
+      padding-top: 0 !important;
+    }
+    #quarto-header {
+      display: none !important;
+    }
+
+    // Solid sidebar: always shown, never an off-canvas drawer.
+    #quarto-sidebar {
+      display: block !important;
+      visibility: visible !important;
+      transform: none !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0;
+      bottom: 0;
+      width: var(--tp-sb) !important;
+      max-height: none !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      padding: 1rem 0.9rem 2rem 0.9rem !important;
+      z-index: 30;
+      background: $sidebar-bg;
+      border-right: 1px solid $border-color;
+      overflow-y: auto;
+    }
+    #quarto-sidebar-glass {
+      display: none !important;
+    }
+
+    // Book page at the far left, next to the sidebar.
+    #quarto-content.page-columns {
+      display: block;
+    }
+    main.content,
+    nav.page-navigation,
+    .nav-footer {
+      margin-left: calc(var(--tp-sb) + var(--tp-gap)) !important;
+      width: var(--tp-main) !important;
+      max-width: none !important;
+    }
+
+    // Page contents: a pill that opens on hover, over everything.
+    #quarto-margin-sidebar {
+      display: block !important;
+      position: fixed !important;
+      top: 0.75rem !important;
+      right: 0.75rem !important;
+      left: auto !important;
+      width: auto !important;
+      max-width: 19rem;
+      max-height: calc(100vh - 1.5rem) !important;
+      padding: 0.35rem 0.85rem !important;
+      z-index: 50 !important;
+      background: $body-bg;
+      border: 1px solid $border-color;
+      border-radius: 1.2rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transition: border-radius 0.15s ease;
+
+      nav#TOC {
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+      #toc-title {
+        margin: 0;
+        cursor: default;
+        white-space: nowrap;
+      }
+      #toc-title::after {
+        content: " \25BE";
+      }
+      nav#TOC > ul {
+        display: none;
+        max-height: 70vh;
+        overflow-y: auto;
+        margin-top: 0.4rem;
+      }
+      &:hover,
+      &:focus-within {
+        border-radius: $border-radius;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+        nav#TOC > ul {
+          display: block;
+        }
+      }
+    }
+  }
+
+  // Sidebar collapsed to a rail: only the toggle stays.
+  html.tp-sb-collapsed:not(.tp-in-pane) #quarto-sidebar {
+    padding: 0.75rem 0.25rem !important;
+    overflow: hidden;
+    > *:not(.tp-sb-toggle) {
+      display: none !important;
+    }
+  }
+}
+
+// Sidebar toggle (collapse to rail / restore).
+.tp-sb-toggle {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.5rem;
+  z-index: 2;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1px solid $border-color;
+  border-radius: 0.4rem;
+  background: $body-bg;
+  color: $secondary;
+  line-height: 1;
+  cursor: pointer;
+}
+.tp-sb-toggle:hover {
+  color: $primary;
+}
+
+// Drag handles: sidebar edge and book/pane divider.
+.tp-handle {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 9px;
+  margin-left: -4px;
+  z-index: 35;
+  cursor: col-resize;
+  touch-action: none;
+}
+.tp-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  width: 1px;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+.tp-handle:hover::after,
+body.tp-dragging .tp-handle.is-active::after {
+  background: $primary;
+  width: 2px;
+}
+body.tp-dragging {
+  cursor: col-resize;
+  user-select: none;
+  iframe {
+    pointer-events: none;
+  }
+}
+html.tp-sb-collapsed .tp-handle-sb {
+  display: none;
+}
+
+// The second page.
+.tp-pane {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  background: $body-bg;
+  border-left: 1px solid $border-color;
+}
+.tp-pane-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  // Room on the right for the contents pill.
+  padding: 0.55rem 11rem 0.55rem 0.9rem;
+  border-bottom: 1px solid $border-color;
+  font-family: $font-family-sans-serif;
+  font-size: 0.82rem;
+  color: $secondary;
+  min-height: 3rem;
+}
+.tp-pane-title {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: $body-color;
+}
+.tp-pane-bar button {
+  border: 1px solid $border-color;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: $secondary;
+  padding: 0.1rem 0.5rem;
+  cursor: pointer;
+}
+.tp-pane-bar button:hover {
+  color: $primary;
+  border-color: $primary;
+}
+.tp-pane iframe {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: $body-bg;
+}
+.tp-pane-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  font-family: $font-family-sans-serif;
+  font-size: 0.9rem;
+  color: $secondary;
+}
+.tp-pane:not(.is-open) iframe,
+.tp-pane:not(.is-open) .tp-pane-bar button,
+.tp-pane.is-open .tp-pane-empty {
+  display: none;
+}
+
+// Links that open in the pane get a small marker on hover.
+html:not(.tp-in-pane) main.content a.tp-pane-link:hover::after {
+  content: " \2197";
+  font-size: 0.8em;
+}
+
+// Inside the pane: content only, full width.
+html.tp-in-pane {
+  #quarto-sidebar,
+  #quarto-sidebar-glass,
+  #quarto-margin-sidebar,
+  #quarto-header,
+  nav.page-navigation,
+  .quarto-title-breadcrumbs {
+    display: none !important;
+  }
+  body {
+    padding-top: 0 !important;
+  }
+  #quarto-content.page-columns {
+    display: block;
+  }
+  main.content {
+    margin: 0 auto !important;
+    padding: 0.5rem 1.75rem 3rem 1.75rem;
+    max-width: 46rem !important;
+  }
+  .tp-flash {
+    animation: tp-flash 1.6s ease-out;
+  }
+}
+@keyframes tp-flash {
+  0% { background: rgba($primary, 0.18); }
+  100% { background: transparent; }
+}
+
+// Phones: normal Quarto layout, no pane.
+@media (max-width: 767.98px) {
+  .tp-pane,
+  .tp-handle,
+  .tp-sb-toggle {
+    display: none !important;
+  }
+}
