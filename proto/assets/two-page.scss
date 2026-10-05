@@ -479,6 +479,16 @@ html.tp-sb-collapsed .tp-handle-sb {
   font-weight: 600;
 }
 
+// Index terms (assets/terms.lua): text colour, dotted underline.
+a.tp-term {
+  color: inherit;
+  text-decoration-style: dotted;
+  text-decoration-color: $primary;
+}
+a.tp-term:hover {
+  color: $primary;
+}
+
 // Links that open in the pane get a small marker on hover.
 html:not(.tp-in-pane) main.content a.tp-pane-link:hover::after {
   content: " \2197";

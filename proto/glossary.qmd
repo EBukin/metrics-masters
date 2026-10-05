@@ -7,7 +7,7 @@ it.
 **common factor**: an unobserved variable that moves every unit at once, each
 with its own loading.
 
-Used in: @sec-exponent, @sec-second-gen.
+Used in: @sec-exponent, @sec-second-gen, @sec-cd-power.
 :::
 
 ::: {#term-cross-sectional-dependence .tp-entry}

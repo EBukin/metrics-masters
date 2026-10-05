@@ -30,6 +30,8 @@ book:
 
 bibliography: ../references.bib
 engine: markdown
+filters:
+  - assets/terms.lua
 
 format:
   html:

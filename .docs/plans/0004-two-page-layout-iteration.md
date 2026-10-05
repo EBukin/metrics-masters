@@ -208,7 +208,7 @@ then screenshot or `--dump-dom`; delete both files after. Test light, dark
 - [x] **Pane "On this page"** dropdown fed by the `toc` message.
 - [x] **Same-page links** open in the pane.
 - [x] **Footnotes** in snippet mode.
-- [ ] **Index:** `terms.lua`, `glossary.qmd`, snippet mode for entries.
+- [x] **Index:** `terms.lua`, `glossary.qmd`, snippet mode for entries.
 - [ ] **Review pass:** screenshots of every case above; list any remaining
   misalignment and fix it. Update this plan's Outcome and plan 0003.
 

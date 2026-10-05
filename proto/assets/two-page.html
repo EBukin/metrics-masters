@@ -41,17 +41,17 @@
       box.className = "tp-snippet";
       var note = /^fn\d+$/.test(part.id) && part.closest("#footnotes");
       var label = "";
+      var head = document.createElement("p");
+      head.className = "tp-snippet-head";
       if (note) {
-        var n = part.id.slice(2);
-        label = "Note " + n;
-        var head = document.createElement("p");
-        head.className = "tp-snippet-head";
+        label = "Note " + part.id.slice(2);
         head.textContent = label + ", from " + pageTitle;
-        box.appendChild(head);
       } else {
         var strong = part.querySelector("strong");
         label = clean(strong ? strong.textContent : part.textContent);
+        head.textContent = "From the " + pageTitle.toLowerCase();
       }
+      box.appendChild(head);
       // A copy without ids, so the page keeps one element per id.
       var body = document.createElement("div");
       body.className = "tp-snippet-body";
@@ -522,8 +522,8 @@
       if (!url.hash) return null;
       url.search = "";
     }
-    // A footnote shows only the note.
-    if (a.matches(".footnote-ref")) asSnippet(url);
+    // A footnote shows only the note; an index term only its entry.
+    if (a.matches(".footnote-ref, .tp-term") && url.hash) asSnippet(url);
     return url;
   }
   function asSnippet(url) {

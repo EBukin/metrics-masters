@@ -14,3 +14,6 @@ display math and citations [@pesaran2015; @croissant2019].
 - The right contents: two levels, only the current group expanded.
 - Links between pages: @sec-cd-test in one chapter, @sec-ips in another, and
   the appendix @sec-cd-theory.
+- Footnotes and index terms: the notes in @sec-dependence and the dotted
+  terms open alone in the right-hand pane; the entries live in the
+  [Index](glossary.qmd).

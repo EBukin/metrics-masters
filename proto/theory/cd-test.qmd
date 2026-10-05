@@ -9,6 +9,7 @@ and the pairs are uncorrelated, so their scaled sum is $N(0,1)$.
 
 ## Power {#sec-cd-power}
 
-CD has no power when positive and negative correlations cancel. Squared
-statistics such as the LM test do not cancel, but are biased when $N$ is large
-relative to $T$ [@pesaran2015].
+CD has no power when positive and negative correlations cancel, for example
+when a [common factor]{.term key="common-factor"} has loadings of both signs.
+Squared statistics such as the LM test do not cancel, but are biased when $N$
+is large relative to $T$ [@pesaran2015].
