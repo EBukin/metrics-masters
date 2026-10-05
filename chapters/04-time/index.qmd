@@ -1,17 +1,21 @@
 ---
-title: "Do the series wander? Panel unit roots"
+title: "Time dependence"
 ---
 
-**The question of this chapter.** Before regressing one panel variable on
-another, find out whether each series returns to a stable level or wanders off
-with no anchor. A wandering series has a *unit root*. Two of them can look
-related when they are not, so this question comes before any estimate.
+**The question of this chapter.** A panel series can depend on its own past,
+not only on other units. This chapter starts with unit roots: before regressing
+one panel variable on another, find out whether each series returns to a stable
+level or wanders off with no anchor. A wandering series has a *unit root*. Two
+of them can look related when they are not, so this question comes before any
+estimate. Cointegration, serial correlation and dynamic panels are later parts
+of this chapter, not yet written.
 
 **The running example.** House prices in 49 US states over 29 years,
 `HousePricesUS` [@holly2010] in **pder** [@croissant2019]. The earlier chapter
 found that the states move together strongly: the CD test gives z = 53
-([testing for cross-sectional dependence](panel-spat.qmd#sec-csd-tests)).
-That one fact decides which tests below can be trusted.
+([testing for cross-sectional
+dependence](../02-cross-dependence/index.qmd#sec-csd-tests)). That one fact
+decides which tests below can be trusted.
 
 **The map.** Each section answers one box and sends you to the next.
 
@@ -35,27 +39,27 @@ A **next** box says where to go. **Recipe**, **pitfalls** and **book check**
 sit in boxes at the end of each section; open them when you need them.
 
 The math and the full literature are in
-[theory note 07](theory/07-panel-unit-roots.qmd). This chapter does not need
+[the theory note](theory-panel-unit-roots.qmd). This chapter does not need
 it.
 
 ```{r}
-#| label: s1-0-setup
+#| label: c04-0-setup
 # Shared simulators and reshapers live in R/; see R/simulate-panels.R.
 devtools::load_all(quiet = TRUE)
 data("HousePricesUS", package = "pder")
 php <- plm::pdata.frame(HousePricesUS)
 ```
 
-{{< include examples/unit-roots/1-why.qmd >}}
+{{< include 1-why.qmd >}}
 
-{{< include examples/unit-roots/2-alternative.qmd >}}
+{{< include 2-alternative.qmd >}}
 
-{{< include examples/unit-roots/3-first-generation.qmd >}}
+{{< include 3-first-generation.qmd >}}
 
-{{< include examples/unit-roots/4-second-generation.qmd >}}
+{{< include 4-second-generation.qmd >}}
 
-{{< include examples/unit-roots/5-which-series.qmd >}}
+{{< include 5-which-series.qmd >}}
 
-{{< include examples/unit-roots/6-traps.qmd >}}
+{{< include 6-traps.qmd >}}
 
-{{< include examples/unit-roots/7-summary.qmd >}}
+{{< include 7-summary.qmd >}}

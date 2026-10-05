@@ -3,15 +3,17 @@ title: "Panel unit roots: what a rejection is worth"
 subtitle: "Theory note 07 — the three alternatives, and size before power"
 ---
 
-> **Code:** [state the alternative first](../unit-roots.qmd#sec-ur-alternative),
-> [first-generation tests](../unit-roots.qmd#sec-ur-first-gen),
-> [second-generation tests](../unit-roots.qmd#sec-ur-second-gen),
-> [the fraction of stationary series](../unit-roots.qmd#sec-ur-fraction),
-> [size under spatial dependence](../unit-roots.qmd#sec-ur-spatial-size) and
-> [cross-unit cointegration](../unit-roots.qmd#sec-ur-cross-coint).
+> **Code:** [state the alternative first](index.qmd#sec-ur-alternative),
+> [first-generation tests](index.qmd#sec-ur-first-gen),
+> [second-generation tests](index.qmd#sec-ur-second-gen),
+> [the fraction of stationary series](index.qmd#sec-ur-fraction),
+> [size under spatial dependence](index.qmd#sec-ur-spatial-size) and
+> [cross-unit cointegration](index.qmd#sec-ur-cross-coint).
 > Related notes:
-> [01 — cross-sectional dependence](01-cross-sectional-dependence.qmd) and
-> [04 — common factors and CCE](04-common-factors-cce.qmd).
+> [01 — cross-sectional
+> dependence](../02-cross-dependence/theory-cross-sectional-dependence.qmd)
+> and [04 — common factors and
+> CCE](../02-cross-dependence/theory-common-factors-cce.qmd).
 
 ## Why pool at all
 
@@ -50,7 +52,7 @@ heterogeneous alternative H₁b became the default after @im2003.
 
 H₁c is the case no averaging test can see. With a fixed count of stationary
 units, their signal is divided by an *N* that keeps growing. The
-[simulation in the examples](../unit-roots.qmd#sec-ur-alternative) shows it:
+[simulation in the examples](index.qmd#sec-ur-alternative) shows it:
 IPS power against two stationary series *falls* from 0.40 to 0.25 as *N*
 goes from 10 to 90, while power against a 40% share rises to 1.
 
@@ -128,10 +130,10 @@ are independent once a common time effect is removed.
 The first generation allows exactly one form of dependence. Subtract the
 cross-section mean each period and a common shock that hits every unit
 *equally* disappears. That is the two-way fixed-effects identity of
-[theory note 01](01-cross-sectional-dependence.qmd): a time effect is a factor
-model with every loading equal to one. If the loadings differ, demeaning
-leaves the factor in the residuals and every unit's evidence is partly the
-same evidence.
+[theory note 01](../02-cross-dependence/theory-cross-sectional-dependence.qmd):
+a time effect is a factor model with every loading equal to one. If the
+loadings differ, demeaning leaves the factor in the residuals and every
+unit's evidence is partly the same evidence.
 
 Pesaran's CADF regression [@pesaran2007] allows heterogeneous loadings. It
 adds the cross-section averages $\bar y_{t-1}$ and $\Delta \bar y_t$ to each
@@ -144,7 +146,8 @@ The averages proxy the single unobserved factor, and each unit gets its own
 coefficients on them, so each unit gets its own loading. CIPS is the mean of
 the resulting *t* statistics — IPS on defactored regressions
 [@baltagi2021, pp. 352–353]. The idea is the same one that drives CCE
-estimation, in [theory note 04](04-common-factors-cce.qmd).
+estimation, in [theory
+note 04](../02-cross-dependence/theory-common-factors-cce.qmd).
 
 `plm::cipstest` exposes all three levels of this argument through `model`:
 
@@ -180,7 +183,7 @@ Two things break size in a large-*N*, short-*T* panel, and they compound.
 **The shape of the panel.** LLC's asymptotics need *T* to grow faster than *N*
 [@levin2002; @baltagi2021, pp. 340–343]. On independent random walks, with no
 dependence at all, the
-[examples' simulation](../unit-roots.qmd#sec-ur-spatial-size) gives LLC a size
+[examples' simulation](index.qmd#sec-ur-spatial-size) gives LLC a size
 of 0.09 at N/T = 0.04 and 0.855 at N/T = 3.33. IPS is better but not right:
 0.085 to 0.15 at T = 30. The target shape of this project is N/T ≈ 8.5, off
 the end of that table.
@@ -259,7 +262,7 @@ absorb — and rules out further cointegration among what is left
 panel.
 
 Correlation does not reveal it. In the
-[examples](../unit-roots.qmd#sec-ur-cross-coint), a cointegrated pair and a
+[examples](index.qmd#sec-ur-cross-coint), a cointegrated pair and a
 pair with correlated increments have correlations of 0.90 and 0.77. A
 Johansen rank test separates them perfectly; no CD statistic or α could. So
 every CIPS result in this book holds under an assumption the book cannot test.
@@ -298,4 +301,4 @@ every CIPS result in this book holds under an assumption the book cannot test.
 With the unit-root question settled for a panel, the next one is whether its
 I(1) series are cointegrated. That is Stage 2 of `.docs/panel-spat-PLAN.md`,
 where the only verifiable route is the CCE-plus-CIPS substitute of
-[the second-generation section](../unit-roots.qmd#sec-ur-second-gen).
+[the second-generation section](index.qmd#sec-ur-second-gen).

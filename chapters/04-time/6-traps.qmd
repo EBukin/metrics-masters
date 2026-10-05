@@ -23,7 +23,7 @@ cells beside it (`rook_w(7)`). Shocks spill over with strength λ: 0 is none,
 5% of the time. First one draw at λ = 0.8, every test in the open:
 
 ```{r}
-#| label: s1-6-one-draw
+#| label: c04-6-one-draw
 W <- rook_w(7)
 set.seed(1)
 m <- sim_spatial_rw_panel(W, lambda = 0.8)
@@ -38,7 +38,7 @@ Four say "do not reject"; Maddala–Wu rejects at p = 0.011. One draw proves
 nothing, so repeat 200 times at three values of λ:
 
 ```{r}
-#| label: s1-6-size
+#| label: c04-6-size
 # One replication: the five calls above, kept for their p-values.
 p_values <- function(m) {
   llc_none <- plm::purtest(m, test = "levinlin", exo = "none", lags = 1)
@@ -75,7 +75,7 @@ So at λ = 0 the damage comes from shape, not space. Fix λ at 0 and vary only
 N and T, for LLC:
 
 ```{r}
-#| label: s1-6-shape
+#| label: c04-6-shape
 llc_size <- function(n, t, reps = 200) {
   p <- replicate(reps, unname(plm::purtest(sim_rw_panel(n, t),
                                            test = "levinlin",
@@ -118,7 +118,7 @@ Johansen's rank test [@pfaff2008] checks for a shared trend; the correlation
 is what CD and α see:
 
 ```{r}
-#| label: s1-6-johansen
+#| label: c04-6-johansen
 johansen <- function(dgp, reps = 200) {
   out <- replicate(reps, {
     x <- dgp()

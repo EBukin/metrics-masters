@@ -14,10 +14,10 @@ chance of *any* false alarm at 5%.
 already computed. Output: a global verdict and a list of named units.
 
 **Run it.** Price levels, through the Maddala–Wu test of the
-[first-generation section](unit-roots.qmd#sec-ur-first-gen):
+[first-generation section](index.qmd#sec-ur-first-gen):
 
 ```{r}
-#| label: s1-5-levels
+#| label: c04-5-levels
 mw <- plm::purtest(log(php$price), test = "madwu", lags = 2, exo = "trend")
 h_lev <- plm::phansitest(mw)
 c(states = length(h_lev$p), named = h_lev$rejected.no)
@@ -28,7 +28,7 @@ c(states = length(h_lev$p), named = h_lev$rejected.no)
 the smallest N·p₍ⱼ₎/j.
 
 ```{r}
-#| label: s1-5-simes
+#| label: c04-5-simes
 simes <- function(p) min(length(p) * sort(p) / seq_along(p))
 simes(h_lev$p)
 ```
@@ -41,7 +41,7 @@ stationary.
 [Table 11], with the per-country p-values printed in `?phansitest`:
 
 ```{r}
-#| label: s1-5-hanck
+#| label: c04-5-hanck
 pvals <- c(0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0050, 0.0050,
            0.0050, 0.0050, 0.0175, 0.0175, 0.0200, 0.0250, 0.0400, 0.0500,
            0.0575, 0.2375, 0.2475)
@@ -62,7 +62,7 @@ stationary ones.
 p < 2.2 × 10⁻¹⁶. How many states are named?
 
 ```{r}
-#| label: s1-5-growth
+#| label: c04-5-growth
 mw_g <- plm::purtest(diff(log(php$price)), test = "madwu", lags = 1,
                      exo = "intercept")
 h_g <- plm::phansitest(mw_g)
@@ -76,7 +76,7 @@ missing name means "not proven stationary", never "has a unit root".
 ::: {.callout-note appearance="simple"}
 **Next.** Report the global verdict *and* the named units. Then check whether
 the test itself can be trusted at your panel's shape:
-[when the tests lie](unit-roots.qmd#sec-ur-traps).
+[when the tests lie](index.qmd#sec-ur-traps).
 :::
 
 ::: {.callout-note collapse="true"}
@@ -99,7 +99,7 @@ rejected (globally)" whatever the result. Here it is on price levels, where
 no state is named and Simes gives 0.12:
 
 ```{r}
-#| label: s1-5-print-trap
+#| label: c04-5-print-trap
 h_lev
 ```
 
@@ -109,7 +109,7 @@ Read `$rejected.no` and compute Simes' p-value yourself.
 is not built from them:
 
 ```{r}
-#| label: s1-5-hadri
+#| label: c04-5-hadri
 hadri <- plm::purtest(log(php$price), test = "hadri", lags = 2, exo = "trend")
 tryCatch(plm::phansitest(hadri), error = conditionMessage)
 ```

@@ -29,7 +29,7 @@ random walks. For each panel size N, we count how often IPS rejects at 5% over
 200 panels of T = 30:
 
 ```{r}
-#| label: s1-2-power
+#| label: c04-2-power
 reject_rate <- function(n, k, reps = 200, t = 30) {
   p <- replicate(reps, plm::purtest(sim_ar_panel(n, t, k), test = "ips",
                                     exo = "intercept",
@@ -66,9 +66,9 @@ T, @pesaran2015 [p. 820, Remark 8] limit the reading to this "average sense".
 
 ::: {.callout-note appearance="simple"}
 **Next.** Pick a test. If your units are independent:
-[tests that assume independent units](unit-roots.qmd#sec-ur-first-gen). If
+[tests that assume independent units](index.qmd#sec-ur-first-gen). If
 they move together: [tests that allow a common
-factor](unit-roots.qmd#sec-ur-second-gen).
+factor](index.qmd#sec-ur-second-gen).
 :::
 
 ::: {.callout-caution collapse="true"}
@@ -78,7 +78,7 @@ factor](unit-roots.qmd#sec-ur-second-gen).
 alike" and IPS towards "a share", but both print the same word:
 
 ```{r}
-#| label: s1-2-label
+#| label: c04-2-label
 set.seed(1)
 m <- sim_ar_panel(n = 20, t = 30, k = 8)
 llc <- plm::purtest(m, test = "levinlin", exo = "intercept", lags = 0)

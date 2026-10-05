@@ -19,12 +19,12 @@ CIPS has no exact p-value; **plm** returns the nearest tabulated level, so
 **Run it.** Levels get a drift; growth rates get neither drift nor trend:
 
 ```{r}
-#| label: s1-4-levels
+#| label: c04-4-levels
 plm::cipstest(log(php$price), type = "drift")
 ```
 
 ```{r}
-#| label: s1-4-growth
+#| label: c04-4-growth
 plm::cipstest(diff(log(php$price)), type = "none")
 ```
 
@@ -35,18 +35,19 @@ plm::cipstest(diff(log(php$price)), type = "none")
   because the test no longer assumes the states are independent.
 - **Rejects (growth rates).** CIPS = −1.82, p below 0.01. Growth rates do not
   wander. There is no contradiction left: the Hadri result of the
-  [previous section](unit-roots.qmd#sec-ur-first-gen) was the common shock
+  [previous section](index.qmd#sec-ur-first-gen) was the common shock
   speaking.
 
 **Rejects, and it means something: the residuals of a regression.** Prices
 wander, and so do incomes. If a regression of one on the other leaves
 residuals that do *not* wander, the two share one trend: they are
 *cointegrated*, and the levels regression is meaningful rather than spurious
-([why it matters](unit-roots.qmd#sec-ur-why)). Take the two CCE regressions of
-the [CCE section](panel-spat.qmd#sec-cce) and test their residuals:
+([why it matters](index.qmd#sec-ur-why)). Take the two CCE regressions of the
+[CCE section](../02-cross-dependence/index.qmd#sec-cce) and test their
+residuals:
 
 ```{r}
-#| label: s1-4-residuals
+#| label: c04-4-residuals
 # pcce() builds a call to plm(), so plm must be attached, not just namespaced.
 library(plm)
 ccemg <- plm::pcce(log(price) ~ log(income), data = HousePricesUS,
@@ -63,9 +64,9 @@ link.
 
 ::: {.callout-note appearance="simple"}
 **Next.** Levels wander, residuals do not: estimate in levels with CCE
-([CCE](panel-spat.qmd#sec-cce)). To find out which states drive a rejection:
-[which series are stationary](unit-roots.qmd#sec-ur-fraction). Before you
-trust any of it: [when the tests lie](unit-roots.qmd#sec-ur-traps).
+([CCE](../02-cross-dependence/index.qmd#sec-cce)). To find out which states
+drive a rejection: [which series are stationary](index.qmd#sec-ur-fraction).
+Before you trust any of it: [when the tests lie](index.qmd#sec-ur-traps).
 :::
 
 ::: {.callout-note collapse="true"}

@@ -10,7 +10,7 @@ spurious regression of @granger1974. Stationary series cannot do this: each one
 keeps returning to its mean, so a chance co-movement does not last.
 
 ```{r}
-#| label: s1-1-picture
+#| label: c04-1-picture
 #| fig-cap: "Five random walks (left) and five stationary AR(1) series (right)."
 #| fig-alt: "Two panels of five lines each over 60 periods. On the left the
 #|   random walks drift far apart and none returns to zero. On the right the
@@ -31,7 +31,7 @@ Regress `y` on `x` with unit fixed effects and record whether the slope is
 of the time.
 
 ```{r}
-#| label: s1-1-spurious
+#| label: c04-1-spurious
 spurious <- function(model) {
   d <- as_pdata(sim_rw_panel(49, 30), sim_rw_panel(49, 30))
   fit <- plm::plm(y ~ x, data = d, model = model)
@@ -59,7 +59,7 @@ errors clustered by unit allow any pattern over time within a unit, and they
 bring the rejection rate back near 5%:
 
 ```{r}
-#| label: s1-1-clustered
+#| label: c04-1-clustered
 spurious_clustered <- function() {
   d <- as_pdata(sim_rw_panel(49, 30), sim_rw_panel(49, 30))
   fit <- plm::plm(y ~ x, data = d, model = "within")
@@ -74,5 +74,5 @@ That fix only works if you know the series wander. So test first.
 
 ::: {.callout-note appearance="simple"}
 **Next.** Find out whether your series wander:
-[what a rejection means](unit-roots.qmd#sec-ur-alternative).
+[what a rejection means](index.qmd#sec-ur-alternative).
 :::

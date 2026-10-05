@@ -25,7 +25,7 @@ is removed. That assumption is what the next section drops.
 regression, as in @croissant2019 [§8.4.2]:
 
 ```{r}
-#| label: s1-3-levels
+#| label: c04-3-levels
 plm::purtest(log(php$price), test = "levinlin", lags = 2, exo = "trend")
 plm::purtest(log(php$price), test = "ips", lags = 2, exo = "trend")
 plm::purtest(log(php$price), test = "madwu", lags = 2, exo = "trend")
@@ -40,7 +40,7 @@ Now the growth rates, the first difference of log prices. A growth rate should
 not wander, so the tests should reject:
 
 ```{r}
-#| label: s1-3-growth
+#| label: c04-3-growth
 dlp <- diff(log(php$price))
 plm::purtest(dlp, test = "levinlin", lags = 1, exo = "intercept")
 plm::purtest(dlp, test = "ips", lags = 1, exo = "intercept")
@@ -58,7 +58,7 @@ are far from independent: the CD test gives z = 53 on levels and z = 71 on
 growth rates.
 
 ```{r}
-#| label: s1-3-cd
+#| label: c04-3-cd
 plm::pcdtest(dlp, test = "cd")
 ```
 
@@ -68,9 +68,9 @@ the ones to beat, not the ones to report.
 
 ::: {.callout-note appearance="simple"}
 **Next.** CD rejects here, so go to
-[tests that allow a common factor](unit-roots.qmd#sec-ur-second-gen). On a
+[tests that allow a common factor](index.qmd#sec-ur-second-gen). On a
 panel where CD does not reject, report LLC or IPS with its alternative, and go
-to [which series are stationary](unit-roots.qmd#sec-ur-fraction).
+to [which series are stationary](index.qmd#sec-ur-fraction).
 :::
 
 ::: {.callout-note collapse="true"}
@@ -92,7 +92,7 @@ or a formula. With a formula, the right-hand side sets the deterministic part
 and `exo` is dropped without a warning:
 
 ```{r}
-#| label: s1-3-exo-trap
+#| label: c04-3-exo-trap
 data("Grunfeld", package = "plm")
 pG <- plm::pdata.frame(Grunfeld, index = c("firm", "year"))
 plm::purtest(inv ~ 1, data = Grunfeld, index = "firm", test = "madwu",
@@ -109,7 +109,7 @@ The first call asks for a trend and gets intercepts only: 14.719 against
 unbalanced `EmplUK` [@arellano1991], two of four refuse:
 
 ```{r}
-#| label: s1-3-unbalanced
+#| label: c04-3-unbalanced
 #| error: true
 #| results: markup
 data("EmplUK", package = "plm")
@@ -127,7 +127,7 @@ from @mackinnon1996 through **urca**; without it, it falls back to
 @mackinnon1994. On house prices that moves p from 0.4292 to 0.4313:
 
 ```{r}
-#| label: s1-3-padf
+#| label: c04-3-padf
 plm::purtest(log(php$price), test = "madwu", lags = 2, exo = "trend",
              p.approx = "MacKinnon1994")
 ```
@@ -149,7 +149,7 @@ is the `?purtest` example: Maddala–Wu on Grunfeld investment must give the sam
 statistic through all three interfaces.
 
 ```{r}
-#| label: s1-3-book-check
+#| label: c04-3-book-check
 wide <- data.frame(split(Grunfeld$inv, Grunfeld$firm))
 plm::purtest(wide, test = "madwu", pmax = 4, exo = "intercept")
 plm::purtest(inv ~ 1, data = Grunfeld, index = "firm", test = "madwu",

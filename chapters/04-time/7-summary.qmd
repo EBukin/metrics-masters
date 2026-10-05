@@ -10,12 +10,12 @@ not wander: the two are cointegrated, and the levels regression is meaningful.
 
 | If | Then |
 |---|---|
-| Both series wander and you regress one on the other | Test the residuals for a unit root first ([why](unit-roots.qmd#sec-ur-why)) |
-| CD does not reject and N/T is small | LLC or IPS; state which alternative ([first generation](unit-roots.qmd#sec-ur-first-gen)) |
-| CD rejects, or N/T is well above 1 | CIPS ([second generation](unit-roots.qmd#sec-ur-second-gen)) |
-| The panel rejects | Name the units with `phansitest` ([which series](unit-roots.qmd#sec-ur-fraction)) |
+| Both series wander and you regress one on the other | Test the residuals for a unit root first ([why](index.qmd#sec-ur-why)) |
+| CD does not reject and N/T is small | LLC or IPS; state which alternative ([first generation](index.qmd#sec-ur-first-gen)) |
+| CD rejects, or N/T is well above 1 | CIPS ([second generation](index.qmd#sec-ur-second-gen)) |
+| The panel rejects | Name the units with `phansitest` ([which series](index.qmd#sec-ur-fraction)) |
 | The panel does not reject | Treat as I(1); difference, or test cointegration |
-| Shocks spill over locally | Simulate size at your own W ([traps](unit-roots.qmd#sec-ur-spatial-size)) |
+| Shocks spill over locally | Simulate size at your own W ([traps](index.qmd#sec-ur-spatial-size)) |
 | Your text says "the panel is stationary" | Rewrite it: say which alternative, and how many units |
 
 **The whole recipe**, for a variable `y` in a `pdata.frame`:
