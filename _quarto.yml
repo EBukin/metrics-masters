@@ -73,6 +73,7 @@ format:
     fig-align: center
 
 execute:
+  freeze: auto
   warning: false
 
 # All printed output of a chunk appears in one block, after the code.
