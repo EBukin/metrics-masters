@@ -40,14 +40,16 @@ Findings:
 ## Steps
 
 - [x] Research Quarto options and templates.
-- [ ] `assets/theme.scss` and `assets/theme-dark.scss`: fonts, colours,
+- [x] `assets/theme.scss` and `assets/theme-dark.scss`: fonts, colours,
   callouts, code blocks, sidebar.
-- [ ] `assets/sidebar-toc.html`: nest page sections under the active chapter,
+- [x] `assets/sidebar-toc.html`: nest page sections under the active chapter,
   collapsible, with scroll-spy.
-- [ ] `_quarto.yml`: light/dark themes, code-copy, shorter right TOC
+- [x] `_quarto.yml`: light/dark themes, code-copy, shorter right TOC
   (`toc-depth: 3`, `toc-expand: 1`), floating sidebar, repo-free tools.
-- [ ] Update `CLAUDE.md` where it fixes `toc-depth: 4`.
-- [ ] Render the book and check every page in light and dark mode.
+- [x] Update `CLAUDE.md` where it fixes `toc-depth: 4`.
+- [x] Check theme and sidebar on an R-free demo book: light, dark, 600 px.
+- [ ] Render the full book (session metrics-masters-36 owns the render;
+  renv/activate.R hangs at R startup here) and check every page.
 
 ## Open questions
 
