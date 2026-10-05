@@ -114,13 +114,13 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
   belongs in the text, not the title. Give each section a `{#sec-...}` id so it
   can be linked.
 - `_quarto.yml` keeps `number-depth: 2`, so only chapters and their top-level
-  sections are numbered, and `toc-depth: 4`, so the right-hand per-page
-  contents reaches the deepest headings. Keep those apart: deep page contents,
-  shallow numbering.
-- Style experiments happen in `proto/`, an R-free mini book that renders in
-  seconds (`quarto render proto`). Its theme and sidebar script live in
-  `proto/assets/`. The main book keeps its default design until a prototype
-  is agreed.
+  sections are numbered, and `toc-depth: 3` with `toc-expand: 1`, so the
+  "On this page" dropdown stays short.
+- The book uses a two-page layout: a fixed sidebar, the book page, and a pane
+  on the right where links in the text open. Theme, layout and scripts live in
+  `assets/` (`theme.scss`, `two-page.scss`, `two-page.html`, `in-pane.html`,
+  `sidebar-toc.html`). Try layout changes first in `proto/`, an R-free mini
+  book that shares `assets/` and renders in seconds (`quarto render proto`).
 - Chapter files hold the intro, the setup chunk and `{{< include >}}` lines.
 - Load packages with `library()` in the file that uses them.
 - Keep examples extremely concise and self-explanatory.

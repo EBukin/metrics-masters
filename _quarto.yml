@@ -18,7 +18,14 @@ book:
   subtitle: "Reproducing impact-evaluation methods in R"
   author: "Eduard Bukin"
   date: today
-  search: true
+  search:
+    location: sidebar
+    type: textbox
+  reader-mode: true
+  page-navigation: true
+  sidebar:
+    style: floating
+    collapse-level: 3
   chapters:
     - index.qmd
     - part: "Panel data"
@@ -39,13 +46,31 @@ bibliography: references.bib
 
 format:
   html:
-    theme: sandstone
-    # Right-hand per-page contents: deep. Heading numbers: shallow.
+    # Two-page layout and theme live in assets/ and are tried out first in
+    # proto/ (quarto render proto). Links in the text open in a pane on the
+    # right; the page contents is a dropdown in the top bar.
+    theme:
+      light: [cosmo, assets/theme.scss, assets/two-page.scss]
+      dark: [cosmo, assets/theme.scss, assets/theme-dark.scss, assets/two-page.scss]
+    respect-user-color-scheme: true
+    highlight-style:
+      light: github
+      dark: github-dark
+    include-in-header: assets/in-pane.html
+    include-after-body:
+      - assets/sidebar-toc.html
+      - assets/two-page.html
     toc: true
     toc-title: "On this page"
-    toc-depth: 4
-    toc-expand: 3
+    toc-depth: 3
+    toc-expand: 1
     number-depth: 2
+    code-copy: true
+    code-overflow: scroll
+    anchor-sections: true
+    smooth-scroll: true
+    link-external-newwindow: true
+    fig-align: center
 
 execute:
   warning: false
