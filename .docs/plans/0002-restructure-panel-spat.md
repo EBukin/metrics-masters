@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-04
 - **Author:** Eduard Bukin
-- **Status:** active
+- **Status:** superseded by .docs/plans/0005-chapters-layout.md
 
 ## Goal
 
