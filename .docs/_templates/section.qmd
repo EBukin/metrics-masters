@@ -6,6 +6,11 @@ chapter's "Under the hood" section, not here. -->
 
 <!-- The question, in the running example's words, in one sentence. -->
 
+<!-- Point to the theory note right after the question, e.g. a callout-tip
+"Why this test behaves this way: [theory note](theory-{{what}}.qmd)." Keep
+the derivation there; this step keeps only the math a reader needs to run
+and read the call. -->
+
 <!-- How the test works: one paragraph of intuition, then the math that
 tells the story. Several equations are fine when each one earns its place,
 e.g. the test regression and the statistic built from it. Bold each new term
@@ -18,7 +23,7 @@ link back. -->
 **Run it.** {{One sentence on the data.}}
 
 ```{r}
-#| label: s{{n}}-{{m}}-run
+#| label: c{{NN}}-{{n}}-run
 pkg::test(...)
 ```
 
@@ -28,7 +33,7 @@ Vary the kind of picture across sections. Every figure has fig-cap and
 fig-alt. -->
 
 ```{r}
-#| label: s{{n}}-{{m}}-picture
+#| label: c{{NN}}-{{n}}-picture
 #| fig-cap: "{{What the picture shows, in one line.}}"
 #| fig-alt: "{{What a reader would see, for a screen reader.}}"
 ```

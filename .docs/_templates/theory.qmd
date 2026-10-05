@@ -1,0 +1,65 @@
+---
+title: "{{Short plain term, e.g. Spatial weights}}"
+subtitle: "Theory note {{NN}} — {{one line on what it covers}}"
+---
+
+<!-- Link straight to the step that sends readers here, by anchor in this
+chapter's index.qmd, e.g.
+"> **Code:** [CD tests](index.qmd#sec-csd-tests)." A step in another
+chapter links the same way, by chapter and anchor, e.g.
+"[spatial weights](../03-spatial/index.qmd#sec-weights)". A note this one
+builds on links by its own file name, e.g.
+"[theory note](theory-{{other}}.qmd)". -->
+
+> **Code:** [{{step name}}](index.qmd#sec-{{anchor}}).
+
+## {{Why the method exists}}
+
+<!-- One paragraph: the question the method answers, in the running
+example's words, and why the obvious approach falls short. No code here —
+the step owns the calls, this page owns the reasoning. -->
+
+## {{The minimum math}}
+
+<!-- As many equations as the idea needs, no more. Bold each new term where
+it is defined. Gloss a term from another chapter in one line and link back
+to its step, e.g. "the CD test
+([CD tests](../02-cross-dependence/index.qmd#sec-csd-tests))". -->
+
+$$
+{{equation}}
+$$
+
+## If / then
+
+<!-- The reading rules a step sends readers here for. One row per case, each
+a short "if this, then that". Cite every claim, e.g. [@key, p. X]. -->
+
+| If | Then |
+|---|---|
+| {{condition}} | {{what to do}} |
+| {{condition}} | {{what to do}} |
+
+## Next
+
+<!-- Link the note this one hands off to, if any, e.g. "[Theory note
+{{NN}}](theory-{{next}}.qmd) covers {{what}}." -->
+
+<!-- -----------------------------------------------------------------
+Placeholder form. Use this instead of everything above when the note is
+only planned, not written. Keep the YAML and the "Code:" link; replace
+the rest of the page with the callout and list below, and tick nothing
+in the node checklist until the real note replaces this. Delete this
+comment and the skeleton above when writing the real note.
+
+::: {.callout-note}
+**Placeholder.** This note is planned, not written. Tracked in the node
+checklist in [the preface](../../index.qmd).
+:::
+
+## What this note should cover
+
+- {{Point one.}}
+- {{Point two.}}
+- {{Point three.}}
+----------------------------------------------------------------------- -->

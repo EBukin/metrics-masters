@@ -18,20 +18,23 @@ visible, and the equation that makes it precise. -->
 5. {{What to do with the result}}
 
 <!-- Terms from other chapters used here: gloss each in one line and link
-back, e.g. "the CD test, which measures how much units move together
-([Common shocks](common-shocks.qmd#sec-cd))". -->
+back by chapter and anchor, e.g. "the CD test, which measures how much units
+move together
+([CD tests](../02-cross-dependence/index.qmd#sec-csd-tests))". A theory note
+that lives in this chapter's folder links by its own file name instead, e.g.
+[theory note](theory-{{what}}.qmd); it opens in the right-hand pane. -->
 
 ```{r}
-#| label: s{{n}}-0-setup
+#| label: c{{NN}}-0-setup
 devtools::load_all(quiet = TRUE)
 ```
 
-{{< include examples/{{topic}}/1-idea.qmd >}}
+{{< include 1-idea.qmd >}}
 
-{{< include examples/{{topic}}/2-why.qmd >}}
+{{< include 2-why.qmd >}}
 
-{{< include examples/{{topic}}/3-{{test}}.qmd >}}
+{{< include 3-{{test}}.qmd >}}
 
-{{< include examples/{{topic}}/9-bottom-line.qmd >}}
+{{< include 9-bottom-line.qmd >}}
 
-{{< include examples/{{topic}}/10-under-the-hood.qmd >}}
+{{< include 10-under-the-hood.qmd >}}
