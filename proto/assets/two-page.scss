@@ -309,7 +309,8 @@ html:not(.tp-in-pane) .sidebar-tools-main .quarto-navigation-tool:hover {
 }
 
 // Drag handles: sidebar edge and book/pane divider. A rule is always
-// visible on the column edge; a grip shows on hover.
+// visible on the column edge, a shade darker than the other borders; a grip
+// shows in the middle on hover, and the rule turns to the accent.
 .tp-handle {
   position: fixed;
   top: 0;
@@ -327,13 +328,35 @@ html:not(.tp-in-pane) .sidebar-tools-main .quarto-navigation-tool:hover {
   bottom: 0;
   left: 4px;
   width: 1px;
-  background: transparent;
+  background: mix($border-color, $secondary, 75%);
   transition: background 0.15s ease;
+}
+.tp-handle::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 1px;
+  width: 7px;
+  height: 2.2rem;
+  margin-top: -1.1rem;
+  z-index: 1;
+  border: 1px solid $primary;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle, $primary 0.9px, transparent 1.1px) center / 5px 5px,
+    $body-bg;
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
 .tp-handle:hover::after,
 body.tp-dragging .tp-handle.is-active::after {
   background: $primary;
+  left: 3.5px;
   width: 2px;
+}
+.tp-handle:hover::before,
+body.tp-dragging .tp-handle.is-active::before {
+  opacity: 1;
 }
 body.tp-dragging {
   cursor: col-resize;

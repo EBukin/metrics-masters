@@ -200,7 +200,7 @@ then screenshot or `--dump-dom`; delete both files after. Test light, dark
   `glossary.qmd` with three entries.
 - [x] **Top bars.** Implement the three 3rem bars and move the "On this
   page" dropdown into the book bar (fixes defects 1, 2, 3, 6, 8).
-- [ ] **Handles.** Visible column rules and grips (defect 7).
+- [x] **Handles.** Visible column rules and grips (defect 7).
 - [ ] **Pane protocol.** postMessage from `in-pane.html`/`two-page.html`;
   pane title shows page and section (defect 4); scroll with
   `scroll-margin-top` so the target heading is in view (defect 5).
