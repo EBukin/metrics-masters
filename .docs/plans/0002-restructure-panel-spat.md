@@ -59,80 +59,79 @@ Turn the single chapter into a **Part** of short chapters, one question each.
 Order follows the work an applied economist does: see the problem, diagnose,
 then estimate.
 
+**Revised 2026-10-04** after the user's review of the unit-root pilot; the
+instruction is quoted in `.docs/notes/0001-writing-standard.md`. The model is
+*Mastering 'Metrics*: a relatable example first, a plain definition, just
+enough math, economist vocabulary, short headers, and no term before it is
+explained.
+
 ```
-Part: Panels where units are not independent
+Part: Panel data
 │
-├─ 1  Why it matters                    (hook + map)
-│     One regression, two answers: house prices on income, FE says 0.30,
-│     CCE says 1.14. Which is right, and how would you know?
-│     Decision map of the whole Part (one flowchart).
-│
-├─ 2  Know your panel                   (N, T, balance)
-│     Shape decides which tools are usable. N/T rule of thumb.
-│     → next: 3
-│
-├─ 3  Do units move together?           (CD family)
-│     + raw log house prices   → reject
-│     − independent simulated panel → do not reject
-│     ! two-way FE residuals   → "do not reject" that means nothing
-│     → reject: 4.   do not reject (honestly): standard panel tools.
-│
-├─ 4  How strong is the co-movement?    (exponent α)
-│     + raw prices, α ≈ 0.83   → strong: common factors
-│     − CCE residuals, α ≈ 0.51 → weak: local / spatial
-│     ! variable method on a rebased index
-│     → strong: 5 (remove factors).   weak: spatial Part (later).
-│
-├─ 5  Do the series wander?             (panel unit roots)
-│   5.1 Why it matters: spurious regression in one picture.
-│   5.2 What "reject" means: one null, three alternatives.
-│   5.3 Tests that assume independence (LLC, IPS, Maddala–Wu, Hadri)
-│        + growth rates reject   − levels do not
-│   5.4 Tests that allow a common factor (CIPS)
-│        + differences reject    − levels do not
-│   5.5 Which series? (Hanck / Simes)
-│        + 10 of 19 exchange rates   − 0 of 49 states
-│   5.6 When the tests lie: size under spatial dependence,
-│        cross-unit cointegration (simulations, flagged unverified)
-│     → I(1): 6 with a cointegration check.   I(0): 6 directly.
-│
-├─ 6  Removing common factors           (MG, CCEMG, CCEP)
-│     + house prices: 0.30 → 1.14
-│     − factor-free simulated panel: MG ≈ CCE (no harm done)
-│     Did it work? CD and α on residuals; CIPS on residuals
-│     (= cointegration check).
-│     → residual dependence weak: spatial Part.   gone: done.
-│
-└─ 7  Summary: the map again, filled in with this data's answers.
+├─ Same data, two answers      FE says 0.30, CCE says 1.14. Why?
+├─ Panel shape                 N, T, balance
+├─ Common shocks               CD test; strength (α)
+├─ Unit roots                  pilot, see below
+├─ Removing common shocks      MG, CCEMG, CCEP
+└─ Map of the Part             one page, written last
 ```
 
-Later stages of the spec (cointegration, error structure, static and dynamic
-panels, spatial models) become later Parts, in the same template.
+The unit-root chapter, revised:
+
+```
+Unit roots
+  Opening    After the 2006 peak, prices in some states fell by a third.
+             Do they come back to their old path, or is the loss
+             permanent? That is the unit-root question.
+  Definition A series has a unit root when a shock never fades: today's
+             value carries all of yesterday's, y_t = ρ y_{t-1} + ε_t with
+             ρ = 1. With ρ < 1 a shock dies out, half of it in a known time.
+  1 The idea          picture: random walks vs stationary; half-life
+  2 Why it matters    spurious regression (57% vs 3.5%); define
+                      cointegration here: two wandering series tied by a
+                      stable long-run link
+  3 One series        Dickey–Fuller on one state: too few years to tell
+  4 Many series       pool the states: LLC, IPS, Maddala–Wu, Hadri;
+                      levels vs growth rates; what a rejection means
+  5 Common shocks     one-line gloss of CD + link; CIPS
+  6 Which states      Hanck / Simes
+  7 When tests mislead  panel shape, spatial spillovers, shared trends
+  8 Bottom line       numbered points, no flowchart
+  9 Under the hood    pitfalls, book checks, link to theory note 07
+```
+
+## Chapter template
+
+`.docs/_templates/chapter.qmd`:
+
+1. **Title.** A few plain words: the term itself.
+2. **Opening.** One or two paragraphs of a relatable economic example.
+3. **Definition.** One plain sentence: what it is, why it matters.
+4. **In this chapter.** A numbered list of points, not a flowchart.
+5. **Sections**, one idea or one test each (template below).
+6. **Bottom line.** Numbered points: what the running example showed and
+   what to do with your own data.
+7. **Under the hood.** Pitfalls, book checks, recipes, the theory-note link.
 
 ## Section template
 
-Every test section has the same blocks, in this order. Only the first five are
-in the main text.
+`.docs/_templates/section.qmd`, for each test:
 
-1. **Question.** One sentence in plain words. "Do the states' house prices move
-   together more than chance allows?"
-2. **Intuition.** One short paragraph, a picture if it helps, at most one
-   equation. What the problem does to an estimate.
-3. **The test.** Null and alternative in words; what it is blind to.
-4. **Run it.** The minimal call on the running example.
-5. **Read it.** Positive case, negative case, and a misleading case where one
-   exists, each with one or two sentences of reading. Then **Next**: "reject →
-   section X, do not reject → section Y".
-6. **Recipe** (callout). The code to copy for your own panel, nothing else.
-7. **Pitfalls** (collapsed callout). Interface traps, software bugs, refusals.
-8. **Book check** (collapsed callout). Output beside the published numbers,
-   with pages.
-9. **Going deeper** (link). The appendix note, for the math and the sources.
+1. **Header.** A few plain words.
+2. **The question** in the running example's words, one sentence.
+3. **How it works.** One paragraph of intuition, at most one small equation.
+   New terms bold where defined; terms from other chapters glossed in one
+   line with a link back.
+4. **The test.** Name, null in words, what a rejection means in words.
+5. **Run it.** The call, in the open.
+6. **Read it.** Rejects / does not reject / misleads (only if there is one),
+   each with its number and a one-sentence *So:* implication.
+7. **Next.** Where each result sends the reader.
 
 ## Where things live
 
-- **Chapter files** hold the story: blocks 1–6 above. A chapter must be
-  readable without opening any appendix.
+- **Chapter files** hold the story. A chapter must be readable without
+  opening any appendix.
 - **`R/`** holds plumbing only: `as_matrix()`, the DGP simulators, `rook_w()`,
   `as_pseries()`. Roxygen-documented, loaded with `devtools::load_all()`. Every
   test call stays in the open in the chapter.
@@ -148,7 +147,10 @@ in the main text.
   simulators and reshapers; Stage 0's `as_matrix()` still inline).
 - [x] Pilot on chapter 5 instead of 3, at the user's request: unit roots are
   now `unit-roots.qmd`, rendered 2026-10-04. Review with the user.
-- [ ] Rebuild chapters 1, 2, 3, 4, 6, 7 from the Stage 0 material.
+- [x] Revise the outline and the templates after the user's review
+  (`.docs/notes/0001-writing-standard.md`).
+- [ ] Rewrite `unit-roots.qmd` to the revised template.
+- [ ] Rebuild the other chapters of the Part from the Stage 0 material.
 - [ ] Add missing negative cases (CCE on a factor-free panel; first-generation
   rejection on a stationary panel).
 - [ ] Trim appendices 01 and 07 to "going deeper" content.

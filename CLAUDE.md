@@ -95,11 +95,17 @@ plm::purtest(m, test = "madwu", exo = "intercept", lags = 1)
 
 ## Writing the primer
 
-- One chapter per question (e.g. `unit-roots.qmd`), grouped into book parts.
-  Each section is its own file in `examples/<topic>/`, built from
-  `.docs/_templates/section.qmd`: Question, Intuition, The test, Run it, Read
-  it (rejects / does not reject / misleads), Next, then collapsed Recipe,
-  Pitfalls and Book check. Section headings are `##`; the chapter supplies `#`.
+- Write like *Mastering 'Metrics*: relatable example first, then a plain
+  definition, just enough math, economist vocabulary. The rules are in
+  `.docs/notes/0001-writing-standard.md`.
+- One chapter per topic, titled with the plain term (e.g. `unit-roots.qmd`,
+  "Unit roots"), grouped into short-titled book parts. Start from
+  `.docs/_templates/chapter.qmd`. Each section is its own file in
+  `examples/<topic>/`, built from `.docs/_templates/section.qmd`. Section
+  headings are `##` and a few words long; the chapter supplies `#`.
+- Never use a term before it is explained. A term from another chapter gets
+  a one-line gloss and a link back. Road maps are numbered points, not
+  flowcharts.
 - `panel-spat.qmd` still uses the old layout (`###` sections under `##`
   stages) until it is split; see `.docs/plans/0002-restructure-panel-spat.md`.
 - **Never put manual numbers in a heading** (no "0.1", no "Stage 0 —" prefix on

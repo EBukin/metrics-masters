@@ -1,0 +1,36 @@
+---
+title: "{{Short plain term, e.g. Unit roots}}"
+---
+
+<!-- Opening. A relatable economic example in one or two paragraphs: a real
+question about real data that a reader already cares about. No jargon yet. -->
+
+<!-- Then the definition, in one plain sentence: what {{term}} is and why it
+matters for the question above. -->
+
+**In this chapter.**
+
+1. {{What the thing is}}
+2. {{Why it matters for an estimate}}
+3. {{The first test}}
+4. {{The next test}}
+5. {{What to do with the result}}
+
+<!-- Terms from other chapters used here: gloss each in one line and link
+back, e.g. "the CD test, which measures how much units move together
+([Common shocks](common-shocks.qmd#sec-cd))". -->
+
+```{r}
+#| label: s{{n}}-0-setup
+devtools::load_all(quiet = TRUE)
+```
+
+{{< include examples/{{topic}}/1-idea.qmd >}}
+
+{{< include examples/{{topic}}/2-why.qmd >}}
+
+{{< include examples/{{topic}}/3-{{test}}.qmd >}}
+
+{{< include examples/{{topic}}/9-bottom-line.qmd >}}
+
+{{< include examples/{{topic}}/10-under-the-hood.qmd >}}

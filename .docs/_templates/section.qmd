@@ -1,14 +1,19 @@
-## {{Title as a plain question or task}} {#sec-{{chapter}}-{{what}}}
+<!-- Test section. One test (or one family) per section. Header: a few plain
+words. Code calls stay in the open; pitfalls and book checks go to the
+chapter's "Under the hood" section, not here. -->
 
-**Question.** One sentence in plain words, about the running example.
+## {{Short header}} {#sec-{{chapter}}-{{what}}}
 
-**Intuition.** One short paragraph. What the problem does to an estimate, in
-everyday terms. At most one equation; a picture if it helps.
+<!-- The question, in the running example's words, in one sentence. -->
 
-**The test.** Null and alternative in words. The one assumption that matters,
-and what the test cannot see.
+<!-- How the test works: one paragraph of intuition. At most one small
+equation, only if it backs up the intuition. Bold each new term where it is
+defined. Gloss any term from another chapter in one line and link back. -->
 
-**Run it.** One sentence on the data, then the call, in the open.
+**The test.** {{Name}} [@key]. Null: {{in words}}. A rejection means
+{{in words}}.
+
+**Run it.** {{One sentence on the data.}}
 
 ```{r}
 #| label: s{{n}}-{{m}}-run
@@ -17,31 +22,11 @@ pkg::test(...)
 
 **Read it.**
 
-- **Rejects.** A case where the test fires, and what that means.
-- **Does not reject.** A case where it stays quiet, and what that means.
-- **Misleads.** A case where the output points the wrong way, and why.
+- **{{Case where it rejects}}.** {{Number}}. *So:* {{implication in one
+  intuitive sentence}}.
+- **{{Case where it does not reject}}.** {{Number}}. *So:* {{implication in
+  one intuitive sentence}}.
+- **{{Case where it misleads, only if there is one}}.** {{Number}}. *So:*
+  {{why, in one sentence}}.
 
-::: {.callout-note appearance="simple"}
-**Next.** Rejects: [section](chapter.qmd#sec-...). Does not reject:
-[section](chapter.qmd#sec-...).
-:::
-
-::: {.callout-note collapse="true"}
-## Recipe
-
-```r
-# The minimal code to run this on your own panel. Not evaluated.
-```
-:::
-
-::: {.callout-caution collapse="true"}
-## Pitfalls
-
-Interface traps, software bugs, refusals, missing implementations.
-:::
-
-::: {.callout-tip collapse="true"}
-## Book check
-
-The output beside the published numbers, with pages. Or: "None", and why.
-:::
+**Next.** {{Rejects: where to go. Does not reject: where to go.}}
