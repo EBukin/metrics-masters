@@ -1,0 +1,53 @@
+# Style prototype: a small R-free copy of the book's layout.
+# Theme lives in proto/assets; the main book keeps its default design.
+# Render: quarto render proto   (seconds; no R, no renv)
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Metrics Masters (prototype)"
+  subtitle: "Layout and style sandbox"
+  author: "Eduard Bukin"
+  search:
+    location: sidebar
+    type: textbox
+  reader-mode: true
+  page-navigation: true
+  sidebar:
+    style: floating
+    collapse-level: 1
+  chapters:
+    - index.qmd
+    - part: "Panels where units are not independent"
+      chapters:
+        - dependence.qmd
+        - unit-roots.qmd
+    - references.qmd
+  appendices:
+    - theory/cd-test.qmd
+
+bibliography: ../references.bib
+engine: markdown
+
+format:
+  html:
+    theme:
+      light: [cosmo, assets/theme.scss]
+      dark: [cosmo, assets/theme.scss, assets/theme-dark.scss]
+    respect-user-color-scheme: true
+    highlight-style:
+      light: github
+      dark: github-dark
+    include-after-body: assets/sidebar-toc.html
+    toc: true
+    toc-title: "On this page"
+    toc-depth: 3
+    toc-expand: 1
+    number-depth: 2
+    code-copy: true
+    code-overflow: wrap
+    anchor-sections: true
+    smooth-scroll: true
+    link-external-newwindow: true
+    fig-align: center

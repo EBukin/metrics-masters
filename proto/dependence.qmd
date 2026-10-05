@@ -1,0 +1,76 @@
+# Do units move together? {#sec-dependence}
+
+Units in a panel are rarely independent. States share a business cycle, and
+neighbours share shocks. This chapter asks whether that co-movement is present
+and how strong it is. The math lives in @sec-cd-theory.
+
+## Question {#sec-dep-question}
+
+Do the states' house prices move together more than chance allows?
+
+## The test {#sec-cd-test}
+
+Pesaran's CD averages the pairwise residual correlations
+[@pesaran2015, p. 786]:
+
+$$
+CD = \sqrt{\frac{2T}{N(N-1)}} \sum_{i<j} \hat\rho_{ij}
+  \;\xrightarrow{d}\; N(0,1).
+$$
+
+It sums raw $\hat\rho$, so correlations of opposite sign cancel. Unit roots
+change the picture again; see @sec-ips.
+
+### Run it {#sec-cd-run}
+
+```r
+data("HousePricesUS", package = "pder")
+hp <- plm::pdata.frame(HousePricesUS)
+plm::pcdtest(log(price) ~ 1, data = hp, test = "cd")
+```
+
+```
+	Pesaran CD test for cross-sectional dependence in panels
+
+data:  log(price) ~ 1
+z = 162.63, p-value < 2.2e-16
+alternative hypothesis: cross-sectional dependence
+```
+
+### Read it {#sec-cd-read}
+
+| Case | Data | CD | Reading |
+|---|---|---|---|
+| Rejects | Raw log prices | 162.63 | Strong co-movement |
+| Does not reject | Simulated independent panel | 0.41 | Nothing to remove |
+| Misleads | Two-way FE residuals | −1.20 | Cancelled, not absent |
+
+::: {.callout-tip}
+## Next
+Rejects: measure the strength in @sec-exponent. Does not reject: standard
+panel tools apply.
+:::
+
+::: {.callout-note collapse="true"}
+## Book check
+@pesaran2015 [p. 787] prints CD = 162.6 for this panel.
+:::
+
+## How strong is it? {#sec-exponent}
+
+The exponent $\alpha$ says how many units a shock reaches. Near 1 means a
+common factor; near 0.5 means local, spatial spillovers.
+
+### Run it {#sec-exponent-run}
+
+```r
+dcce::csd_exponent(as_matrix(log(hp$price)))
+```
+
+```
+alpha = 0.83 (se 0.04)
+```
+
+### Read it {#sec-exponent-read}
+
+An $\alpha$ of 0.83 is strong dependence: remove common factors first.

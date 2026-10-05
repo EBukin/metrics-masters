@@ -1,0 +1,54 @@
+# Do the series wander? {#sec-unit-roots}
+
+A regression of one wandering series on another finds a relationship even when
+there is none. This chapter tests for unit roots in a panel. Dependence across
+units, from @sec-dependence, changes which test is valid.
+
+## First-generation tests {#sec-first-gen}
+
+These tests assume the units are independent.
+
+### Im, Pesaran and Shin {#sec-ips}
+
+```r
+plm::purtest(log(hp$price), test = "ips", exo = "intercept", lags = 1)
+```
+
+```
+	Im-Pesaran-Shin Unit-Root Test (ex. var.: Individual Intercepts)
+
+data:  log(hp$price)
+Wtbar = 1.84, p-value = 0.967
+alternative hypothesis: stationarity
+```
+
+Levels do not reject: house prices wander.
+
+### Levin, Lin and Chu {#sec-llc}
+
+Same call, `test = "levinlin"`. It assumes a common autoregressive root.
+
+## Second-generation tests {#sec-second-gen}
+
+These tests allow one common factor. The CD test in @sec-cd-test says the
+factor is there.
+
+### CIPS {#sec-cips}
+
+```r
+plm::cipstest(log(hp$price), type = "drift")
+```
+
+```
+CIPS = -1.92, critical value 5% = -2.11
+```
+
+::: {.callout-warning}
+## Trap
+CIPS under-rejects when dependence is spatial rather than factor-driven.
+:::
+
+## Summary {#sec-ur-summary}
+
+Levels wander; growth rates do not. Estimate in differences, or check for
+cointegration first.

@@ -1,0 +1,16 @@
+# Preface {.unnumbered}
+
+This is a style prototype of the book. It has the same theme, sidebar and
+contents as the real book, but no R code runs, so it renders in seconds. Use it
+to try layout ideas before they reach the real chapters.
+
+The pages exercise what the real book uses: parts, numbered chapters, nested
+sections, cross-references between pages, callouts, code with output, tables,
+display math and citations [@pesaran2015; @croissant2019].
+
+## What to look at
+
+- The left sidebar: the open chapter unfolds into its sections.
+- The right contents: two levels, only the current group expanded.
+- Links between pages: @sec-cd-test in one chapter, @sec-ips in another, and
+  the appendix @sec-cd-theory.
