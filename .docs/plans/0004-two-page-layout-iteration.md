@@ -205,7 +205,7 @@ then screenshot or `--dump-dom`; delete both files after. Test light, dark
   pane title shows page and section (defect 4); scroll with
   `scroll-margin-top` so the target heading is in view (defect 5).
 - [x] **Back / Forward** in the pane bar, with disabled states.
-- [ ] **Pane "On this page"** dropdown fed by the `toc` message.
+- [x] **Pane "On this page"** dropdown fed by the `toc` message.
 - [ ] **Same-page links** open in the pane.
 - [ ] **Footnotes** in snippet mode.
 - [ ] **Index:** `terms.lua`, `glossary.qmd`, snippet mode for entries.

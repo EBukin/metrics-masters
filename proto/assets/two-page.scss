@@ -421,6 +421,64 @@ html.tp-sb-collapsed .tp-handle-sb {
   font-weight: 500;
 }
 
+// Pane "On this page": an icon button with a list below it.
+.tp-menu {
+  position: relative;
+  flex: none;
+  display: flex;
+}
+.tp-menu[hidden] {
+  display: none !important;
+}
+.tp-menu.is-open > .tp-icon {
+  color: $primary;
+  border-color: $primary;
+}
+.tp-menu-list {
+  display: none;
+  position: absolute;
+  top: calc(100% + (var(--tp-bar) - var(--tp-btn)) / 2 + 0.25rem);
+  right: 0;
+  z-index: 5;
+  width: max-content;
+  min-width: 14rem;
+  max-width: 22rem;
+  max-height: 70vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  background: $body-bg;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+}
+.tp-menu.is-open > .tp-menu-list {
+  display: block;
+}
+.tp-menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 0.6rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: none;
+  color: $body-color;
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  white-space: normal;
+  cursor: pointer;
+}
+.tp-menu-item:hover {
+  color: $primary;
+  background: rgba($primary, 0.06);
+}
+.tp-menu-item.is-current {
+  color: $primary;
+  font-weight: 600;
+}
+
 // Links that open in the pane get a small marker on hover.
 html:not(.tp-in-pane) main.content a.tp-pane-link:hover::after {
   content: " \2197";
