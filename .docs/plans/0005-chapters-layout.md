@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-05
 - **Author:** Eduard Bukin
-- **Status:** draft
+- **Status:** in progress
 
 ## Goal
 
@@ -39,8 +39,7 @@ Each step ends in its own commit. Use `git mv` so history follows the files.
   short intro and the setup chunk; `1-shape.qmd` from
   `examples/panel-spat/0-1-panel-shape.qmd`.
 - [ ] **Cross-sectional dependence** (`chapters/02-cross-dependence/`).
-  - `index.qmd`: the "Same data, two answers" opener and its figure from
-    `panel-spat.qmd`, then the setup chunk.
+  - `index.qmd`: a short intro, then the setup chunk.
   - Steps in the new order: `1-tests.qmd` (from `0-4-csd-tests.qmd`),
     `2-exponent.qmd` (from `0-2-csd-exponent.qmd`), `3-cce.qmd` (from
     `0-3-cce.qmd`). Check that the tests step does not use objects that the
@@ -59,7 +58,8 @@ Each step ends in its own commit. Use `git mv` so history follows the files.
   in the `index.qmd` checklist until written.
 - [ ] **Core panel models** (`chapters/05-core/`). `index.qmd` as a
   placeholder chapter listing spec sections 3.1–3.3 and 4a.1–4a.4.
-- [ ] **Road map** (`chapters/00-road-map/index.qmd`). Plain intro to the
+- [ ] **Road map** (`chapters/00-road-map/index.qmd`). The "Same data, two
+  answers" opener and its figure from `panel-spat.qmd`, a plain intro to the
   workflow, one decision diagram (mermaid) from panel set-up to the
   dependence fork, then numbered points linking each chapter.
 - [ ] **Labels.** Rename every chunk label to `c<chapter>-<step>-<what>`.
@@ -73,7 +73,7 @@ Each step ends in its own commit. Use `git mv` so history follows the files.
   "Theory" sidebar group outside the reading order, not as appendices. Set
   `execute-dir: project` if any chunk reads a path relative to its file.
 - [ ] **Proto features.** Add the `assets/terms.lua` filter to the main
-  book. Add a glossary page only after the open question below is settled.
+  book. The glossary page waits (see Decisions).
 - [ ] **Tracker.** Rebuild the checklist in `index.qmd` around the new
   chapters; keep ticks only for written nodes.
 - [ ] **Clean up.** Delete `panel-spat.qmd`, `unit-roots.qmd`, `examples/`
@@ -84,14 +84,16 @@ Each step ends in its own commit. Use `git mv` so history follows the files.
   each chapter and each theory link in the pane.
 - [ ] **Outcome.** Fill in the outcome below; set status to done.
 
-## Open questions
+## Decisions
 
-- Glossary: build one now from the terms the chapters already define, or
-  wait until more chapters are written?
-- Does the "Same data, two answers" opener belong to the cross-dependence
-  chapter (as planned) or to the road map?
-- Should placeholder chapters (spatial, core) appear in the sidebar now, or
-  only once they have a first written step?
+Settled with the user on 2026-10-05, before the work started:
+
+- Glossary: wait. Add the `assets/terms.lua` filter now; build the glossary
+  page once more chapters are written.
+- The "Same data, two answers" opener and its figure go to the road map, not
+  to the cross-dependence chapter.
+- Placeholder chapters (spatial, core) appear in the sidebar now, each with a
+  `Placeholder` callout.
 
 ## Outcome
 
