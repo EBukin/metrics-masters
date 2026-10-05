@@ -6,13 +6,60 @@
 // Styles: assets/two-page.scss. Phones keep the normal layout.
 (function () {
   if (document.documentElement.classList.contains("tp-in-pane")) {
-    // Inside the pane: flash the heading the link pointed at.
-    window.addEventListener("load", function () {
-      var id = decodeURIComponent(location.hash.slice(1));
-      var el = id && document.getElementById(id);
-      if (el) el.classList.add("tp-flash");
-    });
+    inPane();
     return;
+  }
+
+  // Inside the pane. The parent cannot read this frame on file://, so the
+  // page reports itself by postMessage: its address, page and section
+  // titles, and its contents. The parent may ask it to go to an anchor.
+  function inPane() {
+    function clean(t) { return (t || "").replace(/\s+/g, " ").trim(); }
+    function headingOf(el) {
+      if (!el) return "";
+      if (/^H[1-6]$/.test(el.tagName)) return clean(el.textContent);
+      var sec = el.tagName === "SECTION" ? el : el.closest("section[id]");
+      var h = sec && sec.querySelector(":scope > h1, :scope > h2, " +
+        ":scope > h3, :scope > h4, :scope > h5, :scope > h6");
+      return h ? clean(h.textContent) : "";
+    }
+    function report() {
+      var id = decodeURIComponent(location.hash.slice(1));
+      var target = id ? document.getElementById(id) : null;
+      var h1 = document.querySelector("main.content h1");
+      var toc = [];
+      document.querySelectorAll("nav#TOC a.nav-link").forEach(function (a) {
+        var level = 0;
+        for (var n = a.parentElement; n && n.id !== "TOC"; n = n.parentElement) {
+          if (n.tagName === "UL") level++;
+        }
+        toc.push({ id: a.getAttribute("href").slice(1),
+                   text: clean(a.textContent), level: level });
+      });
+      var u = new URL(location.href);
+      u.searchParams.delete("tp-pane");
+      window.parent.postMessage({
+        tp: "loaded",
+        url: u.href,
+        title: h1 ? clean(h1.textContent) : clean(document.title),
+        section: target && target !== h1 ? headingOf(target) : "",
+        toc: toc
+      }, "*");
+      // Flash the element the link pointed at.
+      if (target) {
+        target.classList.remove("tp-flash");
+        void target.offsetWidth;
+        target.classList.add("tp-flash");
+      }
+    }
+    window.addEventListener("message", function (e) {
+      if (e.source !== window.parent || !e.data || e.data.tp !== "goto") {
+        return;
+      }
+      if (document.getElementById(e.data.id)) location.hash = e.data.id;
+    });
+    window.addEventListener("hashchange", report);
+    window.addEventListener("load", report);
   }
 
   var root = document.documentElement;
@@ -145,6 +192,7 @@
   pane.setAttribute("aria-label", "Second page");
   var paneBar = el("div", "tp-bar tp-pane-bar");
   var title = el("div", "tp-bar-title tp-pane-title", "Second page");
+  title.setAttribute("aria-live", "polite");
   paneBar.appendChild(title);
   paneBar.appendChild(
     iconButton("main", "bi-box-arrow-up-left", "Open as the main page"));
@@ -215,16 +263,48 @@
     else u.searchParams.delete("pane");
     history.replaceState(null, "", u);
   }
-  function open(url, label) {
+  function setTitle(page, section) {
+    title.textContent = "";
+    title.appendChild(el("span", "tp-pane-page")).textContent = page;
+    if (section) {
+      title.appendChild(el("span", "tp-pane-sec")).textContent = section;
+    }
+    title.title = section ? page + " › " + section : page;
+  }
+  // The address of the pane page, relative to this page, for ?pane=.
+  function relative(href) {
+    var to = new URL(href), from = new URL(location.href);
+    if (to.origin !== from.origin) return href;
+    var a = from.pathname.split("/").slice(0, -1);
+    var b = to.pathname.split("/");
+    var i = 0;
+    while (i < a.length && i < b.length - 1 && a[i] === b[i]) i++;
+    var up = a.slice(i).map(function () { return ".."; });
+    return up.concat(b.slice(i)).join("/") + to.search + to.hash;
+  }
+  var current = null;   // address of the page shown in the pane
+  function open(url) {
     var src = new URL(url, location.href);
     src.searchParams.set("tp-pane", "1");
     frame.src = src.href;
-    title.textContent = label || url.replace(/^.*\//, "");
+    // Until the page reports its own title, show its file name.
+    setTitle(decodeURIComponent(src.pathname.replace(/^.*\//, "")),
+             decodeURIComponent(src.hash.slice(1)));
     pane.classList.add("is-open");
-    setQuery(url);
+    current = new URL(url, location.href).href;
   }
+  window.addEventListener("message", function (e) {
+    if (e.source !== frame.contentWindow) return;
+    var d = e.data;
+    if (!d || d.tp !== "loaded" || typeof d.url !== "string") return;
+    if (!pane.classList.contains("is-open")) return;
+    current = d.url;
+    setTitle(String(d.title || ""), String(d.section || ""));
+    setQuery(relative(d.url));
+  });
   function close() {
     frame.removeAttribute("src");
+    current = null;
     pane.classList.remove("is-open");
     setQuery(null);
   }
@@ -232,11 +312,7 @@
     var b = e.target.closest("[data-act]");
     var act = b && b.getAttribute("data-act");
     if (act === "close") close();
-    if (act === "main" && frame.src) {
-      var u = new URL(frame.src);
-      u.searchParams.delete("tp-pane");
-      location.href = u.href;
-    }
+    if (act === "main" && current) location.href = current;
   });
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
@@ -278,7 +354,7 @@
     var url = paneTarget(a);
     if (!url) return;
     e.preventDefault();
-    open(url.href, a.textContent.trim());
+    open(url.href);
   });
 
   // Reopen the pane named in the address (shared link, reload).

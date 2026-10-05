@@ -407,6 +407,15 @@ html.tp-sb-collapsed .tp-handle-sb {
 .tp-pane.is-open .tp-pane-empty {
   display: none;
 }
+// Pane title: page, then the section the link pointed at.
+.tp-pane-sec {
+  font-weight: 500;
+  color: $secondary;
+}
+.tp-pane-sec::before {
+  content: "\203A";
+  margin: 0 0.4rem;
+}
 .tp-pane:not(.is-open) .tp-pane-title {
   color: $secondary;
   font-weight: 500;
@@ -441,6 +450,10 @@ html.tp-in-pane {
   }
   #title-block-header {
     margin-top: 0;
+  }
+  // An anchor lands a little below the top edge, never under it.
+  [id] {
+    scroll-margin-top: 1.25rem;
   }
   .tp-flash {
     animation: tp-flash 1.6s ease-out;
