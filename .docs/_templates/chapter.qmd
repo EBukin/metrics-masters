@@ -22,7 +22,7 @@ back by chapter and anchor, e.g. "the CD test, which measures how much units
 move together
 ([CD tests](../02-cross-dependence/index.qmd#sec-csd-tests))". A theory note
 that lives in this chapter's folder links by its own file name instead, e.g.
-[theory note](theory-{{what}}.qmd); it opens in the right-hand pane. -->
+[{{note name}}](theory-{{what}}.qmd); it opens in the right-hand pane. -->
 
 ```{r}
 #| label: c{{NN}}-0-setup
@@ -35,6 +35,4 @@ devtools::load_all(quiet = TRUE)
 
 {{< include 3-{{test}}.qmd >}}
 
-{{< include 9-bottom-line.qmd >}}
-
-{{< include 10-under-the-hood.qmd >}}
+{{< include 9-summary.qmd >}}

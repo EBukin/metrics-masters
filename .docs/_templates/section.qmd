@@ -1,21 +1,22 @@
 <!-- Test section. One test (or one family) per section. Header: a few plain
-words. Code calls stay in the open; pitfalls and book checks go to the
-chapter's "Under the hood" section, not here. -->
+words. Code calls stay in the open. Recipe, pitfalls and book check sit in
+collapsed boxes at the end of the section, so a first reading can skip them.
+-->
 
 ## {{Short header}} {#sec-{{chapter}}-{{what}}}
 
-<!-- The question, in the running example's words, in one sentence. -->
+**Question.** {{The question, in the running example's words, in one
+sentence.}}
 
-<!-- Point to the theory note right after the question, e.g. a callout-tip
-"Why this test behaves this way: [theory note](theory-{{what}}.qmd)." Keep
-the derivation there; this step keeps only the math a reader needs to run
-and read the call. -->
+**Intuition.** {{One paragraph: how the test works, in plain words, before
+any equation. Bold each new term where it is defined. Gloss any term from
+another chapter in one line and link back by chapter and anchor.}}
 
-<!-- How the test works: one paragraph of intuition, then the math that
-tells the story. Several equations are fine when each one earns its place,
-e.g. the test regression and the statistic built from it. Bold each new term
-where it is defined. Gloss any term from another chapter in one line and
-link back. -->
+<!-- Point to the theory note right after the intuition, e.g. a callout-tip
+"Why this test behaves this way: [{{note name}}](theory-{{what}}.qmd)."
+Keep the derivation there; this step keeps only the math a reader needs to
+run and read the call. Several equations are fine when each one earns its
+place, e.g. the test regression and the statistic built from it. -->
 
 **The test.** {{Name}} [@key]. Null: {{in words}}. A rejection means
 {{in words}}.
@@ -40,11 +41,37 @@ fig-alt. -->
 
 **Read it.**
 
-- **{{Case where it rejects}}.** {{Number}}. *So:* {{implication in one
+- **Rejects ({{case}}).** {{Number}}. *So:* {{implication in one intuitive
+  sentence}}.
+- **Does not reject ({{case}}).** {{Number}}. *So:* {{implication in one
   intuitive sentence}}.
-- **{{Case where it does not reject}}.** {{Number}}. *So:* {{implication in
-  one intuitive sentence}}.
-- **{{Case where it misleads, only if there is one}}.** {{Number}}. *So:*
-  {{why, in one sentence}}.
+- **Misleads ({{case}}, only if there is one).** {{Number}}. *So:* {{why,
+  in one sentence}}.
 
+::: {.callout-note appearance="simple"}
 **Next.** {{Rejects: where to go. Does not reject: where to go.}}
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# {{What the input is, e.g. y: a pseries}}
+pkg::test(y, ...)
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**{{Trap in bold}}.** {{What goes wrong and how to see it; a chunk when the
+trap can be shown.}}
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+{{The source and page, the numbers it prints, and the chunk that reproduces
+them. "None" plus the reason when `.docs/panel-spat-PLAN.md` records no
+target.}}
+:::

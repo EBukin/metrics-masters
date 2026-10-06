@@ -1,6 +1,6 @@
 ---
 title: "{{Short plain term, e.g. Spatial weights}}"
-subtitle: "Theory note {{NN}} — {{one line on what it covers}}"
+subtitle: "{{One line on what the note covers}}"
 ---
 
 <!-- Link straight to the step that sends readers here, by anchor in this
@@ -42,8 +42,9 @@ a short "if this, then that". Cite every claim, e.g. [@key, p. X]. -->
 
 ## Next
 
-<!-- Link the note this one hands off to, if any, e.g. "[Theory note
-{{NN}}](theory-{{next}}.qmd) covers {{what}}." -->
+<!-- Link the note this one hands off to, if any, by its short name, e.g.
+"[Spatial weights](../03-spatial/theory-spatial-weights.qmd) covers
+{{what}}." Notes are never referred to by number. -->
 
 <!-- -----------------------------------------------------------------
 Placeholder form. Use this instead of everything above when the note is
