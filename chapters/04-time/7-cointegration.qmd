@@ -1,0 +1,345 @@
+## Do they move together in the long run? {#sec-ur-coint}
+
+**Question.** Prices wander and incomes wander. Does a state's price level
+stay tied to its income level, so that the gap between them does not wander,
+and does the panel as a whole say so?
+
+**Intuition.** Incomes in a state rise 10%, prices rise 10%, and then both
+drift on together for a decade: the ratio holds, whatever either level does.
+Two I(1) series are **cointegrated** when some combination of them is I(0)
+[@engle1987; @croissant2019, p. 204]. That combination is the long-run
+relation, and its residual is the gap that closes. There are three ways to
+look for it, from one state to the panel. (1) Regress one series on the other
+and test the residual for a unit root, the Engle–Granger route [@engle1987;
+@croissant2019, p. 204]. (2) Ask how many stationary combinations the pair
+has, its **rank**, with Johansen's trace test [@johansen1988; @johansen1991]:
+rank 0 is no shared trend, rank 1 is one long-run relation, rank 2 means both
+series are stationary on their own. (3) Pool the per-state evidence: Pedroni's
+tests average per-state residual statistics [@pedroni1999; @pedroni2004;
+@baltagi2021, pp. 360–361], as IPS averages per-state Dickey–Fuller
+statistics and CIPS averages the same statistics with the cross-state means
+added ([tests that allow a common factor](index.qmd#sec-ur-second-gen)). The
+residual-based panel tests are built for rank 1 in every unit, with no
+cointegration among the regressors [@pesaran2015, p. 839], so the rank
+question comes first.
+
+::: {.callout-tip appearance="simple"}
+Why the rank matters, what Pedroni's statistics average, and what the panel
+adds: [cointegration in panels](theory-cointegration.qmd).
+:::
+
+**The tests.** Johansen's trace test, one state at a time [@johansen1991;
+@pfaff2008]. Null: rank 0, no shared trend, against rank at least 1; if that
+rejects, null rank at most 1 against rank 2. The `ca.jo` call of
+[shared trends across units](index.qmd#sec-ur-cross-coint) on simulated pairs
+is the same test; here it runs on real states. Pedroni's seven statistics
+[@pedroni1999]. Null: no cointegration in any state. Alternative: the gap
+closes with one common speed (the four *panel* statistics) or with a speed of
+its own in each state (the three *group* statistics) [@pedroni1999;
+@baltagi2021, p. 372]. Panel *v* rejects in the right tail, the other six in
+the left [@pedroni1999].
+
+Four tests from the same literature have no R implementation and are stated
+limitations. Kao's pooled Dickey–Fuller and ADF tests fix one slope for all
+units [@kao1999; @baltagi2021, pp. 357–358]. The McCoskey–Kao LM test puts
+cointegration in the null and "is not equipped to deal with cross-sectional
+dependence" [@mccoskey1998; @baltagi2021, p. 359]. The LR-bar of Larsson,
+Lyhagen and Löthgren averages the trace statistics below, as IPS averages
+Dickey–Fuller statistics, but "requires a large time-series dimension" and
+its size "will be severely distorted" otherwise [@larsson2001; @baltagi2021,
+p. 361]. Westerlund's error-correction tests [@westerlund2007] are in no R
+package either.
+
+**Run it.** One state in the open first. `ecdet = "none"` leaves the
+constant outside the long-run relation, so the levels may drift, as the
+[second-generation step](index.qmd#sec-ur-second-gen) allowed them to. The
+two rows are the null rank at most 1 and the null rank 0, with their critical
+values:
+
+```{r}
+#| label: c04-7-one-state
+ca <- subset(HousePricesUS, names == "California")
+ca <- ca[order(ca$year), ]
+z_ca <- urca::ca.jo(cbind(price = log(ca$price), income = log(ca$income)),
+                    type = "trace", ecdet = "none", K = 2, spec = "longrun")
+cbind(trace = z_ca@teststat, z_ca@cval)
+tx <- subset(HousePricesUS, names == "Texas")
+tx <- tx[order(tx$year), ]
+z_tx <- urca::ca.jo(cbind(price = log(tx$price), income = log(tx$income)),
+                    type = "trace", ecdet = "none", K = 2, spec = "longrun")
+cbind(trace = z_tx@teststat, z_tx@cval)
+```
+
+California rejects rank 0 (24.43 against 17.95) and not rank 1 (1.52 against
+8.18): one shared trend. Texas does not reject rank 0 (3.38). The other 47
+states go through `johansen_by_unit()` (in `R/cointegration.R`), which makes
+the same call once per state and reads the two rows at 5%:
+
+```{r}
+#| label: c04-7-by-state
+jo <- johansen_by_unit(php, c("price", "income"), log = TRUE, ecdet = "none",
+                       K = 2, label = "names")
+table(rank = jo$rank)
+jo[jo$rank >= 1, c("label", "trace_r0", "trace_r1", "rank", "slope")]
+```
+
+The Engle–Granger route, state by state: regress log price on log income in
+each state, then a Dickey–Fuller regression with two lags on the residual.
+The 49 state regressions are the mean-group fit of the [CCE
+step](../02-cross-dependence/index.qmd#sec-cce), and `adf_by_unit()` returns
+the 49 *t* statistics. Run it once on those residuals and once on the
+residuals of the CCEMG fit of the [second-generation
+step](index.qmd#sec-ur-second-gen), where the cross-state averages have taken
+the national factor out:
+
+```{r}
+#| label: c04-7-eg
+mg <- plm::pmg(log(price) ~ log(income), data = HousePricesUS, model = "mg")
+t_ols <- adf_by_unit(residuals(mg), lags = 2, type = "none")
+t_cce <- adf_by_unit(residuals(ccemg), lags = 2, type = "none")
+c(mean_ols = mean(t_ols), mean_cce = mean(t_cce))
+c(below_ols = sum(t_ols < -3.37), below_cce = sum(t_cce < -3.37))
+```
+
+The line −3.37 is the 5% value Engle and Granger tabulated for the
+Dickey–Fuller test on the residual of a two-variable regression
+[@engle1987]; with two lags it is a reference line, not an exact critical
+value. Pedroni's group statistics are built from these per-state residual
+statistics, and CIPS on residuals averages them after augmentation.
+
+Pedroni's test is in **pco** 1.0.1, archived on CRAN. Before its numbers on
+house prices can be read (they are in the Pitfalls), the implementation has
+to hold its size. 200 panels of 49 independent pairs over 29 years, random
+walks with no shared trend, then 200 where `y = 1 + x + 0.5 e` in every
+state; a 5% one-sided rule on the standardised values, right tail for panel
+*v*, left tail for the rest:
+
+```{r}
+#| label: c04-7-pco-size
+# One replication: the seven standardised statistics, kept as 5% verdicts.
+pedroni_rejects <- function(sim) {
+  s <- pco::pedroni99(sim$Y, sim$X, type.stat = 2)$STATISTIC[, "standardized"]
+  c(s[1] > qnorm(0.95), s[-1] < qnorm(0.05))
+}
+set.seed(1)
+size <- rowMeans(replicate(200, pedroni_rejects(
+  sim_coint_pair_panel(49, 29, coint = FALSE))))
+power <- rowMeans(replicate(200, pedroni_rejects(
+  sim_coint_pair_panel(49, 29, coint = TRUE))))
+cbind(size, power)
+```
+
+```{r}
+#| label: c04-7-picture
+#| fig-height: 7
+#| fig-cap: "Left: the Johansen trace statistic for rank 0 in each of the
+#|   49 states, sorted, with the 10% line (dotted, 15.66) and the 5% line
+#|   (dashed, 17.95); states above the 5% line in black. Right: each state's
+#|   Dickey–Fuller t on its own OLS residual (horizontal) against the same t
+#|   on its CCEMG residual (vertical). Dashed: the 45-degree line. Cross: the
+#|   two means."
+#| fig-alt: "Left: 49 dots climbing from about 3 to 29 along a vertical list
+#|   of state abbreviations, with two vertical lines near 16 and 18; the top
+#|   eight dots, to the right of the dashed line, are black and the rest
+#|   grey. Right: a scatter of 49 points, most of them below a dashed
+#|   diagonal, with a cross at about minus 2.2 across and minus 2.8 up."
+op <- graphics::par(mfrow = c(1, 2), mar = c(4.5, 4, 1, 1))
+o <- order(jo$trace_r0)
+plate <- as.character(HousePricesUS$plate)[match(jo$label, HousePricesUS$names)]
+above <- jo$trace_r0[o] > 17.95
+graphics::plot(jo$trace_r0[o], seq_along(o), pch = 16,
+               col = ifelse(above, "black", "grey55"), yaxt = "n",
+               xlab = "Johansen trace statistic, rank 0", ylab = "",
+               xlim = c(0, 32))
+graphics::text(-0.6, seq_along(o), plate[o], cex = 0.55, adj = 1, xpd = NA)
+graphics::abline(v = c(15.66, 17.95), lty = c(3, 2))
+graphics::plot(t_ols, t_cce, pch = 16, col = "grey40",
+               xlab = "Dickey–Fuller t, state OLS residuals",
+               ylab = "Dickey–Fuller t, CCEMG residuals")
+graphics::abline(0, 1, lty = 2)
+graphics::points(mean(t_ols), mean(t_cce), pch = 3, cex = 2.5, lwd = 2)
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Rejects (seven states, rank 1).** California, Maryland, Massachusetts,
+  New Jersey, Pennsylvania, Rhode Island and Virginia, with trace statistics
+  from 19.16 to 25.49 against 17.95. *So:* in these states the price–income
+  gap closes. Their long-run slopes from the first eigenvector run from 0.14
+  to 2.17, too wide at T = 29 to report as elasticities.
+- **Does not reject (41 states).** Trace below 17.95; mean over the 49
+  states 11.24. *So:* one state over 29 years cannot show a shared trend, and
+  with 49 tests at 5% about 2.5 of the eight rejections are expected by
+  chance. The precondition of rank 1 in every unit [@pesaran2015, p. 839]
+  cannot be confirmed state by state.
+- **Misleads (New Hampshire, rank 2).** 29.35, then 11.16 against 8.18,
+  which says both series are stationary, against every unit-root result of
+  this chapter. *So:* one rank-2 verdict in 49 is a false alarm, not a
+  finding.
+- **Cannot be read (Pedroni in pco).** Under no cointegration five of the
+  seven statistics reject in 0 of 200 draws, panel PP in 4%, panel ADF in
+  100%; under cointegration six reject in every draw and panel *v* in none.
+  *So:* the standardised values separate the two hypotheses in direction and
+  are not N(0, 1) at this shape; the house-price values (Pitfalls) are
+  reported as unverified, not as a verdict.
+- **With the averages (Engle–Granger on CCEMG residuals).** The mean *t*
+  falls from −2.23 to −2.79, and ten states pass −3.37 against five. *So:*
+  the shared trend appears once the common shock is partialled out, which is
+  the CIPS result of the [second-generation
+  step](index.qmd#sec-ur-second-gen) seen state by state.
+
+::: {.callout-note appearance="simple"}
+**Next.** Rank 1 in enough states, and residuals that do not wander once the
+factor is removed: estimate the long-run slope
+([estimating the long run](index.qmd#sec-ur-long-run)). Rank 0 everywhere:
+difference, and model the short run. Rank 2 in a unit: go back to the
+unit-root tests for that unit.
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# y, x: one unit's two series, logged; d: a pdata.frame; Y, X: T x N
+# matrices from panel_wide(d, log(y)); fit: a pmg() or pcce() model
+z <- urca::ca.jo(cbind(y = y, x = x), type = "trace", ecdet = "none",
+                 K = 2, spec = "longrun")
+cbind(trace = z@teststat, z@cval)           # rows: rank <= 1, rank 0
+johansen_by_unit(d, c("y", "x"), log = TRUE)  # every unit, rank at 5%
+adf_by_unit(residuals(fit), lags = 2)         # Engle–Granger t per unit
+pco::pedroni99(Y, X, type.stat = 2)$STATISTIC # five of seven usable,
+#   unverified; rows nipanel, rhopanel, tpanelnonpar, tpanelpar, rhogroup,
+#   tgroupnonpar, tgrouppar are panel v, rho, PP, ADF, group rho, PP, ADF
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Pedroni on house prices, unverified.** `type.stat = 2` puts an intercept in
+each state's regression; the Newey–West lag is the default
+`round(4 * (29/100)^(2/9))` = 3 and the ADF lag 2:
+
+```{r}
+#| label: c04-7-pedroni
+Y <- panel_wide(php, log(price))
+X <- panel_wide(php, log(income))
+ped <- pco::pedroni99(Y, X, type.stat = 2)
+ped$STATISTIC
+```
+
+Rows `nipanel` to `tgrouppar` are panel *v*, panel rho, panel PP, panel ADF,
+group rho, group PP and group ADF. Read against Pedroni's one-sided rule,
+the five usable statistics (panel rho, panel PP, group rho, group PP, group
+ADF) sit 4.1 to 11.9 standard deviations into the non-rejection tail: a test
+that treats the 49 states as independent, with the national factor left in
+every residual, finds no shared trend. Given the size simulation above, that
+is evidence about this code, not about the panel. The two rows left out are
+the next trap.
+
+**Two `pco` statistics change with the units of the data.** Pedroni's
+statistics are scale-free. Multiply both series by 100:
+
+```{r}
+#| label: c04-7-scale-trap
+ped100 <- pco::pedroni99(100 * Y, 100 * X, type.stat = 2)
+cbind(original = ped$STATISTIC[, "empirical"],
+      times_100 = ped100$STATISTIC[, "empirical"])
+```
+
+Panel *v* goes from 0.185 to 1848.9 and panel ADF from −5334.2 to −0.53;
+the other five do not move. Never report those two.
+
+**The standardised values are not N(0, 1) at this shape.** The simulation
+in the step: size 0 in 200 draws for five statistics and 1.00 for panel ADF;
+power 1.00 for six. The moments `pco` applies (for panel PP with an
+intercept, mean −2.177 and variance 0.964) differ from the one pair the
+anchor text prints for that model, $Z_{\hat t} + 1.73\sqrt{N} \to
+N(0, 0.93)$ [@baltagi2021, p. 361]. Pedroni's Table 2 [@pedroni1999] is not
+in `lit/`, so the moments are unchecked.
+
+**`pedroni99m` fails with one regressor.** It drops the regressor sheets of
+the array to a matrix when there is one of them:
+
+```{r}
+#| label: c04-7-pco-trap
+#| error: true
+pco::pedroni99m(panel_array(php, log(price), log(income)), type.stat = 2)
+```
+
+Use `pedroni99(Y, X)` for the bivariate case; `pedroni99m` needs three or
+more series.
+
+**Pedroni assumes independent states.** Under a common factor the Kao and
+Pedroni statistics "are no longer asymptotically normal, and converge at the
+rate T rather than √N T" [@gengenbach2006; @baltagi2021, p. 362]. The cure
+Gengenbach, Palm and Urbain propose, defactor first and test the residuals,
+is the [next step](index.qmd#sec-ur-long-run).
+
+**Cross-unit cointegration oversizes every panel cointegration test**
+[@banerjee2004; @baltagi2021, p. 362]; the trap is shown in [shared trends
+across units](index.qmd#sec-ur-cross-coint).
+
+**The deterministic term decides the count.** With `ecdet = "const"` the
+ranks are 29 / 16 / 4, with `"trend"` 36 / 13 / 0, and with `K = 3` under
+`"none"` 46 / 3 / 0. The role of the constant and the trend in the long-run
+relation is in @johansen1994.
+
+**T = 29 is below the range where these tests have power.** Wagner and
+Hlouskova find all but two of Pedroni's ADF-type tests "severely undersized",
+and power "dismal for T ≤ 25" [@wagner2010; @baltagi2021, p. 363].
+
+**Reading `ca.jo`.** `summary()` on its result prints `Length Class Mode`
+unless **urca** is attached; read `@teststat`, `@cval` and `@V` instead.
+`@teststat` is ordered rank ≤ 1 first, rank 0 last. The matrix needs column
+names, or `ca.jo` stops with `length of 'dimnames' [2] not equal to array
+extent`. `pedroni99` resets `ka` below 2 to 2 with a warning.
+
+**pco is archived on CRAN.** `renv::install("pco")` fails; the project
+installs `pco@1.0.1` from the archive and `renv.lock` records it.
+
+Benchmark: Stata `xtcointtest kao`, deferred. Benchmark: Stata
+`xtcointtest pedroni`, deferred. Benchmark: Stata `xtcointtest westerlund`,
+deferred.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+**Johansen.** `?ca.jo` runs the Danish money-demand example of Johansen and
+Juselius [@johansen1990] (`ecdet = "const"`, `K = 2`, quarterly dummies) and
+is written to reproduce their eigenvalues 0.4332, 0.1776, 0.1128, 0.0434 and
+their maximal-eigenvalue statistics 30.09, 10.36, 6.34, 2.35; the help page
+itself prints no numbers, and the paper is not in `lit/`, so the page is not
+checkable:
+
+```{r}
+#| label: c04-7-check-denmark
+data("denmark", package = "urca")
+sjd <- denmark[, c("LRM", "LRY", "IBO", "IDE")]
+z_dk <- urca::ca.jo(sjd, ecdet = "const", type = "eigen", K = 2,
+                    spec = "longrun", season = 4)
+round(z_dk@lambda[1:4], 4)
+round(rev(z_dk@teststat), 2)
+```
+
+Four of four eigenvalues and four of four statistics match. **Pedroni.**
+`?pedroni99` runs the test on OECD investment and saving shares, `gdi` and
+`gds` (25 countries, 1973–2013), the panel of the Feldstein–Horioka
+regression [@feldstein1980], and prints no output; the target is "runs":
+
+```{r}
+#| label: c04-7-check-pedroni
+data("gdi", package = "pco")
+data("gds", package = "pco")
+pco::pedroni99(gdi, gds)$STATISTIC
+```
+
+Seven statistics return (panel *v* 34.69, panel rho −28.70, panel PP −8.97,
+panel ADF −7.64, group rho −43.11, group PP −10.58, group ADF −9.96); nothing
+to match them against. @baltagi2021 [Tables 12.3 and 12.4, pp. 371–372]
+prints Kao (ADF −2.3058, p = 0.0106) and Pedroni on the R&D panel of
+@kao1999rd, which no R package ships: not reproduced. For house prices no
+source prints a cointegration test: None, by `.docs/panel-spat-PLAN.md`.
+:::

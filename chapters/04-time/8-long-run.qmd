@@ -1,0 +1,201 @@
+## Estimating the long run {#sec-ur-long-run}
+
+**Question.** Incomes rise 10% and stay there. How much do house prices rise
+in the long run, and which regression gives that number?
+
+**Intuition.** A regression in levels between two cointegrated series is not
+spurious: its slope converges to the true value, and faster than the slope
+of a regression between stationary series [@stock1987; @croissant2019,
+p. 201]. But three things sit in the residual of a levels regression on this
+panel, and each one moves the slope: the state's own level, the year's level,
+and the national factor that every state feels to its own degree. The
+estimators the literature built for cointegrated panels, FMOLS
+[@phillips1999; @pedroni2000] and DOLS [@kao2000], correct the residual for
+serial correlation and endogeneity but keep the states independent: "The
+assumption of cross-sectional independence is maintained" [@baltagi2021,
+p. 364]. The estimators that drop independence, DSUR [@mark2005;
+@pesaran2015, p. 853] and the factor estimators of Bai and Kao, Westerlund,
+and Bai, Kao and Ng, represent dependence "by a contemporaneous correlation
+of the errors" and rule out cross-unit cointegration [@bai2006kao;
+@westerlund2007factors; @bai2009kao; @pesaran2015, p. 854]. None is in R.
+What is in R is the CCE regression of the [CCE
+step](../02-cross-dependence/index.qmd#sec-cce), which puts the cross-state
+averages of both series into each state's regression as a proxy for the
+factor, and stays consistent when that factor is itself I(1)
+[@kapetanios2011; @croissant2019, p. 197]. Croissant and Millo pair it with
+a CIPS test on its residuals and conclude that "both models represent
+cointegrating regressions" [@croissant2019, p. 209]. That pair is this
+step's substitute for FMOLS and DOLS, labelled as such by
+`.docs/panel-spat-PLAN.md`.
+
+::: {.callout-tip appearance="simple"}
+Why the slope converges, what FMOLS and DOLS correct for, and what CCE does
+instead: [cointegration in panels](theory-cointegration.qmd).
+:::
+
+**The tests.** No new test. `plm::cipstest(type = "none")` on the residuals,
+as in the [second-generation step](index.qmd#sec-ur-second-gen), says whether
+the price–income gap wanders once the averages are inside the test. Beside
+it, `plm::pcdtest(test = "cd")` on the same residuals, the CD test of
+[testing for cross-sectional
+dependence](../02-cross-dependence/index.qmd#sec-csd-tests), which measures
+how much the states' residuals move together, says whether the regression
+left the factor in the gap. The pair is the point: a stationary gap that
+still carries the factor is not a long-run relation between price and
+income.
+
+**Run it.** Three treatments of the factor. First none at all, then a state
+effect:
+
+```{r}
+#| label: c04-8-pooled
+pooled <- plm::plm(log(price) ~ log(income), data = php, model = "pooling")
+within <- plm::plm(log(price) ~ log(income), data = php, model = "within")
+coef(pooled)
+coef(within)
+plm::cipstest(residuals(pooled), type = "none")
+plm::cipstest(residuals(within), type = "none")
+plm::pcdtest(residuals(pooled), test = "cd")
+plm::pcdtest(residuals(within), test = "cd")
+```
+
+A year effect on top of the state effect, which removes the factor only if
+every state feels it by the same amount:
+
+```{r}
+#| label: c04-8-twoway
+twoway <- plm::plm(log(price) ~ log(income), data = php, model = "within",
+                   effect = "twoways")
+coef(twoway)
+plm::cipstest(residuals(twoway), type = "none")
+plm::pcdtest(residuals(twoway), test = "cd")
+```
+
+The two CCE fits of the [second-generation step](index.qmd#sec-ur-second-gen),
+whose residual CIPS values, −2.66 and −2.20, were read there; here the slope
+with its standard error and the CD test on the same residuals:
+
+```{r}
+#| label: c04-8-cce
+summary(ccemg)$CoefTable
+summary(ccep)$CoefTable
+plm::pcdtest(residuals(ccemg), test = "cd")
+plm::pcdtest(residuals(ccep), test = "cd")
+```
+
+```{r}
+#| label: c04-8-picture
+#| fig-cap: "The income elasticity of house prices under five treatments of
+#|   the national factor, with its 95% band, each labelled with the CIPS
+#|   verdict on the fit's residuals and the CD statistic of those residuals.
+#|   Dotted: an elasticity of one."
+#| fig-alt: "Five horizontal dot-and-whisker rows. The top two, pooled and
+#|   within, sit near 0.4 and 0.35 with short whiskers and CD values near
+#|   50. The lower three, two-way, CCEMG and CCEP, sit between 1.1 and 1.2
+#|   with wider whiskers that cross a dotted vertical line at one, and CD
+#|   values of 0.023, 4.5 and 0.62."
+fits <- list(pooled = pooled, within = within, `two-way` = twoway,
+             CCEMG = ccemg, CCEP = ccep)
+est <- sapply(fits, \(f) unname(coef(f)["log(income)"]))
+se <- sapply(fits, \(f) sqrt(vcov(f)["log(income)", "log(income)"]))
+cips_verdict <- c("CIPS does not reject", rep("CIPS rejects", 4))
+cd_z <- sapply(fits, \(f) {
+  unname(plm::pcdtest(residuals(f), test = "cd")$statistic)
+})
+y <- 5:1
+op <- graphics::par(mar = c(4.5, 6, 1, 1))
+graphics::plot(est, y, xlim = c(0, 1.7), ylim = c(0.6, 5.6), pch = 16,
+               yaxt = "n", ylab = "",
+               xlab = "income elasticity of house prices, with 95% band")
+graphics::axis(2, at = y, labels = names(fits), las = 1)
+graphics::segments(est - 1.96 * se, y, est + 1.96 * se, y)
+graphics::abline(v = 1, lty = 3)
+graphics::text(est, y, sprintf("%s, CD z = %.2g", cips_verdict, cd_z),
+               pos = 3, cex = 0.75, offset = 0.4)
+graphics::par(op)
+round(cbind(estimate = est, se = se, cd_z = cd_z), 3)
+```
+
+**Read it.**
+
+- **Rejects (CCEP, CCEMG).** CIPS −2.20 and −2.66, CD z = 0.62 (p = 0.53)
+  and 4.45; slopes 1.20 (0.21) and 1.14 (0.20). *So:* with the national
+  factor partialled out, the price–income gap does not wander, and under CCEP
+  the states' residuals no longer move together: a 10% rise in income goes
+  with an 11 to 12% rise in prices in the long run. The CCEMG residuals keep
+  some common movement (z = 4.45), far less than the 49 of the pooled fit.
+- **Does not reject (pooled OLS).** CIPS −1.08, p above 0.10; CD z = 49.3;
+  slope 0.42. *So:* the levels regression with nothing removed is spurious on
+  this panel, and its slope is the leak that the [CCE
+  step](../02-cross-dependence/index.qmd#sec-cce) found.
+- **Misleads (within).** CIPS −2.20 rejects, yet CD z = 47.9 and the slope
+  is 0.35. *So:* CIPS removed, inside the test, the factor that the
+  regression had left in its residual; a stationary CIPS verdict on residuals
+  does not make the regression's slope the long-run one. The two-way fit,
+  slope 1.08 with CD z = 0.02, shows the year effect catching most of the
+  factor and the CCE slope, 1.14 to 1.20, catching the rest.
+
+::: {.callout-note appearance="simple"}
+**Next.** The long-run slope is in hand and the residuals are stationary but
+serially correlated: ψ = 0.82 in [serial correlation
+too](../03-spatial/index.qmd#sec-sp-serial). The error around a panel
+regression, serial correlation included, is the subject of [core panel
+models](../05-core/index.qmd). The chapter closes with the
+[summary](index.qmd#sec-ur-summary).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# d: a pdata.frame; the raw data frame goes to pcce(), which needs
+# library(plm) because it builds a call to plm()
+fit <- plm::pcce(log(y) ~ log(x), data = d_raw, model = "p")  # or "mg"
+summary(fit)$CoefTable                       # slope and Pesaran (2006) SE
+plm::cipstest(residuals(fit), type = "none") # does the gap wander?
+plm::pcdtest(residuals(fit), test = "cd")    # is the factor still in it?
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**CIPS on residuals is not a cointegration test with tabulated size.** The
+critical values are Pesaran's for an observed series, and **plm** reports
+the nearest tabulated level [@croissant2019, p. 209]. Croissant and Millo
+read the test this way; the step does the same and says so.
+
+**The standard error is not a cointegrating one.** `pcce` reports the
+nonparametric variance of @pesaran2006 [Th. 3], built from the spread of
+the 49 state slopes [@croissant2019, pp. 199–200], not the long-run variance
+that FMOLS and DOLS use. Report it as the CCE standard error.
+
+**FMOLS and DOLS "may be severely biased in small samples"**, where
+Breitung's two-step estimator does better [@breitung2005; @pesaran2015,
+p. 853], while Wagner and Hlouskova find that DOLS "outperforms all other
+estimators" [@wagner2010; @pesaran2015, p. 853]. With none of the three in R
+the book cannot adjudicate.
+
+**A spurious panel slope still converges.** At the rate √N, against √N·T
+for a cointegrating one [@phillips1999; @croissant2019, p. 201]. The slope
+of the pooled fit is not nonsense; its standard error is, as [why it
+matters](index.qmd#sec-ur-why) showed.
+
+Benchmark: official Stata has no panel FMOLS or DOLS; `xtcointtest` is tests
+only; community `xtpedroni` and `xtdolshm`, deferred.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [§8.4.3, p. 209]: CIPS on the `ccemg` residuals −2.7,
+p = 0.01; on the `ccep` residuals −2.2, p = 0.01. The chunk is
+`c04-4-residuals` in the [second-generation
+step](index.qmd#sec-ur-second-gen): −2.6588 and −2.2049, both below 0.01.
+Reproduced. @croissant2019 [pp. 198–199]: CCEMG 1.135 (0.195), CCEP 1.199
+(0.207). Here, in `c04-8-cce`, 1.1354 (0.1955) and 1.1994 (0.2073).
+Reproduced. @baltagi2021 [Tables 12.6 and 12.7, pp. 372–373] prints FMOLS
+and DOLS on the R&D panel of @kao1999rd, which no R package ships: not
+reproduced. The pooled, within and two-way slopes have no printed target:
+None.
+:::

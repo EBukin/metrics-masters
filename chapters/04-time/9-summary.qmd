@@ -5,6 +5,11 @@ growth rates do not. The states share a strong common shock, so only CIPS can
 be trusted here, and it agrees. No single state's price level is shown to be
 stationary. The residuals of the CCE regression of log price on log income do
 not wander: the two are cointegrated, and the levels regression is meaningful.
+State by state, Johansen's trace test finds a shared trend in seven states
+and none in 41, so the per-state evidence is thin at T = 29. Pedroni's panel
+test, which ignores the common shock, finds nothing, and its R implementation
+is unverified. The long-run income elasticity of house prices is 1.1 to 1.2
+once the factor is out, and 0.4 if it is not.
 
 **Decision table.**
 
@@ -14,11 +19,15 @@ not wander: the two are cointegrated, and the levels regression is meaningful.
 | CD does not reject and N/T is small | LLC or IPS; state which alternative ([first generation](index.qmd#sec-ur-first-gen)) |
 | CD rejects, or N/T is well above 1 | CIPS ([second generation](index.qmd#sec-ur-second-gen)) |
 | The panel rejects | Name the units with `phansitest` ([which series](index.qmd#sec-ur-fraction)) |
-| The panel does not reject | Treat as I(1); difference, or test cointegration |
+| The panel does not reject | Treat as I(1); difference, or test cointegration ([cointegration](index.qmd#sec-ur-coint)) |
+| Both series wander and the gap does not | Estimate the slope with the factor removed ([long run](index.qmd#sec-ur-long-run)) |
+| Rank 0 in every unit | Difference; no long-run slope to estimate |
+| Rank 2 in a unit | Reread the unit-root tests for that unit |
 | Shocks spill over locally | Simulate size at your own W ([traps](index.qmd#sec-ur-spatial-size)); build and check that W first ([spatial weights](../03-spatial/index.qmd#sec-sp-weights)) |
 | Your text says "the panel is stationary" | Rewrite it: say which alternative, and how many units |
 
-**The whole recipe**, for a variable `y` in a `pdata.frame`:
+**The whole recipe**, for a variable `y` in a `pdata.frame` `d`, with `x`
+the regressor and `Y`, `X` the two series as `T x N` matrices:
 
 ```r
 plm::pcdtest(y, test = "cd")                 # 1. do units move together?
@@ -28,9 +37,17 @@ plm::purtest(y, test = "ips", exo = "intercept",
 mw <- plm::purtest(y, test = "madwu", exo = "intercept",
                    lags = "AIC", pmax = 4)
 plm::phansitest(mw)$rejected.no              # 3. how many units?
-plm::cipstest(residuals(fit), type = "none") # 4. regression residuals
+johansen_by_unit(d, c("y", "x"))             # 4. rank, unit by unit
+pco::pedroni99(Y, X, type.stat = 2)          # 5. panel test: five of seven
+                                             #    usable, unverified
+plm::cipstest(residuals(fit), type = "none") # 6. regression residuals
+plm::pcdtest(residuals(fit), test = "cd")    #    and the factor left in them
 ```
 
-**Next.** If the series wander and the residuals do not, the next question is
-how to estimate the long-run relationship. That is Stage 2 of
-`.docs/panel-spat-PLAN.md`, still to be written.
+::: {.callout-note appearance="simple"}
+**Next.** If the series wander and the residuals do not, the long-run slope
+is [estimated with CCE](index.qmd#sec-ur-long-run). The error around it,
+serial correlation included, is the subject of [core panel
+models](../05-core/index.qmd); the lagged outcome as a regressor is the
+subject of [dynamic panels](../06-dynamic/index.qmd#sec-dyn-bias).
+:::

@@ -9,8 +9,10 @@ level or wanders off with no anchor. A wandering series has a **unit root**,
 and is called **integrated of order one**, I(1): its change from one year to
 the next does not wander, and that change is I(0). Two wandering series can
 look related when they are not, so this question comes before any estimate.
-Cointegration, serial correlation and dynamic panels are later parts of this
-chapter, not yet written.
+The second half of the chapter asks whether two wandering series share one
+trend, **cointegration**, and how to estimate that long-run link. Serial
+correlation is in [core panel models](../05-core/index.qmd), and the lagged
+outcome as a regressor is in [dynamic panels](../06-dynamic/index.qmd).
 
 **The running example.** House prices in 49 US states over 29 years,
 `HousePricesUS` [@holly2010] in **pder** [@croissant2019]. The earlier chapter
@@ -29,9 +31,13 @@ flowchart TD
   G1 --> R{"Unit root rejected?"}
   G2 --> R
   R -->|"yes"| W["Which series?<br/>Hanck / Simes"]
-  R -->|"no"| I1["Treat as I(1):<br/>difference, or test cointegration"]
+  R -->|"no"| I1["Treat as I(1)"]
+  I1 --> C{"Do they share a trend?<br/>rank by unit, panel test"}
+  C -->|"yes"| LR["Estimate the long run<br/>with the factor removed"]
+  C -->|"no"| D["Difference, or model<br/>the short run"]
   W --> L["Check the traps:<br/>panel shape, spatial shocks,<br/>shared trends"]
-  I1 --> L
+  LR --> L
+  D --> L
 ```
 
 Every section has the same shape. **Question** in one sentence, **intuition**
@@ -40,9 +46,9 @@ where the test rejects, a case where it does not, and a case where it misleads.
 A **next** box says where to go. **Recipe**, **pitfalls** and **book check**
 sit in boxes at the end of each section; open them when you need them.
 
-The math and the full literature are in
-[the theory note](theory-panel-unit-roots.qmd). This chapter does not need
-it.
+The math and the full literature are in the theory notes on
+[panel unit roots](theory-panel-unit-roots.qmd) and
+[cointegration](theory-cointegration.qmd). This chapter does not need them.
 
 ```{r}
 #| label: c04-0-setup
@@ -64,4 +70,8 @@ php <- plm::pdata.frame(HousePricesUS)
 
 {{< include 6-traps.qmd >}}
 
-{{< include 7-summary.qmd >}}
+{{< include 7-cointegration.qmd >}}
+
+{{< include 8-long-run.qmd >}}
+
+{{< include 9-summary.qmd >}}
