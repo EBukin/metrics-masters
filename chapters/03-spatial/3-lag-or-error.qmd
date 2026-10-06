@@ -1,0 +1,191 @@
+## Lag or error? {#sec-sp-lag-or-error}
+
+**Question.** Does a neighbour's house price move mine, or do we only share
+the shocks? And on a rice farm: does a neighbour's harvest move mine, or do
+we share the weather?
+
+**Intuition.** Fit the regression with no spatial term and look at its
+residuals twice. If they move with the neighbours' *outcome*, a spatial lag
+was left out. If they move with the neighbours' *residuals*, a spatial
+error was left out. The trouble is that each plain test also fires on the
+other's problem: an omitted lag leaves a spatially correlated error behind,
+and vice versa. @anselin1996 made each test robust to a small amount of the
+other effect, so the robust lag test asks "is there a lag, allowing for
+some error?" and the robust error test the reverse. When one plain test
+rejects and its robust version does not, the signal was the other effect's
+shadow.
+
+::: {.callout-tip appearance="simple"}
+What each specification claims about the world, what an omitted lag does
+to the estimates that an omitted error does not, and when the encompassing
+model is the honest answer: [spatial model
+choice](theory-spatial-model-choice.qmd).
+:::
+
+The plain error test is a Lagrange multiplier statistic on the residuals
+*e* of the non-spatial fit [@burridge1980; @anselin1996, eq. 5]:
+
+$$
+LM_\lambda =
+  \frac{\left(e'We / \hat\sigma^2\right)^2}{\operatorname{tr}(W'W + W^2)}
+  \;\sim\; \chi^2_1,
+$$
+
+the squared spatial correlation of the residuals, scaled. The lag test
+replaces $e'We$ by $e'Wy$. The robust versions subtract from each
+numerator the part that the other effect would produce, so that a small
+λ does not inflate the lag test and a small ρ does not inflate the error
+test [@anselin1996, eqs. 10 and 13].
+
+**The tests.** `slmtest` [@anselin1996; @croissant2019, sec. 10.3.4.2]:
+`lml` and `lme`, the plain lag and error tests; `rlml` and `rlme`, their
+robust versions. Null: no lag (ρ = 0), or no error (λ = 0). A rejection of
+a *robust* test means that effect is there in its own right.
+
+**Run it, house prices.** The spatial model has to be fitted to the panel
+with the national force taken out, or it reads the factor as geography.
+This is the two-stage approach of @bailey2016spatio. Stage one is the CCE
+transformation of the [previous
+chapter](../02-cross-dependence/index.qmd#sec-cce): regress each state's
+log price, and its log income, on the cross-state averages of both, and
+keep the residuals. Pooled OLS on those residuals *is* the CCEP estimator,
+which is the check that stage one did what it should:
+
+```{r}
+#| label: c03-3-partial
+lp <- log(as.numeric(hp$price))
+li <- log(as.numeric(hp$income))
+avg <- cbind(lp_bar = ave(lp, hp_idx[[2]]), li_bar = ave(li, hp_idx[[2]]))
+hp$lp_t <- cce_partial(lp, avg, hp_idx[[1]])
+hp$li_t <- cce_partial(li, avg, hp_idx[[1]])
+coef(plm::plm(lp_t ~ li_t - 1, data = hp, model = "pooling"))
+```
+
+1.199, the CCEP slope of the previous chapter to the third decimal. Stage
+two asks the four questions of the transformed panel:
+
+```{r}
+#| label: c03-3-hp
+splm::slmtest(lp_t ~ li_t, data = hp, listw = usalw, model = "within",
+              test = "lml")
+splm::slmtest(lp_t ~ li_t, data = hp, listw = usalw, model = "within",
+              test = "lme")
+splm::slmtest(lp_t ~ li_t, data = hp, listw = usalw, model = "within",
+              test = "rlml")
+splm::slmtest(lp_t ~ li_t, data = hp, listw = usalw, model = "within",
+              test = "rlme")
+```
+
+**Run it, rice farms.** Output on seed, labour and land, all in logs, with
+village and season dummies, as @croissant2019 [sec. 10.3.4.2] specify it:
+
+```{r}
+#| label: c03-3-rice
+rice_f <- log(goutput) ~ log(seed) + log(totlabor) + log(size) + region + time
+splm::slmtest(rice_f, data = rice, listw = ricelw, test = "lml")
+splm::slmtest(rice_f, data = rice, listw = ricelw, test = "lme")
+splm::slmtest(rice_f, data = rice, listw = ricelw, test = "rlml")
+splm::slmtest(rice_f, data = rice, listw = ricelw, test = "rlme")
+```
+
+The error signal, drawn: each unit's residual from the non-spatial
+fixed-effects fit against its neighbours' average residual. The slope of
+the line is Moran's *I*, the correlation that $LM_\lambda$ squares:
+
+```{r}
+#| label: c03-3-picture
+#| fig-cap: "Moran scatterplots of the fixed-effects residuals: each unit's
+#|   residual against the average residual of its neighbours, with the
+#|   least-squares line, for the transformed house-price panel (left) and
+#|   the rice panel (right)."
+#| fig-alt: "Two scatterplots with a fitted line through the origin. On
+#|   the left, 1 421 points in a tight upward-sloping cloud with a line of
+#|   slope about 0.6. On the right, 1 026 points in a looser cloud, also
+#|   sloping up, with a line of slope about 0.5."
+rice_f0 <- log(goutput) ~ log(seed) + log(totlabor) + log(size)
+fe_hp <- plm::plm(lp_t ~ li_t, data = hp, model = "within")
+fe_rice <- plm::plm(rice_f0, data = rice, model = "within")
+moran_plot <- function(e, listw, main) {
+  we <- splm::slag(e, listw = listw)
+  plot(as.numeric(e), as.numeric(we), pch = 16, col = "grey55",
+       xlab = "own residual", ylab = "neighbours' average residual",
+       main = main)
+  graphics::abline(lm(as.numeric(we) ~ as.numeric(e)), lwd = 2)
+  graphics::abline(h = 0, v = 0, lty = 3)
+}
+op <- graphics::par(mfrow = c(1, 2))
+moran_plot(residuals(fe_hp), usalw, "House prices")
+moran_plot(residuals(fe_rice), ricelw, "Rice farms")
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Rice: lag rejected only by the plain test.** `lml` = 39 rejects;
+  `rlml` = 0.17 does not. `lme` = 245 and `rlme` = 206 both reject. *So:*
+  the lag signal was the error's shadow; the farms share shocks, and no
+  farm's harvest moves its neighbours'. A spatial error model.
+- **House prices: both robust tests reject.** `rlml` = 32 and `rlme` = 28.
+  *So:* neither effect can be ruled out by the other, and the tests have
+  reached the edge of what they are built for. Fit both equations, and the
+  model that holds both, and let the fits decide
+  ([fixed effects](index.qmd#sec-sp-fe)).
+- **Misleads (the plain lag test on rice).** `lml` = 39 with p ≈ 0 would
+  have put a neighbour's harvest into the equation, and that coefficient
+  would have been read as a spillover. *So:* report the robust pair, never
+  a plain test alone.
+
+::: {.callout-note appearance="simple"}
+**Next.** Error, or both: fit the model with unit effects
+([fixed effects](index.qmd#sec-sp-fe)). Both robust tests reject strongly:
+fit the encompassing SARAR there as well and read its two parameters.
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# f: a formula; d: a pdata.frame; listw: from spdep::mat2listw(w, "W").
+splm::slmtest(f, data = d, listw = listw, model = "within", test = "rlml")
+splm::slmtest(f, data = d, listw = listw, model = "within", test = "rlme")
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**`slmtest` pools by default.** `model = "pooling"` is the default, and the
+tests were derived for a cross-section, so unit effects are ignored unless
+`model = "within"` is passed or the variables are demeaned in the formula
+with `plm::Within()`. The rice run above pools because @croissant2019 do;
+the box below repeats it within.
+
+**Robust means locally robust.** Each robust test tolerates a *small*
+amount of the other effect. When both robust tests reject strongly, as
+on house prices, the tests "can behave suboptimally": estimate the
+encompassing model instead of choosing between them.
+
+**Only one kind of error.** `spatial.error` in **splm** is a spatial
+autoregressive error. The moving-average and error-component forms of
+@pesaran2015 [eqs. 30.5–30.6], under which the covariance stays sparse,
+are not implemented anywhere in this book's tools.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [sec. 10.3.4.2, Example 10.11] print 39.28, 244.8, 0.1654
+and 205.7 for `lml`, `lme`, `rlml` and `rlme` on the pooled rice model;
+the `c03-3-rice` chunk above is that run. They then demean the variables
+with `Within()` and print 125.2, 604.3, 1.538 and 480.6:
+
+```{r}
+#| label: c03-3-book-check
+rice_w <- plm::Within(log(goutput)) ~ plm::Within(log(seed)) +
+  plm::Within(log(totlabor)) + plm::Within(log(size)) + region + time
+splm::slmtest(rice_w, data = rice, listw = ricelw, test = "lml")
+splm::slmtest(rice_w, data = rice, listw = ricelw, test = "lme")
+splm::slmtest(rice_w, data = rice, listw = ricelw, test = "rlml")
+splm::slmtest(rice_w, data = rice, listw = ricelw, test = "rlme")
+```
+:::

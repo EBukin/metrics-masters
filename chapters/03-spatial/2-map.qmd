@@ -1,0 +1,218 @@
+## Does it follow the map? {#sec-sp-map}
+
+**Question.** After the national force is out, do neighbouring states'
+house prices still move together more than random pairs of states do?
+
+**Intuition.** The CD test of the [previous
+chapter](../02-cross-dependence/index.qmd#sec-csd-tests) averages all
+1 176 pairwise correlations. The **local CD** test averages only the 130
+pairs that `usaw49` names as neighbours [@pesaran2004; @croissant2019, sec.
+10.1.2.1]. A large value says neighbours move together. It does not say
+why: a national factor moves every pair, neighbours included, and then the
+neighbour pairs are a sample drawn from a population of correlated pairs,
+which reads as geography when it is not [@croissant2019, sec. 10.1.2.2].
+The **randomised-W test** of @millo2017 settles it. Shuffle the map, so that
+each state is handed a random set of "neighbours", and compute the local
+statistic again; do that 999 times. If the states are exchangeable, the
+true map is nothing special and its statistic sits inside the shuffled
+pile. If the dependence follows the map, the true statistic is the most
+extreme of the thousand.
+
+::: {.callout-tip appearance="simple"}
+Why plain CD cannot answer this question, why local CD alone over-reads a
+factor as geography, and what the shuffled maps control for:
+[testing for spatial dependence](theory-spatial-dependence-tests.qmd).
+:::
+
+With $\hat\rho_{ij}$ the correlation of units *i* and *j* over T periods and
+$w_{ij} = 1$ for neighbours and 0 otherwise [@croissant2019, sec. 10.1.2.1]:
+
+$$
+CD(p) = \sqrt{\frac{T}{\sum_{i<j} w_{ij}}}\ \sum_{i<j} w_{ij}\,\hat\rho_{ij}
+  \;\xrightarrow{d}\; N(0,1).
+$$
+
+The randomised test takes a statistic τ of this kind, computes it under B
+shuffled maps, $\tau_1, \dots, \tau_B$, and reports the share of shuffles
+at least as extreme as the true map [@croissant2019, eq. 10.1]:
+
+$$
+p = \frac{1 + \sum_{h=1}^{B} \mathbf{1}[\,|\tau_h| \ge |\tau|\,]}{B + 1}.
+$$
+
+**The tests.** Local CD [@pesaran2004]. Null: no correlation between
+neighbours. A rejection means neighbours move together, for whatever
+reason. Randomised W [@millo2017]. Null: the units are exchangeable, so the
+map does not matter. A rejection means the co-movement follows this map
+and not merely the panel.
+
+**Run it.** The four calls of @croissant2019 [sec. 10.1.2.2], in their
+order: the raw price index, then the residuals once the national force is
+out. `ccemg` and its residuals come from the setup chunk; `mg` is the same
+regression without the cross-state averages.
+
+```{r}
+#| label: c03-2-local-prices
+plm::pcdtest(hp$price, w = usaw49)
+```
+
+```{r}
+#| label: c03-2-rw-prices
+splm::rwtest(hp$price, w = usaw49, replications = 999, seed = 1)
+```
+
+```{r}
+#| label: c03-2-local-cce
+plm::pcdtest(residuals(ccemg), w = usaw49)
+```
+
+```{r}
+#| label: c03-2-rw-mg
+mg <- plm::pmg(log(price) ~ log(income), data = HousePricesUS, model = "mg")
+splm::rwtest(residuals(mg), w = usaw49, replications = 999, seed = 1)
+```
+
+How large is what is left? @holly2010 fit a spatial lag model with no
+regressors to the defactored residuals, so that ρ measures the strength of
+the local co-movement on its own. `spreml` with `errors = "ols"` is that
+model; the pooled regression of the residual on its spatial lag, "spatial
+OLS", is the shortcut that the endogeneity of $Wy$ biases:
+
+```{r}
+#| label: c03-2-sar
+e_dat <- data.frame(state = hp_idx[[1]], year = hp_idx[[2]], e = hp$e_cce)
+sar_e <- splm::spreml(e ~ 1, data = e_dat, w = usaw49, lag = TRUE,
+                      errors = "ols")
+summary(sar_e)$ARCoefTable
+lmtest::coeftest(plm::plm(e ~ splm::slag(e, listw = usalw) - 1, data = e_dat,
+                          model = "pooling"))
+```
+
+The 1 176 correlations behind the local statistic, split by whether the
+pair are neighbours:
+
+```{r}
+#| label: c03-2-pairs
+#| fig-cap: "Pairwise correlations of the CCEMG residuals over 29 years,
+#|   for the 130 neighbour pairs (left) and the 1 046 other pairs (right).
+#|   Thick line: the mean of each pile. Dashed line at zero."
+#| fig-alt: "Two histograms of correlations between minus one and one. The
+#|   neighbour pile sits to the right, with its mean near 0.5. The
+#|   non-neighbour pile is centred close to zero with a long spread either
+#|   side."
+e_mat <- tapply(hp$e_cce, list(hp_idx[[1]], hp_idx[[2]]), identity)
+r <- stats::cor(t(e_mat))
+is_pair <- lower.tri(r)
+is_nb <- usaw49 > 0
+r_nb <- r[is_pair & is_nb]
+r_far <- r[is_pair & !is_nb]
+op <- graphics::par(mfrow = c(1, 2))
+graphics::hist(r_nb, breaks = 20, xlim = c(-1, 1), main = "Neighbours",
+               xlab = "pairwise correlation")
+graphics::abline(v = c(0, mean(r_nb)), lty = c(2, 1), lwd = c(1, 3))
+graphics::hist(r_far, breaks = 30, xlim = c(-1, 1), main = "Not neighbours",
+               xlab = "pairwise correlation")
+graphics::abline(v = c(0, mean(r_far)), lty = c(2, 1), lwd = c(1, 3))
+graphics::par(op)
+```
+
+And the shuffle itself. `rwtest` keeps only its p-value, so the picture
+rebuilds it: 999 random orderings of the states, the local CD of the CCEMG
+residuals under each, and the value under the true map:
+
+```{r}
+#| label: c03-2-shuffle
+#| fig-cap: "Local CD of the CCEMG residuals under 999 shuffled maps, and
+#|   under the true map (vertical line). The shuffled values are what
+#|   'no spatial structure' looks like on this panel."
+#| fig-alt: "A histogram of statistics concentrated between about minus
+#|   three and three, and a single vertical line far to the right of it
+#|   near 28."
+local_cd <- function(w) unname(plm::pcdtest(hp$e_cce, w = w)$statistic)
+set.seed(1)
+shuffled <- replicate(999, {
+  s <- sample(49)
+  local_cd(usaw49[s, s])
+})
+graphics::hist(shuffled, breaks = 30, xlim = range(c(shuffled, 30)),
+               main = "", xlab = "local CD under a shuffled map")
+graphics::abline(v = local_cd(usaw49), lwd = 3)
+```
+
+**Read it.**
+
+- **Rejects (price index).** Local CD z = 37; the randomised test p =
+  0.002, the smallest value 999 shuffles can give. *So:* the index moves
+  with its neighbours, but on the raw series that is also what a national
+  force looks like.
+- **Rejects (residuals, national force out).** Local CD on the CCEMG
+  residuals z = 28; the randomised test on the MG residuals p = 0.002. The
+  neighbour pile sits well to the right of the other, and the true map's
+  statistic is nowhere near the shuffled pile. *So:* the local co-movement
+  is not a shadow of the factor. It follows the map.
+- **How much.** ρ = 0.65 with a standard error of 0.02 on the defactored
+  residuals. The spatial OLS shortcut says 0.88. *So:* a state's residual
+  carries about two thirds of its neighbours' average residual, and the
+  shortcut overstates that by a third, which is the bias of regressing on
+  an endogenous $Wy$.
+- **Misleads (local CD on the raw index).** z = 37 on its own would have
+  passed for spatial evidence, and most of it is the national force that
+  the [previous chapter](../02-cross-dependence/index.qmd#sec-csd-exponent)
+  measured at α = 0.83. *So:* never read local CD without the shuffle
+  beside it.
+
+::: {.callout-note appearance="simple"}
+**Next.** The dependence follows the map: decide which of the two
+equations it belongs in ([lag or error](index.qmd#sec-sp-lag-or-error)).
+It does not: a spatial model buys nothing here; report standard errors
+robust to whatever dependence is left ([core
+chapter](../05-core/index.qmd)).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# y: a pseries, or the residuals of a plm, pmg or pcce fit;
+# w: an N x N matrix with rows in the order of the unit index.
+plm::pcdtest(y, w = w)                                    # local CD
+splm::rwtest(y, w = w, replications = 999, seed = 1)      # shuffled maps
+splm::rwtest(y, w = w, replications = 999, seed = 1, order = 2)
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Both tests read W as yes or no.** `pcdtest(w = )` and `rwtest(w = )` pass
+W through `as.logical()`, so a distance-weighted W is tested as "within the
+cutoff or not". They test the neighbourhood *structure*, never the weights.
+Do not describe either as using an inverse-distance W.
+
+**99 shuffles is the default.** The smallest p-value 99 shuffles can
+return is 0.01, and the pile is coarse. Use at least 999, and pass `seed`
+so the number can be reproduced.
+
+**Global CD on residuals with period effects.** Two-way fixed effects and
+CCE both force the residuals to cancel across units in every period, which
+kills the global CD test by construction, as the [previous
+chapter](../02-cross-dependence/index.qmd#sec-csd-tests) showed. Local CD
+and the randomised test survive it, because they never average over all
+pairs [@croissant2019, sec. 10.1.2.2].
+
+**`rwtest` keeps no statistic.** The object holds a p-value and nothing
+else; the shuffled pile has to be rebuilt by hand, as above, for a picture
+or for a different statistic.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [sec. 10.1.2.2, Example 10.2] print z = 37 and p = 0.002 for
+the price index and z = 28 and p = 0.002 for the residuals; the four calls
+above are those runs, and `.docs/panel-spat-PLAN.md` names this
+four-number pattern the most useful verification target in the spatial
+stage. @croissant2019 [sec. 10.2.2.2, Example 10.4] print λ = 0.6498 with
+standard error 0.02037 for the pure spatial lag on the CCEMG residuals, and
+0.8831 with 0.0251 for spatial OLS; the `c03-2-sar` chunk above is that run.
+:::

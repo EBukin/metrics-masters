@@ -1,0 +1,190 @@
+## Spatial weights {#sec-sp-weights}
+
+**Question.** Who counts as Arizona's neighbour, and what does that choice
+commit the model to?
+
+**Intuition.** W is an assumption, not data. Row *i* of W lists the states
+whose outcome enters state *i*'s equation, and the weight of each. When the
+rows are standardised to sum to one, $\sum_j w_{ij} y_{jt}$ is the
+neighbours' average, and ρ reads as "how much of the neighbours' average".
+Three common choices encode three beliefs: states that share a border; the
+*k* nearest states; every state within some distance, the closer ones
+counting more. The estimates inherit whichever belief is chosen, so a
+spatial parameter is only comparable across fits that share a W
+[@anselin1988, ch. 3].
+
+::: {.callout-tip appearance="simple"}
+Why the parameter space of ρ depends on W, why a SAR needs weights that are
+not too spread out, and why a sparse W still links every unit to every other:
+[spatial weights](theory-spatial-weights.qmd).
+:::
+
+Four checks come before any model, all cheap [@pesaran2015, sec. 30.3]:
+
+1. **Parameter space.** $I - \rho W$ must be invertible. It is whenever
+   $|\rho| < 1/\tau^*$ with $\tau^* = \min(\lVert W\rVert_1, \lVert
+   W\rVert_\infty)$, the larger of the column sums against the larger of the
+   row sums [@kelejian2010; @pesaran2015, p. 799]. The exact interval is
+   $(1/\omega_{\min}, 1/\omega_{\max})$, with ω the real eigenvalues of W.
+2. **Granularity.** A spatial lag is endogenous only when some weights stay
+   large as N grows. If every $w_{ij}$ were of order $1/N$, the lag would
+   be a cross-section average and nothing more [@pesaran2015, p. 800].
+3. **Sparsity.** W has few non-zero cells. $(I - \rho W)^{-1}$, which a
+   spatial lag model puts between every unit and every other, has almost
+   none [@pesaran2015, p. 801].
+4. **Standardisation.** Row sums equal one, or the parameter ρ changes
+   meaning from row to row.
+
+**Run it.** `usaw49` [@croissant2019] is the binary contiguity of the 48
+contiguous states and the District of Columbia, row-standardised. Arizona's
+row, and how many neighbours each state has:
+
+```{r}
+#| label: c03-1-rows
+dim(usaw49)
+usaw49["ARIZONA", usaw49["ARIZONA", ] > 0]
+table(neighbours = rowSums(usaw49 > 0))
+```
+
+The four checks, one line each:
+
+```{r}
+#| label: c03-1-checks
+c(norm_1 = max(colSums(usaw49)), norm_inf = max(rowSums(usaw49)))
+omega <- Re(eigen(usaw49, only.values = TRUE)$values)
+c(rho_min = 1 / min(omega), rho_max = 1 / max(omega))
+rownames(usaw49)[apply(usaw49, 1, max) == 1]
+S <- solve(diag(49) - 0.5 * usaw49)
+c(nonzero_w = mean(usaw49 > 0), nonzero_inverse = mean(abs(S) > 1e-8))
+```
+
+Two alternatives built from the state centroids with **spdep**
+[@bivand2013]: the four nearest states, and every state within 800 km.
+`w_checks()` runs the same four checks on each:
+
+```{r}
+#| label: c03-1-alternatives
+xy <- sf::st_coordinates(sf::st_centroid(sf::st_geometry(us)))
+nb_knn <- spdep::knn2nb(spdep::knearneigh(xy, k = 4, longlat = TRUE))
+w_knn <- spdep::nb2mat(nb_knn, style = "W")
+nb_dist <- spdep::dnearneigh(xy, 0, 800, longlat = TRUE)
+w_dist <- spdep::nb2mat(nb_dist, style = "W")
+round(rbind(contiguity = w_checks(usaw49), nearest_4 = w_checks(w_knn),
+            within_800km = w_checks(w_dist)), 3)
+```
+
+```{r}
+#| label: c03-1-picture
+#| fig-height: 3
+#| fig-cap: "Three maps of who is whose neighbour: shared borders (left),
+#|   the four nearest state centroids (middle), every centroid within 800
+#|   km (right). Each line is one non-zero cell of W."
+#| fig-alt: "Three outline maps of the contiguous United States with lines
+#|   drawn between state centres. The left map has a sparse web following
+#|   borders. The middle map has a web of similar density that does not
+#|   always follow borders, with long lines in the West. The right map is
+#|   dense in the East, where states are small, and sparse in the West."
+op <- graphics::par(mfrow = c(1, 3), mar = c(0, 0, 2, 0))
+plot(sf::st_geometry(us), col = "grey95", main = "Shared border")
+draw_links(sf::st_geometry(us), usaw49, col = "firebrick")
+plot(sf::st_geometry(us), col = "grey95", main = "Four nearest")
+draw_links(sf::st_geometry(us), w_knn, col = "steelblue")
+plot(sf::st_geometry(us), col = "grey95", main = "Within 800 km")
+draw_links(sf::st_geometry(us), w_dist, col = "darkorange")
+graphics::par(op)
+```
+
+```{r}
+#| label: c03-1-sparsity
+#| fig-cap: "The contiguity matrix W (left) and the matrix (I − 0.5 W)⁻¹ a
+#|   spatial lag model works through (right), states in alphabetical order
+#|   on both axes, darker for larger. W has 9% non-zero cells; its inverse
+#|   has none equal to zero."
+#| fig-alt: "Two square grids of 49 by 49 cells. The left one is almost
+#|   all white, with a scatter of dark cells near the diagonal and a few
+#|   away from it. The right one is shaded everywhere, dark on the diagonal
+#|   and fading away from it, with no white cells."
+op <- graphics::par(mfrow = c(1, 2), mar = c(1, 1, 2, 1))
+graphics::image(t(usaw49[49:1, ]), col = grey(seq(1, 0.1, length.out = 16)),
+                axes = FALSE, main = "W")
+graphics::image(t(abs(S)[49:1, ]), col = grey(seq(1, 0.1, length.out = 16)),
+                axes = FALSE, main = expression((I - 0.5 * W)^-1))
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Parameter space.** The row sums are 1 and the largest column sum is
+  1.7, so $\tau^* = 1$ and any $|\rho| < 1$ is safe. The eigenvalues widen
+  the interval on the negative side only, to −1.39. *So:* a ρ̂ printed
+  above 1 is a broken fit, not a strong spillover.
+- **Granularity.** Maine's row has one non-zero cell, with weight 1: its
+  "neighbours' average" is New Hampshire alone. Most states average two to
+  eight neighbours. *So:* the lag is no cross-section average, and a SAR
+  model will treat it as endogenous, which is right.
+- **Sparsity.** 9% of the cells of W are non-zero; 99.7% of the cells of
+  $(I - 0.5W)^{-1}$ are. *So:* a shock in California reaches Maine, through
+  a chain of neighbours, in any spatial lag model.
+- **Alternatives.** The four-nearest W caps every weight at 0.25 and keeps
+  links in the West that no border justifies; the 800 km W has twice the
+  links, almost all of them in the East. *So:* the chapter keeps `usaw49`
+  and reports every ρ̂ as a number *for this W*.
+
+::: {.callout-note appearance="simple"}
+**Next.** With W on the table, ask whether the dependence the [previous
+chapter](../02-cross-dependence/index.qmd#sec-csd-exponent) left behind
+follows it ([does it follow the map](index.qmd#sec-sp-map)).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# w: an N x N matrix, units in the order of the panel's unit index.
+w <- w / rowSums(w)                              # row standardise
+spdep::mat2listw(w, style = "W")                 # what spml() takes
+w_checks(w)                                      # the four checks
+xy <- sf::st_coordinates(sf::st_centroid(geometry))
+spdep::knn2nb(spdep::knearneigh(xy, k = 4, longlat = TRUE))
+spdep::dnearneigh(xy, 0, 800, longlat = TRUE)
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**`mat2listw()` without `style`.** The object then carries style `M`,
+"missing", and methods that need to know the rows sum to one refuse it
+with `Only row-standardised weights supported`. Pass `style = "W"`.
+
+**A disconnected W.** `riceww` calls two farms neighbours when they share
+a village, so it is six blocks with nothing between them. **spdep** says
+so:
+
+```{r}
+#| label: c03-1-subgraphs
+#| warning: true
+ricelw <- spdep::mat2listw(riceww, style = "W")
+```
+
+The fit is legal. What changes is the meaning of "neighbour": a shock in
+one village never reaches another, however large λ is.
+
+**Row standardisation breaks symmetry.** `riceww` is symmetric; `usaw49`
+is not, since Maine gives New Hampshire weight 1 and gets 1/3 back. Methods
+that want a symmetric W, such as the `"moments"` option of `impacts()`,
+need its similar symmetric form [@bivand2018].
+
+**Units in a different order from W.** Nothing checks that row *i* of W is
+the *i*-th unit of the panel. `usaw49` follows the alphabetical order of
+`HousePricesUS`; `us_states_sf()` reorders the polygons to match.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+None: the checks verify themselves. A row-standardised W must have
+$\lVert W\rVert_\infty = 1$ and largest eigenvalue 1, and the bound
+$1/\tau^*$ must lie inside the eigenvalue interval. All three hold above.
+`.docs/panel-spat-PLAN.md` records no published target for section 5.1.
+:::

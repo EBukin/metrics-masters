@@ -1,0 +1,191 @@
+## Direct and indirect effects {#sec-sp-impacts}
+
+**Question.** Income rises 10% in Ohio and nowhere else. How much do
+Ohio's house prices rise, how much do its neighbours' rise, and how much of
+Ohio's rise came back through them?
+
+**Intuition.** With $\rho W y$ on the right-hand side, a change in Ohio's
+income moves Ohio's price by β, which moves Pennsylvania's price by ρ
+times its share of Pennsylvania's neighbours, which moves Ohio's price
+again. The chain never ends, and the model sums it: the reduced form is
+$y = (I - \rho W)^{-1}(X\beta + u)$, so the effect of regressor *k* on
+every unit's outcome is a whole N × N matrix. @lesage2009 [ch. 2] read it
+in three numbers. The average of its diagonal is the **direct** effect, a
+unit's own response, feedback included. The average of its row sums is
+the **total** effect of raising $x_k$ everywhere. The difference is the
+**indirect** effect, what spills to other units. β is none of the three.
+
+::: {.callout-tip appearance="simple"}
+Why the coefficient of a spatial lag model is not a marginal effect, how
+the three averages are built, and why a spatial error model has no
+indirect effects: [direct and indirect
+effects](theory-direct-indirect-effects.qmd).
+:::
+
+For regressor *k* with slope $\beta_k$ [@lesage2009, sec. 2.7]:
+
+$$
+S_k = (I - \rho W)^{-1} \beta_k, \qquad
+\text{direct} = \frac{1}{N}\operatorname{tr}(S_k), \qquad
+\text{total} = \frac{1}{N}\, \iota' S_k\, \iota,
+$$
+
+and with a row-standardised W the total effect collapses to
+$\beta_k / (1 - \rho)$, the spatial multiplier.
+
+**The computation.** `sar_impacts()` builds $S_k$ and the three averages;
+`sar_impacts_mc()` draws ρ and β from the fit's asymptotic normal
+distribution and recomputes them 200 times for a standard error
+[@lesage2009, sec. 5.2]. `splm::impacts()` does the same, when it runs;
+see Pitfalls.
+
+**Run it.** On the spatial lag fits of the [fixed-effects
+section](index.qmd#sec-sp-fe). The lag parameter is `coef()[["lambda"]]`
+in **splm**'s naming:
+
+```{r}
+#| label: c03-7-hp
+rho_hp <- coef(sar_hp)[["lambda"]]
+sar_impacts(rho_hp, coef(sar_hp)["li_t"], usaw49)
+coef(sar_hp)[["li_t"]] / (1 - rho_hp)
+```
+
+```{r}
+#| label: c03-7-hp-mc
+set.seed(1)
+mc_hp <- sar_impacts_mc(sar_hp, usaw49, reps = 200)
+round(mc_hp$se, 3)
+```
+
+```{r}
+#| label: c03-7-rice
+rho_rice <- coef(sar_rice)[["lambda"]]
+sar_impacts(rho_rice, coef(sar_rice)[inputs], riceww)
+set.seed(1)
+mc_rice <- sar_impacts_mc(sar_rice, riceww, reps = 200)
+round(mc_rice$se, 3)
+```
+
+Ohio's column of $S$, drawn on the map, and the three effects of every
+regressor with their intervals:
+
+```{r}
+#| label: c03-7-picture
+#| fig-cap: "Left: the effect of a rise in Ohio's log income on each
+#|   state's log house price, the Ohio column of (I − ρW)⁻¹β, darker for
+#|   larger. Right: direct, indirect and total effects of income on house
+#|   prices and of seed, labour and land on rice output, with 95% Monte
+#|   Carlo intervals."
+#| fig-alt: "A map of the contiguous United States with Ohio darkest, its
+#|   neighbours dark grey, their neighbours lighter, and the West almost
+#|   white. Beside it, four rows of three dots with whiskers: for income
+#|   the total dot sits far to the right of the direct one; for the three
+#|   rice inputs the indirect dot sits level with the direct one."
+S_hp <- solve(diag(49) - rho_hp * usaw49) * coef(sar_hp)[["li_t"]]
+est <- rbind(income = mc_hp$estimate, mc_rice$estimate)
+se <- rbind(mc_hp$se, mc_rice$se)
+rownames(est) <- rownames(se) <- c("income", "seed", "labour", "land")
+graphics::layout(matrix(1:2, 1), widths = c(1.3, 1))
+graphics::par(mar = c(0, 0, 2, 0))
+plot(sf::st_geometry(us), col = shade(S_hp[, "OHIO"]),
+     main = "Effect of Ohio's income")
+graphics::par(mar = c(4, 6, 2, 1))
+y <- rep(4:1, each = 3) + rep(c(0.2, 0, -0.2), 4)
+cols <- rep(c("black", "firebrick", "steelblue"), 4)
+plot(t(est), y, xlim = range(c(est - 1.96 * se, est + 1.96 * se)),
+     yaxt = "n", pch = 16, col = cols, xlab = "effect", ylab = "",
+     main = "Direct, indirect, total")
+graphics::segments(t(est - 1.96 * se), y, t(est + 1.96 * se), y, col = cols)
+graphics::axis(2, at = 4:1, labels = rownames(est), las = 1)
+graphics::legend("bottomright", c("direct", "indirect", "total"),
+                 col = c("black", "firebrick", "steelblue"), pch = 16,
+                 bty = "n")
+graphics::layout(1)
+```
+
+**Read it.**
+
+- **House prices.** β = 0.72; direct 0.83, indirect 1.19, total 2.01,
+  which is $0.72 / (1 - 0.65)$. *So:* a 10% rise in every state's income
+  raises prices by 20%, and more than half of that arrives through the
+  neighbours. Ohio's own rise is 8.3%, of which 1.1 points came back
+  through Pennsylvania, Michigan and the rest.
+- **Rice.** For land, β = 0.50; direct 0.51, indirect 0.52, total 1.03.
+  *So:* a farm's own land raises its output by half a per cent per per
+  cent, with feedback adding 2% of that, and as much again spills over the
+  village.
+- **Misleads (β as the elasticity).** Reporting 0.72 as the income
+  elasticity of house prices misses two thirds of the total effect; for
+  rice land it halves it. *So:* a paper that fits a spatial lag and reads
+  β has not reported an effect at all.
+- **A caveat on both.** These are readings of the *lag* model. For rice
+  the tests chose the error model, under which β is the whole effect and
+  the indirect effects above do not exist; for house prices the choice
+  between lag and error stayed open. The effects are what a lag model
+  claims, not what the data proved.
+
+::: {.callout-note appearance="simple"}
+**Next.** What the chapter can only state, not test
+([limits](index.qmd#sec-sp-limits)).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# fit: splm::spml(..., model = "within", lag = TRUE); w: the matrix.
+rho <- coef(fit)[["lambda"]]               # the lag, in splm's naming
+sar_impacts(rho, coef(fit)[-1], w)
+sar_impacts_mc(fit, w, reps = 200)         # Monte Carlo standard errors
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**`splm::impacts()` does not run.** With splm 1.6-5 and spatialreg 1.4-3
+it fails on every within fit, for every `type`:
+
+```{r}
+#| label: c03-7-impacts-fail
+#| error: true
+splm::impacts(sar_rice, listw = ricelw, time = 6)
+```
+
+The hand computation above is the same arithmetic, and the Book check
+compares it with the cross-sectional machinery that does run.
+
+**N × N inverses.** `type = "mult"` inverts a dense N × N matrix; at a few
+thousand units that swaps. The trace approximations of `spatialreg::trW`
+with `type = "MC"` or `"moments"` avoid it; `"moments"` needs a symmetric
+W, or the similar symmetric form of a row-standardised one.
+
+**No indirect effects in a spatial error model.** With the spatial term in
+the error, $\partial y / \partial x_k' = \beta_k I$: the slope is the
+effect, and nothing spills.
+
+**A Durbin term changes the effects.** With $WX$ in the model the direct
+and indirect effects of $x_k$ involve both $\beta_k$ and the coefficient
+on $Wx_k$, and the shortcut $\beta_k / (1 - \rho)$ no longer holds
+[@lesage2009, sec. 2.7].
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+No published number: `?spml` shows its `impacts()` call on `Produc`
+commented out, and @croissant2019 predate the method in **splm**. The hand
+computation is checked instead against `spatialreg::impacts()` on a
+cross-sectional spatial lag fit, one growing season of the rice panel,
+where that package's method is documented and runs:
+
+```{r}
+#| label: c03-7-book-check
+season1 <- RiceFarms[RiceFarms$time == 1, ]
+cs <- spatialreg::lagsarlm(rice_f0, data = season1, listw = ricelw)
+spatialreg::impacts(cs, listw = ricelw)
+sar_impacts(cs$rho, coef(cs)[inputs], riceww)
+```
+
+Three numbers per input, identical to the printed digits.
+:::

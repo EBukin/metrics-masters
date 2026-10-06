@@ -1,0 +1,210 @@
+## Limits {#sec-sp-limits}
+
+Three questions this chapter cannot answer with a published number. The
+first gets a simulation, as the [time
+chapter](../04-time/index.qmd#sec-ur-traps) does: evidence about this code
+on one design, and nothing more. The other two get a statement of what is
+missing and what to write instead.
+
+### Heterogeneous slopes {#sec-sp-heterogeneous}
+
+**Question.** If every state has its own income elasticity, is the pooled
+fixed-effects slope still right, and is its standard error?
+
+**Intuition.** Let the slope vary, $\beta_i = \beta + \eta_i$, and keep the
+spatial error. @pesaran2011 show that both the fixed-effects slope and the
+mean-group slope, the average of the N unit-by-unit slopes met in the
+[CCE section](../02-cross-dependence/index.qmd#sec-cce), stay consistent
+for β: spatial dependence is weak, and weak dependence averages out. What
+does not survive is the fixed-effects standard error. The part of the
+error that is $\eta_i x_{it}$ is heteroskedastic and, with the spatial
+shocks, correlated across units; the conventional formula assumes neither.
+The mean-group standard error, the dispersion of the N slopes, is built
+for the first problem. Driscoll–Kraay standard errors, met in the [core
+chapter](../05-core/index.qmd), are built for the second, but only as T
+grows: with T small, "the problem of consistent nonparametric covariance
+matrix estimation is much less tractable" [@baltagi2021, p. 394].
+
+**Run it.** 49 units on a 7 × 7 grid with `rook_w(7)`, 20 periods, slopes
+drawn around 1 with standard deviation 0.3, and shocks that spill over
+with strength λ. First one draw at λ = 0.8:
+
+```{r}
+#| label: c03-8-one-draw
+W <- rook_w(7)
+set.seed(1)
+d <- sim_spatial_slope_panel(W, lambda = 0.8)
+fe <- plm::plm(y ~ x, data = d, model = "within")
+mg <- plm::pmg(y ~ x, data = d, model = "mg")
+c(FE = coef(fe)[["x"]], MG = coef(mg)[["x"]])
+c(FE_conventional = sqrt(vcov(fe)["x", "x"]),
+  FE_DriscollKraay = sqrt(plm::vcovSCC(fe)["x", "x"]),
+  MG = sqrt(vcov(mg)["x", "x"]))
+```
+
+Then 200 draws at three values of λ, counting how often each 95%
+interval covers the true mean slope of 1:
+
+```{r}
+#| label: c03-8-coverage
+# One replication: the three intervals above, kept for whether they cover 1.
+covers <- function(d) {
+  fe <- plm::plm(y ~ x, data = d, model = "within")
+  mg <- plm::pmg(y ~ x, data = d, model = "mg")
+  inside <- function(b, se) abs(b - 1) <= 1.96 * se
+  c(FE_conventional = inside(coef(fe)[["x"]], sqrt(vcov(fe)["x", "x"])),
+    FE_DriscollKraay = inside(coef(fe)[["x"]],
+                              sqrt(plm::vcovSCC(fe)["x", "x"])),
+    MG = inside(coef(mg)[["x"]], sqrt(vcov(mg)["x", "x"])))
+}
+set.seed(1)
+lambdas <- c(0, 0.4, 0.8)
+coverage <- sapply(lambdas, function(l) {
+  rowMeans(replicate(200, covers(sim_spatial_slope_panel(W, l))))
+})
+colnames(coverage) <- paste0("lambda_", lambdas)
+coverage
+```
+
+```{r}
+#| label: c03-8-picture
+#| fig-cap: "Coverage of the nominal 95% interval for the mean slope, by
+#|   estimator and spillover strength λ, from the 200 draws above. Dashed:
+#|   the nominal 0.95."
+#| fig-alt: "Three lines over lambda equal to 0, 0.4 and 0.8. The
+#|   mean-group line sits on the dashed 0.95 line at the first two values
+#|   and dips to 0.91 at the third. The conventional fixed-effects line
+#|   runs between 0.75 and 0.85, and the Driscoll-Kraay line below it,
+#|   between 0.68 and 0.78."
+cols <- c("firebrick", "darkorange", "black")
+graphics::matplot(lambdas, t(coverage), type = "b", pch = 16, lty = 1,
+                  col = cols, xlab = "spillover strength, lambda",
+                  ylab = "coverage of the 95% interval", ylim = c(0.5, 1))
+graphics::abline(h = 0.95, lty = 2)
+graphics::legend("bottomleft", rownames(coverage), col = cols, pch = 16,
+                 lty = 1, bty = "n")
+```
+
+**Read it.**
+
+- **Both slopes are centred.** FE and MG land within 0.02 of each other
+  in the draw above, and the coverage of the mean-group interval does not
+  drift with λ until the strongest spillover. *So:* @pesaran2011 hold on
+  this design: spatial errors do not bias either estimator of the mean
+  slope.
+- **The conventional interval is too short.** Its coverage is 0.80, 0.76
+  and 0.85 against a nominal 0.95, and λ does not drive it. *So:* the
+  damage is the slope heterogeneity, not the spatial shocks; the plain
+  fixed-effects standard error overstates what is known at every λ.
+- **Driscoll–Kraay is worse at T = 20.** Coverage 0.68 to 0.78. *So:* the
+  estimator that is robust to spatial and serial dependence as T → ∞ is
+  not robust at twenty periods; @baltagi2021 [p. 394] warns of exactly
+  this, and the house-price panel's 29 years sit close to the edge.
+- **The mean-group interval holds, until λ = 0.8.** Coverage 0.97 and
+  0.97, then 0.91. *So:* when slopes may differ, report the mean-group
+  slope with its own standard error; under strong spillover, the N slopes
+  stop being N independent pieces of evidence and even that interval
+  shortens.
+
+::: {.callout-note appearance="simple"}
+**Next.** With 29 years per state the mean-group estimator runs; with 6
+seasons per farm it does not (four parameters from six observations).
+Rerun this table at your own N, T and W before trusting any of the three,
+and read the 200-draw rates with their noise of about ±0.03.
+:::
+
+### Dynamic spatial panels {#sec-sp-dynamic}
+
+**Question.** Last year's price moves this year's, and last year's
+neighbours' prices too. Can one model hold the time lag and the spatial
+lag at once?
+
+**What the theory says.** The model is [@pesaran2015, eq. 30.27]
+
+$$
+y_{\cdot t} = \alpha + \gamma\, y_{\cdot,t-1} + \rho\, W y_{\cdot t}
+  + \lambda\, W y_{\cdot,t-1} + X_{\cdot t}\beta + u_{\cdot t},
+$$
+
+with the third term the **space-time diffusion**: a neighbour's shock
+arrives a period late. It is stable when $|\gamma| + |\rho| + |\lambda| <
+1$ for a W that is row *and* column standardised [@pesaran2015, p. 810].
+@yu2008 give three regimes for its maximum-likelihood estimator: with T
+large relative to N it is centred; with N proportional to T it is not,
+and needs a bias correction; with N large relative to T it converges at
+rate T only [@baltagi2021, pp. 406–407]. A panel of 170 regions over 20
+years is in the third regime at best.
+
+**What runs.** Nothing, in R. The estimator is in Stata's `xsmle`
+[@belotti2017] and in Elhorst's MATLAB code [@elhorst2014]. What a reader
+might try instead, a lagged outcome fed to `spml`, is shown here so that
+it is not mistaken for the real thing:
+
+```{r}
+#| label: c03-8-naive-dynamic
+hp_dyn <- data.frame(state = hp_idx[[1]], year = hp_idx[[2]],
+                     lp_t = as.numeric(hp$lp_t),
+                     lp_t_lag = as.numeric(plm::lag(hp$lp_t)),
+                     li_t = as.numeric(hp$li_t))
+hp_dyn <- plm::pdata.frame(stats::na.omit(hp_dyn), index = c("state", "year"))
+dyn <- splm::spml(lp_t ~ lp_t_lag + li_t, data = hp_dyn, listw = usalw,
+                  model = "within", lag = TRUE, spatial.error = "none")
+summary(dyn)$CoefTable
+sum(abs(coef(dyn)[c("lambda", "lp_t_lag")]))
+```
+
+**Read it.** The time lag and the spatial lag together stay inside the
+stability bound, which is the one check that can be made. The coefficient
+on the lagged outcome is biased downward by about $(1 + \gamma) / T$
+[@baltagi2021, p. 188], the Nickell bias that the [time
+chapter](../04-time/index.qmd) will take up, and the spatial lag inherits
+the regime problem above with no correction available. *So:* write "a
+dynamic spatial specification was not estimated; no R implementation with
+a verified target exists", and give the stability check as the only
+number.
+
+### Forecasting {#sec-sp-forecast}
+
+**Question.** Does the spatial model predict next year's prices better
+than the plain fixed-effects one?
+
+**What the theory says.** @baltagi2006 derive the best linear unbiased
+predictor for a random-effects panel with spatial errors [@baltagi2021,
+eq. 13.27]: the forecast is $x'\hat\beta$ plus a term that borrows from
+the unit's own past residuals *and* its neighbours', through
+$(I - \lambda W)^{-1}$. With the unit effect fixed, or its variance zero,
+that term drops out entirely [@baltagi2021, p. 408], and the spatial
+model's forecast is the fixed-effects forecast with a better $\hat\beta$.
+The two anchor texts then disagree about whether the spatial terms help
+out of sample: on cigarette demand they gave the best root mean squared
+error [@baltagi2021, p. 408]; on liquor demand they did not, except one
+year ahead [@pesaran2015, Table 30.2].
+
+**What runs.** No `predict` method for `splm` objects; `effects()`
+extracts the fixed effects, and the spatial predictor has to be assembled
+by hand from the equation. The question is answered on one's own panel,
+by a rolling-origin comparison of root mean squared errors, not by a
+citation.
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Not implemented anywhere in this book's tools.** The joint, marginal and
+conditional LM and LR tests of @debarsy2010 for the fixed-effects case;
+the Mundlak-style test of the fixed-effects assumption; the
+heteroskedasticity-robust GM estimators of @lin2010 and their panel
+extension, since **sphet** [@piras2010] is cross-sectional only; the
+moving-average and error-component forms of spatial error [@pesaran2015,
+eqs. 30.5–30.6]; eigenvector filtering as a check on the SAR functional
+form [@tiefelsdorf2007], which **spatialreg** implements for a
+cross-section only. Each is a sentence in a paper's limitations, not a
+substitute presented as the real thing.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+None, for any subsection. `.docs/panel-spat-PLAN.md` records no published
+target for the Pesaran–Tosetti variance, and the dynamic and forecasting
+targets live in Stata output on data that **R** does not ship.
+:::

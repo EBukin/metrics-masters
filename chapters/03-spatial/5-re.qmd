@@ -1,0 +1,298 @@
+## Random effects {#sec-sp-re}
+
+**Question.** If the farms are draws from one population, can the farm
+effect stay in the error, and is the farm effect itself shared with the
+neighbours?
+
+**Intuition.** Two things can sit in a rice farm's error: a farm effect,
+the soil and the farmer, and a village shock, the weather. Testing for one
+while ignoring the other misleads, so @baltagi2003 test each conditional
+on the other, from the plain OLS residuals. If the farm effect is
+uncorrelated with the inputs it can stay in the error as a **random
+effect**, and GLS then uses the between-farm variation the within fit
+throws away. Two spatial random-effects models follow. In Anselin's, only
+the period shock is spatial: $u_{it} = \mu_i + v_{it}$ with
+$v_{\cdot t} = \lambda W v_{\cdot t} + \varepsilon_{\cdot t}$. In the
+model of @kapoor2007, the farm effect is spatial too: the whole composite
+error $\mu_i + \varepsilon_{it}$ passes through $(I - \lambda W)^{-1}$,
+so a good farmer raises the neighbours' output as well. The spatial
+Hausman test of @mutl2011 then compares the random-effects fit with the
+fixed-effects one of the [previous section](index.qmd#sec-sp-fe): if they
+differ by more than their precision allows, the farm effect is correlated
+with the inputs and only the fixed-effects fit is consistent.
+
+::: {.callout-tip appearance="simple"}
+The two error covariances, why the conditional tests exist, and what the
+spatial Hausman statistic compares: [fitting spatial
+panels](theory-spatial-estimation.qmd).
+:::
+
+With $\phi = \sigma^2_\mu / \sigma^2_\varepsilon$ the variance ratio of
+the farm effect to the shock, the two covariances are [@croissant2019,
+sec. 10.3.2]
+
+$$
+\Omega_{\text{Anselin}} = \sigma^2_\varepsilon
+  \big[ \phi\, (J_T \otimes I_N) + I_T \otimes (B'B)^{-1} \big],
+\qquad
+\Omega_{\text{KKP}} = \sigma^2_\varepsilon
+  \big[ \phi\, J_T + I_T \big] \otimes (B'B)^{-1},
+$$
+
+with $J_T$ the T × T matrix of ones and $B = I_N - \lambda W$. The
+Hausman statistic is $H = (\hat\beta_{RE} - \hat\beta_{FE})'
+[\widehat{V}_{FE} - \widehat{V}_{RE}]^{-1} (\hat\beta_{RE} -
+\hat\beta_{FE}) \sim \chi^2_k$ [@mutl2011; @millo2012, eq. 32].
+
+**The tests and estimators.** `bsktest` [@baltagi2003]: `LMH`, the joint
+test of no farm effect and no spatial error; `CLMmu`, a farm effect given
+a spatial error; `CLMlambda`, a spatial error given a farm effect. `spml(
+model = "random")` with `spatial.error = "b"` (Anselin) or `"kkp"`.
+`sphtest` [@mutl2011]: null, both estimators are consistent and the
+random-effects one is efficient.
+
+**Run it, rice farms.** The three tests on the pooled model with village
+and season dummies, as @croissant2019 [sec. 10.3.4.1] run them:
+
+```{r}
+#| label: c03-5-rice-lmh
+splm::bsktest(rice_f, data = rice, listw = ricelw, test = "LMH")
+```
+
+```{r}
+#| label: c03-5-rice-clmmu
+splm::bsktest(rice_f, data = rice, listw = ricelw, test = "CLMmu")
+```
+
+```{r}
+#| label: c03-5-rice-clmlambda
+splm::bsktest(rice_f, data = rice, listw = ricelw, test = "CLMlambda")
+```
+
+Then the two random-effects fits, a spatial lag with random effects for
+comparison, and the Hausman test, on the three inputs alone, as in
+@croissant2019 [sec. 10.3.3.2]:
+
+```{r}
+#| label: c03-5-rice-semre
+semre_rice <- splm::spml(rice_f0, data = rice, listw = ricelw,
+                         model = "random", lag = FALSE, spatial.error = "b")
+summary(semre_rice)$ErrCompTable
+summary(semre_rice)$CoefTable
+```
+
+```{r}
+#| label: c03-5-rice-kkp
+kkp_rice <- splm::spml(rice_f0, data = rice, listw = ricelw,
+                       model = "random", lag = FALSE, spatial.error = "kkp")
+summary(kkp_rice)$ErrCompTable
+summary(kkp_rice)$CoefTable
+```
+
+```{r}
+#| label: c03-5-rice-sarre
+sarre_rice <- splm::spml(rice_f0, data = rice, listw = ricelw,
+                         model = "random", lag = TRUE, spatial.error = "none")
+summary(sarre_rice)$ErrCompTable
+summary(sarre_rice)$ARCoefTable
+```
+
+The Hausman test is conditional on a spatial model, so it is run under
+both, the error model the tests chose and the lag model
+@croissant2019 [sec. 10.3.1] run it under:
+
+```{r}
+#| label: c03-5-rice-hausman
+splm::sphtest(rice_f0, data = rice, listw = ricelw, spatial.model = "error",
+              method = "ML")
+splm::sphtest(rice_f0, data = rice, listw = ricelw, spatial.model = "lag",
+              method = "ML")
+```
+
+The encompassing model with random effects answers the question the
+[previous section](index.qmd#sec-sp-fe) left to it, whether the lag adds
+anything given the error, by a likelihood ratio, on the model with
+village and season dummies as @croissant2019 [sec. 10.3.4.2] fit it:
+
+```{r}
+#| label: c03-5-rice-lr
+sararre_d <- splm::spml(rice_f, data = rice, listw = ricelw,
+                        model = "random", lag = TRUE, spatial.error = "b")
+semre_d <- splm::spml(rice_f, data = rice, listw = ricelw,
+                      model = "random", lag = FALSE, spatial.error = "b")
+sararre_d$arcoef
+lr <- 2 * (sararre_d$logLik - semre_d$logLik)
+c(LR = lr, p = stats::pchisq(lr, df = 1, lower.tail = FALSE))
+```
+
+**Run it, house prices.** The transformed panel has no state effect left
+in it: stage one partialled each state's mean out together with the
+national force. The joint and the first conditional test run; the second
+stops in a singular Hessian, and the Hausman test returns zero:
+
+```{r}
+#| label: c03-5-hp-lmh
+splm::bsktest(lp_t ~ li_t, data = hp, listw = usalw, test = "LMH")
+splm::bsktest(lp_t ~ li_t, data = hp, listw = usalw, test = "CLMmu")
+```
+
+```{r}
+#| label: c03-5-hp-fail
+#| error: true
+#| results: markup
+splm::bsktest(lp_t ~ li_t, data = hp, listw = usalw, test = "CLMlambda")
+splm::sphtest(lp_t ~ li_t, data = hp, listw = usalw, spatial.model = "error",
+              method = "ML")
+```
+
+The spatial parameter and the variance ratio under each rice fit:
+
+```{r}
+#| label: c03-5-picture
+#| fig-cap: "Rice farms: the spatial parameter with a 95% interval under
+#|   the fixed-effects SEM, the two random-effects SEMs and the
+#|   random-effects SAR (left), and the variance ratio φ of the farm
+#|   effect to the shock under the three random-effects fits (right)."
+#| fig-alt: "Two dot-and-whisker charts. On the left, three dots near
+#|   0.78 with short whiskers, for the three error models, and one dot
+#|   near 0.41 for the lag model. On the right, three dots near 0.3 with
+#|   whiskers reaching from about 0.2 to 0.4."
+row_ci <- function(tab, name) ci(tab[name, 1], tab[name, 2])
+spat <- rbind(
+  "SEM, fixed" = row_ci(summary(sem_rice)$CoefTable, "rho"),
+  "SEM, random" = row_ci(summary(semre_rice)$ErrCompTable, "rho"),
+  "KKP, random" = row_ci(summary(kkp_rice)$ErrCompTable, "rho"),
+  "SAR, random" = row_ci(summary(sarre_rice)$ARCoefTable, "lambda")
+)
+phi <- rbind(
+  "SEM, random" = row_ci(summary(semre_rice)$ErrCompTable, "phi"),
+  "KKP, random" = row_ci(summary(kkp_rice)$ErrCompTable, "phi"),
+  "SAR, random" = row_ci(summary(sarre_rice)$ErrCompTable, "phi")
+)
+dots <- function(est, xlab, main) {
+  k <- nrow(est)
+  plot(est[, 1], k:1, xlim = range(est), yaxt = "n", pch = 16, xlab = xlab,
+       ylab = "", main = main)
+  graphics::segments(est[, 2], k:1, est[, 3], k:1)
+  graphics::axis(2, at = k:1, labels = rownames(est), las = 1, cex.axis = 0.8)
+}
+op <- graphics::par(mfrow = c(1, 2), mar = c(4, 7, 2, 1))
+dots(spat, "spatial parameter", "Lag or error")
+dots(phi, "variance ratio of the farm effect", "Farm effect")
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Rice, the joint test.** LMH = 306 rejects. *So:* a farm effect, or a
+  spatial error, or both; the joint test cannot say which, which is why
+  it is "of little use" [@croissant2019, sec. 10.3.4.1].
+- **Rice, each given the other.** CLMmu = 11 and CLMlambda = 21 both
+  reject. *So:* there is a farm effect even allowing for the village
+  shock, and a village shock even allowing for the farm effect.
+- **Rice, the two random-effects models.** φ = 0.30 and λ = 0.77 under
+  Anselin's model; φ = 0.30 and λ = 0.77 under KKP's. *So:* the farm effect
+  is small, a third of the shock variance, and too small for it to matter
+  whether it travels to the neighbours.
+- **Rice, Hausman under the error model.** χ² = 31 on 3 degrees of
+  freedom, p ≈ 0. *So:* the random-effects slopes sit too far from the
+  fixed-effects ones; the farm effect is correlated with the inputs, and
+  only the fixed-effects SEM of the [previous section](index.qmd#sec-sp-fe)
+  is consistent.
+- **Misleads (Hausman under the lag model).** χ² = 0.6, p = 0.9: the same
+  question under the model the robust tests rejected does not reject.
+  *So:* the Hausman verdict is conditional on the spatial model, and a
+  paper that ran it under the wrong one would have kept random effects.
+  The precision they buy is visible in the picture; it is not on offer
+  here.
+- **Rice, the lag given the error.** The SARAR random-effects fit puts
+  −0.01 on the lag, and the likelihood ratio has p = 0.91. *So:* the
+  spatial error is the whole story; the SAR fit's ρ = 0.41 was the
+  error's shadow once more.
+- **House prices: not applicable, and the output says so.** The
+  conditional test for a spatial error stops in a singular Hessian, and
+  the Hausman test finds the two fits identical: there is no state effect
+  left to estimate, because stage one removed it. *So:* on a
+  CCE-transformed panel the fixed-effects fits of the [previous
+  section](index.qmd#sec-sp-fe) are the only ones, and that is not a
+  loss. A state effect correlated with income was never going to be
+  random.
+
+::: {.callout-note appearance="simple"}
+**Next.** The error can carry a third thing, last season's shock
+([serial correlation too](index.qmd#sec-sp-serial)).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# f: a formula; d: a pdata.frame; listw: from spdep::mat2listw(w, "W").
+splm::bsktest(f, data = d, listw = listw, test = "CLMmu")
+splm::bsktest(f, data = d, listw = listw, test = "CLMlambda")
+splm::spml(f, data = d, listw = listw, model = "random",
+           lag = FALSE, spatial.error = "b")        # Anselin
+splm::spml(f, data = d, listw = listw, model = "random",
+           lag = FALSE, spatial.error = "kkp")      # KKP
+splm::sphtest(f, data = d, listw = listw, spatial.model = "error",
+              method = "ML")
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**The joint test rejects for either reason.** Go straight to the two
+conditional tests.
+
+**The random-effects likelihood is not well behaved.** `spreml`, which
+`spml(model = "random")` calls, uses `nlminb` from zero starting values;
+`initval = "estimate"` starts from the restricted fits and often helps
+before any change of optimiser [@croissant2019, sec. 10.3.3.2]. A singular
+Hessian, as on the transformed house-price panel, means a parameter is
+not there to estimate.
+
+**Where the parameters live.** In a random-effects fit the lag is
+`$arcoef` and the error and φ are in `$errcomp`, with their covariance in
+`$vcov.arcoef` and `$vcov.errcomp`; in a within fit all of them sit in
+`coef()`.
+
+**The Hausman test by GM.** `sphtest(method = "GM")` compares the GM
+random- and fixed-effects fits and needs no error structure; the ML
+version takes `errors = "BSK"` or `"KKP"`. Two fitted `splm` objects can
+also be passed directly, `sphtest(x = fit_re, x2 = fit_fe)`.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 print, on the rice panel, to two significant digits:
+LMH = 310, CLMmu = 11 and CLMlambda = 21 [sec. 10.3.4.1, Example 10.10],
+against 305.5, 11.0 and 21.2 above; φ = 0.2955 and λ = 0.7748 with slopes
+0.1520, 0.2562, 0.5757 under Anselin's model and φ = 0.2959, λ = 0.7686,
+slopes 0.1518, 0.2564, 0.5763 under KKP's [sec. 10.3.3.2, Example 10.8];
+φ = 0.3690 and ρ = 0.4132 for the random-effects spatial lag
+[Example 10.7]; −0.0134 for the lag given the error and p = 0.9121 for its
+likelihood-ratio test [sec. 10.3.4.2, Examples 10.12–10.13]. The chunks
+above are those runs. For the Hausman test under the lag model, their
+default, they print χ² = 2.6 on 3 degrees of freedom with p = 0.4
+[sec. 10.3.1]; the installed version returns 0.63 with p = 0.89, the same
+verdict and not the same number, and the difference is unexplained.
+
+@millo2012 [sec. 7] print, on `Produc`: SLM1 = 0.083 with p = 0.9338,
+SLM2 = 0.0151 with p = 0.988, LM\*-λ = 9.7157, and a GM Hausman test of
+7.4824 on 4 degrees of freedom with p = 0.1125. The installed version
+does not reproduce them, so that paper's test output is not a usable
+target; the rice numbers above are:
+
+```{r}
+#| label: c03-5-book-check
+splm::bsktest(prod_f, data = Produc, listw = prod_lw, test = "LM1",
+              standardize = TRUE)
+splm::bsktest(prod_f, data = Produc, listw = prod_lw, test = "LM2",
+              standardize = TRUE)
+splm::bsktest(prod_f, data = Produc, listw = prod_lw, test = "CLMlambda")
+splm::sphtest(prod_f, data = Produc, listw = prod_lw, spatial.model = "error",
+              method = "GM")
+```
+:::

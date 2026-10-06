@@ -1,0 +1,179 @@
+## Serial correlation too {#sec-sp-serial}
+
+**Question.** Does a farm's shock carry over to its next season, once the
+farm effect and the village shock are allowed for? And does a state's?
+
+**Intuition.** Three things can sit in one error: a unit effect, a shock
+shared with the neighbours, and a shock that lingers from last period, the
+**serial correlation** that the [time chapter](../04-time/index.qmd) takes
+up on its own. @baltagi2007serial show that testing for any one of the
+three while ignoring the other two "leads to misleading results", and give
+a joint test and three conditional ones, each for one symptom allowing
+the other two. The encompassing model then estimates all three at once,
+and its *t* statistics mimic the conditional tests with the magnitudes
+added [@millo2014].
+
+::: {.callout-tip appearance="simple"}
+How the three error components combine into one covariance, and which of
+the twelve error structures of `spreml` holds which: [fitting spatial
+panels](theory-spatial-estimation.qmd).
+:::
+
+The full error of @baltagi2007serial [eq. 2], with ψ the serial
+parameter:
+
+$$
+u_{it} = \mu_i + v_{it}, \qquad
+v_{\cdot t} = \lambda W v_{\cdot t} + \varepsilon_{\cdot t}, \qquad
+\varepsilon_{it} = \psi\, \varepsilon_{i,t-1} + \eta_{it}.
+$$
+
+**The tests and estimator.** `bsjktest` [@baltagi2007serial]: `J`, the
+joint test; `C.1`, spatial error given the other two; `C.2`, serial
+correlation given the other two; `C.3`, random effects given the other
+two. `spreml(errors = "semsrre")` fits all three; `"semsr"` leaves the
+random effect out.
+
+**Run it, rice farms.** The four tests on the model with village and
+season dummies, then the full fit, as @croissant2019 [sec. 10.4.2.1] run
+them:
+
+```{r}
+#| label: c03-6-rice-j
+splm::bsjktest(rice_f, data = RiceFarms, index = "id", listw = ricelw,
+               test = "J")
+```
+
+```{r}
+#| label: c03-6-rice-c1
+splm::bsjktest(rice_f, data = RiceFarms, index = "id", listw = ricelw,
+               test = "C.1")
+```
+
+```{r}
+#| label: c03-6-rice-c2
+splm::bsjktest(rice_f, data = RiceFarms, index = "id", listw = ricelw,
+               test = "C.2")
+```
+
+```{r}
+#| label: c03-6-rice-c3
+splm::bsjktest(rice_f, data = RiceFarms, index = "id", listw = ricelw,
+               test = "C.3")
+```
+
+```{r}
+#| label: c03-6-rice-semsrre
+semsrre_rice <- splm::spreml(rice_f, data = rice, w = riceww, lag = FALSE,
+                             errors = "semsrre")
+round(summary(semsrre_rice)$ErrCompTable, 4)
+```
+
+**Run it, house prices.** On the transformed panel, with the random
+effect left out of the fit for the reason the [previous
+section](index.qmd#sec-sp-re) gave:
+
+```{r}
+#| label: c03-6-hp-tests
+hp_df <- data.frame(state = hp_idx[[1]], year = hp_idx[[2]],
+                    lp_t = hp$lp_t, li_t = hp$li_t)
+splm::bsjktest(lp_t ~ li_t, data = hp_df, index = c("state", "year"),
+               listw = usalw, test = "C.1")
+splm::bsjktest(lp_t ~ li_t, data = hp_df, index = c("state", "year"),
+               listw = usalw, test = "C.2")
+```
+
+```{r}
+#| label: c03-6-hp-semsr
+semsr_hp <- splm::spreml(lp_t ~ li_t, data = hp, w = usaw49, lag = FALSE,
+                         errors = "semsr")
+round(summary(semsr_hp)$ErrCompTable, 4)
+```
+
+What ψ measures, unit by unit: the correlation of this period's filtered
+innovation with last period's, for every state and every farm:
+
+```{r}
+#| label: c03-6-picture
+#| fig-cap: "Lag-one autocorrelation of each unit's innovations from the
+#|   SEM fixed-effects fit, states (left) and farms (right). Thick bar: the
+#|   ψ of the encompassing fit. Dashed line at zero."
+#| fig-alt: "Two strip charts of points on a vertical axis from minus one
+#|   to one. The state points cluster between 0.5 and 0.9 with the bar
+#|   near 0.8. The farm points scatter widely around zero, with the bar a
+#|   little above zero near 0.13."
+lag1 <- function(e, index) {
+  m <- tapply(e, list(index[[1]], index[[2]]), identity)
+  apply(m, 1, function(x) stats::cor(x[-1], x[-length(x)]))
+}
+ac <- list(states = lag1(hp$eps_sem, hp_idx),
+           farms = lag1(rice$eps_sem, rice_idx))
+psi <- c(semsr_hp$errcomp[["psi"]], semsrre_rice$errcomp[["psi"]])
+graphics::stripchart(ac, vertical = TRUE, method = "jitter", pch = 16,
+                     col = "grey50", ylim = c(-1, 1),
+                     ylab = "lag-one autocorrelation, by unit")
+graphics::segments(c(0.8, 1.8), psi, c(1.2, 2.2), psi, lwd = 4)
+graphics::abline(h = 0, lty = 2)
+```
+
+**Read it.**
+
+- **Rice, each given the other two.** C.1 = 372 (spatial) and C.3 = 76
+  (farm effect) reject hard; C.2 = 11.9 with p = 0.0006 (serial) rejects
+  less hard. The full fit gives φ = 0.25, ψ = 0.13 and λ = 0.61, each with
+  a *t* statistic that echoes its test. *So:* the village shock is the
+  strongest thing in the error; a farm carries about an eighth of last
+  season's shock into this one, real but small.
+- **House prices.** C.2 = 216; ψ = 0.82 with a standard error of 0.015,
+  and almost every state's innovations correlate above 0.5 with last
+  year's. *So:* the static two-stage model is incomplete in time. A state's
+  shock is four fifths still there a year later, which is what @holly2010
+  model with lagged prices, and what the [time
+  chapter](../04-time/index.qmd) takes up for this panel.
+- **Misleads (the joint test).** J = 320 on rice. *So:* it rejects
+  whenever any of the three is present and says nothing about which; read
+  it last, if at all.
+
+::: {.callout-note appearance="simple"}
+**Next.** Read the spatial lag fits as effects on the map rather than as
+coefficients ([direct and indirect effects](index.qmd#sec-sp-impacts)).
+Serial correlation of this size in house prices sends the panel to
+[time dependence](../04-time/index.qmd) before any slope is reported.
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# f: a formula; df: a data.frame with the two index columns; d: a
+# pdata.frame; w: the matrix; listw: spdep::mat2listw(w, "W").
+splm::bsjktest(f, data = df, index = c("id", "t"), listw = listw, test = "C.2")
+splm::spreml(f, data = d, w = w, lag = FALSE, errors = "semsrre")
+splm::spreml(f, data = d, w = w, lag = FALSE, errors = "semsr")
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Two interfaces, two spellings.** `bsjktest` takes a plain `data.frame`
+with `index =`; `spreml` takes the matrix as `w`, where `spml` takes a
+`listw`. Mixing them up fails late and unhelpfully.
+
+**Time.** The full rice fit takes about six seconds and the C.2 test about
+four; on a panel of 170 units they take longer. Quarto's `freeze` keeps
+them from running on every render.
+
+**ψ is a nuisance parameter here, not a model.** A serial correlation of
+0.8 in the errors is a sign of omitted dynamics, not a feature to keep.
+The [time chapter](../04-time/index.qmd) owns that question.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [sec. 10.4.2.1, Example 10.15] print J = 319.5, C.1 =
+371.5, C.2 = 11.894431 with p = 0.000563 and C.3 = 75.8, and
+[Example 10.16] φ = 0.2500, ψ = 0.1250 and λ = 0.6136 for the full fit.
+The rice chunks above are those runs.
+:::

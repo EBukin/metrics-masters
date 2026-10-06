@@ -1,0 +1,335 @@
+## Fixed effects {#sec-sp-fe}
+
+**Question.** With everything fixed about a state, or a farm, taken out:
+how far does a shock spread, and what happens to the slope when the model
+allows it to?
+
+**Intuition.** Take each unit's mean out of every variable, as the
+within estimator does, then fit the spatial model by maximum likelihood.
+The likelihood carries one term a plain regression does not, the
+log-determinant of $I - \lambda W$ (or $I - \rho W$), which is the price
+of a model in which every unit's error, or outcome, depends on every
+other's. A spatial error buys *precision*: the within estimator was
+consistent already, and the spatial fit reweights the observations the
+way GLS does. A spatial lag buys *consistency*: a within estimator that
+leaves $Wy$ out is biased [@pesaran2015, p. 801]. The generalised moments
+estimator skips the determinant and the normality assumption, at the
+price of no standard error for λ.
+
+::: {.callout-tip appearance="simple"}
+The likelihood with its Jacobian, what the within transformation does to
+it, the moment conditions behind the GM fit, and the naming trap in the
+printed output: [fitting spatial panels](theory-spatial-estimation.qmd).
+:::
+
+For the spatial error model with unit effects removed, the log-likelihood
+is [@anselin1988, ch. 6; @croissant2019, sec. 10.2.3]
+
+$$
+\ln L = -\frac{NT}{2}\ln(2\pi\sigma^2) + T \ln|I_N - \lambda W|
+  - \frac{1}{2\sigma^2}\, u' \big(I_T \otimes B'B\big)\, u,
+\qquad B = I_N - \lambda W,
+$$
+
+with $u = \tilde y - \tilde X\beta$ the within residuals. The spatial lag
+model puts $B$ on the outcome instead, $B\tilde y = \tilde X\beta + u$,
+and the two together give the SARAR model.
+
+**The estimators.** `spml(model = "within")` [@millo2012; @croissant2019,
+sec. 10.3.1]: `spatial.error = "b"` for the error, `lag = TRUE` for the
+lag, both for SARAR. `spgm(model = "within", spatial.error = TRUE)` for
+the GM fit [@kapoor2007; @mutl2011]. In the printed output of a within
+fit the *lag* parameter is called `lambda` and the *error* parameter
+`rho`, the reverse of this book's naming; the text below translates.
+
+**Run it, house prices.** On the transformed panel of the [previous
+section](index.qmd#sec-sp-lag-or-error). The plain within fit first, for
+the slope the spatial fits are compared with:
+
+```{r}
+#| label: c03-4-hp-fe
+summary(fe_hp)$coefficients
+```
+
+```{r}
+#| label: c03-4-hp-sem
+sem_hp <- splm::spml(lp_t ~ li_t, data = hp, listw = usalw,
+                     model = "within", lag = FALSE, spatial.error = "b")
+summary(sem_hp)$CoefTable
+```
+
+```{r}
+#| label: c03-4-hp-sar
+sar_hp <- splm::spml(lp_t ~ li_t, data = hp, listw = usalw,
+                     model = "within", lag = TRUE, spatial.error = "none")
+summary(sar_hp)$CoefTable
+```
+
+```{r}
+#| label: c03-4-hp-sarar
+sarar_hp <- splm::spml(lp_t ~ li_t, data = hp, listw = usalw,
+                       model = "within", lag = TRUE, spatial.error = "b")
+summary(sarar_hp)$CoefTable
+```
+
+```{r}
+#| label: c03-4-hp-gm
+gm_hp <- splm::spgm(lp_t ~ li_t, data = hp, listw = usaw49,
+                    model = "within", lag = FALSE, spatial.error = TRUE)
+coef(gm_hp)
+gm_hp$rho
+```
+
+Then the check that closes the loop. A spatial error model's residuals
+$u = \tilde y - \tilde X\hat\beta$ are correlated across neighbours *by
+construction*; that is what the model says about them. What it claims to
+be free of spatial correlation is the innovation $\varepsilon = (I -
+\hat\lambda W)u$, period by period. Test both:
+
+```{r}
+#| label: c03-4-hp-check
+hp$u_sem <- splm_residuals(sem_hp, hp_idx)
+hp$eps_sem <- spatial_filter(hp$u_sem, usaw49, coef(sem_hp)[["rho"]], hp_idx)
+plm::pcdtest(hp$u_sem, w = usaw49)
+splm::rwtest(hp$u_sem, w = usaw49, replications = 999, seed = 1)
+plm::pcdtest(hp$eps_sem, w = usaw49)
+splm::rwtest(hp$eps_sem, w = usaw49, replications = 999, seed = 1)
+```
+
+**Run it, rice farms.** The same five fits on output, seed, labour and
+land, farm effects removed, as @croissant2019 [sec. 10.3.1] fit them:
+
+```{r}
+#| label: c03-4-rice-fe
+summary(fe_rice)$coefficients
+```
+
+```{r}
+#| label: c03-4-rice-sem
+sem_rice <- splm::spml(rice_f0, data = rice, listw = ricelw,
+                       model = "within", lag = FALSE, spatial.error = "b")
+summary(sem_rice)$CoefTable
+```
+
+```{r}
+#| label: c03-4-rice-sar
+sar_rice <- splm::spml(rice_f0, data = rice, listw = ricelw,
+                       model = "within", lag = TRUE, spatial.error = "none")
+summary(sar_rice)$CoefTable
+```
+
+```{r}
+#| label: c03-4-rice-sarar
+sarar_rice <- splm::spml(rice_f0, data = rice, listw = ricelw,
+                         model = "within", lag = TRUE, spatial.error = "b")
+summary(sarar_rice)$CoefTable
+```
+
+```{r}
+#| label: c03-4-rice-gm
+gm_rice <- splm::spgm(rice_f0, data = rice, listw = ricelw,
+                      model = "within", lag = FALSE, spatial.error = TRUE)
+summary(gm_rice)$CoefTable
+gm_rice$rho
+```
+
+```{r}
+#| label: c03-4-rice-check
+rice$u_sem <- splm_residuals(sem_rice, rice_idx)
+rice$eps_sem <- spatial_filter(rice$u_sem, riceww, coef(sem_rice)[["rho"]],
+                               rice_idx)
+plm::pcdtest(rice$u_sem, w = riceww)
+plm::pcdtest(rice$eps_sem, w = riceww)
+splm::rwtest(rice$eps_sem, w = riceww, replications = 999, seed = 1)
+```
+
+The income elasticity of house prices under every treatment of the
+national force and of space, and the three rice elasticities under the
+five fits:
+
+```{r}
+#| label: c03-4-picture
+#| fig-cap: "Left: the income elasticity of house prices with a 95%
+#|   interval, under fixed effects on the raw panel, two-way fixed
+#|   effects, a spatial lag on the raw panel, and the four fits on the
+#|   CCE-transformed panel. Right: the rice elasticities of seed, labour
+#|   and land under the within, SEM, SAR, SARAR and GM fits."
+#| fig-alt: "Two dot-and-whisker charts. On the left, seven estimates of
+#|   one slope: the raw fixed-effects and raw spatial-lag values sit low,
+#|   near 0.15 and 0.2, the two-way value and the transformed fits sit
+#|   between 0.7 and 1.2. On the right, three groups of five dots, one
+#|   group per input: within each group the dots lie close together, the
+#|   spatial-lag dot a little lower than the others."
+ci <- function(b, se) c(b, b - 1.96 * se, b + 1.96 * se)
+hp$lp <- lp
+hp$li <- li
+fe_raw <- plm::plm(lp ~ li, data = hp, model = "within")
+fe_2w <- plm::plm(lp ~ li, data = hp, model = "within", effect = "twoways")
+sar_raw <- splm::spml(lp ~ li, data = hp, listw = usalw, model = "within",
+                      lag = TRUE, spatial.error = "none")
+# splm's vcov() carries no names; the summary tables do.
+se_table <- function(fit) {
+  s <- summary(fit)
+  if (is.null(s$CoefTable)) s$coefficients else s$CoefTable
+}
+slope <- function(fit, name) ci(se_table(fit)[name, 1], se_table(fit)[name, 2])
+hp_est <- rbind(
+  "FE, raw" = slope(fe_raw, "li"),
+  "two-way FE, raw" = slope(fe_2w, "li"),
+  "SAR-FE, raw" = slope(sar_raw, "li"),
+  "FE, transformed" = slope(fe_hp, "li_t"),
+  "SEM-FE" = slope(sem_hp, "li_t"),
+  "SAR-FE" = slope(sar_hp, "li_t"),
+  "SARAR-FE" = slope(sarar_hp, "li_t")
+)
+rice_fits <- list(within = fe_rice, SEM = sem_rice, SAR = sar_rice,
+                  SARAR = sarar_rice, GM = gm_rice)
+inputs <- c("log(seed)", "log(totlabor)", "log(size)")
+rice_est <- do.call(rbind, lapply(inputs, function(v) {
+  t(sapply(rice_fits, slope, name = v))
+}))
+op <- graphics::par(mfrow = c(1, 2), mar = c(4, 8, 2, 1))
+k <- nrow(hp_est)
+plot(hp_est[, 1], k:1, xlim = range(hp_est), yaxt = "n", pch = 16,
+     xlab = "income elasticity", ylab = "", main = "House prices")
+graphics::segments(hp_est[, 2], k:1, hp_est[, 3], k:1)
+graphics::axis(2, at = k:1, labels = rownames(hp_est), las = 1, cex.axis = 0.8)
+m <- nrow(rice_est)
+cols <- rep(c("black", "firebrick", "steelblue"), each = 5)
+plot(rice_est[, 1], m:1, xlim = range(rice_est), yaxt = "n", pch = 16,
+     col = cols, xlab = "elasticity", ylab = "", main = "Rice farms")
+graphics::segments(rice_est[, 2], m:1, rice_est[, 3], m:1, col = cols)
+graphics::axis(2, at = m:1, labels = paste(rep(c("seed", "labour", "land"),
+                                                each = 5), names(rice_fits)),
+               las = 1, cex.axis = 0.7)
+graphics::par(op)
+```
+
+**Read it.**
+
+- **House prices, error.** λ = 0.69 with a standard error of 0.02; the
+  income slope is 0.86 (0.06), down from the CCEP 1.20. *So:* a state's
+  shock is two thirds shared with its neighbours, and once that sharing
+  is weighted for, a 10% rise in income goes with a 9% rise in prices
+  rather than 12%.
+- **House prices, lag.** ρ = 0.65, slope 0.72. *So:* if the mechanism is
+  that neighbours' prices move prices, the own-income slope is smaller
+  still, and the [effects section](index.qmd#sec-sp-impacts) says what it
+  adds up to.
+- **House prices, both.** SARAR returns a lag of −0.52 and an error of
+  0.87, opposite signs on the same W. *So:* with one W for both, the two
+  parameters are barely separable [@elhorst2014, ch. 2], and the
+  encompassing model does not settle the question the tests left open.
+  The chapter reports the SEM and the SAR side by side.
+- **House prices, the residual check.** The SEM residuals *u* still
+  reject, z = 32 and p = 0.002, as they must. The filtered innovations do
+  not, z = 0.5 and p = 0.54. *So:* one λ on this W accounts for all the
+  spatial correlation the shuffle could find.
+- **Rice, error.** λ = 0.79 (0.02); slopes 0.13, 0.25 and 0.54 against the
+  within fit's 0.21, 0.29 and 0.50, and tighter. The filtered innovations
+  give a local CD of −0.5 and a shuffle p of 0.04. *So:* with four fifths
+  of a shock shared by the village, the GLS weighting moves the seed
+  slope by a third; the within fit was consistent but far from efficient,
+  and one λ captures the village shock with only a trace left.
+- **Rice, lag and both.** SAR gives ρ = 0.51 and shrinks the slopes; SARAR
+  puts 0.24 on the lag and 0.71 on the error, and the LR test of the lag
+  given the error is in the [random-effects section](index.qmd#sec-sp-re).
+  *So:* the error carries the dependence, as the robust tests said.
+- **Rice, GM.** λ = 0.78 and slopes within 0.001 of the ML ones, with no
+  standard error on λ. *So:* the two estimators agree on this panel, and
+  GM is the one to keep when the errors are not normal or not
+  homoskedastic.
+- **Misleads (the raw panel).** A spatial lag fitted to raw log prices
+  with state effects gives ρ = 0.68 and an income slope of 0.15; with
+  two-way effects, 0.60 and 0.70. *So:* the national force reads as
+  geography, and the slope swings by a factor of five with how that force
+  is handled. Space comes *after* the factor, never instead of it.
+
+::: {.callout-note appearance="simple"}
+**Next.** Can the unit effect be left in the error, with the precision
+that buys ([random effects](index.qmd#sec-sp-re))? On the house-price
+panel the question is moot, and that section says why.
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# f: a formula; d: a pdata.frame; listw: from spdep::mat2listw(w, "W").
+splm::spml(f, data = d, listw = listw, model = "within",
+           lag = FALSE, spatial.error = "b")        # SEM
+splm::spml(f, data = d, listw = listw, model = "within",
+           lag = TRUE, spatial.error = "none")      # SAR
+splm::spml(f, data = d, listw = listw, model = "within",
+           lag = TRUE, spatial.error = "b")         # SARAR
+splm::spgm(f, data = d, listw = w, model = "within",
+           lag = FALSE, spatial.error = TRUE)       # SEM by GM
+u <- splm_residuals(fit, plm::index(d))             # back in panel order
+e <- spatial_filter(u, w, coef(fit)[["rho"]], plm::index(d))
+plm::pcdtest(e, w = w)                              # the residual check
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**The names are the wrong way round.** In a `spml(model = "within")` fit,
+`coef()` and the printed table call the spatial *lag* parameter `lambda`
+and the spatial *error* parameter `rho`. @pesaran2015 [eqs. 30.1, 30.4]
+and this book use ρ for the lag and λ for the error. Random-effects fits
+name them the same way but store the lag in `$arcoef` and the error in
+`$errcomp`. @millo2012 printed the reverse of today's package. Read a
+parameter by what it does, never by its label.
+
+**Residuals come back in the wrong order.** `spml` and `spreml` stack the
+panel by period, then unit; the `pdata.frame` is stacked by unit, then
+period. `splm_residuals()` puts them back; without it, every residual
+test above would run on a scrambled panel.
+
+**The within fit is a correction, not the transformation.** `spml` demeans
+and then corrects the error variance after the fact, Lee and Yu's second
+route [@lee2010, sec. 3.2; @croissant2019, sec. 10.3.1]. The orthonormal
+transformation of their first route, whose estimator is consistent when
+either N or T grows, is not what runs here.
+
+**No standard error for the GM λ.** `spgm` estimates λ from moment
+conditions and reports no dispersion for it, so no significance test is
+possible [@croissant2019, sec. 10.3.3.3]. With one regressor its
+`summary()` also fails, which is why the house-price GM fit prints
+`coef()` and `$rho` instead.
+
+**Heteroskedastic errors.** Spatial maximum likelihood is inconsistent
+under heteroskedasticity of unknown form [@lin2010; @pesaran2015, p. 807].
+Test for it in the [core chapter](../05-core/index.qmd) and, if it is
+there, keep the GM fit.
+
+**A spatial Durbin model.** $WX$ terms are added through `splm::slag()`
+in the formula of `spml`, or with `Durbin = TRUE` in `spgm`. They change
+the [effects](index.qmd#sec-sp-impacts), not the estimation.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [sec. 10.3.1, Example 10.6] print λ = 0.7913 with standard
+error 0.0249 and slopes 0.1342, 0.2505 and 0.5419 for the SEM fixed-effects
+fit of the rice panel; @croissant2019 [sec. 10.3.3.3, Example 10.9] print
+λ = 0.7807, σ²ν = 0.0801 and slopes 0.1346, 0.2508 and 0.5418 for the GM
+fit, whose header reads "fixed effects GM model" because `model =
+"within"` is the default. The `c03-4-rice-sem` and `c03-4-rice-gm` chunks
+above are those runs. @millo2012 [sec. 5.2] print 0.5574 for the spatial
+error of a SEM-FE fit on `Produc` with `usaww`, and 0.4553 and 0.0886 for
+the SARAR-FE fit, where their `rho` is the *lag*:
+
+```{r}
+#| label: c03-4-book-check
+data("Produc", package = "plm")
+data("usaww", package = "splm")
+prod_f <- log(gsp) ~ log(pcap) + log(pc) + log(emp) + unemp
+prod_lw <- spdep::mat2listw(usaww, style = "W")
+coef(splm::spml(prod_f, data = Produc, listw = prod_lw, model = "within",
+                lag = FALSE, spatial.error = "b"))
+coef(splm::spml(prod_f, data = Produc, listw = prod_lw, model = "within",
+                lag = TRUE, spatial.error = "b"))
+```
+:::

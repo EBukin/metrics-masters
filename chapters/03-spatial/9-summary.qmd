@@ -1,0 +1,67 @@
+## Summary {#sec-sp-summary}
+
+**What the two panels say.** Once the national force is out of US house
+prices, what is left follows the map: neighbouring states' residuals
+correlate at 0.5 on average, the shuffled maps never come close, and a
+spatial lag on the defactored residuals is 0.65. On the transformed panel
+the spatial error is 0.69 and the income elasticity 0.86, down from the
+CCEP 1.20; the lag and error models cannot be told apart, and the errors
+carry a serial correlation of 0.82 that sends the panel to the [time
+chapter](../04-time/index.qmd). Rice output in West Java carries a village
+shock with λ ≈ 0.8, a farm effect that the spatial Hausman test finds
+correlated with the inputs, a serial correlation of 0.13, and no
+spillover from a neighbour's harvest; the fixed-effects spatial error
+model is the one to report, with GM and ML agreeing to the third
+decimal.
+
+**Decision table.**
+
+| If | Then |
+|---|---|
+| Units sit on a map and the CD test or α says dependence is weak | Build W and run its four checks ([weights](index.qmd#sec-sp-weights)) |
+| A national factor is present (α near 1) | Take it out first with CCE; then test for space on what is left ([map](index.qmd#sec-sp-map)) |
+| Local CD rejects but the shuffled maps do not | No spatial structure; the dependence is a factor or noise. Robust standard errors, no spatial model |
+| Both reject | The dependence follows the map; choose lag or error ([lag or error](index.qmd#sec-sp-lag-or-error)) |
+| Only the robust error test rejects | Spatial error: FE stays consistent, the spatial fit buys precision ([fixed effects](index.qmd#sec-sp-fe)) |
+| Only the robust lag test rejects | Spatial lag: FE without it is biased; report impacts, not β ([effects](index.qmd#sec-sp-impacts)) |
+| Both robust tests reject | Fit SEM, SAR and SARAR; with one W the SARAR may not separate them. Report both |
+| The SEM residuals still reject the shuffle | Test the filtered innovations $(I - \lambda W)u$, not $u$ |
+| The spatial Hausman test does not reject, under the model the tests chose | Random effects admissible; the KKP and Anselin forms differ only when φ is large ([random effects](index.qmd#sec-sp-re)) |
+| The Hausman verdict flips between the lag and the error model | Report the verdict under the model the robust tests chose; the other is not evidence |
+| The C.2 test rejects with a large ψ | The model is incomplete in time ([serial correlation](index.qmd#sec-sp-serial)) |
+| Slopes may differ across units | Mean-group slope with its own standard error, or FE with Driscoll–Kraay ([limits](index.qmd#sec-sp-limits)) |
+| Errors are heteroskedastic | Spatial ML is inconsistent; keep the GM fit |
+
+**The whole recipe**, for a model `f` on a `pdata.frame` `d` with weights
+`w`, after the national force has been handled:
+
+```r
+listw <- spdep::mat2listw(w, style = "W")                  # 1. W
+w_checks(w)
+plm::pcdtest(d$y, w = w)                                   # 2. follows the map?
+splm::rwtest(d$y, w = w, replications = 999, seed = 1)
+splm::slmtest(f, data = d, listw = listw,                  # 3. lag or error?
+              model = "within", test = "rlml")
+splm::slmtest(f, data = d, listw = listw,
+              model = "within", test = "rlme")
+sem <- splm::spml(f, data = d, listw = listw,              # 4. fit
+                  model = "within", spatial.error = "b")
+sar <- splm::spml(f, data = d, listw = listw,
+                  model = "within", lag = TRUE, spatial.error = "none")
+e <- spatial_filter(splm_residuals(sem, plm::index(d)), w,
+                    coef(sem)[["rho"]], plm::index(d))
+splm::rwtest(e, w = w, replications = 999, seed = 1)       #    residual check
+splm::bsktest(f, data = d, listw = listw, test = "CLMmu")  # 5. random effects?
+splm::sphtest(f, data = d, listw = listw,
+              spatial.model = "error", method = "ML")
+splm::bsjktest(f, data = df, index = c("id", "t"),         # 6. serial too?
+               listw = listw, test = "C.2")
+sar_impacts(coef(sar)[["lambda"]], coef(sar)[-1], w)      # 7. effects
+```
+
+**Next.** The [time chapter](../04-time/index.qmd) asks whether the
+series wander and, for house prices, what to do with a serial correlation
+of 0.82. The [core chapter](../05-core/index.qmd) owns the
+heteroskedasticity test that decides between the ML and GM fits here, and
+the robust standard errors that replace a spatial model when the shuffled
+maps find nothing.
