@@ -78,7 +78,7 @@ CM: printed + 19).
 | Joint LM | same | 808.47 | 808.47 (`pbsytest`, `"j"`) |
 | LR tests by `nlme` (REML) | CM Ex. 4.5, pp. 99–101 [118–120] | 307.3; 113; 196.4; 2.134, p 0.144; φ 0.8238 | 307.28; 113.05; 196.37; 2.134, p 0.1335; 0.8238 |
 | `pwartest` EmplUK | CM Ex. 4.7, p. 102 [121] | F 310 (1, 890) | 312.3 (1, 889); CM print two digits |
-| `pwfdtest(h0 = "fd")` EmplUK | CM Ex. 4.8, p. 103 [122] | 0.93, p 0.3 | 1.5251, p 0.217. Not reproduced |
+| `pwfdtest(h0 = "fd")` EmplUK | CM Ex. 4.8, p. 103 [122] | 0.93, p 0.3 | 1.5251, p 0.217; 0.9316, p 0.335 with `- 1`. plm NEWS 1.7-0: FD intercept back (gone in 1.6-6); CM fit lacks it |
 | `pwfdtest(h0 = "fe")` EmplUK | same | 130 | 131.55 |
 | `piest`, `aneweytest` RiceFarms | CM pp. 94–95 [113–114] | 110, df 87, p 0.03; 140, p 2e-4 | 113.72, p 0.029; 141.89, p 0.00019 |
 | `coeftest(pooled, vcovHC)` Produc | CM Ex. 5.1, p. 112 [131] | SE 0.06012, 0.04623, 0.06861, 0.00309 | 0.0601, 0.0462, 0.0686, 0.0031 |
