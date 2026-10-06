@@ -51,33 +51,35 @@ u_{it} = \lambda_i f_t + \varepsilon_{it}.
 $$
 
 Here $\alpha_i$ is everything fixed about the state, $f_t$ is the national
-shock in year *t*, and $\lambda_i$ is how strongly state *i* feels it. Fixed
-effects remove $\alpha_i$. Year effects remove $f_t$, but only if every state
-feels it equally, $\lambda_i = 1$. When the loadings differ and the shock also
-moves income, the shock leaks into $\hat\beta$. That leak is the gap between
-0.30 and 1.14.
+shock in year *t*, and $\lambda_i$ is how strongly state *i* feels it, its
+**loading** on the shock. Fixed effects remove $\alpha_i$. Year effects
+remove $f_t$, but only if every state feels it equally, $\lambda_i = 1$. When
+the loadings differ and the shock also moves income, the shock leaks into
+$\hat\beta$. That leak is the gap between 0.30 and 1.14.
 
 A panel analysis follows one workflow, not a fixed menu of tests. Build the
 panel first, since its shape and balance limit every tool that comes after.
-Then test whether units move together: dependence that is strong and global
-calls for common factors, dependence that is weak and local calls for a
-spatial model. Time dependence is a separate layer, asked once the
+Then test whether units move together: dependence that is strong and
+national calls for common factors, dependence that is weak and local calls
+for a spatial model, in which a neighbour's outcome or a neighbour's shock
+enters a unit's own equation. Time dependence is a separate layer, asked once the
 cross-sectional question is settled. Core panel models, fixed and random
 effects among them, come last, once the error structure is known. The diagram
 below maps the whole process; each box is a chapter.
 
 ```{mermaid}
 flowchart TD
-  P["Build the panel<br/>shape, balance"] --> CD{"Do units move together?<br/>CD test"}
+  P["Build the panel<br/>shape, balance"]
+  P --> CD{"Do units move together?<br/>CD test"}
   CD -->|"no"| UR{"Do series wander?<br/>unit roots"}
   CD -->|"yes"| A{"How strong?<br/>exponent α"}
-  A -->|"strong, global"| CF["Common factors:<br/>CCE"]
+  A -->|"strong, national"| CF["Common factors:<br/>CCE"]
   A -->|"weak, local"| W["Spatial weights"]
-  W --> SM["Spatial model:<br/>SAR / SEM, FE or RE"]
+  W --> SM["Spatial model:<br/>lag or error"]
   CF --> UR
   SM --> UR
-  UR -->|"yes, I(1)"| CO["Cointegration,<br/>or difference"]
-  UR -->|"no, I(0)"| SC["Serial correlation,<br/>dynamic panels"]
+  UR -->|"wander"| CO["Cointegration,<br/>or difference"]
+  UR -->|"do not wander"| SC["Serial correlation,<br/>dynamic panels"]
   CO --> CORE["Core panel models:<br/>FE, RE, pooling"]
   SC --> CORE
 ```
