@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-05
 - **Author:** Eduard Bukin
-- **Status:** active
+- **Status:** done
 
 ## Goal
 
@@ -72,52 +72,52 @@ steps and the road map link to it.
 
 Each step ends in its own commit.
 
-- [ ] **Tooling.** `.Rprofile` sets `RENV_PATHS_LIBRARY` and disables the
+- [x] **Tooling.** `.Rprofile` sets `RENV_PATHS_LIBRARY` and disables the
   sandbox, with a comment saying why. Commit `.Rbuildignore`. Install
   `splm` and `spdep` with `renv::install()`, then `renv::snapshot()`. Note
   in plan 0005's outcome that the cause is found.
-- [ ] **Templates.** `section.qmd`: collapsed Recipe, Pitfalls and Book check
+- [x] **Templates.** `section.qmd`: collapsed Recipe, Pitfalls and Book check
   boxes at the end of a step, replacing the "Under the hood" note.
   `chapter.qmd`: includes `summary` instead of `bottom-line` and
   `under-the-hood`. `theory.qmd`: subtitle is one line on what the note
   covers, no number.
-- [ ] **Theory note names.** Subtitles without numbers in all seven notes.
+- [x] **Theory note names.** Subtitles without numbers in all seven notes.
   Every link text "theory note NN" or "note NN" becomes the note's short
   name. "Code:" lines in the notes link steps by anchor.
-- [ ] **01 Panel shape.** Rewrite `1-shape.qmd` on the template: question,
+- [x] **01 Panel shape.** Rewrite `1-shape.qmd` on the template: question,
   intuition, `pdim` on `HousePricesUS` first, then `TobinQ` and `Tileries`;
   `punbalancedness`; `pvar` on the running example; a coverage picture of
   `Tileries` (which tile works are observed which weeks); read it; next;
   boxes. Gloss "within" and "GLS" or drop them. Heading "Panel shape".
-- [ ] **02-1 The CD test.** Reorder: question, intuition (the average of the
+- [x] **02-1 The CD test.** Reorder: question, intuition (the average of the
   1 176 pairwise correlations), the test, run CD on prices, a histogram of
   the pairwise correlations for raw prices, the iid panel and the two-way
   FE residuals, read it (rejects / does not reject / misleads), then the
   three refinements as a second part with their own table and calls; next;
   boxes with recipe, pitfalls, book check. Heading "The CD test".
-- [ ] **02-2 The exponent α.** Question first; intuition before the
+- [x] **02-2 The exponent α.** Question first; intuition before the
   equation; a picture of $\log\operatorname{Var}(\bar z_t)$ against
   $\log N$ for random subsets of states, raw prices against CCEMG
   residuals, whose slope is $2(\alpha-1)$; gloss CCEMG and "defactor" with
   a link forward; move "where the variable method breaks" and the SE
   warning into Pitfalls; next; boxes.
-- [ ] **02-3 CCE.** Question, intuition in the example's words (add the
+- [x] **02-3 CCE.** Question, intuition in the example's words (add the
   cross-state average as a regressor), the estimator in two equations, run
   it, a picture of the 49 state slopes under MG and under CCEMG with their
   means, read it, next; boxes with recipe and book check.
-- [ ] **CCE theory note.** Write `theory-common-factors-cce.qmd` on the
+- [x] **CCE theory note.** Write `theory-common-factors-cce.qmd` on the
   theory template: why averages proxy the factors (the averaged equation),
   heterogeneous loadings against two-way FE, CCEMG and CCEP, the rank
   condition and what CCE does not fix, if/then, next. Tick it in the
   checklist.
-- [ ] **04 glosses and pictures.** Gloss Dickey–Fuller in 04-3 and I(1)/I(0)
+- [x] **04 glosses and pictures.** Gloss Dickey–Fuller in 04-3 and I(1)/I(0)
   in the chapter intro. Pictures: 04-3 the 49 per-state ADF *t* statistics
   in levels and growth rates; 04-4 per-state ADF against CADF *t*
   statistics; 04-5 the sorted p-values against Simes' line; 04-6 size
   against λ by test.
-- [ ] **Road map.** Diagram boxes in plain words ("wanders / does not
+- [x] **Road map.** Diagram boxes in plain words ("wanders / does not
   wander", "spatial lag / spatial error"); gloss "loadings".
-- [ ] **Render and check.** Clear `_freeze/` and `_book/`, render in full,
+- [x] **Render and check.** Clear `_freeze/` and `_book/`, render in full,
   read the log, compare every number quoted in prose with the output it
   quotes. Update the checklist titles in `index.qmd`. Fill in the outcome.
 
@@ -129,4 +129,28 @@ Each step ends in its own commit.
 
 ## Outcome
 
-Filled in when the status becomes done.
+Done on 2026-10-05. A full render from a clean `_freeze/` and `_book/`
+builds 15 pages with no R errors, no unresolved citations and no dead links
+or anchors. The book checks print the same numbers as before: CD z = 53.26,
+CCE 1.135 and 1.199, CIPS −2.0342 and −1.8199, Maddala–Wu 14.719, the
+`pdim` lines of `TobinQ` and `Tileries`.
+
+- R starts in the project in 6 s with no environment override. The stale
+  sandbox lock was removed by hand once; `.Rprofile` keeps the library in
+  `renv/library` and skips the sandbox from now on. The MCP R sessions
+  started before the fix are stuck on the old hang and need a restart of
+  Claude Code.
+- `splm` 1.6-5 and `spdep` 1.4-2 are installed in `renv/library`. The
+  implicit `renv::snapshot()` does not record them until a chapter calls
+  them, so `renv.lock` is unchanged; snapshot again when chapter 03 is
+  written.
+- Nine pictures were added: `Tileries` coverage (01); the 1 176 pairwise
+  correlations, the variance of the cross-state average against N, the 49
+  state slopes under MG and CCEMG (02); per-state Dickey–Fuller statistics,
+  ADF against CADF, Simes' sorted p-values, size against λ (04).
+- The variance-against-N picture gives α = 0.85 on log prices and 0.47 on
+  the CCEMG residuals from its slope alone, next to 0.83 and 0.51 from the
+  residual method: a second, independent reading of the exponent.
+- Rewrapping the cross-sectional dependence theory note showed that it was
+  written at 82 characters; it is now at 80.
+- Not done: clicking through the pane links by hand in a browser.
