@@ -43,7 +43,9 @@ vcov_menu <- function() {
 #'   coefficient.
 #' @export
 se_table <- function(fit, menu = vcov_menu(), ratio = FALSE) {
-  se <- t(sapply(menu, function(v) sqrt(diag(v(fit)))))
+  # rbind, not t(sapply()): a one-coefficient fit must still give one row
+  # per estimator.
+  se <- do.call(rbind, lapply(menu, function(v) sqrt(diag(v(fit)))))
   if (ratio) se <- sweep(se, 2, se[1, ], "/")
   se
 }
