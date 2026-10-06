@@ -123,3 +123,57 @@ sim_correlated_pair <- function(t = 100) {
   colnames(m) <- c("a", "b")
   m
 }
+
+#' Simulate a dynamic panel with fixed effects
+#'
+#' Draws `y_it = gamma * y_i,t-1 + alpha_i + e_it` for `n` independent units,
+#' with `alpha_i ~ N(0, 1)` and `e_it ~ N(0, 1)`, after discarding a burn-in
+#' so the start value does not matter. `t + 1` periods are kept, so a
+#' regression on one lag uses exactly `t` periods per unit: `t` is the number
+#' of periods in the regression after one lag is taken. The within estimator
+#' of `gamma` on this panel is biased by `nickell_bias(gamma, t)`.
+#'
+#' @param n Number of units.
+#' @param t Number of periods in the regression after one lag is taken.
+#' @param gamma Autoregressive coefficient.
+#' @param burn Number of initial periods to discard.
+#' @return A `pdata.frame` with columns `id`, `period` and `y`, holding
+#'   `t + 1` periods per unit.
+#' @export
+sim_dynamic_panel <- function(n, t, gamma = 0.5, burn = 50) {
+  alpha <- stats::rnorm(n)
+  y <- sapply(alpha, function(a) {
+    s <- Reduce(function(prev, e) gamma * prev + a + e,
+                stats::rnorm(t + 1 + burn), accumulate = TRUE)
+    s[-seq_len(burn)]
+  })
+  long <- data.frame(id = rep(seq_len(n), each = t + 1),
+                     period = rep(seq_len(t + 1), n),
+                     y = as.vector(y))
+  plm::pdata.frame(long, index = c("id", "period"))
+}
+
+#' Exact large-N bias of the within estimator in a dynamic panel
+#'
+#' The within estimator of `gamma` in `y_it = gamma * y_i,t-1 + alpha_i +
+#' e_it` is inconsistent when `t` is fixed and `n` grows. This is its exact
+#' large-`n` bias (Nickell 1981), as printed in Pesaran (2015), eq. 27.11:
+#'
+#' `-(1 + gamma) / (t - 1) * A / (1 - 2 * gamma * A / ((1 - gamma) * (t - 1)))`
+#'
+#' with `A = 1 - (1 - gamma^t) / (t * (1 - gamma))`. The leading term is
+#' `-(1 + gamma) / (t - 1)`, which the full expression approaches as `t`
+#' grows.
+#'
+#' @param gamma Autoregressive coefficient, `abs(gamma) < 1`.
+#' @param t Number of periods in the regression after one lag is taken, as
+#'   in `sim_dynamic_panel()`.
+#' @return The bias `plim(gamma_hat) - gamma`, recycled over `gamma` and `t`.
+#' @references Nickell, S. (1981). Biases in dynamic models with fixed
+#'   effects. Econometrica 49(6), 1417--1426. Pesaran, M. H. (2015). Time
+#'   Series and Panel Data Econometrics. Oxford University Press, eq. 27.11.
+#' @export
+nickell_bias <- function(gamma, t) {
+  a <- 1 - (1 - gamma^t) / (t * (1 - gamma))
+  -(1 + gamma) / (t - 1) * a / (1 - 2 * gamma * a / ((1 - gamma) * (t - 1)))
+}
