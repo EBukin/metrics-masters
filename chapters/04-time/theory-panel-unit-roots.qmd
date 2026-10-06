@@ -7,8 +7,10 @@ subtitle: "The three alternatives, and size before power"
 > [first-generation tests](index.qmd#sec-ur-first-gen),
 > [second-generation tests](index.qmd#sec-ur-second-gen),
 > [the fraction of stationary series](index.qmd#sec-ur-fraction),
-> [size under spatial dependence](index.qmd#sec-ur-spatial-size) and
-> [cross-unit cointegration](index.qmd#sec-ur-cross-coint).
+> [size under spatial dependence](index.qmd#sec-ur-spatial-size),
+> [cross-unit cointegration](index.qmd#sec-ur-cross-coint),
+> [cointegration](index.qmd#sec-ur-coint) and
+> [the long run](index.qmd#sec-ur-long-run).
 > Related notes:
 > [cross-sectional
 > dependence](../02-cross-dependence/theory-cross-sectional-dependence.qmd)
@@ -288,8 +290,8 @@ every CIPS result in this book holds under an assumption the book cannot test.
 - **Several factors.** CIPS with multiple factors and CSB [@pesaran2013],
   Moon–Perron and PANIC have no R implementation and no verification target.
 - **Cross-unit cointegration.** No panel test exists in R. The assumption has
-  to be carried as a stated limitation into Stage 2 of
-  `.docs/panel-spat-PLAN.md`.
+  to be carried as a stated limitation into [cointegration in
+  panels](theory-cointegration.qmd).
 - **The target shape.** No published size table covers N ≈ 170, T ≈ 20 with a
   spatial W. The examples' Monte Carlo is the only evidence, and it covers
   this code on one W.
@@ -300,6 +302,9 @@ every CIPS result in this book holds under an assumption the book cannot test.
 ## Next
 
 With the unit-root question settled for a panel, the next one is whether its
-I(1) series are cointegrated. That is Stage 2 of `.docs/panel-spat-PLAN.md`,
-where the only verifiable route is the CCE-plus-CIPS substitute of
+I(1) series are cointegrated. [Cointegration in
+panels](theory-cointegration.qmd) covers it, with the code in
+[cointegration](index.qmd#sec-ur-coint) and
+[the long run](index.qmd#sec-ur-long-run); the only verifiable route is the
+CCE-plus-CIPS substitute of
 [the second-generation section](index.qmd#sec-ur-second-gen).

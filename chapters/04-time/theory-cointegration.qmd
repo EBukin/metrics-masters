@@ -1,0 +1,366 @@
+---
+title: "Cointegration in panels"
+subtitle: "One trend shared by two series, and what a panel adds"
+---
+
+> **Code:** [cointegration](index.qmd#sec-ur-coint) and
+> [estimating the long run](index.qmd#sec-ur-long-run). Related notes:
+> [panel unit roots](theory-panel-unit-roots.qmd) and
+> [common factors and
+> CCE](../02-cross-dependence/theory-common-factors-cce.qmd).
+
+## Why the method exists {#sec-coint-why}
+
+Log house prices and log income in a state both wander: each has a **unit
+root**, a shock that never fades, so neither returns to a fixed level
+([why it matters](index.qmd#sec-ur-why)). Regress one on the other and the
+fit looks good. It would look good for any two wandering series, related or
+not. That is the **spurious regression**, noticed in the 1920s and shown by
+Monte Carlo in the 1970s: a confident *t* statistic between two series that
+have nothing to do with each other [@granger1974; @pesaran2015, p. 26].
+
+What rescues the regression is its residual. If prices and income share one
+trend, the gap between them does not wander: it is stationary, and the slope
+is a long-run elasticity. Two series that are each I(1), integrated of order
+one, stationary only after differencing, but have a stationary linear
+combination are **cointegrated** [@engle1987; @pesaran2015, p. 523]. The
+test is to regress, take the residual, and test it for a unit root
+[@engle1987; @pesaran2015, p. 525]. In one state over 29 years that test has
+almost no power: cointegration tests on a single series are weak at short
+*T* [@baltagi2021, p. 357], for the same reason the unit-root tests of
+[the unit-root note](theory-panel-unit-roots.qmd) are.
+
+So the panel is pooled for power, and the proviso of that note returns: the
+states must bring independent evidence. The panel also adds a trap of its
+own. Stack *N* independent spurious regressions, and the pooled slope no
+longer wanders as a single spurious slope does: it converges to a long-run
+average, with a normal limit, whether or not any cointegration exists
+[@phillips1999; @baltagi2021, p. 355]. Its *t* statistic still grows with
+$\sqrt T$, so the tendency to find a relation that is not there "may be even
+stronger in panel data regressions than in the pure time series case"
+[@kao1999; @pesaran2015, p. 844]. A sensible pooled slope is no evidence of a
+long-run relation. Only the residual is.
+
+## One unit: a regression and a rank {#sec-coint-one-unit}
+
+Write the **cointegrating regression** of state *i* as
+
+$$y_{it} = \alpha_i + \beta_i x_{it} + u_{it},$$
+
+with $y$ log price and $x$ log income. The Engle–Granger test runs OLS, then
+a Dickey–Fuller regression on $\hat u_{it}$ with no intercept and no trend; a
+rejection of the unit root is read as cointegration [@engle1987;
+@pesaran2015, p. 525]. The critical values are not those of a unit-root test
+on an observed series. Under the null the regression is spurious, so the
+residual has a distribution of its own, tabulated for it [@phillips1990;
+@pesaran2015, p. 525]. The result also depends on which series is on the
+left, and the test can see at most one relation [@pesaran2015,
+pp. 525–526].
+
+Johansen's test removes both limits by treating the pair as a system. Stack
+$z_{it} = (y_{it}, x_{it})'$ and write its vector autoregression in error
+correction form,
+
+$$\Delta z_{it} = \Pi_i z_{i,t-1}
+  + \sum_{j=1}^{p-1} \Gamma_{ij} \Delta z_{i,t-j} + u_{it},
+  \qquad \Pi_i = \alpha_i \beta_i'.$$
+
+If $z_{it}$ is I(1), the left side and the lagged differences are
+stationary, so $\Pi_i z_{i,t-1}$ must be too, and that forces $\Pi_i$ to
+have reduced rank. The **rank** $r_i$ of $\Pi_i$ is the number of stationary
+combinations, and $\beta_i$ holds them [@johansen1988; @johansen1991;
+@pesaran2015, p. 529]. With two series, $r_i = 0$ means no shared trend,
+$r_i = 1$ one shared trend, and $r_i = 2$ that both series are stationary,
+which contradicts the unit-root result the chapter started from. The
+**trace statistic** for rank $r$ against rank $m$ is
+
+$$\mathrm{LR}(H_r \mid H_m) = -T \sum_{i=r+1}^{m} \log(1 - \hat\lambda_i),$$
+
+built from the smallest eigenvalues of the reduced-rank regression, and it
+does not change when the series are reordered [@johansen1991; @pesaran2015,
+p. 541]. Its limit is a multivariate Dickey–Fuller distribution, with
+critical values that depend on the number of series and on whether the
+constant and trend are restricted to the long-run relation or left free
+[@pesaran2015, p. 543]. That choice is Johansen's five cases [@johansen1994;
+@pesaran2015, p. 539]; the step's default, an unrestricted constant and no
+trend, is the third case, which allows a drift in the levels. The whole
+apparatus is asymptotic, and Monte Carlo evidence says it is reliable only
+when *T* is reasonably large and the system small [@pesaran2015, p. 547].
+At $T = 29$ per state, the step's 49 ranks are a tally, not 49 verdicts.
+
+## The precondition {#sec-coint-precondition}
+
+The panel tests below are residual tests. @pesaran2015 [p. 839] states the
+condition under which a residual test is the right tool: $r_i = 1$ in every
+unit, with the variables split as $(y_{it}, x_{it}')$ and no cointegration
+among the regressors $x_{it}$. A system test allows $r_i > 1$ and needs no
+such split. The two also treat the residual's serial correlation
+differently. Residual tests absorb it in a **long-run variance**, the
+variance a serially correlated series shows in its running sums, estimated
+without a model; system tests model it with the VAR's lags [@pesaran2015,
+p. 839]. With one regressor the second half of the condition holds by
+default, and the first half is what the state-by-state ranks check.
+
+The single-equation estimators of the long run share the condition. All
+regressors must be I(1) and not cointegrated among themselves, or the
+long-run variance matrix they divide by is singular; and the relation must
+be one that $y_{it}$ truly enters, since it is normalised to a unit
+coefficient [@pesaran2015, p. 852].
+
+Why not one system for the whole panel? Stack every state's pair into one
+vector and run Johansen on it, and cointegration within states and across
+them is covered at once, with a free error covariance for the dependence.
+That works when the stacked vector has fewer than about ten series and
+$T > 100$ [@banerjee2004; @pesaran2015, pp. 839–840]; the number of
+parameters grows with $N^2$, so *T* must be far larger than *N*
+[@pesaran2015, p. 855]. At 98 series and $T = 29$ it is out of reach. In
+practice the dependence is carried by **common factors**, a few unobserved
+series that load on every unit, each to its own degree ([common factors and
+CCE](../02-cross-dependence/theory-common-factors-cce.qmd)). That is the
+setting of equation 31.38 in @pesaran2015 [p. 840], and it is where the
+substitute below comes from.
+
+## Four panel tests {#sec-coint-tests}
+
+**Kao.** One slope for every unit, and the error tested for a unit root with
+the panel pooled. Take the **within residuals** $\tilde e_{it}$, the
+residuals of the fit with a state intercept
+([fixed or random](../05-core/index.qmd#sec-core-fe-re)), and run
+
+$$\tilde e_{it} = \rho \tilde e_{i,t-1} + v_{it}.$$
+
+The null of no cointegration is $\rho = 1$ [@kao1999; @baltagi2021, p. 357].
+Kao builds four Dickey–Fuller statistics from $\hat\rho$ and its *t* ratio,
+two for regressors unrelated to the error at every date and two allowing the
+regressors and the error to be related, plus an ADF statistic from the
+lag-augmented regression. Each is shifted and scaled by a mean and variance
+and converges to $N(0, 1)$ in sequential limits, *T* first and then *N*
+[@kao1999; @baltagi2021, pp. 357–358; @pesaran2015, p. 848]. The correction
+assumes the nuisance parameters are the same for every unit [@pesaran2015,
+p. 848].
+
+**McCoskey–Kao.** The reverse null. With unit-specific slopes, the error is
+split into a random walk and a noise term, and the null of cointegration is
+that the random walk has zero variance. The statistic is the LM form
+
+$$\mathrm{LM} = \frac{1}{N} \sum_{i=1}^{N} \frac{1}{T^2}
+  \sum_{t=1}^{T} \frac{S_{it}^2}{\hat\sigma_e^2},
+  \qquad S_{it} = \sum_{j=1}^{t} \hat e_{ij},$$
+
+a partial sum of residuals, and $\sqrt N (\mathrm{LM} - \mu) \to N(0,
+\sigma^2)$ with moments found by simulation [@mccoskey1998; @baltagi2021,
+p. 359]. The residuals must come from an efficient estimator of the long run
+[@baltagi2021, p. 359], and the test is the panel version of the
+single-series test of a stationary error [@pesaran2015, p. 850]. Two
+warnings come with it: the asymptotic approximation is often poor, and the
+test "is not equipped to deal with cross-sectional dependence"
+[@baltagi2021, p. 359].
+
+**Pedroni.** Unit-specific slopes, and seven statistics in two families
+[@pedroni1999; @pedroni2004]. The **group-mean** family computes a statistic
+unit by unit and averages, as a unit-root test against a heterogeneous
+alternative does; the **panel** family sums numerator and denominator over
+units before dividing, as a test against one common alternative does
+[@baltagi2021, p. 360; @pesaran2015, pp. 848–849]. @baltagi2021
+[pp. 360–361, eqs. 12.25–12.26] prints one of each. The group-mean $\rho$
+form is a sum of unit-by-unit Phillips–Ouliaris statistics,
+
+$$Z_{\tilde\rho} = \sum_{i=1}^{N}
+  \frac{\sum_{t}(\hat e_{i,t-1}\Delta\hat e_{it} - \hat\lambda_i)}
+       {\sum_{t}\hat e_{i,t-1}^2},$$
+
+with $\hat\lambda_i$ half the gap between the long-run and the
+contemporaneous variance of unit *i*'s residual; the panel *t* form sums
+over units first, each unit weighted by its long-run conditional variance.
+Each statistic is read after centring and scaling by tabulated moments,
+$(Z - \mu\sqrt N)/\sigma \to N(0, 1)$ [@pedroni1999; @pesaran2015, p. 849];
+for the model with an intercept and no trend, the panel *t* form obeys
+$Z_{\hat t} + 1.73\sqrt N \to N(0, 0.93)$ [@baltagi2021, p. 361]. Averaging
+pieces rather than whole statistics makes a rejection hard to read; the
+averaged statistics have the plain reading, that enough units sit far from
+what the null predicts [@baltagi2021, p. 361].
+
+**Larsson–Lyhagen–Löthgren.** The system test. Run Johansen's trace test in
+each unit, centre and scale each statistic by its tabulated mean and
+variance, and average. The LR-bar statistic is IPS, the mean of
+unit-by-unit statistics ([first-generation
+tests](index.qmd#sec-ur-first-gen)), applied to trace statistics instead
+of ADF *t* ratios, and it is asymptotically $N(0, 1)$ [@larsson2001;
+@baltagi2021, p. 361; @pesaran2015, pp. 849–850]. It tests no cointegration
+in any unit against at most $r_0 \ge 1$ relations, and unlike the residual
+tests it allows more than one relation per unit; the moments are tabulated
+for the model without deterministic terms by @larsson2001 and with a
+constant and trend by @breitung2005 [@pesaran2015, p. 850]. It needs a large
+*T*: with a short *T* the size is severely distorted however large *N* is
+[@baltagi2021, p. 361].
+
+## Dependence {#sec-coint-dependence}
+
+The unit-root note ends on [the assumption no test
+checks](theory-panel-unit-roots.qmd): units may share a trend, and the
+[traps step](index.qmd#sec-ur-cross-coint) shows that no correlation
+statistic sees it. For cointegration tests the consequence is stated
+outright. The literature assumes one cointegrating vector per unit and lets
+units depend on each other only through short-run dynamics; when units are
+cointegrated with each other, "both univariate and multivariate panel
+cointegration tests can be substantially over-sized" [@banerjee2004;
+@baltagi2021, p. 362]. The remedy proposed is to extract each unit's common
+trend by Johansen's method and test for cointegration among the trends
+[@baltagi2021, p. 362], a procedure demonstrated on panels of at most eight
+units [@pesaran2015, p. 843].
+
+A common factor is the gentler case, and it is enough to break the tests.
+Under the factor structure of @bai2004, Kao's and Pedroni's statistics are
+no longer asymptotically normal and converge at the rate $T$ rather than
+$\sqrt N T$; the remedy is to estimate the factors, strip them from the
+data, and test the defactored residuals [@gengenbach2006; @baltagi2021,
+p. 362]. On the unit-root side, PANIC, the test that defactors by principal
+components and tests factors and remainders separately, is invalid in its
+pooled form: replacing the remainders by estimates biases the pooled
+statistic, and @bai2010 supply an alternative [@westerlund2009;
+@pesaran2015, p. 837]. Pesaran's verdict on the field is that "a general
+approach that is capable of addressing all the various issues involved does
+not exist if *N* is relatively large" [@pesaran2015, p. 843].
+
+## Long-run estimation {#sec-coint-estimation}
+
+Once the residual is stationary, the slope is the long-run elasticity, and
+the question is how to estimate it. OLS on a cointegrated panel is
+consistent at rate $T\sqrt N$, so the years do more than the states, but
+with regressors that respond to the error it is inefficient [@pesaran2015,
+p. 850]. Two corrections share the field.
+
+**FMOLS** adjusts the dependent variable for the part of the error that is
+correlated with the regressor's innovations and subtracts a bias term from
+the cross product, both built from non-parametric long-run variances
+[@phillips1999; @pedroni2000; @pesaran2015, pp. 850–851, eqs. 31.51–31.52].
+**DOLS** does the same by regression: add leads and lags of $\Delta x_{it}$
+to the cointegrating regression, so that what is left is orthogonal to the
+regressor's past and future [@kao2000; @pesaran2015, p. 851,
+eqs. 31.53–31.54]. The two have the same limiting distribution,
+
+$$T\sqrt N\,(\hat\beta - \beta) \to
+  N\!\left(0,\; 6\,\Omega_\varepsilon^{-1}
+  \sigma^2_{u \mid \varepsilon}\right)$$
+
+in the homogeneous case [@kao2000; @pesaran2015, p. 851]. Both maintain
+cross-sectional independence [@baltagi2021, p. 364]. Both also rest on
+kernel estimates of long-run variances, which perform poorly when *T* is
+under 20 [@pesaran2015, p. 851]. Breitung's two-step estimator, which fits
+the short-run and long-run parameters separately, has a smaller small-sample
+bias and more reliable standard errors than either in his experiments
+[@breitung2005; @pesaran2015, p. 853]; in the large simulation of
+@wagner2010, DOLS beats every other estimator, with FMOLS and the two-step
+estimator similar [@pesaran2015, p. 853].
+
+**Under dependence.** Three estimators relax independence, and all three
+represent it as a correlation between the units' errors at the same date.
+**DSUR** is a GLS fit of the DOLS regression, OLS after reweighting by the
+long-run error covariance across units, for one homogeneous cointegrating
+vector [@mark2005; @moon2005; @pesaran2015, pp. 853–854, eq. 31.57].
+Bai–Kao and Westerlund add stationary common factors to the error and run
+FMOLS around them; Bai–Kao–Ng allow non-stationary factors and estimate
+slope, factors and loadings by iterating on a least-squares criterion, with
+a bias correction [@bai2006kao; @westerlund2007factors; @bai2009kao;
+@pesaran2015, p. 854, eqs. 31.58–31.59]. None of them allows cross-unit
+cointegration [@pesaran2015, p. 854]. The panel VECM that would, Johansen
+on the stacked vector, is the infeasible system of the precondition section
+[@groen2003; @pesaran2015, pp. 854–855, eq. 31.60].
+
+**The substitute the book runs.** None of the above is in R. What is in R
+is **CCE**, the regression that adds cross-state averages of price and
+income to each state's equation to stand in for the common factors
+([CCE](../02-cross-dependence/index.qmd#sec-cce)). Its estimates are
+consistent whether the factors are stationary, non-stationary or
+cointegrated, so long as the idiosyncratic error is stationary and the
+number of factors fixed [@kapetanios2011; @pesaran2015, p. 845]. On these 49
+states @holly2010 report CCEMG and CCEP slopes of 1.14 (0.20) and 1.20
+(0.21), do not reject a unit elasticity, and test the gap $p_{it} - y_{it}$
+with **CIPS**, the panel unit-root test that defactors with the same
+averages ([second-generation tests](index.qmd#sec-ur-second-gen)):
+statistics of −2.16 to −2.45 against a 5% value of −2.11, read as
+cointegration "for a sufficiently large number of States" [@pesaran2015,
+pp. 845–846]. @croissant2019 [p. 209] shorten the route and run CIPS
+directly on the CCE residuals, with no deterministic term because the fit
+already carries one, and conclude that both CCE fits "represent
+cointegrating regressions".
+
+The book runs the second version and labels it a substitute, for two
+reasons. The CIPS critical values are those of a unit-root test on an
+observed series; the single-series literature shows that a residual has a
+distribution of its own, which is why Engle–Granger has its own tables
+[@pesaran2015, p. 525]. @holly2010 avoid the problem by fixing the slope at
+one before testing; the residual version does not. And CIPS tests the
+alternative that a *share* of units has a stationary residual ([what a
+rejection means](index.qmd#sec-ur-alternative)), so a rejection says that
+enough states' gaps revert, not that every state's does. What the substitute
+keeps is the one thing the estimators above lack: it allows the common shock
+that the [CD test](../02-cross-dependence/index.qmd#sec-csd-tests), the
+test of whether units move together, found in every state.
+
+## Finite samples {#sec-coint-finite}
+
+Two Monte Carlo studies set expectations for $T = 29$. @gutierrez2003 finds
+that at $T = 10$ Kao's tests have more power than Pedroni's, and still
+little even at $N = 100$; at large *T* Pedroni's win; both beat the LR-bar.
+The danger runs both ways: with a long panel the whole panel is called
+cointegrated when a small fraction of units is, and with a short one it is
+called not cointegrated when a large fraction is [@gutierrez2003;
+@baltagi2021, p. 363]. @wagner2010 cover the single-equation and the system
+tests at once. Two of Pedroni's statistics, the ADF-based ones, perform
+best; every other test is severely undersized with low power, "dismal for
+$T \le 25$"; Pedroni's are also the least affected by short-run dependence
+or cross-unit cointegration; and the system tests are very bad at small *T*
+and unreliable for the rank [@wagner2010; @baltagi2021, p. 363;
+@pesaran2015, p. 849].
+
+The project's own check, in the Pitfalls of the [cointegration
+step](index.qmd#sec-ur-coint), is of the implementation rather than the
+tests. At $N = 49$, $T = 29$, the five scale-free statistics as computed
+there reject in almost none of 200 draws without cointegration and in all
+200 with it, and the other two change with the units of measurement, which
+Pedroni's statistics cannot. They separate the hypotheses and fail the
+$N(0, 1)$ calibration, so the step reports them as unverified.
+
+## If / then {#sec-coint-if-then}
+
+| If | Then |
+|---|---|
+| Both series fail to reject a unit root, state by state and as a panel | Test the residual before reading any slope: a pooled slope converges even with no cointegration [@phillips1999; @baltagi2021, p. 355]. |
+| A unit's Johansen rank is 2 | One of its series is stationary; the residual tests' precondition $r_i = 1$ fails there [@pesaran2015, p. 839]. |
+| Johansen's rank is read at $T \approx 30$ | Report the tally, not the verdicts: the trace test is asymptotic and needs a reasonably large *T* [@pesaran2015, p. 547]. |
+| The CD test rejects on the residuals | Kao, McCoskey–Kao and Pedroni lose their normal limits; defactor first [@gengenbach2006; @baltagi2021, p. 362]. |
+| Units may share a trend | Every test above is over-sized; test the common trends for cointegration among themselves [@banerjee2004; @baltagi2021, p. 362]. |
+| $T \le 25$ | Expect low power from every residual test, and do not trust a system test's rank [@wagner2010; @baltagi2021, p. 363]. |
+| The slope is wanted and units are independent | DOLS, then FMOLS; both need *T* well above 20 for the long-run variances [@wagner2010; @pesaran2015, pp. 851, 853]. |
+| The slope is wanted and units share a factor | DSUR, Bai–Kao or Bai–Kao–Ng in principle; CCE with CIPS on its residual in this book, labelled a substitute [@pesaran2015, p. 854; @croissant2019, p. 209]. |
+| CIPS rejects on the CCE residual | A share of states' price–income gaps revert; say "a share", and say the critical values are those of a unit-root test [@pesaran2015, p. 525]. |
+
+## Open {#sec-coint-open}
+
+- **No implementation.** Kao, McCoskey–Kao, Larsson–Lyhagen–Löthgren,
+  Westerlund's error-correction tests [@westerlund2007], FMOLS, DOLS, DSUR
+  and the factor estimators have no R implementation in this project. The
+  Stata benchmarks, `xtcointtest kao`, `xtcointtest pedroni` and
+  `xtcointtest westerlund`, are deferred to a later plan.
+- **`pco`.** The only Pedroni implementation is archived on CRAN, two of its
+  seven statistics depend on the units of measurement, and the moments it
+  standardises with cannot be checked against Table 2 of @pedroni1999,
+  which is not in `lit/`. Its five remaining statistics are reported
+  unverified.
+- **The precondition at $T = 29$.** $r_i = 1$ cannot be confirmed state by
+  state; the tally of ranks is the evidence.
+- **The substitute's critical values.** CIPS on a regression residual reads
+  unit-root tables. No panel residual-based table exists for it, and this
+  book does not simulate one.
+- **Baltagi's targets.** Tables 12.3 to 12.7 of @baltagi2021 run Kao,
+  Pedroni, FMOLS and DOLS on the R&D panel of @kao1999rd, which ships in no
+  R package. They are not reproduced.
+
+## Next
+
+The long-run slope is settled by what the residual says. The next question
+is the error of an ordinary panel regression on stationary data, same
+slopes, same variance, no memory: [the error of a panel
+regression](../05-core/theory-panel-error.qmd). The road here began in
+[panel unit roots](theory-panel-unit-roots.qmd).
