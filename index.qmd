@@ -47,7 +47,7 @@ placeholders describing what they should cover.
   CCE](chapters/02-cross-dependence/index.qmd#sec-cce)
 - [x] [Cross-sectional dependence: how much, and of what
   kind](chapters/02-cross-dependence/theory-cross-sectional-dependence.qmd)
-- [ ] [Common factors and CCE: what cross-section averages are
+- [x] [Common factors and CCE: what cross-section averages are
   doing](chapters/02-cross-dependence/theory-common-factors-cce.qmd)
 
 ### Spatial dependence

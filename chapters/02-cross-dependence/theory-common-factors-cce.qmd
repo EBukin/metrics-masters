@@ -3,26 +3,179 @@ title: "Common factors and CCE: what cross-section averages are doing"
 subtitle: "Heterogeneous loadings, CCEMG and CCEP"
 ---
 
-> **Code:** [strong dependence: CCE](index.qmd#sec-cce), Stage 0.3 of the
-> plan. Related note:
+> **Code:** [common correlated effects](index.qmd#sec-cce) for the
+> estimates, [the exponent α](index.qmd#sec-csd-exponent) for the routing
+> that sends a panel here. Related note:
 > [cross-sectional dependence](theory-cross-sectional-dependence.qmd).
 
-::: {.callout-note}
-**Placeholder.** This note is planned, not written. Tracked in the node
-checklist in [the preface](../../index.qmd).
-:::
+## Why the method exists
 
-## What this note should cover
+Regress log house prices on log income state by state and average the 49
+slopes: 0.30. Add two cross-state averages to each regression and do it
+again: 1.14 [@holly2010; @croissant2019, pp. 197–199]. Nothing about the
+data changed. What changed is that the second regression controls for a
+national force, interest rates and credit conditions, that moves both prices
+and incomes in every state, each to its own degree.
 
-- **Why cross-section averages work as factor proxies**: averaging the
-  observed variables recovers the space spanned by the unobserved factors, so
-  the factors need never be estimated.
-- **Heterogeneous loadings** as the case two-way fixed effects cannot absorb —
-  the identity carried over from
-  [cross-sectional dependence](theory-cross-sectional-dependence.qmd).
-- **CCEMG vs CCEP**: averaging unit-by-unit slopes against pooling them, and
-  what each assumes about slope homogeneity.
-- How to read the two together: close estimates support the pooling
-  restriction, as the MG-to-CCEMG jump from 0.30 to 1.14 in the example shows.
-- What CCE does **not** fix, and when interactive fixed effects are the better
-  answer.
+The obvious control is a year effect: a dummy for each year, which removes
+whatever is common to all states in that year. It fails here for one
+reason. A year effect removes the force only if every state feels it by the
+same amount. When states differ in how hard the force hits, the part of it
+that differs stays in the error, correlated with income, and the slope is
+biased. Not inefficient: biased, and no standard-error correction helps
+[cross-sectional dependence](theory-cross-sectional-dependence.qmd). CCE is
+the fix for that case, and this note says why it works and when it does not.
+
+## 1. The model, and why year effects fail
+
+State *i* in year *t* follows
+
+$$
+y_{it} = \alpha_i + \beta_i x_{it} + u_{it}, \qquad
+u_{it} = \lambda_i f_t + \varepsilon_{it},
+$$
+
+where $f_t$ is the unobserved **common factor**, the national force, and
+$\lambda_i$ is state *i*'s **loading** on it, how hard the force hits that
+state. The factor is also in the regressor:
+
+$$
+x_{it} = a_i + \gamma_i f_t + v_{it}.
+$$
+
+Income and the error share $f_t$, so each state's OLS slope picks up the
+factor's effect on prices and attributes it to income. That is the leak.
+
+A year effect subtracts the cross-state mean from every variable in every
+year. In the error that leaves $(\lambda_i - \bar\lambda) f_t$: the factor
+survives in proportion to how far each state's loading sits from the
+average. Two-way fixed effects is a factor model with every loading equal to
+one, and it removes the factor only in that case. With heterogeneous
+loadings the bias stays, and α near 1 is exactly the panel where loadings
+are heterogeneous enough to matter [@pesaran2015, p. 754].
+
+## 2. Why averages work
+
+Average the price equation over the N states in year *t*:
+
+$$
+\bar y_t = \bar\alpha + \bar\beta \bar x_t + \bar\lambda f_t
+  + \bar\varepsilon_t + o_p(1),
+$$
+
+and the income equation likewise, $\bar x_t = \bar a + \bar\gamma f_t +
+\bar v_t$. As N grows the idiosyncratic averages $\bar\varepsilon_t$ and
+$\bar v_t$ vanish, and the two averages are left as two linear functions of
+one unknown, $f_t$. Solve for it:
+
+$$
+f_t \approx \frac{\bar y_t - \bar\alpha - \bar\beta \bar x_t}{\bar\lambda}.
+$$
+
+The unobserved factor is, for large N, a known combination of the observed
+averages. So put the averages themselves into each state's regression,
+
+$$
+y_{it} = \alpha_i + \beta_i x_{it} + c_i \bar y_t + d_i \bar x_t + e_{it},
+$$
+
+and let each state choose its own $c_i$ and $d_i$. Whatever $\lambda_i$ is,
+the pair $(c_i, d_i)$ can absorb $\lambda_i f_t$, because $f_t$ lies in the
+space the averages span. The factor is controlled for without being
+estimated, and without assuming anything about its time path. That is the
+whole of @pesaran2006, and it survives factors that wander like random walks
+[@kapetanios2011], which is why the method is safe on price *levels*.
+
+With *m* factors and *k* regressors there are $k + 1$ averages, and they
+span the factors only if $m \le k + 1$ and the $(k+1) \times m$ matrix of
+average loadings has full column rank: the **rank condition**
+[@pesaran2006]. One regressor buys at most two factors.
+
+## 3. CCEMG and CCEP
+
+Two ways to turn 49 augmented regressions into one slope
+[@pesaran2015, pp. 767–768].
+
+**CCEMG**, mean group, runs the augmented regression state by state and
+averages the slopes:
+
+$$
+\hat\beta_{\text{CCEMG}} = \frac1N \sum_{i=1}^N \hat\beta_i, \qquad
+\widehat{\operatorname{Var}} = \frac{1}{N(N-1)} \sum_{i=1}^N
+  (\hat\beta_i - \hat\beta_{\text{CCEMG}})^2 .
+$$
+
+The variance is the dispersion of the 49 slopes: no assumption about the
+errors within a state enters it, and it is honest about heterogeneous
+slopes, which is why the stripchart in the
+[step](index.qmd#sec-cce) is the estimate's own picture.
+
+**CCEP**, pooled, imposes one slope on every state while keeping the
+state-specific $\alpha_i$, $c_i$ and $d_i$, and estimates it by least
+squares on the augmented data. Its variance is a sandwich that allows the
+true slopes to differ across states by random amounts [@croissant2019,
+sec. 8.3.2.2]. Under one common slope CCEP is the more efficient of the two.
+When the slopes differ, both estimate their mean, and CCEMG does so without
+weighting states by how much their income varies.
+
+Read them together. CCEMG 1.14 and CCEP 1.20, each with a standard error of
+0.2, are one number: the spread in the state slopes is noise around a common
+value, and the pooled estimate can be reported [@croissant2019, p. 199].
+Had they been far apart, the slopes would be genuinely heterogeneous and
+CCEMG would be the one to report.
+
+## 4. What CCE does not fix
+
+- **Factors that average out.** If the loadings on a factor average to
+  zero across states, $\bar\lambda = 0$, the averages do not carry it and
+  the rank condition fails. @pesaran2006 shows the estimators can survive
+  this when the loadings are independent of the regressors' loadings, but
+  nothing in the output says whether that holds.
+- **More factors than averages.** With one regressor and three factors the
+  averages span two of them. The remedy is more averages, of variables that
+  load on the missing factors even if they are not in the regression, which
+  `plm::pcce` does not provide. The exponent on the CCE residuals is the
+  check: if it is still near 1, a factor was missed
+  ([the exponent α](index.qmd#sec-csd-exponent)).
+- **A lagged dependent variable.** With $y_{i,t-1}$ on the right, the
+  augmented regression is biased at short T, and @chudik2015 add lags of the
+  averages to repair it. Dynamic panels are a later part of
+  [time dependence](../04-time/index.qmd).
+- **Weak dependence.** When α is near ½ the averages carry nothing and CCE
+  changes nothing. The dependence that remains is local, and a spatial
+  model is the tool ([spatial dependence](../03-spatial/index.qmd)).
+- **Interactive fixed effects** [@bai2009] estimate the factors and
+  loadings by principal components instead of proxying them. They need the
+  number of factors chosen in advance and more of T; CCE needs neither,
+  which is why this book uses CCE first.
+
+## 5. If / then
+
+| If | Then |
+|---|---|
+| α ≈ 1, or CD rejects on the raw series | Year effects are not enough. CCE [@pesaran2006]. |
+| CCEMG and CCEP agree within a standard error | One common slope. Report CCEP, keep CCEMG as the check [@croissant2019, p. 199]. |
+| CCEMG and CCEP differ by more than that | Heterogeneous slopes. Report CCEMG; its variance is the dispersion of the slopes. |
+| α on the CCE residuals is still near 1 | A factor was missed: more factors than averages. State it as a limitation. |
+| The series wander | CCE still holds [@kapetanios2011]. Test the residuals for a unit root ([tests that allow a common factor](../04-time/index.qmd#sec-ur-second-gen)). |
+| A lagged outcome is a regressor | Short-T bias. Lags of the averages [@chudik2015], not plain CCE. |
+
+## 6. Open
+
+- **The number of factors is never tested here.** The rank condition is
+  assumed, and the only check is the exponent on the residuals, which can
+  say that something was missed but not what.
+- **Rank-condition failure.** The conditions under which CCE survives it
+  are in @pesaran2006 and are not verified for the house-price panel.
+- **Heterogeneous slopes in CCEP.** The sandwich variance assumes the slope
+  deviations are random and independent of the regressors; the step does
+  not test it.
+
+## Next
+
+[Panel unit roots](../04-time/theory-panel-unit-roots.qmd) takes the CCE
+residuals to the next question, whether price and income share one trend.
+[Testing for spatial
+dependence](../03-spatial/theory-spatial-dependence-tests.qmd) takes the
+other branch, where the averages carry nothing and the map carries
+everything.
