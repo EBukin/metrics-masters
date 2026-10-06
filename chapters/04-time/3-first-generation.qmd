@@ -3,8 +3,11 @@
 **Question.** Do log house prices carry a unit root in every state, if the
 states are independent of each other?
 
-**Intuition.** Run a Dickey–Fuller regression on each state, then combine the
-49 answers into one. The tests differ only in what they combine:
+**Intuition.** Run a **Dickey–Fuller regression** on each state: this year's
+change in log price on last year's level, plus a few past changes. If the
+level does not predict the change, the series has no level to return to, and
+the *t* statistic on the level is small. Then combine the 49 answers into
+one. The tests differ only in what they combine:
 
 | Test | Combines | Alternative | `test =` |
 |---|---|---|---|
@@ -48,8 +51,35 @@ plm::purtest(dlp, test = "madwu", lags = 1, exo = "intercept")
 plm::purtest(dlp, test = "hadri", lags = 1, exo = "intercept")
 ```
 
+The 49 state statistics that IPS averages, in levels and in growth rates:
+
+```{r}
+#| label: c04-3-picture
+#| fig-cap: "The state-by-state Dickey–Fuller t statistics that IPS
+#|   averages: log price levels with a trend and two lags (left), growth
+#|   rates with an intercept and one lag (right). Thick bar: the mean of the
+#|   49, IPS's raw input. Dashed: the asymptotic 5% critical value of a
+#|   single Dickey–Fuller test with that deterministic part."
+#| fig-alt: "Two vertical clouds of 49 points. The levels cloud is centred
+#|   near minus two, with most points above the dashed line at minus 3.4.
+#|   The growth cloud is centred near minus three, with most points below
+#|   the dashed line at minus 2.9."
+lev <- plm::purtest(log(php$price), test = "ips", lags = 2, exo = "trend")
+gro <- plm::purtest(dlp, test = "ips", lags = 1, exo = "intercept")
+t_stat <- function(pu) sapply(pu$idres, \(r) unname(r$trho))
+ts <- data.frame(levels = t_stat(lev), growth = t_stat(gro))
+graphics::stripchart(ts, vertical = TRUE, method = "jitter", pch = 16,
+                     col = "grey50", ylab = "Dickey–Fuller t, by state")
+graphics::segments(c(0.8, 1.8), colMeans(ts), c(1.2, 2.2), colMeans(ts),
+                   lwd = 4)
+graphics::segments(c(0.7, 1.7), c(-3.41, -2.86), c(1.3, 2.3),
+                   c(-3.41, -2.86), lty = 2)
+```
+
 **Read it: rejects (growth rates).** LLC, IPS and Maddala–Wu all reject at
-p < 2.2 × 10⁻¹⁶. Growth rates do not wander.
+p < 2.2 × 10⁻¹⁶. In the picture the whole cloud drops: the mean *t* goes
+from −1.98 in levels to −2.98 in growth rates, and 30 of the 49 states would
+reject on their own. Growth rates do not wander.
 
 **Read it: misleads (Hadri on growth rates).** Hadri *also* rejects, z = 12.3:
 it says growth rates are not stationary either. The two families now

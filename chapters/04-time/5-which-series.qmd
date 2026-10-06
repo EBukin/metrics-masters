@@ -58,6 +58,36 @@ Simes' p-value is 0.0003, and ten countries are named. Both answers a short-T
 panel can give: the panel is not all random walks, *and* these ten are the
 stationary ones.
 
+Simes' test is a picture. Sort the p-values, plot them against their rank
+*j*, and draw the line *j* × 0.05 / N. Any point below the line rejects:
+
+```{r}
+#| label: c04-5-picture
+#| fig-cap: "Sorted per-unit p-values against their rank, log scale, for
+#|   the 49 state price levels (left) and the 19 real exchange rates of
+#|   Hanck (right). Dashed: Simes' line j × 0.05 / N. Simes rejects when any
+#|   point falls below it; Hommel's unit-by-unit decision is stricter."
+#| fig-alt: "Two panels of points rising from left to right on a log
+#|   scale, each with a dashed line rising from near zero. Left: all 49
+#|   points sit above the line. Right: the first several points sit well
+#|   below the line, and the last few rise above it."
+simes_plot <- function(p, main) {
+  n <- length(p)
+  j <- seq_len(n)
+  graphics::plot(j, sort(p), log = "y", pch = 16, col = "grey40",
+                 xlab = "rank j", ylab = "p-value, sorted", main = main)
+  graphics::lines(j, j * 0.05 / n, lty = 2)
+}
+op <- graphics::par(mfrow = c(1, 2))
+simes_plot(h_lev$p, "49 state price levels")
+simes_plot(pvals, "19 real exchange rates")
+graphics::par(op)
+```
+
+On the left no point reaches the line, and the closest, the first, gives the
+0.12. On the right the line is crossed at once, and the ten named countries
+are the ten smallest p-values.
+
 **Read it: misleads (growth rates).** Growth rates rejected the panel null at
 p < 2.2 × 10⁻¹⁶. How many states are named?
 

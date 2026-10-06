@@ -28,11 +28,40 @@ plm::cipstest(log(php$price), type = "drift")
 plm::cipstest(diff(log(php$price)), type = "none")
 ```
 
+What the averages do to each state's evidence. `cipstest` keeps the 49
+augmented regressions in `$tmods`; the *t* statistic on the lagged level,
+`le`, is each state's CADF statistic, and their mean is CIPS:
+
+```{r}
+#| label: c04-4-picture
+#| fig-cap: "Each state's unit-root t statistic on log price levels without
+#|   the cross-state averages (horizontal) and with them (vertical), both
+#|   with an intercept and two lags. Dashed: the 45-degree line. Cross: the
+#|   two means; the vertical one is the CIPS statistic."
+#| fig-alt: "A scatter of 49 points around a dashed diagonal line, most of
+#|   them below it, so the vertical statistic is more negative than the
+#|   horizontal one. A cross marks the means at about minus 1.6 across and
+#|   minus 2.0 up."
+cips <- plm::cipstest(log(php$price), type = "drift")
+adf <- plm::purtest(log(php$price), test = "ips", lags = 2, exo = "intercept")
+t_adf <- sapply(adf$idres, \(r) unname(r$trho))
+t_cadf <- sapply(cips$tmods, \(m) summary(m)$coefficients["le", "t value"])
+graphics::plot(t_adf, t_cadf, pch = 16, col = "grey40",
+               xlab = "Dickey–Fuller t, no averages",
+               ylab = "CADF t, with cross-state averages")
+graphics::abline(0, 1, lty = 2)
+graphics::points(mean(t_adf), mean(t_cadf), pch = 3, cex = 2.5, lwd = 2)
+c(mean_adf = mean(t_adf), mean_cadf = mean(t_cadf), cips = cips$statistic)
+```
+
 **Read it.**
 
 - **Does not reject (levels).** CIPS = −2.03, p above 0.10. After the common
   shock is allowed for, price levels still wander. This now carries weight,
-  because the test no longer assumes the states are independent.
+  because the test no longer assumes the states are independent. The picture
+  shows the averages at work: they move almost every state's statistic, most
+  of them down, and the mean goes from −1.62 to −2.03, with no state near
+  the −3 or so a single test would need.
 - **Rejects (growth rates).** CIPS = −1.82, p below 0.01. Growth rates do not
   wander. There is no contradiction left: the Hadri result of the
   [previous section](index.qmd#sec-ur-first-gen) was the common shock

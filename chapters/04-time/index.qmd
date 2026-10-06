@@ -5,10 +5,12 @@ title: "Time dependence"
 **The question of this chapter.** A panel series can depend on its own past,
 not only on other units. This chapter starts with unit roots: before regressing
 one panel variable on another, find out whether each series returns to a stable
-level or wanders off with no anchor. A wandering series has a *unit root*. Two
-of them can look related when they are not, so this question comes before any
-estimate. Cointegration, serial correlation and dynamic panels are later parts
-of this chapter, not yet written.
+level or wanders off with no anchor. A wandering series has a **unit root**,
+and is called **integrated of order one**, I(1): its change from one year to
+the next does not wander, and that change is I(0). Two wandering series can
+look related when they are not, so this question comes before any estimate.
+Cointegration, serial correlation and dynamic panels are later parts of this
+chapter, not yet written.
 
 **The running example.** House prices in 49 US states over 29 years,
 `HousePricesUS` [@holly2010] in **pder** [@croissant2019]. The earlier chapter

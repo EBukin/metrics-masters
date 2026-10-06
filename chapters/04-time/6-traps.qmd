@@ -61,6 +61,24 @@ colnames(size) <- paste0("lambda_", lambdas)
 size
 ```
 
+```{r}
+#| label: c04-6-picture
+#| fig-cap: "Rejection rate of a true unit-root null at the 5% level, by
+#|   test and spillover strength λ, from the 200 draws above. Dashed: the
+#|   nominal 5%."
+#| fig-alt: "Five lines over lambda equal to 0, 0.4 and 0.8. CIPS stays
+#|   flat near the dashed 5% line. The four first-generation tests start
+#|   between 0.1 and 0.6 at lambda zero and stay far above the line, two of
+#|   them rising with lambda."
+cols <- c("black", "grey45", "firebrick", "darkorange", "steelblue")
+graphics::matplot(lambdas, t(size), type = "b", pch = 16, lty = 1,
+                  col = cols, xlab = "spillover strength, lambda",
+                  ylab = "rejection rate at 5%", ylim = c(0, 0.8))
+graphics::abline(h = 0.05, lty = 2)
+graphics::legend("top", rownames(size), col = cols, pch = 16, lty = 1,
+                 bty = "n", ncol = 3, cex = 0.9)
+```
+
 **Read it.**
 
 - **Holds its size: CIPS.** 0.04 at λ = 0, 0.07 at λ = 0.8. Close to 5%
