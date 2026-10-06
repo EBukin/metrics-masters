@@ -1,0 +1,360 @@
+## Serial correlation {#sec-core-serial}
+
+**Question.** After the firm effect is out, does this year's investment
+shock carry into next year's? And for house prices: is the 0.82 that the
+[spatial chapter](../03-spatial/index.qmd#sec-sp-serial) left in the
+errors an AR(1), or a random walk?
+
+**Intuition.** A unit effect makes every pair of a unit's errors correlated
+by the same amount, however far apart in time; an AR(1) makes neighbouring
+years more alike than distant ones. Both are "serial correlation", and a
+test built for one fires on the other: a test for an AR(1) that ignores the
+unit effect rejects a true null almost surely when the effect is there
+[@baltagi2021, p. 127; @croissant2019, p. 95]. So the battery has three
+kinds. **Joint** tests ask for both at once and say nothing about which.
+**Locally robust** tests ask for one while tolerating a small amount of the
+other. **Conditional** tests ask for one given the other, at the cost of a
+maximum-likelihood fit. Then come the regression-based tests of
+@wooldridge2010 on the within and first-differenced residuals, which assume
+neither normality nor homoskedasticity and double as the choice between
+fixed effects and first differences.
+
+::: {.callout-tip appearance="simple"}
+Why the within transformation induces a correlation of $-1/(T - 1)$ under
+the null, and how the LM family decomposes: [the error of a panel
+regression](theory-panel-error.qmd).
+:::
+
+With $\tilde u$ the pooled OLS residuals, $A = \tilde u'(I_N \otimes \bar
+J_T)\tilde u / \tilde u'\tilde u - 1$ the unit-effect piece of the previous
+step and $B = \tilde u'\tilde u_{-1} / \tilde u'\tilde u$ the first-order
+autocorrelation, the joint LM test is [@baltagi1991; @baltagi2021, eq.
+5.36]
+
+$$
+LM_1 = \frac{NT^2}{2(T - 1)(T - 2)}\left[A^2 - 4AB + 2TB^2\right]
+  \;\sim\; \chi^2_2 ,
+$$
+
+the same whether the alternative is AR(1) or MA(1). The naive serial test
+is $LM_3 = NT^2 B^2 / (T - 1)$, and it over-rejects whenever a unit effect
+is there; the locally robust version of @bera2001 corrects $B$ for its
+correlation with $A$ [@baltagi2021, p. 128]:
+
+$$
+LM^*_\rho = \frac{NT^2\,[B - A/T]^2}{(T - 1)(1 - 2/T)} \;\sim\; \chi^2_1 .
+$$
+
+The within-residual tests are simpler. Wooldridge regresses the within
+residuals on their own lag and tests $\rho = -1/(T - 1)$, the value the
+demeaning induces under no serial correlation; the first-difference
+version regresses the differenced residuals on their lag and tests $\rho =
+-1/2$, the value differencing induces [@wooldridge2010; @croissant2019,
+pp. 102–103]. The panel Durbin–Watson of @bhargava1982 is the ordinary
+statistic on the within residuals [@baltagi2021, eq. 5.44].
+
+**The tests.** `pwtest` [@wooldridge2010; @croissant2019, sec. 4.3.1]:
+the unobserved-effects test, any kind of within-unit correlation.
+`pbsytest` [@bera2001; @baltagi1991; @croissant2019, p. 97]: `test =
+"j"`, joint; `"ar"`, serial correlation allowing a little unit effect;
+`"re"`, unit effect allowing a little serial correlation. `pbltest`
+[@baltagi1995; @croissant2019, p. 98]: serial correlation given random
+effects, by maximum likelihood. `pbnftest` [@bhargava1982; @baltagi1999]:
+`"bnf"`, the panel Durbin–Watson; `"lbi"`, the locally best invariant
+version for unbalanced panels. `pwartest`, `pwfdtest(h0 = "fd")`,
+`pwfdtest(h0 = "fe")` [@wooldridge2010; @drukker2003; @croissant2019, pp.
+102–103]. `pbgtest`, `pdwtest` [@croissant2019, p. 101]: Breusch–Godfrey
+and Durbin–Watson on the stacked residuals, corroboration only. Null, in
+every case: no serial correlation in the idiosyncratic error, except the
+two `pwfdtest` legs, whose nulls name an estimator. A rejection means the
+shocks persist.
+
+**Run it, Grunfeld.** Joint and locally robust first, all on pooled
+residuals:
+
+```{r}
+#| label: c05-5-gr-lm
+plm::pwtest(fg, data = gr)
+plm::pbsytest(fg, data = gr, test = "j")
+plm::pbsytest(fg, data = gr, test = "ar")
+plm::pbsytest(fg, data = gr, test = "re")
+```
+
+Then the conditional test and the two Durbin–Watson statistics:
+
+```{r}
+#| label: c05-5-gr-cond
+plm::pbltest(fg, data = gr)
+plm::pbnftest(gr_w, test = "bnf")
+plm::pbnftest(gr_w, test = "lbi")
+```
+
+Then Wooldridge's three regressions. The two `pwfdtest` legs are the
+choice between estimators: `h0 = "fd"` says "the differenced errors are
+white noise, so first differences is right"; `h0 = "fe"` says "the
+original errors are white noise, so fixed effects is right". The leg that
+is *not* rejected names the estimator [@croissant2019, p. 104].
+
+```{r}
+#| label: c05-5-gr-wool
+plm::pwartest(gr_w)
+plm::pwfdtest(fg, data = gr, h0 = "fd")
+plm::pwfdtest(fg, data = gr, h0 = "fe")
+```
+
+And the two time-series tests on the stacked residuals, once on the within
+fit and once on the pooled fit:
+
+```{r}
+#| label: c05-5-gr-corr
+plm::pbgtest(gr_w, order = 1)
+plm::pdwtest(gr_w)
+plm::pdwtest(gr_pool)
+```
+
+**Run it, house prices.** The same four chunks.
+
+```{r}
+#| label: c05-5-hp-lm
+plm::pwtest(fh, data = hp)
+plm::pbsytest(fh, data = hp, test = "j")
+plm::pbsytest(fh, data = hp, test = "ar")
+plm::pbsytest(fh, data = hp, test = "re")
+```
+
+```{r}
+#| label: c05-5-hp-cond
+plm::pbltest(fh, data = hp)
+plm::pbnftest(hp_w, test = "bnf")
+plm::pbnftest(hp_w, test = "lbi")
+```
+
+```{r}
+#| label: c05-5-hp-wool
+plm::pwartest(hp_w)
+plm::pwfdtest(fh, data = hp, h0 = "fd")
+plm::pwfdtest(fh, data = hp, h0 = "fe")
+```
+
+```{r}
+#| label: c05-5-hp-corr
+plm::pbgtest(hp_w, order = 1)
+plm::pdwtest(hp_w)
+plm::pdwtest(hp_pool)
+```
+
+What the Wooldridge tests measure, drawn: the autocorrelation of the within
+residuals at each lag, pooled over units, against the $-1/(T - 1)$ that
+demeaning alone would give; and the same for the first-differenced
+residuals against the $-0.5$ that differencing alone would give.
+
+```{r}
+#| label: c05-5-picture
+#| fig-cap: "Autocorrelation of the residuals by lag, pooled over units:
+#|   within residuals (left) with the −1/(T − 1) line that fixed effects
+#|   induces under no serial correlation, first-differenced residuals
+#|   (right) with the −0.5 line that differencing induces. Solid:
+#|   Grunfeld; dashed: house prices."
+#| fig-alt: "Two line charts of autocorrelation against lag from 1 to 6.
+#|   On the left both lines start high and fall: the Grunfeld line from
+#|   0.5 at lag 1 to near zero by lag 3, the house-price line from 0.88
+#|   slowly to near zero at lag 6; a dotted reference line sits just below
+#|   zero. On the right the Grunfeld line is near zero at every lag and
+#|   the house-price line starts at 0.5 and falls below zero; the dotted
+#|   reference line sits at minus 0.5, well below both."
+acf_panel <- function(e, id, max_lag = 6) {
+  sapply(seq_len(max_lag), function(k) {
+    prod_k <- function(x) x[-seq_len(k)] * x[seq_len(length(x) - k)]
+    sum(unlist(tapply(e, id, prod_k))) / sum(e^2)
+  })
+}
+gr_fd <- plm::plm(fg, data = gr, model = "fd")
+hp_fd <- plm::plm(fh, data = hp, model = "fd")
+id_gr <- plm::index(gr)[[1]]
+id_hp <- plm::index(hp)[[1]]
+# first differences drop each unit's first year
+fd_id <- function(id) id[duplicated(id)]
+op <- graphics::par(mfrow = c(1, 2))
+plot(1:6, acf_panel(as.numeric(residuals(gr_w)), id_gr), type = "b",
+     pch = 16, ylim = c(-0.6, 1), xlab = "lag", ylab = "autocorrelation",
+     main = "Within residuals")
+graphics::lines(1:6, acf_panel(as.numeric(residuals(hp_w)), id_hp),
+                type = "b", pch = 1, lty = 2)
+graphics::abline(h = c(-1 / 19, -1 / 28), lty = 3)
+graphics::abline(h = 0, col = "grey60")
+plot(1:6, acf_panel(as.numeric(residuals(gr_fd)), fd_id(id_gr)),
+     type = "b", pch = 16, ylim = c(-0.6, 1), xlab = "lag",
+     ylab = "autocorrelation", main = "First-differenced residuals")
+graphics::lines(1:6, acf_panel(as.numeric(residuals(hp_fd)), fd_id(id_hp)),
+                type = "b", pch = 1, lty = 2)
+graphics::abline(h = -0.5, lty = 3)
+graphics::abline(h = 0, col = "grey60")
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Rejects (Grunfeld).** Joint 808; serial correlation allowing a unit
+  effect 10.3, p = 0.001; Baltagi–Li given random effects 69.5;
+  `pwartest` 76.9. *So:* the investment shocks persist from year to year
+  on top of the firm effect.
+- **Rejects (house prices, everything).** `pwartest` 22 753; LBI 0.249,
+  Durbin–Watson 0.131, both far below two. *So:* the 0.82 is real, and it
+  is the within residuals' own lag-one correlation (0.88 in the picture).
+- **Fixed effects or first differences (Grunfeld).** `h0 = "fd"` 16.5
+  and `h0 = "fe"` 372, both rejected, the second twenty times harder.
+  *So:* the errors are nearer white noise than a random walk; fixed
+  effects, with standard errors that allow for the AR(1) left behind.
+- **Fixed effects or first differences (house prices).** 105 and 385,
+  both rejected. *So:* "the truth lies in the middle" [@croissant2019, p.
+  104]: whichever estimator is chosen, its errors are serially correlated,
+  and robust errors are the answer. The within autocorrelations in the
+  picture die out slowly, the way a near-random walk's do, which is the
+  dynamic specification of the next chapter.
+- **Misleads (`pwtest` on Grunfeld, and `pdwtest` on pooled fits).**
+  `pwtest` gives z = 1.49, p = 0.14, and does not reject, although the
+  firm effect is 72 % of the error variance: it has power against unit
+  effects and against serial correlation together, and trades it for
+  robustness. `pdwtest` on the pooled fit gives 0.36, reading the firm
+  effect as serial correlation, which is exactly the confusion the LM
+  family exists to avoid [@baltagi2021, p. 127].
+
+::: {.callout-note appearance="simple"}
+**Next.** Both legs rejected: the menu of [robust
+errors](index.qmd#sec-core-robust-se), after the
+[heteroskedasticity](index.qmd#sec-core-hetero) check that decides which
+of them. One leg not rejected: that estimator, with the same check first.
+House prices: the within residuals are close to a random walk, which is
+the dynamic specification of the [dynamic
+chapter](../06-dynamic/index.qmd#sec-dyn-bias).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# f: a formula; d: a pdata.frame; w: the within fit of f.
+plm::pbsytest(f, data = d, test = "j")      # joint
+plm::pbsytest(f, data = d, test = "ar")     # AR allowing a unit effect
+plm::pbltest(f, data = d)                   # AR given random effects
+plm::pwartest(w)                            # within-residual regression
+plm::pwfdtest(f, data = d, h0 = "fd")       # not rejected: FD is right
+plm::pwfdtest(f, data = d, h0 = "fe")       # not rejected: FE is right
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Two nulls that are not zero.** `pwartest` tests a correlation of
+$-1/(T - 1)$ in the within residuals, and `pwfdtest(h0 = "fe")` a
+correlation of $-0.5$ in the differenced residuals; both are what the
+transformation induces when the original errors are white noise
+[@croissant2019, pp. 102–103]. A reader who expects zero reads them
+backwards.
+
+**`pbnftest` prints no p-value.** @bhargava1982 tabulate bounds for
+$N$ from 50 to 1000 and $T$ of 6 and 10, and argue that for very large
+$N$ it is enough to test whether the statistic is below two
+[@baltagi2021, p. 130]. Read it against two, or across panels.
+
+**`pbgtest` and `pdwtest` stack the panel.** They treat the residuals as
+one long series; on a within fit with $T$ short they are biased by the
+induced correlation, and on a pooled fit they read the unit effect as
+serial correlation [@croissant2019, p. 101]. Corroboration only.
+
+**The naive LM over-rejects.** $LM_3$, serial correlation ignoring unit
+effects, is very likely to reject a true null when a unit effect is there
+[@baltagi2021, p. 127]; it is not in plm, and the Book check computes it
+by hand only to show it.
+
+**The ML family assumes normal, homoskedastic errors.** `pbltest` and the
+BSY tests are likelihood-based and depend on both [@croissant2019, p. 97].
+Wooldridge's regressions do not.
+
+**Inoue–Solon is not run.** Their portmanteau test of all autocorrelations
+at once needs $N$ much larger than $T^2/2$ [@inoue2006; @baltagi2021, p.
+131]: 200 for Grunfeld's $T = 20$, 420 for the house-price $T = 29$.
+
+**One number does not reproduce.** `pwfdtest(h0 = "fd")` on `EmplUK`
+gives 1.53 where @croissant2019 print 0.93; see the Book check.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@baltagi2021 [Table 5.3, p. 129] prints Stata's `xttest1` on Grunfeld:
+LM(Var(u)=0) two-sided 798.16, ALM 664.95; one-sided 28.25, ALM 25.79;
+LM(λ=0) 143.52, ALM(λ=0) 10.31 (p = 0.0013); joint 808.47. In plm's
+names, Stata's "ALM" rows are the locally robust tests:
+
+```{r}
+#| label: c05-5-book-xttest1
+plm::plmtest(gr_pool, type = "bp")$statistic
+plm::pbsytest(fg, data = gr, test = "re", re.normal = FALSE)$statistic
+plm::plmtest(gr_pool, type = "honda")$statistic
+plm::pbsytest(fg, data = gr, test = "re")$statistic
+plm::pbsytest(fg, data = gr, test = "ar")$statistic
+plm::pbsytest(fg, data = gr, test = "j")$statistic
+```
+
+Six of seven reproduced: 798.16, 664.95, 28.252, 25.787, 10.31, 808.47.
+LM(λ=0) 143.52 is not in plm; the hand formula $NT^2 B^2 / (T - 1)$ on
+the pooled residuals gives
+
+```{r}
+#| label: c05-5-book-lm3
+u <- as.numeric(residuals(gr_pool))
+lag_prod <- function(x) sum(x[-1] * x[-length(x)])
+B <- sum(tapply(u, id_gr, lag_prod)) / sum(u^2)
+10 * 20^2 * B^2 / 19
+```
+
+140.30 against 143.52: not reproduced, and not a number to use, since the
+firm effect is there [@baltagi2021, p. 127].
+
+@croissant2019 [Example 4.5, pp. 99–101] fit the Grunfeld model by REML
+with **nlme** and print likelihood-ratio tests: AR(1) against spherical
+errors 307.3; AR(1) given random effects 113; random effects given
+spherical errors 196.4; random effects given AR(1) 2.134 (p = 0.144); and
+an AR(1) coefficient of 0.8238.
+
+```{r}
+#| label: c05-5-book-lr
+gls0 <- nlme::gls(fg, data = Grunfeld)
+gls_ar <- nlme::gls(fg, data = Grunfeld,
+                    correlation = nlme::corAR1(0, form = ~ year | firm))
+lme0 <- nlme::lme(fg, data = Grunfeld, random = ~ 1 | firm)
+lme_ar <- nlme::lme(fg, data = Grunfeld, random = ~ 1 | firm,
+                    correlation = nlme::corAR1(0, form = ~ year | firm))
+anova(gls0, gls_ar)
+anova(lme0, lme_ar)
+anova(gls0, lme0)
+anova(gls_ar, lme_ar)
+lme_ar$modelStruct$corStruct
+```
+
+307.28, 113.05, 196.37, 2.134 (p = 0.144) and 0.8238: all reproduced.
+
+@croissant2019 [Examples 4.7 and 4.8, pp. 102–103] print, for `EmplUK`,
+`pwartest` 310 on (1, 890), `pwfdtest(h0 = "fd")` 0.93 (p = 0.3) and
+`pwfdtest(h0 = "fe")` 130:
+
+```{r}
+#| label: c05-5-book-empluk
+data("EmplUK", package = "plm")
+em <- plm::pdata.frame(EmplUK)
+fe_em <- log(emp) ~ log(wage) + log(capital)
+plm::pwartest(plm::plm(fe_em, data = em, model = "within"))
+plm::pwfdtest(fe_em, data = em, h0 = "fd")
+plm::pwfdtest(fe_em, data = em, h0 = "fe")
+plm::pwfdtest(update(fe_em, . ~ . - 1), data = em, h0 = "fd")
+```
+
+312.3 on (1, 889) and 131.55 reproduce 310 and 130 to CM's two digits.
+The `"fd"` leg does not: 1.53 (p = 0.22) against 0.93. The plm NEWS for
+1.7-0 records that the first-difference model regained its intercept,
+which 1.6-6 had dropped; CM's fit has none, and with `- 1` in the formula
+the call gives 0.93 (p = 0.33), CM's statistic. Reported as not
+reproduced under plm 2.6.7's default.
+:::

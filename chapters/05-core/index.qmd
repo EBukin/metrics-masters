@@ -2,35 +2,141 @@
 title: "Core panel models"
 ---
 
-::: {.callout-note}
-**Placeholder.** This chapter is planned, not written. Tracked in the node
-checklist in [the preface](../../index.qmd).
-:::
+In 1935 the largest of Grunfeld's ten firms had a market value
+forty-three times that of the smallest, and invested a hundred and
+twenty-five times as much. @grunfeld1958 followed the ten for twenty years
+to ask one question: does a firm invest more when the market values it
+more, and when it already owns more capital? The pooled answer is one line
+through two hundred points. But the largest firm is not the smallest on a
+larger scale. Each firm has a character of its own, management, product,
+luck, that the regressors do not see and that moves every one of its twenty
+observations the same way.
 
-This chapter steps back from dependence, spatial or cross-sectional, and asks
-the questions a panel raises on its own: can the units be pooled into one
-regression, do fixed or random effects fit better, and are the standard
-errors trustworthy. Chapters
-[cross-sectional dependence](../02-cross-dependence/index.qmd),
-[spatial dependence](../03-spatial/index.qmd) and
-[time dependence](../04-time/index.qmd) already lean on fixed-effects
-residuals before this chapter explains what fixed effects assume and when
-random effects is the better choice; this chapter is where that gloss is
-redeemed.
+A **panel regression with unit effects** gives each unit its own intercept
+and lets the slopes be shared. The intercept is the unit's character, and
+the whole chapter turns on what to assume about it. Under **fixed effects**
+it is a parameter, estimated from the unit's own variation over time, and
+it may be correlated with the regressors. Under **random effects** it is a
+draw from a distribution, uncorrelated with the regressors, and it stays in
+the error term, where it makes a unit's errors correlated across years. Why
+the two differ, and when they agree: [fixed and random
+effects](theory-fixed-random.qmd); what the error of a panel regression
+carries, and what to do about it: [the error of a panel
+regression](theory-panel-error.qmd).
 
-**Planned sections.** Numbers in brackets refer to
-`.docs/panel-spat-PLAN.md`.
+```{r}
+#| label: c05-0-setup
+devtools::load_all(quiet = TRUE)
+# pooltest()'s formula method builds a call to plm(), so plm must be
+# attached, not just namespaced.
+library(plm)
+data("Grunfeld", package = "plm")
+data("Produc", package = "plm")
+data("Wages", package = "plm")
+data("HousePricesUS", package = "pder")
+gr <- plm::pdata.frame(Grunfeld)
+pr <- plm::pdata.frame(Produc)
+wg <- plm::pdata.frame(Wages, index = 595)
+hp <- plm::pdata.frame(HousePricesUS)
+# phtest(method = "aux") cannot parse log() in a formula, so the logs are
+# columns.
+hp$lp <- log(hp$price)
+hp$li <- log(hp$income)
+fg <- inv ~ value + capital
+fp <- log(gsp) ~ log(pcap) + log(pc) + log(emp) + unemp
+fh <- lp ~ li
+```
 
-1. **Poolability.** Can one regression serve every unit, or does each need
-   its own intercept and slopes? The classical Chow-type F test and Swamy's
-   random-coefficients alternative (3.1).
-2. **Slope homogeneity.** A modern alternative to poolability, the
-   Pesaran–Yamagata Δ tests, built for the N large, T moderate case (3.2).
-3. **Heteroskedasticity.** Testing for it, and why its presence routes
-   spatial estimation toward IV and GMM instead of maximum likelihood (3.3).
-4. **Effects tests.** Breusch–Pagan LM, Honda, and the conditional LM family
-   decide whether fixed or random effects beat pooled OLS at all (4a.1).
-5. **Fixed vs random effects.** The Hausman test and its robust variants,
-   plus the two-way case and its five distinct hypotheses (4a.2).
-6. **Robust standard errors.** Driscoll–Kraay, Beck–Katz, and clustered
-   variants for the dependence a plain vcov misses (4a.4).
+```{r}
+#| label: c05-0-picture
+#| fig-cap: "Investment against market value for Grunfeld's ten firms,
+#|   1935–54. The thick line is pooled OLS; the thin lines are the
+#|   fixed-effects fit, one slope and ten firm intercepts."
+#| fig-alt: "A scatterplot of investment against firm value with two
+#|   hundred points, most crowded near the origin and a few far out to the
+#|   right. One thick line runs through the whole cloud. Ten thin parallel
+#|   lines, each through the points of one firm, sit at different heights,
+#|   the low firms' lines near the origin and the big firms' lines higher
+#|   and further right."
+gr_pool1 <- plm::plm(inv ~ value, data = gr, model = "pooling")
+gr_w1 <- plm::plm(inv ~ value, data = gr, model = "within")
+firm <- plm::index(gr)[[1]]
+plot(as.numeric(gr$value), as.numeric(gr$inv), pch = 16,
+     col = grey(0.2 + 0.6 * (as.integer(firm) - 1) / 9),
+     xlab = "market value", ylab = "investment")
+graphics::abline(coef(gr_pool1), lwd = 3)
+for (a in plm::fixef(gr_w1)) graphics::abline(a, coef(gr_w1), lty = 3)
+```
+
+The thin lines are the one-way **error-component model**, the equation
+that organises the chapter [@baltagi2021, eqs. 2.1–2.2]:
+
+$$
+y_{it} = x_{it}'\beta + \mu_i + \nu_{it},
+\qquad i = 1, \dots, N;\; t = 1, \dots, T,
+$$
+
+where $\mu_i$ is the unit effect and $\nu_{it}$ the idiosyncratic error.
+Fixed effects estimates $\beta$ from deviations around each unit's own mean,
+so $\mu_i$ drops out. Random effects treats $\mu_i + \nu_{it}$ as one error
+with a known shape and weights the within and between variation by how much
+each is worth. The chapter's tests ask, in order, whether the slopes can be
+shared at all, whether $\mu_i$ is there, whether it is a parameter or a
+draw, what else $\nu_{it}$ carries, and which standard error is honest about
+it.
+
+**In this chapter.**
+
+1. **Poolability.** Can one line serve every unit, or every unit with its
+   own intercept ([poolability](index.qmd#sec-core-pool)).
+2. **Slope heterogeneity.** How far apart the units' slopes are, and
+   whether the average is still worth reporting
+   ([slope heterogeneity](index.qmd#sec-core-slopes)).
+3. **Effects tests.** Whether a unit effect, a year effect, or both are
+   there at all ([effects tests](index.qmd#sec-core-effects)).
+4. **Fixed or random.** Whether the unit effect moves with the regressors,
+   and what to do when a regressor never moves over time
+   ([fixed or random](index.qmd#sec-core-fe-re)).
+5. **Serial correlation.** Whether this year's shock carries into next
+   year's, and whether fixed effects or first differences is the better
+   estimator ([serial correlation](index.qmd#sec-core-serial)).
+6. **Heteroskedasticity.** Whether big units have bigger shocks, and which
+   estimates survive it ([heteroskedasticity](index.qmd#sec-core-hetero)).
+7. **Robust errors.** The menu of standard errors, and which dependence
+   each one survives ([robust errors](index.qmd#sec-core-robust-se)).
+8. **Summary** ([summary](index.qmd#sec-core-summary)).
+
+Two panels run through every step. Grunfeld's investment panel carries the
+book checks: @baltagi2021 prints Tables 4.2, 4.3, 4.4, 4.6 and 5.3 and the
+poolability example of section 4.1.3 on it, so the book's numbers come out
+of the calls in the text. House prices carry the story forward:
+`HousePricesUS` [@holly2010], 49 states over 29 years, whose income
+elasticity the [cross-dependence
+chapter](../02-cross-dependence/index.qmd#sec-cce) estimated state by state
+and averaged, and whose errors left the [spatial
+chapter](../03-spatial/index.qmd#sec-sp-serial) with a serial correlation of
+0.82. The public-capital panel `Produc` [@munnell1990], 48 states over 17
+years, joins for the heteroskedasticity and robust-error steps, where
+@croissant2019 print their tables on it; `Wages`, 595 workers over 7 years,
+appears once, for the Hausman–Taylor estimator.
+
+Every section has the shape of the [spatial
+chapter](../03-spatial/index.qmd): **question**, **intuition**, the
+**test** in words, **run it**, a picture, **read it**, a **next** box, and
+collapsed **recipe**, **pitfalls** and **book check** boxes at the end.
+
+{{< include 1-poolability.qmd >}}
+
+{{< include 2-slopes.qmd >}}
+
+{{< include 3-effects.qmd >}}
+
+{{< include 4-fe-or-re.qmd >}}
+
+{{< include 5-serial.qmd >}}
+
+{{< include 6-hetero.qmd >}}
+
+{{< include 7-robust-se.qmd >}}
+
+{{< include 8-summary.qmd >}}

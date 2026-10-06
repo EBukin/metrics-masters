@@ -1,0 +1,171 @@
+## Poolability {#sec-core-pool}
+
+**Question.** Can one investment equation serve all ten firms, and one
+price–income elasticity all 49 states, or does each need its own?
+
+**Intuition.** Fit one regression to everyone, then one to each unit, and
+compare the residual sums of squares. If the single line fits almost as
+well as the ten, pooling costs nothing and buys precision; if it fits much
+worse, the units do not share the line. Chow's F does exactly this
+[@chow1960; @baltagi2021, p. 77]. The restricted model can be pooled OLS,
+which forces all coefficients to be equal, or the within regression, which
+gives every unit its own intercept and forces only the slopes to be equal.
+Under random effects the errors of one unit are correlated across years,
+the Chow F is no longer an F, and it rejects a true null far too often
+[@baltagi1981; @baltagi2021, p. 79]. The **Roy–Zellner test** runs the same
+F on the data after the GLS transformation, where the errors are spherical
+again [@roy1957; @zellner1962; @baltagi2021, pp. 78–79].
+
+::: {.callout-tip appearance="simple"}
+What "one regression" assumes about the units, and why the transformation
+restores the F: [fixed and random effects](theory-fixed-random.qmd).
+:::
+
+With $e$ the residuals of the restricted model and $e_i$ those of unit
+$i$'s own regression, $K'$ counting the intercept [@baltagi2021, eq. 4.8],
+
+$$
+F = \frac{\left(e'e - \sum_i e_i'e_i\right) / (N - 1)K'}
+         {\sum_i e_i'e_i / N(T - K')}
+  \;\sim\; F\big((N - 1)K',\, N(T - K')\big).
+$$
+
+The Roy–Zellner statistic is the same ratio after $y$ and $X$ have been
+premultiplied by $\Omega^{-1/2}$, the inverse square root of the
+error-component covariance [@baltagi2021, eq. 4.14]; with one-way effects
+that is quasi-demeaning by $\theta$, each variable less $\theta$ times its
+unit mean.
+
+**The tests.** `pooltest` [@croissant2019, sec. 8.2.3]: `model =
+"pooling"` restricts all coefficients, `model = "within"` the slopes only,
+and `effect = "time"` asks the same question across years. `roy_zellner()`
+from `R/` is the GLS version. Null: the coefficients are the same for every
+unit. A rejection means the units do not share the line.
+
+**Run it, Grunfeld.** Investment on market value and capital stock, ten
+firms, twenty years:
+
+```{r}
+#| label: c05-1-gr
+plm::pooltest(fg, data = gr, model = "pooling")
+plm::pooltest(fg, data = gr, model = "within")
+plm::pooltest(fg, data = gr, model = "pooling", effect = "time")
+roy_zellner(fg, gr)
+```
+
+**Run it, house prices.** Log price on log income, 49 states, 29 years.
+The unrestricted fit, one regression per state, is kept: the next step
+reads its slopes.
+
+```{r}
+#| label: c05-1-hp
+plm::pooltest(fh, data = hp, model = "pooling")
+plm::pooltest(fh, data = hp, model = "within")
+hp_np <- plm::pvcm(fh, data = hp, model = "within")
+```
+
+The dispersion the F measures, drawn: each unit's own line over the pooled
+one.
+
+```{r}
+#| label: c05-1-picture
+#| fig-cap: "Unit-by-unit regression lines (thin) over the pooled line
+#|   (thick): investment on market value for the ten firms (left), log
+#|   price on log income for the 49 states (right)."
+#| fig-alt: "Two scatterplots with many thin fitted lines and one thick
+#|   one. On the left, ten thin lines fan out from near the origin at
+#|   slopes from almost flat to steep, around a thick line of middling
+#|   slope. On the right, 49 thin lines cross one another at every angle,
+#|   some sloping down, over a thick line that slopes gently up."
+unit_lines <- function(y, x, g, main, xlab, ylab) {
+  plot(x, y, pch = 16, cex = 0.5, col = "grey75", main = main,
+       xlab = xlab, ylab = ylab)
+  for (k in levels(g)) {
+    i <- g == k
+    graphics::abline(lm(y[i] ~ x[i]), col = "grey40")
+  }
+  graphics::abline(lm(y ~ x), lwd = 3)
+}
+op <- graphics::par(mfrow = c(1, 2))
+unit_lines(as.numeric(gr$inv), as.numeric(gr$value), plm::index(gr)[[1]],
+           "Grunfeld", "market value", "investment")
+unit_lines(as.numeric(hp$lp), as.numeric(hp$li), plm::index(hp)[[1]],
+           "House prices", "log income", "log price")
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Rejects (across units, both panels).** Grunfeld 27.7 on F(27, 170) for
+  all coefficients and 5.78 on F(18, 170) for the slopes alone; house
+  prices 25.8 on F(96, 1323) and 16.1 on F(48, 1323). *So:* neither panel
+  pools, even when every unit keeps its own intercept.
+- **Does not reject (Grunfeld across years).** 1.12 on F(57, 140), p =
+  0.29. *So:* the firms' lines are stable over time; the heterogeneity is
+  across firms, not across years.
+- **Misleads (the plain Chow F under random effects).** Roy–Zellner gives
+  4.35 on F(27, 170), still a rejection, but a sixth of the plain 27.7.
+  *So:* with a firm effect this large (72 % of the error variance, step 4)
+  most of the plain F was the firm effect, not the slopes; Baltagi's Monte
+  Carlo shows the plain F rejecting a true null often when the variance
+  components are large [@baltagi1981; @baltagi2021, p. 79].
+
+::: {.callout-note appearance="simple"}
+**Next.** Rejected: how far apart are the slopes, and is the average still
+worth estimating ([slope heterogeneity](index.qmd#sec-core-slopes))? Not
+rejected: pooled OLS, then the [effects tests](index.qmd#sec-core-effects),
+which decide whether even the intercepts need to differ.
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# f: a formula; d: a pdata.frame. plm must be attached for pooltest.
+plm::pooltest(f, data = d, model = "pooling")   # all coefficients
+plm::pooltest(f, data = d, model = "within")    # slopes only
+plm::pooltest(f, data = d, model = "pooling", effect = "time")
+roy_zellner(f, d)                               # under random effects
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**`pooltest` needs plm attached.** Its formula method calls `plm()`
+unqualified, and `plm::pooltest()` alone fails with "could not find
+function". The setup chunk attaches the package for that reason.
+
+**Two nulls, one function.** `model = "pooling"` tests all coefficients,
+`model = "within"` the slopes only. Baltagi's "poolability across firms"
+is the first, "poolability of slopes only" the second [@baltagi2021, p.
+80]. Report which one was run.
+
+**Rejected does not mean no pooled slope.** The pooled slope with unit
+effects is still the average effect; what the rejection says is that the
+dispersion around it has to be reported beside it. That is the mean-group
+estimator of the [cross-dependence
+chapter](../02-cross-dependence/index.qmd#sec-cce) and the next step.
+
+**Roy–Zellner is not in plm.** `roy_zellner()` is one-way and refuses an
+unbalanced panel. It uses the Swamy–Arora θ of `plm::ercomp()`; Baltagi's
+Monte Carlo used the Amemiya and Wallace–Hussain variance estimates, and
+both gave the test the right size [@baltagi2021, p. 79].
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@baltagi2021 [sec. 4.1.3, Example 1, p. 80] prints, for Grunfeld, 27.75 on
+F(27, 170) for all coefficients, 5.78 on F(18, 170) for the slopes, 1.12 on
+F(57, 140) across time, and 4.35 on F(27, 170) for Roy–Zellner across
+firms. The `c05-1-gr` chunk above gives 27.749, 5.7805, 1.1204 and 4.3466:
+all four reproduced.
+
+@croissant2019 [sec. 8.2.3, Example 8.4, p. 194] print 26 on df (96, 1300)
+against pooling and 16 on df (48, 1300) against within for house prices,
+with two significant digits. The `c05-1-hp` chunk gives 25.778 and 16.074
+on df (96, 1323) and (48, 1323): the statistics reproduce; the printed
+denominator df is rounded to 1300, and the exact value is
+$N(T - K - 1) = 49 \times 27 = 1323$.
+:::

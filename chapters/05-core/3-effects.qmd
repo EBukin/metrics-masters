@@ -1,0 +1,282 @@
+## Effects tests {#sec-core-effects}
+
+**Question.** Is there a firm effect in investment, a year effect, both, or
+neither, so that pooled OLS would do?
+
+**Intuition.** If there is no firm effect, a firm's twenty pooled-OLS
+residuals are just twenty draws, and their sum is about as large as the
+square root of their sum of squares. If there is a firm effect, the twenty
+residuals share a sign and the sum is far larger. The **Breusch–Pagan LM
+test** squares the ratio of "sum of a unit's residuals" to "sum of their
+squares", summed over units [@breusch1980; @baltagi2021, eq. 4.23]. A
+variance cannot be negative, so the alternative is one-sided: **Honda's
+test** takes the signed square root, is normal, uniformly most powerful for
+this null, and robust to non-normality [@honda1985; @baltagi2021, p.
+83]. For a unit effect
+and a year effect together, **King–Wu** weights the two one-sided pieces
+[@king1997; @baltagi2021, eq. 4.30], and the **GHM test** drops a negative
+piece instead of squaring it [@gourieroux1982; @baltagi2021, eq. 4.33]. The
+**F test** asks the same question of the fixed-effects fit: whether the
+unit dummies reduce the residual sum of squares by more than chance
+[@baltagi2021, eq. 4.38].
+
+::: {.callout-tip appearance="simple"}
+Why the LM tests need only pooled residuals, and what the two-way versions
+assume: [fixed and random effects](theory-fixed-random.qmd).
+:::
+
+With $\tilde u$ the pooled OLS residuals and $\bar J_T$ the $T \times T$
+averaging matrix, the one-sided statistic for a unit effect is
+[@baltagi2021, eq. 4.25]
+
+$$
+A = \sqrt{\frac{NT}{2(T - 1)}}
+    \left[\frac{\tilde u'(I_N \otimes \bar J_T)\tilde u}{\tilde u'\tilde u}
+    - 1\right] \;\sim\; N(0, 1),
+$$
+
+and $A^2$ is the Breusch–Pagan statistic, $\chi^2_1$ [@baltagi2021, eq.
+4.23]. The year-effect statistic $B$ swaps $I_N \otimes \bar J_T$ for
+$\bar J_N \otimes I_T$ [@baltagi2021, eq. 4.29]. For both effects at once,
+Breusch–Pagan is $A^2 + B^2 \sim \chi^2_2$, Honda's "handy" statistic is
+$(A + B)/\sqrt 2$, King–Wu is [@baltagi2021, eq. 4.30]
+
+$$
+KW = \sqrt{\frac{T - 1}{N + T - 2}}\, A + \sqrt{\frac{N - 1}{N + T - 2}}\, B
+  \;\sim\; N(0, 1),
+$$
+
+and GHM is $A^2 + B^2$ when both are positive, $A^2$ or $B^2$ when only
+one is, and zero otherwise, with a mixed $\chi^2$ distribution
+[@baltagi2021, eq. 4.33].
+
+**The tests.** `plmtest` [@croissant2019, p. 88]: `type = "honda"`,
+`"bp"`, `"kw"` for `effect = "individual"`, `"time"` and `"twoways"`, and
+`type = "ghm"` for `"twoways"`. `pFtest`: the F test of the fixed-effects
+fit against the pooled one, or of the two-way fit against a one-way one.
+Null: no effect of that kind. A rejection means the units (or the years)
+share a component of the error.
+
+**Run it, Grunfeld.** Pooled OLS first, then the three one-sided-or-not
+statistics for each hypothesis, one chunk per hypothesis.
+
+```{r}
+#| label: c05-3-gr-ind
+gr_pool <- plm::plm(fg, data = gr, model = "pooling")
+plm::plmtest(gr_pool, effect = "individual", type = "honda")
+plm::plmtest(gr_pool, effect = "individual", type = "bp")
+plm::plmtest(gr_pool, effect = "individual", type = "kw")
+```
+
+```{r}
+#| label: c05-3-gr-time
+plm::plmtest(gr_pool, effect = "time", type = "honda")
+plm::plmtest(gr_pool, effect = "time", type = "bp")
+plm::plmtest(gr_pool, effect = "time", type = "kw")
+```
+
+```{r}
+#| label: c05-3-gr-two
+plm::plmtest(gr_pool, effect = "twoways", type = "honda")
+plm::plmtest(gr_pool, effect = "twoways", type = "bp")
+plm::plmtest(gr_pool, effect = "twoways", type = "kw")
+plm::plmtest(gr_pool, effect = "twoways", type = "ghm")
+```
+
+The F tests need the fixed-effects fits: one-way by firm, one-way by year,
+and two-way. The three two-way comparisons are the three rows of
+@baltagi2021 [Table 4.3]: both effects against none, the year effect given
+the firm effect, the firm effect given the year effect.
+
+```{r}
+#| label: c05-3-gr-f
+gr_w <- plm::plm(fg, data = gr, model = "within")
+gr_wt <- plm::plm(fg, data = gr, model = "within", effect = "time")
+gr_w2 <- plm::plm(fg, data = gr, model = "within", effect = "twoways")
+plm::pFtest(gr_w, gr_pool)
+plm::pFtest(gr_w2, gr_pool)
+plm::pFtest(gr_w2, gr_w)
+plm::pFtest(gr_w2, gr_wt)
+```
+
+**Run it, house prices.** The same thirteen calls on log price and log
+income.
+
+```{r}
+#| label: c05-3-hp-ind
+hp_pool <- plm::plm(fh, data = hp, model = "pooling")
+plm::plmtest(hp_pool, effect = "individual", type = "honda")
+plm::plmtest(hp_pool, effect = "individual", type = "bp")
+plm::plmtest(hp_pool, effect = "individual", type = "kw")
+```
+
+```{r}
+#| label: c05-3-hp-time
+plm::plmtest(hp_pool, effect = "time", type = "honda")
+plm::plmtest(hp_pool, effect = "time", type = "bp")
+plm::plmtest(hp_pool, effect = "time", type = "kw")
+```
+
+```{r}
+#| label: c05-3-hp-two
+plm::plmtest(hp_pool, effect = "twoways", type = "honda")
+plm::plmtest(hp_pool, effect = "twoways", type = "bp")
+plm::plmtest(hp_pool, effect = "twoways", type = "kw")
+plm::plmtest(hp_pool, effect = "twoways", type = "ghm")
+```
+
+```{r}
+#| label: c05-3-hp-f
+hp_w <- plm::plm(fh, data = hp, model = "within")
+hp_wt <- plm::plm(fh, data = hp, model = "within", effect = "time")
+hp_w2 <- plm::plm(fh, data = hp, model = "within", effect = "twoways")
+plm::pFtest(hp_w, hp_pool)
+plm::pFtest(hp_w2, hp_pool)
+plm::pFtest(hp_w2, hp_w)
+plm::pFtest(hp_w2, hp_wt)
+```
+
+What the tests see, drawn: the pooled residuals grouped by unit and by
+year. A unit effect shows as boxes that sit at different heights; no year
+effect shows as boxes that sit at the same height.
+
+```{r}
+#| label: c05-3-picture
+#| fig-height: 6
+#| fig-cap: "Pooled OLS residuals by firm and by year for Grunfeld (top)
+#|   and by state and by year for house prices (bottom)."
+#| fig-alt: "Four panels of boxplots. Top left, ten boxes at clearly
+#|   different heights, two of them far from zero. Top right, twenty boxes
+#|   all centred near zero with similar spread. Bottom left, 49 narrow
+#|   boxes scattered above and below zero. Bottom right, 29 boxes whose
+#|   centres drift up and down over the years in a wave."
+e_gr <- as.numeric(residuals(gr_pool))
+e_hp <- as.numeric(residuals(hp_pool))
+op <- graphics::par(mfrow = c(2, 2), mar = c(3, 4, 2, 1))
+graphics::boxplot(e_gr ~ plm::index(gr)[[1]], main = "Grunfeld, by firm",
+                  xlab = "", ylab = "residual")
+graphics::boxplot(e_gr ~ plm::index(gr)[[2]], main = "Grunfeld, by year",
+                  xlab = "", ylab = "", xaxt = "n")
+graphics::boxplot(e_hp ~ plm::index(hp)[[1]], main = "House prices, by state",
+                  xlab = "", ylab = "residual", xaxt = "n")
+graphics::boxplot(e_hp ~ plm::index(hp)[[2]], main = "House prices, by year",
+                  xlab = "", ylab = "", xaxt = "n")
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Rejects (firm effect, Grunfeld).** Honda 28.3, Breusch–Pagan 798, F
+  49.2 on (9, 188). *So:* the ten firms do not share an intercept; pooled
+  OLS is out, and the question becomes what kind of effect.
+- **Rejects (both effects, house prices).** Honda 60.0 for states and
+  18.6 for years; F 31.6 for the state effect given the year effect and
+  16.8 for the year effect given the state effect. *So:* a state effect
+  and a year effect; the two-way model, and the national force the
+  cross-dependence chapter found is the year effect's first draft.
+- **Does not reject (year effect, Grunfeld).** Honda −2.54, p = 0.99; F
+  1.40 on (19, 169) given the firm effect, p = 0.13. *So:* no year effect;
+  a one-way model for Grunfeld.
+- **Misleads (Breusch–Pagan on Grunfeld's year effect).** 6.45, p =
+  0.011: the square of a Honda statistic of −2.54, which says the
+  estimated year variance is *negative*, which is to say zero. *So:* read
+  the sign of the one-sided statistic; a two-sided test cannot see it
+  [@baltagi2021, p. 87]. The joint statistics (804.6, 18.2, 21.8) reject
+  too, on the strength of the firm effect alone.
+
+::: {.callout-note appearance="simple"}
+**Next.** Effects found: are they draws or parameters ([fixed or
+random](index.qmd#sec-core-fe-re))? None found: pooled OLS, then the error
+diagnostics of [serial correlation](index.qmd#sec-core-serial),
+[heteroskedasticity](index.qmd#sec-core-hetero) and [robust
+errors](index.qmd#sec-core-robust-se), which pooled OLS needs as much as
+any fit.
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# p: a pooled plm fit; w: the within fit of the same formula.
+plm::plmtest(p, effect = "individual", type = "honda")   # one-sided
+plm::plmtest(p, effect = "time", type = "honda")
+plm::plmtest(p, effect = "twoways", type = "ghm")        # joint, sign-safe
+plm::pFtest(w, p)                                        # F on the dummies
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Honda's sign.** A negative one-sided statistic is "no effect", not
+"an effect the wrong way". Breusch–Pagan squares it and turns the
+Grunfeld year effect into a rejection at 1 %; so does any two-sided
+reading [@baltagi2021, p. 87].
+
+**"twoways" is joint, not conditional.** `effect = "twoways"` tests both
+variances at zero at once. The question "is there a firm effect, allowing
+for a year effect" is a different test, the conditional LM of
+@baltagi1992 [@baltagi2021, eqs. 4.34 and 4.36], which needs the one-way
+GLS residuals and has no implementation here. The `pFtest(w2, w)` and
+`pFtest(w2, wt)` calls are the F versions of that conditional question and
+are the ones to report when both effects are in play; ignoring a large
+year variance when testing the firm effect makes every unconditional test
+perform badly [@baltagi2021, p. 86].
+
+**The standardized LM tests are missing.** When the regressors are many,
+or their intra-class correlation is high, the normal approximation to
+Honda's statistic is poor; the SLM test of @moulton1989 centres and scales
+it [@baltagi2021, eq. 4.26], and @honda1991 does the same for the two-way
+case. Neither is implemented; @baltagi2021 [Table 4.2] prints them, and
+the Book check reports them as not reproduced.
+
+**GHM is two-way only.** `type = "ghm"` with a one-way effect stops with
+an error; the one-way one-sided test is Honda's.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@baltagi2021 [Table 4.2, p. 88] prints the twelve LM statistics for
+Grunfeld, cross-section, time and both: Breusch–Pagan 798.1615, 6.453882,
+804.6154; Honda 28.25175, −2.540449, 18.18064; King–Wu 28.25175,
+−2.540449, 21.83221; GHM 798.1615. To the printed digits:
+
+```{r}
+#| label: c05-3-book-lm
+bp <- c(plm::plmtest(gr_pool, effect = "individual", type = "bp")$statistic,
+        plm::plmtest(gr_pool, effect = "time", type = "bp")$statistic,
+        plm::plmtest(gr_pool, effect = "twoways", type = "bp")$statistic)
+ho <- c(plm::plmtest(gr_pool, effect = "individual", type = "honda")$statistic,
+        plm::plmtest(gr_pool, effect = "time", type = "honda")$statistic,
+        plm::plmtest(gr_pool, effect = "twoways", type = "honda")$statistic)
+kw <- c(plm::plmtest(gr_pool, effect = "individual", type = "kw")$statistic,
+        plm::plmtest(gr_pool, effect = "time", type = "kw")$statistic,
+        plm::plmtest(gr_pool, effect = "twoways", type = "kw")$statistic)
+ghm <- plm::plmtest(gr_pool, effect = "twoways", type = "ghm")$statistic
+tab <- rbind(`Breusch-Pagan` = bp, Honda = ho, `King-Wu` = kw,
+             GHM = c(NA, NA, ghm))
+colnames(tab) <- c("Cross-section", "Time", "Both")
+print(tab, digits = 7)
+```
+
+All ten reproduced to every printed digit. The Standardized Honda and
+King–Wu rows (32.66605, −2.432565, 16.29814; 32.66605, −2.432565,
+20.96591) are not reproducible: no implementation.
+
+@baltagi2021 [Table 4.3, p. 89] prints the F tests for redundant fixed
+effects: cross-section 52.362355 on (9, 169), period 1.403241 on (19,
+169), both 17.403146 on (28, 169); and p. 88 the one-way F(9, 188) of
+49.18.
+
+```{r}
+#| label: c05-3-book-f
+c(both = plm::pFtest(gr_w2, gr_pool)$statistic,
+  period = plm::pFtest(gr_w2, gr_w)$statistic,
+  cross = plm::pFtest(gr_w2, gr_wt)$statistic,
+  oneway = plm::pFtest(gr_w, gr_pool)$statistic)
+```
+
+All four reproduced. The chi-square rows of Table 4.3 (266.3955,
+29.297556, 271.340224) are EViews' likelihood-ratio form and were not run.
+:::

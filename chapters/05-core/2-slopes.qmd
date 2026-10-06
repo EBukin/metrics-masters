@@ -1,0 +1,190 @@
+## Slope heterogeneity {#sec-core-slopes}
+
+**Question.** When the slopes differ, how much do they differ, and is the
+spread more than sampling noise would give?
+
+**Intuition.** Estimate each unit's own regression and look at the spread
+of the slopes. Part of the spread is sampling noise, because each slope
+comes from only $T$ observations; the rest is real. Swamy's
+**random-coefficients model** treats each unit's coefficient vector as a
+draw around a common mean and estimates the variance of the draws, net of
+the noise [@swamy1970; @croissant2019, sec. 8.2.2]. A large estimated
+variance says the units genuinely differ; a mean with a standard deviation
+of its own size says the average is one number among many. The **mean
+group** estimator of the [cross-dependence
+chapter](../02-cross-dependence/index.qmd#sec-cce) is the plain average of
+the unit slopes, and its dispersion is their empirical covariance; it is the
+Swamy estimator with equal weights, and the two converge as $T$ grows
+[@croissant2019, p. 190].
+
+::: {.callout-tip appearance="simple"}
+Random coefficients as an error-component model, and why their covariance
+can come back negative: [fixed and random
+effects](theory-fixed-random.qmd).
+:::
+
+With $\hat\beta_n$ unit $n$'s OLS slopes, $\bar\beta$ their average and
+$\hat\sigma_n^2$ unit $n$'s residual variance, Swamy's estimate of the
+dispersion of the draws is [@croissant2019, p. 188]
+
+$$
+\hat\Delta = \frac{1}{N - 1}\sum_{n}
+  (\hat\beta_n - \bar\beta)(\hat\beta_n - \bar\beta)'
+  \;-\; \frac{1}{N}\sum_{n} \hat\sigma_n^2 (Z_n'Z_n)^{-1},
+$$
+
+the raw spread of the slopes less what sampling noise contributes. Swamy's
+own test of equal slopes is the weighted sum of squared distances of the
+$\hat\beta_n$ from a pooled estimate, $\chi^2$ with $(N - 1)K$ degrees of
+freedom as $T \to \infty$ with $N$ fixed [@swamy1970; @baltagi2021, p.
+102]. For the panels this book worries about, many units and few periods,
+@pesaran2008 standardise that statistic: their $\Delta$ is
+$\sqrt{N}\,(S/N - K)/\sqrt{2K}$, normal as $N$ and $T$ grow together under
+a rate condition of the form $\sqrt{N}/T \to 0$ or $\sqrt{N}/T^2 \to 0$,
+depending on which residual variance it uses; the adjusted version keeps
+its size even when $T$ is very small relative to $N$ [@pesaran2008;
+@baltagi2021, p. 102]. @blomquist2013 give a version robust
+to serial correlation.
+
+**The tests.** `pvcm(model = "within")` [@croissant2019, p. 187] and its
+`summary()`, the spread of the unit slopes; `pvcm(model = "random")`,
+Swamy's mean and `$Delta`, and the homogeneity test its `summary()` prints;
+`pmg(model = "mg")`, the mean-group comparison. Null, for the homogeneity
+test: the slopes are the same for every unit. A rejection means the spread
+is more than noise.
+
+::: {.callout-important appearance="simple"}
+**Limitation.** Pesaran–Yamagata's $\Delta$ and its HAC version have no
+implementation in the packages this book uses; the Swamy test printed below
+is the $N$ fixed, $T \to \infty$ statistic it was built to replace.
+Benchmark: Stata `xthst` [@bersvendsen2021], deferred.
+:::
+
+**Run it, Grunfeld.** The spread of the ten firms' slopes, then Swamy's
+mean with the standard deviation of the draws beside it:
+
+```{r}
+#| label: c05-2-gr-np
+gr_np <- plm::pvcm(fg, data = gr, model = "within")
+summary(gr_np)
+```
+
+```{r}
+#| label: c05-2-gr-swamy
+gr_sw <- plm::pvcm(fg, data = gr, model = "random")
+summary(gr_sw)
+cbind(mean = coef(gr_sw), sd = sqrt(diag(gr_sw$Delta)))
+```
+
+**Run it, house prices.** The same on the 49 state slopes from the previous
+step, with the mean-group average beside Swamy's:
+
+```{r}
+#| label: c05-2-hp-np
+summary(hp_np)
+```
+
+```{r}
+#| label: c05-2-hp-swamy
+hp_sw <- plm::pvcm(fh, data = hp, model = "random")
+summary(hp_sw)
+hp_mg <- plm::pmg(fh, data = hp, model = "mg")
+cbind(Swamy = coef(hp_sw), MG = coef(hp_mg))
+```
+
+The spread, drawn: a histogram of the unit slopes for each panel, with the
+two averages marked.
+
+```{r}
+#| label: c05-2-picture
+#| fig-cap: "The unit slopes: the ten firms' coefficients on market value
+#|   (left) and the 49 states' income elasticities (right). The solid
+#|   line is Swamy's mean, the dashed line the mean-group average."
+#| fig-alt: "Two histograms. On the left, ten bars spread between 0 and
+#|   0.18 with two vertical lines close together near 0.09. On the right,
+#|   49 bars spread from about minus 1.1 to 2, with most mass between
+#|   minus 0.5 and 1 and two vertical lines close together near 0.3."
+gr_mg <- plm::pmg(fg, data = gr, model = "mg")
+op <- graphics::par(mfrow = c(1, 2))
+graphics::hist(coef(gr_np)$value, breaks = 10, col = "grey80",
+               main = "Grunfeld: slope on value", xlab = "slope")
+graphics::abline(v = coef(gr_sw)["value"], lwd = 2)
+graphics::abline(v = coef(gr_mg)["value"], lwd = 2, lty = 2)
+graphics::hist(coef(hp_np)$li, breaks = 15, col = "grey80",
+               main = "House prices: income elasticity", xlab = "slope")
+graphics::abline(v = coef(hp_sw)["li"], lwd = 2)
+graphics::abline(v = coef(hp_mg)["li"], lwd = 2, lty = 2)
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Rejects (house prices).** Swamy's homogeneity test 2440 on 96 degrees
+  of freedom. The state elasticities run from −1.14 to 2.04; Swamy's mean
+  is 0.287 and the mean-group average 0.302, and the standard deviation of
+  the draws, 0.63, is twice the mean. *So:* the income elasticity is not
+  one number, and the mean-group choice of the cross-dependence chapter
+  was right: report the average with its spread.
+- **Rejects (Grunfeld).** 901 on 27 degrees of freedom. The slopes on
+  market value run from 0.005 to 0.175 around a mean of 0.085, with a
+  standard deviation of the draws of 0.056. *So:* the firms differ in
+  slope as much as in scale; the pooled slope of the next steps is an
+  average over firms that do not share it.
+- **Does not reject.** No case on these panels. A panel whose unit lines
+  agree would print a small homogeneity statistic and a `$Delta` diagonal
+  near zero; neither panel here comes close.
+
+::: {.callout-note appearance="simple"}
+**Next.** Whatever the spread, the [effects
+tests](index.qmd#sec-core-effects) come next: a pooled slope with unit
+effects is the average effect, and the question is what kind of effect
+sits under it.
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# f: a formula; d: a pdata.frame.
+np <- plm::pvcm(f, data = d, model = "within")   # one fit per unit
+summary(np)                                      # spread of the slopes
+sw <- plm::pvcm(f, data = d, model = "random")   # Swamy
+cbind(coef(sw), sqrt(diag(sw$Delta)))            # mean, sd of the draws
+plm::pmg(f, data = d, model = "mg")              # mean group
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Swamy's covariance can come back non-positive-definite.** The second
+term of $\hat\Delta$ is subtracted, and with few periods it can exceed the
+first. The mean-group dispersion omits that term, is biased but always
+non-negative definite, and Swamy himself proposed it as the fallback
+[@croissant2019, p. 190].
+
+**Swamy's test is a large-$T$ test.** Its $\chi^2$ holds as $T \to
+\infty$ with $N$ fixed [@baltagi2021, p. 102]; on a panel with many units
+and few periods it over-rejects, and the extent of the over-rejection
+shrinks only as $T$ grows relative to $N$ [@pesaran2008; @baltagi2021, p.
+102]. $\Delta$ is the test built for $N \gg T$, and its absence here is a
+gap of the tools, not of the method. Benchmark: Stata `xthst`, deferred.
+
+**The Hausman-type test has no power.** A test of the fixed-effects slope
+against the mean-group average keeps its size but has no power against
+random draws around a common mean, whatever the sample size
+[@pesaran2008; @baltagi2021, p. 102]. Do not read "FE equals MG" as
+homogeneity.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [sec. 8.2.2, Example 8.2, p. 190] print Swamy 0.2867 and
+mean group 0.3018 for the income elasticity: the `c05-2-hp-swamy` chunk
+gives 0.2867 and 0.3018, reproduced. Their `summary(housep.np)` [pp.
+193–194] prints mean 0.302, min −1.141, max 2.037 for the state
+elasticities: the `c05-2-hp-np` chunk gives 0.3018, −1.1409 and 2.0369,
+reproduced. Their Figure 8.1 [p. 193] is the right-hand histogram above.
+No target for Pesaran–Yamagata: no implementation in R.
+:::

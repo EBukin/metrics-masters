@@ -1,0 +1,82 @@
+## Summary {#sec-core-summary}
+
+Two panels, seven questions, and the answers the tests gave:
+
+| Step | Grunfeld | House prices |
+|---|---|---|
+| Poolability | rejected across firms (27.7; slopes 5.78), not across years (1.12) | rejected (25.8; slopes 16.1) |
+| Slopes | 0.005 to 0.175 on value, Swamy mean 0.085 | −1.14 to 2.04, Swamy 0.287, MG 0.302 |
+| Effects | firm yes (Honda 28.3), year no (−2.54) | state (60.0) and year (18.6) |
+| Fixed or random | one-way: not rejected (2.33); two-way: rejected (13.5) | one-way: not rejected (1.39); two-way: rejected (58.6) |
+| Serial correlation | yes (BSY 10.3, `pwartest` 76.9) | yes (`pwartest` 22 753, DW 0.13) |
+| FE or FD | both rejected, FE far less (16.5 against 372) | both rejected (105, 385) |
+| Heteroskedasticity | steep fan, the two largest firms | flat fan, present but not by size |
+| Error to report | one-way FE with Arellano errors, $N = 10$ noted | two-way FE with Driscoll–Kraay or double clustering |
+
+Grunfeld is a one-way panel whose firm effect is admissible as random and
+whose shocks persist: fixed effects with clustered errors, and a warning
+that ten clusters make any robust error noisy. House prices are a two-way
+panel whose state effect is correlated with income once the year effect is
+in, whose errors are near a random walk, and whose states move together:
+two-way fixed effects, Driscoll–Kraay or double-clustered errors, and the
+dynamic specification next.
+
+**The decision list.**
+
+1. Test poolability with `pooltest` both ways and `roy_zellner()`; a
+   rejection means the pooled slope is an average
+   ([poolability](index.qmd#sec-core-pool)).
+2. Report the spread of the unit slopes with `pvcm` and Swamy's dispersion
+   beside the average ([slope heterogeneity](index.qmd#sec-core-slopes)).
+3. Test each effect one-sided with `plmtest(type = "honda")` and read the
+   sign; confirm with `pFtest` ([effects tests](index.qmd#sec-core-effects)).
+4. Test the correlation of the effect with `phtest`, one-way and two-way;
+   use Hausman–Taylor when a time-invariant regressor matters
+   ([fixed or random](index.qmd#sec-core-fe-re)).
+5. Run the serial battery, `pbsytest` three ways, `pbltest`, `pwartest`,
+   and read the two `pwfdtest` legs as the choice of estimator
+   ([serial correlation](index.qmd#sec-core-serial)).
+6. Draw the fan of residual variance against size and compare classical,
+   White and Arellano errors; reweight with `pggls` only when $N \gg T$
+   ([heteroskedasticity](index.qmd#sec-core-hetero)).
+7. Choose the sandwich that matches the dependence found, show the nine
+   side by side with `se_table()`, and distrust a robust error that is
+   smaller than the classical one
+   ([robust errors](index.qmd#sec-core-robust-se)).
+
+::: {.callout-note appearance="simple"}
+**Next.** Errors near a random walk: the [dynamic
+chapter](../06-dynamic/index.qmd#sec-dyn-bias). Heteroskedasticity found
+in a spatial panel: back to the spatial chapter's [fixed
+effects](../03-spatial/index.qmd#sec-sp-fe) step, where it decides between
+the ML and GM fits. Non-stationary variables: the [time
+chapter](../04-time/index.qmd#sec-ur-cross-coint), once the errors are
+known to be stationary.
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# f: a formula; d: a pdata.frame; p, w, re: pooled, within, random fits.
+plm::pooltest(f, data = d, model = "pooling")
+plm::pooltest(f, data = d, model = "within")
+roy_zellner(f, d)
+summary(plm::pvcm(f, data = d, model = "within"))
+plm::pvcm(f, data = d, model = "random")
+plm::plmtest(p, effect = "individual", type = "honda")
+plm::plmtest(p, effect = "time", type = "honda")
+plm::pFtest(w, p)
+plm::phtest(w, re)
+plm::phtest(f, data = d, method = "aux", vcov = plm::vcovHC)
+plm::pbsytest(f, data = d, test = "j")
+plm::pbsytest(f, data = d, test = "ar")
+plm::pbltest(f, data = d)
+plm::pwartest(w)
+plm::pwfdtest(f, data = d, h0 = "fd")
+plm::pwfdtest(f, data = d, h0 = "fe")
+lmtest::coeftest(w, vcov = plm::vcovHC)
+plm::pggls(f, data = d, model = "within")
+se_table(w)
+```
+:::

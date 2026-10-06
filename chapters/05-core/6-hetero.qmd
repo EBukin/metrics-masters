@@ -1,0 +1,289 @@
+## Heteroskedasticity {#sec-core-hetero}
+
+**Question.** Do big firms' investment shocks have a bigger variance than
+small firms', and large states' price shocks than small states'? If so,
+which estimates can still be trusted, and which spatial estimator of the
+[spatial chapter](../03-spatial/index.qmd#sec-sp-fe) survives?
+
+**Intuition.** Unequal error variances leave the slopes consistent but not
+efficient, and the classical standard errors biased, in either direction
+[@baltagi2021, p. 109]. Two routes. Keep the estimator and fix the
+variance: White's sandwich allows each observation its own variance
+[@white1980], and Arellano's panel version allows each unit its own
+variance *and* any serial correlation inside the unit [@arellano1987;
+@baltagi2021, p. 113]. Or model the variance and reweight: **general
+FGLS** estimates the whole $T \times T$ covariance of a unit's errors from
+the cross-section, by averaging the outer products of the residuals over
+units, and runs GLS with it [@parks1967; @kiefer1980; @wooldridge2010;
+@croissant2019, sec. 5.2.1]. The second route is efficient when it is
+right, and it is right only when $N$ is large against $T(T + 1)/2$, the
+number of covariance parameters it estimates [@croissant2019, p. 128].
+
+::: {.callout-tip appearance="simple"}
+Heteroskedastic error components, the Mazodier–Trognon model, and FEGLS
+with its rank-$(T - 1)$ caveat: [the error of a panel
+regression](theory-panel-error.qmd).
+:::
+
+With $\tilde X_i$ and $\tilde u_i$ unit $i$'s within-transformed
+regressors and residuals, Arellano's covariance is [@arellano1987;
+@croissant2019, p. 121]
+
+$$
+\widehat{\operatorname{var}}(\hat\beta_{Within}) =
+  (\tilde X'\tilde X)^{-1}
+  \Big(\sum_{i=1}^{N} \tilde X_i'\tilde u_i\tilde u_i'\tilde X_i\Big)
+  (\tilde X'\tilde X)^{-1},
+$$
+
+White's keeps only the diagonal of $\tilde u_i\tilde u_i'$. General FGLS
+replaces the middle by a model [@croissant2019, p. 128]:
+
+$$
+\hat\Omega_T = \frac{1}{N}\sum_{i=1}^{N} \hat e_i\hat e_i',
+\qquad
+\hat\beta_{GGLS} = \big(X'(I_N \otimes \hat\Omega_T)^{-1}X\big)^{-1}
+  X'(I_N \otimes \hat\Omega_T)^{-1}y .
+$$
+
+::: {.callout-important appearance="simple"}
+**Limitation.** There is no panel test of homoskedasticity in R. Verbon's
+LM test, where both variance components are the same function of
+time-invariant unit characteristics, and Lejeune's joint LM tests of no
+unit effect and homoskedasticity in the remainder error [@verbon1980;
+@lejeune2006; @baltagi2021, sec. 5.1.1, pp. 113–114] have no
+implementation here, nor does the modified Breusch–Pagan test for random
+effects robust to heteroskedasticity of Li and Stengos [@baltagi2021, p.
+113]. This step shows the evidence by picture and by the ordinary
+Breusch–Pagan regression of squared residuals on the within-transformed
+data, a substitute that is not a panel test and has no published panel
+size.
+:::
+
+**The tests.** `vcovHC` through `coeftest` with `method = "arellano"`,
+the default, and `method = "white1"`; `pggls` with `model = "pooling"`
+and `model = "within"` [@croissant2019, sec. 5.2.1]; `phtest` on the two
+`pggls` fits, the Hausman test between them [@croissant2019, p. 132].
+`lmtest::bptest`, the Breusch–Pagan test of @breusch1980's companion
+paper for heteroskedasticity, on an `lm` of the within-transformed
+variables; null: constant variance; not the LM test for effects of the
+third step.
+
+**Run it, Produc.** The within fit of the public-capital equation, the
+spec's canonical case: classical, White, Arellano.
+
+```{r}
+#| label: c05-6-pr-se
+pr_w <- plm::plm(fp, data = pr, model = "within")
+lmtest::coeftest(pr_w)
+lmtest::coeftest(pr_w, vcov = function(x) plm::vcovHC(x, method = "white1"))
+lmtest::coeftest(pr_w, vcov = plm::vcovHC)
+```
+
+Then the reweighted fits, pooled and within, and the Hausman test between
+them:
+
+```{r}
+#| label: c05-6-pr-ggls
+pr_ggls_p <- plm::pggls(fp, data = pr, model = "pooling")
+summary(pr_ggls_p)
+pr_ggls_w <- plm::pggls(fp, data = pr, model = "within")
+summary(pr_ggls_w)
+plm::phtest(pr_ggls_w, pr_ggls_p)
+```
+
+**Run it, Grunfeld.** The same six calls:
+
+```{r}
+#| label: c05-6-gr
+lmtest::coeftest(gr_w)
+lmtest::coeftest(gr_w, vcov = function(x) plm::vcovHC(x, method = "white1"))
+lmtest::coeftest(gr_w, vcov = plm::vcovHC)
+gr_ggls_p <- plm::pggls(fg, data = gr, model = "pooling")
+coef(summary(gr_ggls_p))
+gr_ggls_w <- plm::pggls(fg, data = gr, model = "within")
+coef(summary(gr_ggls_w))
+plm::phtest(gr_ggls_w, gr_ggls_p)
+```
+
+**Run it, house prices.**
+
+```{r}
+#| label: c05-6-hp
+lmtest::coeftest(hp_w)
+lmtest::coeftest(hp_w, vcov = function(x) plm::vcovHC(x, method = "white1"))
+lmtest::coeftest(hp_w, vcov = plm::vcovHC)
+hp_ggls_p <- plm::pggls(fh, data = hp, model = "pooling")
+coef(summary(hp_ggls_p))
+hp_ggls_w <- plm::pggls(fh, data = hp, model = "within")
+coef(summary(hp_ggls_w))
+plm::phtest(hp_ggls_w, hp_ggls_p)
+```
+
+The substitute diagnostic, on the within-transformed variables of each
+panel:
+
+```{r}
+#| label: c05-6-bptest
+lmtest::bptest(lm(plm::Within(log(pr$gsp)) ~ plm::Within(log(pr$pcap)) +
+  plm::Within(log(pr$pc)) + plm::Within(log(pr$emp)) +
+  plm::Within(pr$unemp)))
+lmtest::bptest(lm(plm::Within(gr$inv) ~ plm::Within(gr$value) +
+  plm::Within(gr$capital)))
+lmtest::bptest(lm(plm::Within(hp$lp) ~ plm::Within(hp$li)))
+```
+
+The evidence, drawn: each unit's within-residual standard deviation
+against its size, the fan; and the correlation matrix the pooled FGLS fit
+estimated on Produc, whose off-diagonals do not die out.
+
+```{r}
+#| label: c05-6-picture
+#| fig-width: 9
+#| fig-cap: "Within-residual standard deviation per unit against unit
+#|   size, Grunfeld (left, mean market value) and house prices (centre,
+#|   mean income, log scale); and the 17 × 17 error correlation matrix
+#|   estimated by pooled general FGLS on Produc (right), darker is higher."
+#| fig-alt: "Three panels. Left, ten points that rise steeply with size:
+#|   the two largest firms have residual standard deviations near 95, the
+#|   smallest near 2. Centre, 49 points in a flat band between 0.06 and
+#|   0.23 with no trend in income. Right, a grey-scale square that is
+#|   darkest on the diagonal and stays dark for most of each row, fading
+#|   only in the last columns."
+unit_sd <- function(fit, size, main, xlab, log = "") {
+  id <- plm::index(fit)[[1]]
+  s <- tapply(as.numeric(residuals(fit)), id, sd)
+  z <- tapply(as.numeric(size), id, mean)
+  plot(z, s, pch = 16, log = log, main = main, xlab = xlab,
+       ylab = "residual sd")
+}
+op <- graphics::par(mfrow = c(1, 3), mar = c(4, 4, 2, 1))
+unit_sd(gr_w, gr$value, "Grunfeld", "mean market value")
+unit_sd(hp_w, hp$income, "House prices", "mean income", log = "x")
+r_pr <- cov2cor(pr_ggls_p$sigma)
+graphics::image(1:17, 1:17, r_pr[, 17:1], col = grey(seq(1, 0, by = -0.05)),
+                xlab = "year", ylab = "year", main = "Produc: pooled FGLS",
+                yaxt = "n")
+yrs <- levels(plm::index(pr)[[2]])
+graphics::axis(2, at = c(1, 17), labels = c(yrs[17], yrs[1]))
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Produc.** Arellano's errors are 2.1 to 2.7 times the classical ones;
+  the within FGLS fit moves `log(pc)` from 0.29 to 0.17 and `log(emp)`
+  from 0.77 to 0.84, and the Hausman test between the FGLS fits (32.1)
+  keeps the within version. *So:* the classical errors overstate
+  precision by more than half, and reweighting changes the point
+  estimates, which is what inefficiency under heteroskedasticity and
+  serial correlation looks like; the Breusch–Pagan substitute (18.7, p =
+  0.0009) agrees.
+- **Grunfeld.** The fan is steep: the two largest firms have residual
+  standard deviations near 95, the smallest 1.5, and Arellano's errors
+  are 1.2 (value) and 2.9 (capital) times the classical ones. *So:* the
+  shocks scale with the firm; and `pggls` on Grunfeld, 210 covariance
+  parameters from ten firms, is shown and read as unreliable, its
+  Hausman test of 816 included.
+- **House prices.** The fan is flat, the correlation of residual
+  standard deviation with income 0.18 on the log scale; yet the
+  substitute rejects (25.7) and Arellano's error is 3.3 times the
+  classical. *So:* heteroskedasticity is there but not by size, and most
+  of Arellano's inflation is the serial correlation of the previous step.
+  The within FGLS slope is 0.316 against within's 0.345, the pooled FGLS
+  slope 0.378.
+- **Misleads (White's `"white1"` on Produc).** 1.1 to 1.3 times the
+  classical errors. *So:* it allows the variance to differ but not the
+  serial correlation, and understates the problem by half; on a panel the
+  default of `vcovHC.plm` is Arellano for that reason [@croissant2019, p.
+  113].
+
+::: {.callout-note appearance="simple"}
+**Next.** The menu of robust errors and which one fits which dependence
+([robust errors](index.qmd#sec-core-robust-se)). For the spatial fits:
+heteroskedasticity present, keep the GM fit, because spatial maximum
+likelihood under homoskedastic innovations is inconsistent when the
+innovations are not [@lin2010; @pesaran2015, p. 807] ([fixed
+effects](../03-spatial/index.qmd#sec-sp-fe)).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# w: a within plm fit; f: its formula; d: a pdata.frame.
+lmtest::coeftest(w, vcov = plm::vcovHC)                   # Arellano
+lmtest::coeftest(w, vcov = function(x) plm::vcovHC(x, method = "white1"))
+plm::pggls(f, data = d, model = "within")                 # FEGLS, N >> T
+plm::phtest(plm::pggls(f, data = d, model = "within"),
+            plm::pggls(f, data = d, model = "pooling"))
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Two `vcovHC`s.** `plm::vcovHC` on a panel fit defaults to Arellano,
+clustered by unit; `sandwich::vcovHC` on an `lm` of the same data defaults
+to White. The same call name gives different numbers, and only
+`method = "white1"` with the `HC3` correction makes the `lm` numbers
+reappear [@croissant2019, Example 5.1, p. 113].
+
+**FGLS needs $N \gg T$.** The number of covariance parameters is
+$T(T + 1)/2$; with few units the estimate is near-singular and the
+standard errors biased downward [@croissant2019, p. 128]. Grunfeld's 210
+from ten firms is not a model. The within version drops one period,
+because the covariance of demeaned errors has rank $T - 1$
+[@croissant2019, p. 131].
+
+**`pggls(model = "fd")` carries an intercept.** In plm 2.6.7 the
+first-difference model has one by default; CM's printed fit has none, and
+the Book check shows both.
+
+**Heteroskedastic errors break spatial ML.** The maximum-likelihood
+spatial estimators of the spatial chapter assume homoskedastic
+innovations and are inconsistent without them [@lin2010; @pesaran2015,
+p. 807]; the GM fit survives.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [Example 5.1, p. 112] print `coeftest(plmmod, vcov =
+vcovHC)` on pooled Produc with standard errors 0.06012, 0.04623, 0.06861,
+0.00309 on the four slopes:
+
+```{r}
+#| label: c05-6-book-hc
+pr_pool <- plm::plm(fp, data = pr, model = "pooling")
+lmtest::coeftest(pr_pool, vcov = plm::vcovHC)
+```
+
+0.06012, 0.04623, 0.06861, 0.00309: reproduced.
+
+@croissant2019 [Examples 5.11 to 5.14, pp. 129–132] print, for `EmplUK`,
+pooled general FGLS 2.0235, −0.2323, 0.6105; first-difference FGLS
+−0.3343 (0.0385), 0.3786 (0.0203); and the Hausman test between the within
+and pooled FGLS fits, 1100:
+
+```{r}
+#| label: c05-6-book-ggls
+data("EmplUK", package = "plm")
+em <- plm::pdata.frame(EmplUK)
+fe_em <- log(emp) ~ log(wage) + log(capital)
+em_ggls_p <- plm::pggls(fe_em, data = em, model = "pooling")
+coef(summary(em_ggls_p))
+em_ggls_w <- plm::pggls(fe_em, data = em, model = "within")
+plm::phtest(em_ggls_w, em_ggls_p)
+em_ggls_fd <- plm::pggls(fe_em, data = em, model = "fd")
+coef(summary(em_ggls_fd))
+em_ggls_fd1 <- plm::pggls(update(fe_em, . ~ . - 1), data = em, model = "fd")
+coef(summary(em_ggls_fd1))
+```
+
+Pooled 2.0235, −0.2323, 0.6105: reproduced. Hausman 1064.6 against 1100:
+reproduced to CM's two digits. First differences: −0.3129 and 0.3712 with
+plm's default intercept, not CM's numbers; −0.3343 (0.0385) and 0.3786
+(0.0203) with `- 1` in the formula, reproduced. @baltagi2021 [sec. 5.1]
+prints no number for this step.
+:::

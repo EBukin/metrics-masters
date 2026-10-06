@@ -1,0 +1,243 @@
+## Robust errors {#sec-core-robust-se}
+
+**Question.** Which standard error is honest for a panel whose errors are
+heteroskedastic, serially correlated within a state, and correlated across
+states in the same year?
+
+**Intuition.** Every robust covariance is a sandwich: the usual
+$(X'X)^{-1}$ on both sides, and in the middle an estimate of $X'\Omega X$
+built from the residuals. White's version puts only the squared residuals
+in the middle. A panel version adds the cross-products of residuals that
+belong to the same **cluster**, and the choice of cluster is the choice of
+what dependence to allow [@millo2017; @croissant2019, sec. 5.1.1]. Cluster
+by unit: any serial correlation inside a unit, with asymptotics in $N$.
+Cluster by year: any cross-sectional correlation inside a year, with
+asymptotics in $T$. Both at once: **double clustering**, which needs both
+dimensions to grow [@cameron2011; @thompson2011; @croissant2019, p. 115].
+Year clusters plus kernel-weighted lags: **Driscoll–Kraay**, robust to
+spatial and temporal dependence as $T \to \infty$ [@driscoll1998;
+@croissant2019, p. 116; @baltagi2021, p. 394]. White plus kernel-weighted
+lags inside each unit: **panel Newey–West** [@newey1987; @croissant2019,
+p. 116]. **Beck–Katz** panel-corrected errors assume the same
+cross-sectional covariance in every year [@beck1995; @croissant2019, p.
+122]. The previous steps said which dependence each panel has; this one
+says which sandwich survives it.
+
+::: {.callout-tip appearance="simple"}
+The sandwich principle, the building blocks, and the asymptotics each
+estimator needs: [the error of a panel regression](theory-panel-error.qmd).
+:::
+
+With $V_{wh}$ White's estimator, $V_{cx}$ and $V_{ct}$ the clustering by
+unit and by time, $V_{\cdot,l}$ the lag-$l$ cross-products and $w_l$ a
+kernel weight, the estimators are combinations of the same blocks
+[@croissant2019, Table 5.1, p. 117]:
+
+| Estimator | Blocks |
+|---|---|
+| double clustering | $V_{cxt} = V_{cx} + V_{ct} - V_{wh}$ |
+| time clustering with shocks | $V_{ct,L} = V_{ct} + \sum_{l=1}^{L} [V_{ct,l} + V_{ct,l}']$ |
+| panel Newey–West | $V_{nw,L} = V_{wh} + \sum_{l=1}^{L} w_l [V_{wh,l} + V_{wh,l}']$ |
+| Driscoll–Kraay | $V_{scc,L} = V_{ct} + \sum_{l=1}^{L} w_l [V_{ct,l} + V_{ct,l}']$ |
+| double clustering with shocks | $V_{cxt,L} = V_{ct,L} + V_{cx} - V_{nw,L}\rvert_{w = 1}$ |
+
+Set $L = 0$ and Driscoll–Kraay is time clustering; set $w_l = 1$ and it is
+time clustering with unweighted shocks [@croissant2019, p. 116]. The
+default lag is $\lfloor T^{1/4} \rfloor$ and the default kernel is
+Bartlett's.
+
+**The tests.** Not tests but estimators, each through `coeftest`:
+`vcovHC` [@arellano1987], cluster by unit by default; `vcovSCC`
+[@driscoll1998]; `vcovBK` [@beck1995]; `vcovNW` [@newey1987]; `vcovDC`
+[@cameron2011]. `vcovG` is the parent that builds any block from a cluster
+dimension, an inner product and a lag [@croissant2019, p. 117]. The
+helper `se_table()` from `R/` then sets the nine estimators of
+@croissant2019 [Example 5.4] side by side, after every call has been shown.
+
+**Run it, Produc.** The within fit of the public-capital equation from
+the previous step, five covariances:
+
+```{r}
+#| label: c05-7-pr
+lmtest::coeftest(pr_w, vcov = plm::vcovHC)
+lmtest::coeftest(pr_w, vcov = plm::vcovSCC)
+lmtest::coeftest(pr_w, vcov = plm::vcovBK)
+lmtest::coeftest(pr_w, vcov = plm::vcovNW)
+lmtest::coeftest(pr_w, vcov = plm::vcovDC)
+```
+
+The nine estimators of CM's table, as standard errors and as ratios to the
+classical ones:
+
+```{r}
+#| label: c05-7-pr-table
+round(se_table(pr_w), 4)
+round(se_table(pr_w, ratio = TRUE), 2)
+```
+
+**Run it, house prices.** The same on the within fit of log price on log
+income:
+
+```{r}
+#| label: c05-7-hp
+lmtest::coeftest(hp_w, vcov = plm::vcovHC)
+lmtest::coeftest(hp_w, vcov = plm::vcovSCC)
+lmtest::coeftest(hp_w, vcov = plm::vcovBK)
+lmtest::coeftest(hp_w, vcov = plm::vcovNW)
+lmtest::coeftest(hp_w, vcov = plm::vcovDC)
+```
+
+```{r}
+#| label: c05-7-hp-table
+round(se_table(hp_w), 4)
+round(se_table(hp_w, ratio = TRUE), 2)
+```
+
+**Run it, Grunfeld.** The table only, as the cautionary case: ten
+clusters.
+
+```{r}
+#| label: c05-7-gr-table
+round(se_table(gr_w), 4)
+round(se_table(gr_w, ratio = TRUE), 2)
+```
+
+The bands, drawn: one slope per panel under the nine estimators.
+
+```{r}
+#| label: c05-7-picture
+#| fig-cap: "The coefficient on log employment in Produc (left) and the
+#|   income elasticity in house prices (right), with 95 % bands under the
+#|   nine covariance estimators, classical at the top."
+#| fig-alt: "Two dot-and-whisker charts with nine rows each. In both the
+#|   dot is at the same place in every row and the whiskers grow from
+#|   short at the top (OLS, White) to several times longer for the
+#|   clustered and kernel rows below, the longest in the last row."
+se_band <- function(fit, term, main) {
+  b <- coef(fit)[term]
+  se <- se_table(fit)[, term]
+  k <- length(se)
+  plot(rep(b, k), k:1, xlim = b + c(-2, 2) * max(se), ylim = c(0.5, k + 0.5),
+       pch = 16, yaxt = "n", ylab = "", xlab = "estimate", main = main)
+  graphics::segments(b - 1.96 * se, k:1, b + 1.96 * se, k:1)
+  graphics::axis(2, at = k:1, labels = names(se), las = 1, cex.axis = 0.8)
+}
+op <- graphics::par(mfrow = c(1, 2), mar = c(4, 5, 2, 1))
+se_band(pr_w, "log(emp)", "Produc: log(emp)")
+se_band(hp_w, "li", "House prices: income")
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Produc.** On `log(emp)`, classical 0.030; Arellano 0.082,
+  Driscoll–Kraay 0.083, double clustering 0.095, double clustering with
+  shocks 0.105. *So:* serial correlation inside a state is the main cost,
+  2.7 times the classical error on its own; cross-sectional correlation
+  adds another sixth on top; the classical $t$ statistics were three
+  times too large.
+- **House prices.** On the income elasticity, classical 0.027; Arellano
+  0.089, Driscoll–Kraay 0.109, double clustering 0.113, with shocks
+  0.148. *So:* 3.3 to 5.5 times the classical error, the bill for the
+  0.82 serial correlation and the cross-state co-movement of the
+  [spatial chapter](../03-spatial/index.qmd#sec-sp-map) together. Read
+  the blocks the way @petersen2009 does [@croissant2019, p. 119]: time
+  clustering with shocks (0.130) is well above plain time clustering
+  (0.076), so the cross-serial correlation is real, and double clustering
+  (0.113) sits above both one-way clusterings, so neither dimension alone
+  is enough.
+- **Grunfeld.** On `value`, Arellano 0.014 against 0.012 classical,
+  and double clustering with shocks 0.008, *below* the classical error.
+  *So:* with ten clusters the Arellano estimator is itself noisy, and the
+  kernel estimators sit at $T = 20$, Driscoll–Kraay's practical minimum
+  [@croissant2019, p. 116]; a robust error smaller than the classical one
+  is a warning, not a gain.
+- **Misleads (Newey–West on house prices).** 0.043, the smallest robust
+  number of the nine. *So:* the kernel downweights the covariance between
+  distant years, and with a near-random-walk error that is where most of
+  the dependence is; Newey–West is biased when effects are persistent
+  [@petersen2009; @croissant2019, p. 121].
+
+::: {.callout-note appearance="simple"}
+**Next.** The [summary](index.qmd#sec-core-summary). For a panel whose
+within residuals look like a random walk, as the house prices' do, the
+[dynamic chapter](../06-dynamic/index.qmd#sec-dyn-bias).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# w: a plm fit.
+lmtest::coeftest(w, vcov = plm::vcovHC)    # cluster by unit (Arellano)
+lmtest::coeftest(w, vcov = plm::vcovSCC)   # Driscoll-Kraay
+lmtest::coeftest(w, vcov = plm::vcovDC)    # double clustering
+se_table(w)                                # the nine, side by side
+se_table(w, ratio = TRUE)                  # as ratios to the classical
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Driscoll–Kraay needs $T$ large.** The practical minimum from their
+Monte Carlo is $T$ above 20 to 25, and $N$ is irrelevant [@croissant2019,
+p. 116]; at $T = 17$ (Produc) and 20 (Grunfeld) the "as $T \to \infty$"
+caveat of @baltagi2021 [p. 394] binds, as the spatial chapter's
+[limits](../03-spatial/index.qmd#sec-sp-limits) already said.
+
+**Newey–West is biased under persistent effects.** Remove the unit effect
+first, by demeaning or differencing, before a kernel estimator
+[@croissant2019, p. 121].
+
+**Clusters and fixed effects along the same dimension.** Time demeaning
+induces serial correlation, so group clustering goes with individual fixed
+effects and time clustering with time fixed effects; the reverse pairings
+are inappropriate [@croissant2019, p. 121].
+
+**`vcovBK` defaults to `cluster = "group"`.** Beck–Katz's own setting is
+time clustering with a common cross-sectional covariance; read `?vcovBK`
+before calling the default PCSE.
+
+**Bester–Conley–Hansen is not implemented.** Clustering by spatial blocks
+when the dependence follows a map has no function here; the spatial
+chapter's `cortab` supports its precondition only.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [Example 5.3, pp. 117–118] print `coeftest(plmmod,
+vcov = vcovSCC)` on pooled Produc with standard errors 0.15035, 0.03697,
+0.00764, 0.03870, 0.00254:
+
+```{r}
+#| label: c05-7-book-scc
+pr_pool <- plm::plm(fp, data = pr, model = "pooling")
+lmtest::coeftest(pr_pool, vcov = plm::vcovSCC)
+```
+
+0.15035, 0.03697, 0.00764, 0.03870, 0.00254: reproduced. Their Example
+5.4 [p. 119] prints the nine-row table on the same pooled fit, from OLS
+0.0576 to Vcxt.L 0.2722:
+
+```{r}
+#| label: c05-7-book-pooled
+round(se_table(pr_pool), 4)
+```
+
+All 45 cells reproduced to four decimals. Their Example 5.5 [p. 122]
+prints the same table for `plm(fm, Produc)`, which they call the
+random-effects specification; `plm`'s default model is within, and the
+coefficients they print (−0.0261, 0.2920, 0.7682, −0.0053) are the within
+estimates. The `c05-7-pr-table` chunk above is that table: all 36 cells
+reproduced, from 0.0290 to 0.0717. `vcovDC` equals $V_{cx} + V_{ct} -
+V_{wh}$ in every cell:
+
+```{r}
+#| label: c05-7-book-dc
+max(abs(plm::vcovDC(pr_w) - (plm::vcovHC(pr_w, cluster = "group") +
+  plm::vcovHC(pr_w, cluster = "time") -
+  plm::vcovHC(pr_w, method = "white1"))))
+```
+:::
