@@ -62,8 +62,8 @@ panel first, since its shape and balance limit every tool that comes after.
 Then test whether units move together: dependence that is strong and
 national calls for common factors, dependence that is weak and local calls
 for a spatial model, in which a neighbour's outcome or a neighbour's shock
-enters a unit's own equation. Time dependence is a separate layer, asked once the
-cross-sectional question is settled. Core panel models, fixed and random
+enters a unit's own equation. Time dependence is a separate layer, asked once
+the cross-sectional question is settled. Core panel models, fixed and random
 effects among them, come last, once the error structure is known. The diagram
 below maps the whole process; each box is a chapter.
 
