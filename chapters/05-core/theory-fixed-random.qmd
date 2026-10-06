@@ -16,12 +16,13 @@ subtitle: "The unit effect, the tests that find it, and the test between them"
 ## Why the method exists
 
 General Motors invests on a scale Westinghouse never reaches, at the same
-market value and the same capital stock. Each of Grunfeld's ten firms has a
-character of its own, and so does each of the 49 states whose house prices
-run through this book. Call that character $\alpha_i$, the **unit effect**:
-everything about unit *i* that does not change over the sample and is not in
-the regression. In an earnings equation it is unobserved ability; in a
-production function it is managerial skill [@baltagi2021, p. 15].
+market value and the same capital stock. Each of Grunfeld's ten firms
+[@grunfeld1958] has a character of its own, and so does each of the 49
+states whose house prices run through this book. Call that character
+$\alpha_i$, the **unit effect**: everything about unit *i* that does not
+change over the sample and is not in the regression. In an earnings
+equation it is unobserved ability; in a production function it is
+managerial skill [@baltagi2021, p. 15].
 
 One pooled regression puts $\alpha_i$ in the error, and that does two kinds
 of damage. The errors of one unit are then correlated across every pair of
@@ -40,12 +41,12 @@ effect [@baltagi2021, p. 17]. **Random effects** treat $\alpha_i$ as a draw,
 $\alpha_i \sim \mathrm{IID}(0, \sigma^2_\alpha)$, independent of the
 regressors. The price is that independence assumption; the gain is
 efficiency, because between-unit variation is used too, and a coefficient on
-the time-invariant regressors [@baltagi2021, p. 24]. Mundlak put the choice
-sharply: random effects assume every regressor is uncorrelated with
-$\alpha_i$, fixed effects allow every one to be correlated, "an 'all' or
-'nothing' choice" [@baltagi2021, p. 28]. The rest of this note is about how
-to tell whether $\alpha_i$ is there at all, and then which of the two
-stories fits.
+the time-invariant regressors [@baltagi2021, pp. 17, 24, 27]. Mundlak put
+the choice sharply: random effects assume every regressor is uncorrelated
+with $\alpha_i$, fixed effects allow every one to be correlated, "an 'all'
+or 'nothing' choice" [@mundlak1978; @baltagi2021, p. 28]. The rest of this
+note is about how to tell whether $\alpha_i$ is there at all, and then
+which of the two stories fits.
 
 ## 1. One error, two components
 
@@ -64,9 +65,9 @@ with $\varepsilon_{it} \sim \mathrm{IID}(0, \sigma^2_\varepsilon)$, the
 \varepsilon_{it}$, a strike year or an oil shock that hits every unit in that
 year [@baltagi2021, eq. 3.1, p. 47]; Baltagi writes it $\lambda_t$. The
 same-slopes assumption is **poolability**, and its tests, Chow's F,
-Roy–Zellner and Swamy's random coefficients, are in [the error
-note](theory-panel-error.qmd); this note takes the slopes as common and asks
-what $\alpha_i$ is.
+Roy–Zellner and Swamy's random coefficients [@chow1960; @roy1957;
+@zellner1962; @swamy1970], are in [the error note](theory-panel-error.qmd);
+this note takes the slopes as common and asks what $\alpha_i$ is.
 
 Under random effects the composite error has covariance
 
@@ -131,14 +132,15 @@ feasible GLS fit there sits next to the within fit [@baltagi2021, p. 31].
 
 The variance components have to be estimated first, and the menu in
 `random.method` is a menu of residuals. Wallace–Hussain use pooled OLS
-residuals in the two quadratic forms $u'Pu/N$ and $u'Qu/N(T-1)$; Amemiya
-uses the within residuals instead, which gives the same asymptotic
-distribution as knowing the true disturbances [@baltagi2021, eqs. 2.21–2.23,
-p. 25]; Swamy–Arora take $\hat\sigma^2_\varepsilon$ from the within
-regression's mean square and $\hat\sigma^2_1$ from the between regression's
-[@swamy1972; @baltagi2021, eqs. 2.24 and 2.27, pp. 25–26]; Nerlove estimates
-$\sigma^2_\alpha$ as the sample variance of the estimated dummies
-[@baltagi2021, p. 27; @croissant2019, pp. 36–37]. All but Nerlove recover
+residuals in the two quadratic forms $u'Pu/N$ and $u'Qu/N(T-1)$
+[@wallace1969]; Amemiya uses the within residuals instead, which gives the
+same asymptotic distribution as knowing the true disturbances
+[@amemiya1971; @baltagi2021, eqs. 2.21–2.23, p. 25]; Swamy–Arora take
+$\hat\sigma^2_\varepsilon$ from the within regression's mean square and
+$\hat\sigma^2_1$ from the between regression's [@swamy1972; @baltagi2021,
+eqs. 2.24 and 2.27, pp. 25–26]; Nerlove estimates $\sigma^2_\alpha$ as the
+sample variance of the estimated dummies [@nerlove1971; @baltagi2021, p.
+27; @croissant2019, pp. 36–37]. All but Nerlove recover
 $\sigma^2_\alpha = (\sigma^2_1 - \sigma^2_\varepsilon)/T$ by subtraction, and
 nothing stops the difference from being negative. In the one-way model the
 fix is to set it to zero, which happens only when the true variance is near
@@ -225,8 +227,9 @@ asymptotically independent; it "is immune to the possible negative values
 of A and B" [@gourieroux1982; @baltagi1992; @baltagi2021, eq. 4.33, p. 84].
 In Baltagi, Chang and Li's Monte Carlo, Breusch–Pagan, Honda and King–Wu all
 under-size the joint test when a piece is negative, while GHM and the F test
-hold their size [@baltagi2021, p. 86]. `plm::plmtest(type = "ghm")` exists
-for `effect = "twoways"` only, which is where it is needed.
+hold their size [@baltagi1992; @baltagi2021, p. 86].
+`plm::plmtest(type = "ghm")` exists for `effect = "twoways"` only, which is
+where it is needed.
 
 Two refinements are not implemented. Moulton and Randolph showed that the
 $N(0, 1)$ approximation for Honda's statistic "can be poor even in large
@@ -236,18 +239,19 @@ correlation of some of the regressors is high", and proposed the
 mean and variance of the quadratic form,
 $SLM = (d - E(d))/\sqrt{\mathrm{var}(d)}$ with
 $d = \hat u' D \hat u / \hat u'\hat u$ [@moulton1989; @honda1991;
-@baltagi2021, eqs. 4.26–4.28, p. 83]. Spatially smooth regressors have a
-high intra-class correlation, so this is the case of this book. And testing
-$\sigma^2_\alpha = 0$ with Honda's statistic "implicitly assumes that the
-time-specific effects do not exist", which "may lead to incorrect decisions
-especially when the variance of the time effects (assumed to be zero) is
-large". The **conditional LM** tests of Baltagi, Chang and Li test one
-variance allowing the other to be positive, from one-way GLS residuals
-[@baltagi1992; @baltagi2021, eqs. 4.34 and 4.36, p. 85]; the Monte Carlo
-verdict is that "one should not ignore the possibility that $\sigma^2_\lambda
-> 0$ when testing $\sigma^2_\mu = 0$", and that over-specifying the model as
-two-way costs little [@baltagi2021, p. 86]. `plmtest(effect = "twoways")`
-tests both variances jointly; it is not this conditional test.
+@baltagi2021, eqs. 4.26–4.28 and 4.31, pp. 83–84]. Spatially smooth
+regressors have a high intra-class correlation, so this is the case of this
+book. And testing $\sigma^2_\alpha = 0$ with Honda's statistic "implicitly
+assumes that the time-specific effects do not exist", which "may lead to
+incorrect decisions especially when the variance of the time effects
+(assumed to be zero) is large". The **conditional LM** tests of Baltagi,
+Chang and Li test one variance allowing the other to be positive, from
+one-way GLS residuals [@baltagi1992; @baltagi2021, eqs. 4.34 and 4.36, p.
+85]; the Monte Carlo verdict is that "one should not ignore the possibility
+that $\sigma^2_\lambda > 0$ when testing $\sigma^2_\mu = 0$", and that
+over-specifying the model as two-way costs little [@baltagi2021, p. 86].
+`plmtest(effect = "twoways")` tests both variances jointly; it is not this
+conditional test.
 
 The oldest test is an **F** on the unit dummies: pooled OLS is the
 restricted model, within the unrestricted, and
@@ -262,10 +266,11 @@ there are three such tests: both sets of dummies against pooled OLS, unit
 dummies given time dummies, and time dummies given unit dummies, each with
 the two-way within fit as the unrestricted model [@baltagi2021, eqs.
 3.8–3.9, p. 49]. These conditional F tests are exact in finite samples under
-normality, "perform reasonably well when compared to the LR and LM tests,
-for both the one-way and two-way models and are recommended" [@baltagi2021,
-p. 87]; they are the three rows of Baltagi's Table 4.3 [@baltagi2021, p.
-89], and `plm::pFtest` on two nested within fits is the conditional pair.
+normality [@baltagi2021, p. 85], "perform reasonably well when compared to
+the LR and LM tests, for both the one-way and two-way models and are
+recommended" [@baltagi2021, p. 87]; they are the three rows of Baltagi's
+Table 4.3 [@baltagi2021, p. 89], and `plm::pFtest` on two nested within
+fits is the conditional pair.
 
 ## 4. Fixed or random: the Hausman contrast
 
@@ -315,11 +320,13 @@ orthogonal deviations stacked over unit means, with $\hat\gamma =
 \hat\beta_B - \hat\beta_W$, and tests $\gamma = 0$ with White's robust
 covariance [@arellano1993; @baltagi2021, eq. 4.49, pp. 91–92]; "a simpler
 robust Hausman test can be obtained by testing for $\gamma = 0$ from the
-artificial regression (4.42) using the robust variance-covariance option"
-[@baltagi2021, p. 92; @croissant2019, sec. 5.1.3.1, p. 125], which is
-`phtest(method = "aux", vcov = plm::vcovHC)`. On Grunfeld Baltagi's robust
-F(2, 195) is 1.58, p 0.208 [@baltagi2021, p. 95]; with ten clusters the
-Arellano covariance is itself noisy, and the step reports what plm gives.
+artificial regression (4.42) using the robust variance-covariance matrix
+option" [@baltagi2021, p. 92; @croissant2019, sec. 5.1.3.1, p. 125], which
+is `phtest(method = "aux", vcov = plm::vcovHC)`. On Grunfeld Baltagi's
+robust F(2, 195) is 1.58, p 0.208 [@baltagi2021, p. 95]; with ten clusters
+the Arellano covariance is itself noisy, since the estimator is asymptotic
+in the number of clusters [@croissant2019, p. 110], and the step reports
+what plm gives.
 
 **Mundlak's** reading says what is being tested. Let the unit effect be a
 linear function of the unit means of the regressors,
@@ -329,28 +336,32 @@ $$
 w_i \sim \mathrm{IID}(0, \sigma^2_w).
 $$
 
-Substituting it in gives $y = X\beta + PX\pi + (\alpha + \varepsilon)$, an
-error-components model with the unit means as extra regressors, and GLS on
-it returns $\hat\beta = \hat\beta_W$ and $\hat\pi = \hat\beta_B -
-\hat\beta_W$: once the correlation is modelled, the efficient estimator is
-within, and the random-effects estimator is biased because it ignores $\pi$
-[@mundlak1978; @baltagi2021, eqs. 7.33–7.38, pp. 170–171; @croissant2019,
-sec. 4.2.1, pp. 89–90]. Hausman's test is the test of $\pi = 0$. It is
-worth saying what a rejection does not show. "Rejecting the null of the
-Hausman test implies that the RE estimator is not consistent. This does not
-necessarily mean that the FE restrictions are satisfied" [@baltagi2021, p.
-93]. Chamberlain's restrictions, that the reduced-form regression of each
-year's $y$ on every year's $x$ has the structure $\Pi = (I_T \otimes
-\beta') + \iota_T \lambda'$, are testable; Angrist and Newey showed that the
-minimum chi-square statistic is a sum over periods of degrees of freedom
-times the $R^2$ from regressing that period's within residuals on all leads
-and lags of the regressors [@chamberlain1982; @angrist1991; @baltagi2021,
-eqs. 4.50–4.53, pp. 92–93; @croissant2019, sec. 4.2.3, pp. 90–93]. Both need
-*N* large against $T K$, which is why `plm::piest` fails on ten firms and
-runs on 595 workers. One more caution: using the Hausman test to pick the
-estimator and then testing $\beta$ distorts the size of the second test, and
-Guggenberger's advice is fixed-effects inference without the pretest
-[@baltagi2021, p. 94].
+Substituting it in gives $y = X\beta + PX\pi + (w + \varepsilon)$, with $w$
+the $w_i$ stacked over the $NT$ observations, an error-components model
+with the unit means as extra regressors. GLS on it returns $\hat\beta =
+\hat\beta_W$ and $\hat\pi = \hat\beta_B - \hat\beta_W$: once the
+correlation is modelled, the efficient estimator is within, and the
+random-effects estimator is biased because it ignores $\pi$ [@mundlak1978;
+@baltagi2021, eqs. 7.33–7.38, pp. 170–171; @croissant2019, sec. 4.2.1, pp.
+89–90]. Hausman's test is the test of $\pi = 0$. It is worth saying what a
+rejection does not show. "Rejecting the null of the Hausman test implies
+that the RE estimator is not consistent. This does not necessarily mean
+that the FE restrictions are satisfied" [@baltagi2021, p. 93].
+Chamberlain's restrictions, that the reduced-form regression of each year's
+$y$ on every year's $x$ has the structure $\Pi = (I_T \otimes \beta') +
+\iota_T \lambda'$, are testable; Angrist and Newey showed that the minimum
+chi-square statistic is a sum over periods of degrees of freedom times the
+$R^2$ from regressing that period's within residuals on all leads and lags
+of the regressors [@chamberlain1982; @angrist1991; @baltagi2021, eqs.
+4.50–4.53, pp. 92–93; @croissant2019, sec. 4.2.3, pp. 90–93]. Both need *N*
+large against $TK$: the statistic has $(T^2 - T - 1)K$ degrees of freedom
+[@croissant2019, p. 93], and the minimum chi-square test understates its
+variance as *T* grows [@baltagi2021, p. 93]. `plm::piest` fails on ten
+firms and on the 595 workers; `aneweytest` runs on the workers, and both
+run on the 171 rice farms. One more caution: using the Hausman test to pick
+the estimator and then testing $\beta$ distorts the size of the second
+test, and Guggenberger's advice is fixed-effects inference without the
+pretest [@guggenberger2010; @baltagi2021, p. 94].
 
 ## 5. The two-way case
 
@@ -459,8 +470,10 @@ $z_i$ [@pesaran2015, sec. 26.10.1, pp. 663–664].
   99–100].
 - **Wansbeek–Kapteyn variance components** are not a `random.method`, so
   Baltagi's two-way 8.842 is not reproduced [@baltagi2021, p. 99].
-- **Chamberlain's and Angrist–Newey's tests** need $N \gg TK$ and fail on
-  Grunfeld; the chapter runs them on the wage panel instead.
+- **Chamberlain's and Angrist–Newey's tests** need $N \gg TK$, with
+  $(T^2 - T - 1)K$ restrictions to test [@croissant2019, p. 93; @baltagi2021,
+  p. 93]; `piest` fails on Grunfeld and on the wage panel, and the chapter
+  reproduces both tests on the rice farms.
 
 ## Next
 

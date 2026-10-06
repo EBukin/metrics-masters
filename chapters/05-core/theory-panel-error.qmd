@@ -67,21 +67,22 @@ V_\rho = \begin{pmatrix}
 $$
 
 a constant floor from $\alpha_i$ plus a band that thins with the distance
-between years [@baltagi2021, eq. 5.32, pp. 125–126]. The tests of section 4
-are all ways of telling the floor from
-the band. The limit of the band is a **unit root** in the error, $\rho = 1$,
-a shock that never fades ([why unit roots
+between years: the AR(1) counterpart, on p. 126, of Baltagi's eq. 5.32,
+which is written for an MA(1) remainder, a shock that lingers one period
+[@baltagi2021, pp. 125–126]. The tests of section 4 are all ways of telling
+the floor from the band. The limit of the band is a **unit root** in the
+error, $\rho = 1$, a shock that never fades ([why unit roots
 matter](../04-time/index.qmd#sec-ur-why)); that case is the boundary this
-chapter hands to the dynamic models of chapter 06.
+chapter hands to [dynamic panels](../06-dynamic/index.qmd#sec-dyn-bias).
 
 Two transformations of the chapter leave their own fingerprint, and the
 tests have to know it. Taking each unit's data in deviation from its mean,
 the **within** transformation, turns uncorrelated remainders into residuals
 with correlation $-1/(T-1)$ between any two years; first differencing turns
 them into residuals with correlation $-0.5$ between neighbours and zero
-beyond [@croissant2019, pp. 101, 103; @wooldridge2010, secs. 10.5.4 and
-10.6.3]. A test of "no serial correlation" on within residuals is therefore
-a test against $-1/(T-1)$, not against zero.
+beyond [@wooldridge2010; @croissant2019, pp. 101, 103]. A test of "no
+serial correlation" on within residuals is therefore a test against
+$-1/(T-1)$, not against zero.
 
 ## 2. Same slopes
 
@@ -153,8 +154,8 @@ Swamy also gave a test of $\beta_i = \beta$: the weighted dispersion of the
 unit slopes around the pooled estimator,
 
 $$
-\hat S = \sum_{i=1}^{N} (\hat\beta_i - \tilde\beta_{WFE})'
-  \frac{X_i' M_\tau X_i}{\hat\sigma^2_i} (\hat\beta_i - \tilde\beta_{WFE}),
+\hat S = \sum_{i=1}^{N} (\hat\beta_i - \hat\beta_{WFE})'
+  \frac{X_i' M_\tau X_i}{\hat\sigma^2_i} (\hat\beta_i - \hat\beta_{WFE}),
 $$
 
 which is $\chi^2_{k(N-1)}$ as $T \to \infty$ with *N* fixed; it was built
@@ -194,10 +195,10 @@ size", and it leaves the slopes consistent but not efficient while the
 classical standard errors "will be biased" [@baltagi2021, p. 109]. In a
 panel it can sit in either component: Mazodier and Trognon put it in the
 unit effect, $\alpha_i \sim (0, w_i^2)$, which gives each unit its own
-quasi-demeaning fraction $\theta_i$; the alternative puts it in the
-remainder, $\varepsilon_{it} \sim (0, w_i^2)$; and "it is hard to claim
-that it is in one component and not the other" [@baltagi2021, eqs. 5.1–5.7,
-pp. 109–111].
+quasi-demeaning fraction $\theta_i$ [@mazodier1978]; the alternative puts
+it in the remainder, $\varepsilon_{it} \sim (0, w_i^2)$; and "it is hard to
+claim that it is in one component and not the other" [@baltagi2021, eqs.
+5.1–5.7, pp. 109–111].
 
 The tests are the gap. Verbon's Lagrange multiplier test takes both
 variances to be the same parametric function of time-invariant unit
@@ -243,8 +244,8 @@ $$
 
 and run GLS with it: the general GLS of Wooldridge, also called the Parks
 estimator, a variant of Zellner's SUR [@parks1967; @zellner1962;
-@wooldridge2010, sec. 10.4.3; @croissant2019, sec. 5.2.1, pp. 127–128]. It
-allows any within-unit heteroskedasticity and serial correlation, rules out
+@wooldridge2010; @croissant2019, sec. 5.2.1, pp. 127–128]. It allows any
+within-unit heteroskedasticity and serial correlation, rules out
 cross-sectional correlation, and needs $N \gg T$ because it estimates
 $T(T+1)/2$ covariances from *N* residual vectors [@croissant2019, p. 128].
 On a wide short panel it is cheap; on ten firms over twenty years it is 210
@@ -295,14 +296,16 @@ whether the alternative is AR(1) or MA(1) [@baltagi1991; @baltagi1995;
 @baltagi2021, eq. 5.36, pp. 125–126]. The $A^2$ term alone is the
 Breusch–Pagan test, $LM_2 = \sqrt{NT/2(T-1)}\, A$ in Honda's one-sided form;
 the $B^2$ term alone is the Breusch–Godfrey test on the stacked residuals,
-$LM_3 = \sqrt{NT^2/(T-1)}\, B$, which assumes no unit effect [@baltagi2021,
-p. 126]. The cross term $-4AB$ is why the joint test is needed when both
-are suspected. And $LM_3$ is the one not to use: with a unit effect present
-"one is very likely to reject the null hypothesis of $H_3$ even if the null
-is true. This is because the $\mu_i$ are correlated for the same individual
-across time, and this will contribute to rejecting the null of no serial
-correlation" [@baltagi2021, p. 127]. On Grunfeld it is 143.5 against the
-conditional value 10.3 [@baltagi2021, p. 129].
+$LM_3 = \sqrt{NT^2/(T-1)}\, B$, which assumes no unit effect [@breusch1980;
+@honda1985; @breusch1978; @godfrey1978; @baltagi2021, p. 126]. The cross
+term $-4AB$ is why the joint test is needed when both are suspected. And
+$LM_3$ is the one not to use: with a unit effect present "one is very likely
+to reject the null hypothesis of $H_3$ even if the null is true. This is
+because the $\mu_i$ are correlated for the same individual across time, and
+this will contribute to rejecting the null of no serial correlation"
+[@baltagi2021, p. 127]. On Grunfeld it is 143.5 against the locally robust
+value 10.3 [@baltagi2021, Table 5.3, p. 129] and the conditional value 69.5
+that the chapter prints; both tests are defined below.
 
 Two families fix the marginal tests. The conditional test $LM_4$ tests
 $\rho = 0$ given $\sigma^2_\alpha > 0$, from the residuals of the
@@ -371,29 +374,29 @@ distribution; it has power against a unit effect and against serial
 correlation alike, "trading some power against more specific alternatives
 in exchange for robustness", and a rejection "should not be interpreted as
 implying that the random effects error structure must be true"
-[@wooldridge2010, sec. 10.4.4; @croissant2019, sec. 4.3.1, pp. 95–96]. The
-within-based test regresses within residuals on their lag,
+[@wooldridge2010; @croissant2019, sec. 4.3.1, pp. 95–96]. The within-based
+test regresses within residuals on their lag, with an intercept,
 
 $$
-\tilde\varepsilon_{it} = \phi\, \tilde\varepsilon_{i,t-1} + \xi_{it},
+\tilde\varepsilon_{it} = \delta + \phi\, \tilde\varepsilon_{i,t-1} + \xi_{it},
 \qquad H_0: \phi = -\tfrac{1}{T-1},
 $$
 
 with a cluster-robust covariance, so it is valid for short *T* and large
-*N* [@wooldridge2010, sec. 10.5.4; @croissant2019, sec. 4.3.5.1, p. 102].
-The first-difference test regresses differenced residuals on their lag and
+*N* [@wooldridge2010; @croissant2019, sec. 4.3.5.1, p. 102]. The
+first-difference test regresses differenced residuals on their lag and
 tests $\phi = -0.5$, the value uncorrelated original errors imply; Drukker's
-Monte Carlo documents its size and power [@drukker2003; @wooldridge2010,
-sec. 10.6.3; @croissant2019, p. 103]. Run both ways, `h0 = "fe"` and
-`h0 = "fd"`, it is a choice of estimator: if the original errors are white
-noise, within is efficient and the differenced errors show $-0.5$; if the
-original errors are a random walk, the differenced errors are white noise
-and first differences are efficient [@wooldridge2010, sec. 10.6.1;
-@baltagi2021, pp. 22–23; @croissant2019, p. 103]. "Not rejecting one of the
-two is evidence in favor of using the estimator corresponding to h0"; when
-both reject, "the truth clearly lies in the middle" and "whichever
-estimator is chosen will have serially correlated errors", which is the
-case for robust standard errors [@croissant2019, p. 104].
+Monte Carlo documents its size and power [@drukker2003; @wooldridge2010;
+@croissant2019, p. 103]. Run both ways, `h0 = "fe"` and `h0 = "fd"`, it is a
+choice of estimator: if the original errors are white noise, within is
+efficient and the differenced errors show $-0.5$; if the original errors
+are a random walk, the differenced errors are white noise and first
+differences are efficient [@wooldridge2010; @baltagi2021, pp. 22–23;
+@croissant2019, p. 103]. "Not rejecting one of the two is evidence in favor
+of using the estimator corresponding to h0"; when both reject, "the truth
+clearly lies in the middle" and "whichever estimator is chosen will have
+serially correlated errors", which is the case for robust standard errors
+[@croissant2019, p. 104].
 
 ## 5. The sandwich and its building blocks
 
@@ -404,7 +407,7 @@ and **White**'s insight is that the middle, the **meat**, needs only
 $K(K+1)/2$ consistent numbers, not the $NT(NT+1)/2$ in $\Omega$
 [@white1980; @croissant2019, sec. 5.1.1, p. 110]. The panel estimators
 differ only in which residual products they let into the meat
-[@millo2017]:
+[@millo2017jss]:
 
 $$
 \begin{aligned}
@@ -459,13 +462,14 @@ $$
 so that cross-sectional correlation within a year and cross-serial
 correlation between any two units up to $L$ years apart are both covered
 [@driscoll1998; @croissant2019, eq. 5.11, p. 116]. Its price is the one the
-spatial chapter already met: Driscoll and Kraay's conditions deliver
-standard errors "robust to general forms of spatial and temporal dependence
-as $T \to \infty$. However, if T is small, they conclude that the problem of
-consistent nonparametric covariance matrix estimation is much less
-tractable" [@baltagi2021, p. 394]; the practical minimum from their Monte
-Carlo is $T > 20$–$25$, and *N* can grow at any rate [@croissant2019, p.
-116]. Seventeen and twenty years sit at that floor. Beck and Katz's
+spatial chapter's [limits](../03-spatial/index.qmd#sec-sp-limits) already
+met: Driscoll and Kraay's conditions deliver standard errors "robust to
+general forms of spatial and temporal dependence as $T \to \infty$.
+However, if T is small, they conclude that the problem of consistent
+nonparametric covariance matrix estimation is much less tractable"
+[@baltagi2021, p. 394]; the practical minimum from their Monte Carlo is
+$T > 20$–$25$, and *N* can grow at any rate [@croissant2019, p. 116].
+Seventeen and twenty years sit at that floor. Beck and Katz's
 **panel-corrected standard errors** take a different route to the same
 dependence: assume the $N \times N$ cross-sectional covariance is the same
 in every year, estimate it as $\sum_t \hat u_t \hat u_t' / T$, and plug it
@@ -482,8 +486,8 @@ $$
 and each named estimator is a choice of which terms to keep and which
 weights to use: $L = 0$ gives double clustering, dropping $V_{cx} - V_{wh}$
 and its lags gives Driscoll–Kraay, $w_l = 1$ gives Thompson's double
-clustering with persistent shocks [@millo2017; @croissant2019, eq. 5.12 and
-Table 5.1, p. 117]. `plm::vcovG` builds one block, `vcovHC`, `vcovSCC`,
+clustering with persistent shocks [@millo2017jss; @croissant2019, eq. 5.12
+and Table 5.1, p. 117]. `plm::vcovG` builds one block, `vcovHC`, `vcovSCC`,
 `vcovNW` and `vcovDC` are the named sums, and the chapter's `se_table()`
 lays the nine out side by side after every call has been shown. The blocks
 are additive, so the table reads as a diagnosis: the gap between $V_{wh}$
@@ -529,14 +533,14 @@ demean or difference before applying one [@croissant2019, p. 121].
 - **Verbon's and Lejeune's tests** of homoskedasticity, and the joint LM
   test of Baltagi, Bresson and Pirotte that nests them, are not
   implemented; the chapter has a picture and a substitute, not a test with
-  a published size [@baltagi2021, pp. 113–114].
+  a published size [@baltagi2006het; @baltagi2021, pp. 113–114].
 - **$LM_5$** is not literally in plm; `pbnftest` and `pbgtest` on within
   residuals are the nearest [@baltagi2021, p. 130].
 - **Bester, Conley and Hansen's** group-membership HAC estimator is not
   implemented; its validity "relies on the capacity of the researcher to
   construct groups whose averages are approximately uncorrelated", and
-  `plm::cortab` checks that precondition and nothing more [@pesaran2015, p.
-  814].
+  `plm::cortab` checks that precondition and nothing more [@bester2011;
+  @pesaran2015, p. 814].
 - **Inoue–Solon** needs $N \gg T^2/2$ and is not run on any panel here
   [@baltagi2021, p. 131].
 
