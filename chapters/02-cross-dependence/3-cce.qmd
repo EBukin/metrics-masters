@@ -1,22 +1,41 @@
-## Strong-dependence branch: CCE {#sec-cce}
+## Common correlated effects {#sec-cce}
+
+**Question.** Income rises 10%. How much do house prices rise, once the
+national forces that move both are allowed for?
+
+**Intuition.** The national force is unobserved. Its footprint is not: every
+state carries it, so the cross-state average of prices, and of incomes,
+carries it too, with the state-specific noise averaged away. Put those
+averages into each state's regression as extra regressors, and the force is
+controlled for without ever being measured. That is **common correlated
+effects**, CCE [@pesaran2006]. Each state gets its own coefficient on the
+averages, so each can feel the force to its own degree, which is exactly
+what a year effect cannot allow.
 
 ::: {.callout-tip appearance="simple"}
-Why cross-section averages stand in for the unobserved factors:
-[common factors and CCE](theory-common-factors-cce.qmd).
+Why the averages span the space of the unobserved factors, and what CCE
+cannot fix: [common factors and CCE](theory-common-factors-cce.qmd).
 :::
 
-**Theory.** Under strong dependence, unobserved common factors bias standard
-panel estimators. Common Correlated Effects (CCE) proxies the factors with
-cross-section averages of y and X and adds them to each unit's regression
-[@pesaran2006; @pesaran2015, p. 766]. **CCEMG** averages the unit-by-unit
-slopes (eq. 29.37); **CCEP** pools the units into one slope (eq. 29.41)
-[@pesaran2015, pp. 767–768].
+State *i* in year *t* is fitted as
 
-**Data.** `HousePricesUS` [@holly2010], shipped in **pder** [@croissant2019]:
-49 US states × 29 years.
+$$
+y_{it} = \alpha_i + \beta_i x_{it} + c_i \bar y_t + d_i \bar x_t + e_{it},
+$$
 
-Mean Group (MG) ignores the factors. `model = "cmg"` adds the averages `y.bar`
-and `log(income).bar`, and the income elasticity jumps from 0.30 to 1.14:
+with $\bar y_t$ and $\bar x_t$ the cross-state averages. **CCEMG** averages
+the 49 slopes $\hat\beta_i$ [@pesaran2015, eq. 29.37, p. 767]. **CCEP** pools
+the states into one slope β, keeping the state-specific $c_i$ and $d_i$
+[@pesaran2015, eq. 29.41, p. 768].
+
+**The estimators.** Three, so that the averages' effect is visible. **MG**,
+mean group: the 49 state regressions without the averages, then the mean
+slope. **CCEMG**: the same with the averages. **CCEP**: the pooled version.
+No test here; the evidence is how the estimates move.
+
+**Run it.** `plm::pmg` gives MG and, with `model = "cmg"`, CCEMG;
+`plm::pcce` gives CCEMG again and is the only way to get CCEP
+[@croissant2019, sec. 8.3.2.1]:
 
 ```{r}
 #| label: c02-3-pmg
@@ -29,9 +48,6 @@ coef(mg)
 coef(cmg)
 ```
 
-`pcce` gives the same CCEMG slope and is the only way to get CCEP
-[@croissant2019, sec. 8.3.2.1]:
-
 ```{r}
 #| label: c02-3-pcce
 ccemg <- plm::pcce(log(price) ~ log(income), data = HousePricesUS, model = "mg")
@@ -40,8 +56,79 @@ summary(ccemg)
 summary(ccep)
 ```
 
-**Book check.** Slope on log(income), with book values from @croissant2019
-[pp. 197–199]:
+The 49 state slopes that MG and CCEMG average:
+
+```{r}
+#| label: c02-3-picture
+#| fig-cap: "Income elasticity of house prices, one point per state, from
+#|   the state-by-state regressions without (MG) and with (CCEMG) the
+#|   cross-state averages. Thick bars: the mean of each cloud, which is the
+#|   reported estimate. Dotted line at zero."
+#| fig-alt: "Two vertical clouds of 49 points. The MG cloud is centred
+#|   near 0.3 with about a quarter of its points below zero. The CCEMG
+#|   cloud sits higher, centred near 1.1, and spreads more widely."
+slopes <- data.frame(MG = mg$indcoef["log(income)", ],
+                     CCEMG = ccemg$indcoef[1, ])
+graphics::stripchart(slopes, vertical = TRUE, method = "jitter", pch = 16,
+                     col = "grey50", ylab = "income elasticity, by state")
+graphics::segments(c(0.8, 1.8), colMeans(slopes), c(1.2, 2.2),
+                   colMeans(slopes), lwd = 4)
+graphics::abline(h = 0, lty = 3)
+```
+
+**Read it.**
+
+- **MG, without the averages: 0.30.** The slopes scatter around 0.30, a
+  quarter of them negative. *So:* with the national force left in each
+  regression, the within-state relation between income and prices is
+  diluted and noisy.
+- **CCEMG, with the averages: 1.14.** The whole cloud shifts up, and the
+  mean is 1.14 with a standard error of 0.20. *So:* once the national force
+  is controlled, a 10% rise in income goes with an 11% rise in prices. The
+  gap between 0.30 and 1.14 is the leak the [road
+  map](../00-road-map/index.qmd) described.
+- **CCEP: 1.20.** Pooling the states gives almost the same slope. *So:* the
+  spread in the CCEMG cloud is noise around one slope rather than 49
+  different slopes, which @croissant2019 [p. 199] read as support for
+  pooling.
+
+::: {.callout-note appearance="simple"}
+**Next.** Two checks on the residuals. Do they still move together, now
+weakly ([the exponent α](index.qmd#sec-csd-exponent))? Do they wander
+([tests that allow a common
+factor](../04-time/index.qmd#sec-ur-second-gen))? If they do not wander,
+the slope above is a long-run relation, not a spurious one.
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+library(plm)   # pmg() and pcce() call plm() by its bare name
+plm::pmg(y ~ x, data = d, model = "mg")     # MG, no averages
+plm::pcce(y ~ x, data = d, model = "mg")    # CCEMG
+plm::pcce(y ~ x, data = d, model = "p")     # CCEP
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**One average per variable, so k + 1 factors at most.** With k regressors
+there are k + 1 averages, and they can proxy at most k + 1 common factors.
+More factors than that, or a factor that every state loads on with the same
+sign and size so that it averages to nothing, and CCE is incomplete; see
+[common factors and CCE](theory-common-factors-cce.qmd).
+
+**`coef()` of CCEMG is a plain mean.** The reported slope is the mean of
+`indcoef`, so one state with a wild slope moves it. Look at the cloud, not
+only its centre.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+Slope on log(income), with book values from @croissant2019 [pp. 197–199]:
 
 ```{r}
 #| label: c02-3-book-check
@@ -54,6 +141,6 @@ data.frame(
 ) |> round(3)
 ```
 
-The book also prints RSS 5.66 / R² 0.74 (CCEMG) and RSS 6.89 / R² 0.696
-(CCEP); compare with the summaries above. CCEMG and CCEP are close, which
-@croissant2019 [p. 199] read as support for pooling.
+The book also prints RSS 5.66 / R² 0.74 for CCEMG and RSS 6.89 / R² 0.696
+for CCEP; compare with the summaries above.
+:::

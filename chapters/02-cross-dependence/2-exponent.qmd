@@ -1,60 +1,60 @@
-## Exponent of cross-sectional dependence α {#sec-csd-exponent}
+## The exponent α {#sec-csd-exponent}
 
-**Intuition.** α counts how many units share the same shock: at α = 1 a fixed
-share of the panel moves together, at α = ½ only a sparse local handful does.
-It does not tell you whether you need fixed effects — it tells you whether fixed
-effects are *enough*, because a common factor with unit-specific loadings is
-exactly what the within transformation cannot remove.
+**Question.** The states move together. Is that a national force that reaches
+every state, or a local one that reaches a few neighbours?
+
+**Intuition.** Average log prices across states. If the co-movement is
+national, averaging over more states does not calm the average: every state
+carries the same shock, so adding states adds the same thing again. If the
+co-movement is local, each state shares its shock with a few others only, and
+averaging over many states washes it out, the way averaging independent draws
+does. The **exponent α** measures how fast averaging washes the co-movement
+out. At α = 1 it never does: **strong** dependence. At α = ½ it does as fast
+as for independent draws: **weak** dependence [@bailey2016].
+
+Why an estimate cares: a year effect removes a shock that hits every state
+*equally*. A national shock that hits each state *to its own degree*, with
+state-specific **loadings**, survives it, and if that shock also moves income
+it biases the slope ([road map](../00-road-map/index.qmd)). α says whether
+such a shock is there to worry about.
 
 ::: {.callout-tip appearance="simple"}
-Full treatment, including the effective-sample-size reading and why the CD
-test cannot substitute for α:
+What α counts, how to read it as an effective sample size, and why the CD
+test cannot stand in for it:
 [cross-sectional dependence](theory-cross-sectional-dependence.qmd).
 :::
 
-**Theory.** α measures how fast averaging across units washes out their common
-movement. For the cross-section average z̄ₜ [@bailey2016; @pesaran2015,
-eq. 29.6, p. 754]:
+For the cross-section average $\bar z_t$ of N units [@bailey2016;
+@pesaran2015, eq. 29.6, p. 754]:
 
 $$
 \operatorname{Var}(\bar z_t) = \kappa_0 N^{2(\alpha-1)} + \kappa_1 N^{-1}
   + O(N^{\alpha-2}), \qquad \tfrac12 < \alpha \le 1.
 $$
 
-- **α < 1: weak dependence.** Averaging eventually removes it. Almost all
-  spatial models are of this kind [@pesaran2015, pp. 756, 802].
-- **α = 1: strong dependence.** Averaging never removes it. This is the case
-  of common factor models [@pesaran2015, p. 754].
+The second term is what independence gives, $\sigma^2/N$. The first is the
+co-movement. On log scales the variance of the average falls with N at slope
+$2(\alpha - 1)$: flat at α = 1, as steep as independence, −1, at α = ½.
 
-Two estimators exist, and they fail in different places. The **variable**
-method [@bailey2016] inverts the variance equation above directly. The
-**residual** method [@bailey2019] instead sums the pairwise correlations that
-survive a significance threshold, so it does not depend on the common component
-surviving the averaging step.
+**The estimator.** Two, in `dcce::csd_exp` [@wasseja2026]. The **variable**
+method [@bailey2016] inverts the equation above. The **residual** method
+[@bailey2019] counts the pairwise correlations that survive a significance
+threshold, and is the one to use on most series (see Pitfalls). Neither is a
+test: α is a number to read, with a bootstrap standard error.
 
-**Data.** `HousePricesUS` [@holly2010] in **pder** [@croissant2019], 49 states
-× 29 years; `pwt8` in **dcce** [@wasseja2026], 93 countries × 48 years.
-
-Both estimators want an N × T matrix, already built in the setup chunk:
-
-```{r}
-#| label: c02-2-matrix
-lprice <- as_matrix(log(hp$price))
-dim(lprice)
-```
-
-**Strong case.** Raw log house prices. α sits far above ½, which routes to
-[CCE](index.qmd#sec-cce):
+**Run it.** Log prices, as the N × T matrix `logp` of the
+[previous section](index.qmd#sec-csd-tests):
 
 ```{r}
 #| label: c02-2-alpha-strong
-dcce::csd_exp(lprice, use_residuals = TRUE)
+set.seed(1)
+dcce::csd_exp(logp, use_residuals = TRUE)
 ```
 
-**Weak case.** Now run the @bailey2016 sequence: defactor, then re-estimate α
-on the residuals. CCEMG removes the common factors, and α falls to the ½ floor
-— the remaining dependence is local, and only *now* is a spatial model
-legitimate:
+Now remove the national force and ask again. **CCEMG**, the estimator of the
+[next section](index.qmd#sec-cce), adds cross-state averages to each state's
+regression, which soaks up a common shock whatever each state's loading. Its
+residuals are the panel with that shock taken out:
 
 ```{r}
 #| label: c02-2-alpha-weak
@@ -62,45 +62,121 @@ legitimate:
 library(plm)
 ccemg <- plm::pcce(log(price) ~ log(income), data = HousePricesUS,
                    model = "mg")
-dcce::csd_exp(as_matrix(residuals(ccemg)), use_residuals = TRUE)
+e_cce <- as_matrix(residuals(ccemg))
+set.seed(1)
+dcce::csd_exp(e_cce, use_residuals = TRUE)
 ```
 
-So the same panel reads α ≈ 0.83 before defactoring and α ≈ 0.51 after. That
-gap is the whole routing decision, and it is why fitting a spatial model to the
-raw series would have attributed the common factor to geography.
+The variance equation can be watched directly. Average random subsets of
+2 to 49 states and see how fast the variance of the average falls:
 
-**Where the variable method breaks.** The variance equation is only informative
-when the common component survives averaging. `price` is an index re-based to
-100 in 1980 for every state, so the cross-section average of log price moves in
-a band of 4.51–4.76 and its variance is small. The correction term for
-$\kappa_1 N^{-1}$ then dominates and the estimate collapses onto ½ — the
-opposite of what CD and the residual method both report:
+```{r}
+#| label: c02-2-picture
+#| fig-cap: "Variance of the cross-state average against the number of
+#|   states averaged, both on log scales; each point averages 200 random
+#|   subsets. The slope is 2(α − 1): flat means α = 1, slope −1 means
+#|   α = ½."
+#| fig-alt: "Three lines on log-log axes from N = 2 to N = 49. Log prices
+#|   is a nearly flat line in the middle. The independent panel at the top
+#|   and the CCEMG residuals at the bottom are two parallel lines falling
+#|   steeply, with slope close to minus one."
+var_avg <- function(m, n, reps = 200) {
+  mean(replicate(reps, var(colMeans(m[sample(nrow(m), n), , drop = FALSE]))))
+}
+ns <- c(2, 4, 8, 16, 32, 49)
+set.seed(1)
+v <- cbind(
+  prices = sapply(ns, \(n) var_avg(logp, n)),
+  cce_residuals = sapply(ns, \(n) var_avg(e_cce, n)),
+  independent = sapply(ns, \(n) var_avg(iid, n))
+)
+cols <- c("black", "firebrick", "grey60")
+graphics::matplot(ns, v, log = "xy", type = "b", pch = 16, lty = 1,
+                  col = cols, xlab = "states averaged, N",
+                  ylab = "variance of the average")
+graphics::legend("bottomleft", colnames(v), col = cols, pch = 16, lty = 1,
+                 bty = "n")
+```
+
+The slope of each line, turned into α:
+
+```{r}
+#| label: c02-2-slopes
+slope <- function(v) coef(lm(log(v) ~ log(ns)))[[2]]
+round(1 + apply(v, 2, slope) / 2, 2)
+```
+
+**Read it.**
+
+- **Strong (log prices).** α = 0.83, far above ½, and the price line is
+  nearly flat: averaging 49 states calms the average little more than
+  averaging 8.
+  *So:* a national force with state-specific loadings. Year effects will not
+  remove it; [CCE](index.qmd#sec-cce) will.
+- **Weak (CCEMG residuals).** α = 0.51, the floor, and the line falls as
+  steeply as the independent panel's. *So:* once the national force is out,
+  what is left is local. Only now is a spatial model a legitimate question
+  ([spatial dependence](../03-spatial/index.qmd)).
+- **The picture's own estimate.** The slopes give 0.85, 0.47 and 0.51, next
+  to 0.83 and 0.51 from the residual method. *So:* α is not a black box; it
+  is the slope of this picture with a finite-N correction, and that
+  correction is where the variable method can fail (Pitfalls).
+
+::: {.callout-note appearance="simple"}
+**Next.** α near 1: [common correlated effects](index.qmd#sec-cce). α near
+½: fixed effects are consistent; ask whether the dependence follows a map
+([spatial dependence](../03-spatial/index.qmd)). Either way, do not route on
+α alone: the spatial chapter's randomised-W test is the corroboration.
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# m: an N x T matrix, one row per unit, no missing cells.
+set.seed(1)
+dcce::csd_exp(m, use_residuals = TRUE)    # residual method, bootstrap SE
+dcce::csd_exp(m)                          # variable method
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**The variable method collapses when the average is calm.** It is only
+informative when the common component survives averaging. `price` is an
+index re-based to 100 in 1980 for every state, so the cross-state average of
+log price moves in a band of 4.51–4.76 and its variance is small. The
+correction for $\kappa_1 N^{-1}$ then dominates and the estimate collapses
+onto ½, the opposite of what CD and the residual method report. On log real
+GDP in `pwt8`, whose average carries the common trend, it works:
 
 ```{r}
 #| label: c02-2-alpha-variable
 data("pwt8", package = "dcce")
 lgdp <- do.call(rbind, by(pwt8, pwt8$country, \(d) d$log_rgdpo))
 lgdp <- lgdp[, colSums(is.na(lgdp)) == 0, drop = FALSE]
-c(hpus = var(colMeans(lprice)), pwt8 = var(colMeans(lgdp)))
-c(hpus = dcce::csd_exp(lprice)$alpha, pwt8 = dcce::csd_exp(lgdp)$alpha)
+c(hpus = var(colMeans(logp)), pwt8 = var(colMeans(lgdp)))
+c(hpus = dcce::csd_exp(logp)$alpha, pwt8 = dcce::csd_exp(lgdp)$alpha)
 ```
 
-Thirteen times more variance in the average is the whole difference. Prefer the
-residual method unless the series is a level whose average carries the common
-trend.
+Thirteen times more variance in the average is the whole difference. Prefer
+the residual method unless the series is a level whose average carries the
+common trend.
 
-::: {.callout-warning}
 **The two methods report standard errors on different footings.** For the
-variable method `csd_exp` returns `se = 1/(2 ln N √N)`, a function of N alone:
-two panels with the same N get the same SE whatever they contain, and the 95%
-CI is ±1.96 times it. The residual method bootstraps instead, so its SE and its
-asymmetric percentile interval do respond to the data — 0.0190 on the raw
-series above against 0.1085 on the CCEMG residuals. Read the first as a point
-estimate only; the second carries genuine sampling information.
+variable method `csd_exp` returns `se = 1/(2 ln N √N)`, a function of N
+alone: two panels with the same N get the same SE whatever they contain. The
+residual method bootstraps, so its SE and its asymmetric interval respond to
+the data, and to the seed. Read the first as a point estimate only.
 :::
 
-**Book check.** The **dcce** vignette [@wasseja2026] prints α = 0.8348,
-SE = 0.0114 and a 95% CI of [0.8124, 0.8573] for log real GDP on `pwt8`:
+::: {.callout-tip collapse="true"}
+## Book check
+
+The **dcce** vignette [@wasseja2026] prints α = 0.8348, SE = 0.0114 and a
+95% CI of [0.8124, 0.8573] for log real GDP on `pwt8`, 93 countries over 48
+years, with the variable method:
 
 ```{r}
 #| label: c02-2-book-check
@@ -113,7 +189,8 @@ data.frame(
 1 / (2 * log(a$N) * sqrt(a$N))
 ```
 
-The estimate reproduces to four decimals, and the last line confirms that the
-variable method's printed SE is exactly $1/(2\ln N\sqrt{N})$. @bailey2016 report
-α in the 0.77–0.92 range for macroeconomic series, which brackets both the
-0.8348 here and the 0.83 on house prices above.
+The estimate reproduces to four decimals, and the last line confirms that
+the printed SE is exactly $1/(2\ln N\sqrt{N})$. @bailey2016 report α in the
+0.77–0.92 range for macroeconomic series, which brackets both the 0.8348
+here and the 0.83 on house prices above.
+:::

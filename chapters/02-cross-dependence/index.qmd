@@ -23,7 +23,7 @@ strongly, and what an estimate should do about it.
 
 1. **Is it there?** Test whether the states move together more than chance
    allows, with Pesaran's CD and three later refinements of it
-   ([testing for CSD](index.qmd#sec-csd-tests); theory in
+   ([the CD test](index.qmd#sec-csd-tests); theory in
    [cross-sectional dependence](theory-cross-sectional-dependence.qmd)).
 2. **How strong?** The exponent α counts how many states a shock reaches —
    a fixed share, or a shrinking one

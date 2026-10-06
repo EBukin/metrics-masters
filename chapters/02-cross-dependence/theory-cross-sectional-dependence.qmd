@@ -241,7 +241,9 @@ usually a fork at all. It is a **sequence**, and @bailey2016 apply it that way �
 estimating α on the raw series *and* on residuals after removing factors:
 
 1. Estimate α (or read $\bar\rho$ vs $\overline{\lvert\rho\rvert}$) on the raw
-   series — `csd_exp(use_residuals = FALSE)`, the @bailey2016 variable method.
+   series — `csd_exp(use_residuals = TRUE)`, the @bailey2019 residual
+   method. The @bailey2016 variable method, `use_residuals = FALSE`, only
+   when the cross-section average carries the common trend; see §9.
 2. If it points strong → **defactor** (CCE, or principal components).
 3. Re-diagnose the residuals with `csd_exp(use_residuals = TRUE)`, the
    @bailey2019 residual method, which is built for exactly this step. If α has

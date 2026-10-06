@@ -36,3 +36,6 @@ Thumbs.db
 # Style prototype (proto/)
 /proto/_book/
 /proto/.quarto/
+
+# Quarto single-file renders in a book project leave this at the root
+/site_libs/

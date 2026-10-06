@@ -1,113 +1,212 @@
-## Testing for cross-sectional dependence {#sec-csd-tests}
+## The CD test {#sec-csd-tests}
+
+**Question.** Do house prices in the 49 states move together more than chance
+allows?
+
+**Intuition.** Take any two states and correlate their log prices over the 29
+years. Do it for all 1 176 pairs. If the states were independent, those
+correlations would scatter around zero, some positive and some negative, and
+their average would sit close to zero. If one common force moves every state,
+the average sits well above zero. Pesaran's **CD** statistic is that average,
+scaled so that it is a standard normal when the states are independent
+[@pesaran2004].
 
 ::: {.callout-tip appearance="simple"}
-Why CD's signed summation is both its virtue and its fatal flaw, and what its
-implicit null actually is:
+Why the signed average is both the test's virtue and its blind spot, and what
+its null really is:
 [cross-sectional dependence](theory-cross-sectional-dependence.qmd).
 :::
 
-**Theory.** Pesaran's CD [@pesaran2004; @pesaran2015, eq. 29.76, p. 786] is the
-average pairwise residual correlation, scaled:
+With $\hat\rho_{ij}$ the correlation between units *i* and *j* over the T
+periods [@pesaran2015, eq. 29.76, p. 786]:
 
 $$
 CD = \sqrt{\frac{2T}{N(N-1)}} \sum_{i<j} \hat\rho_{ij}
   \;\xrightarrow{d}\; N(0,1).
 $$
 
-It sums raw $\hat\rho$ rather than $\hat\rho^{\,2}$, which makes it exactly
-centred at zero for any *T* — and blind whenever the correlations cancel in
-sign. Three later statistics attack that blindness from different directions:
+It sums the correlations with their signs, not their squares. That keeps it
+centred at zero for any T, however large N is. It also makes the test blind
+whenever positive and negative correlations cancel.
+
+**The test.** CD [@pesaran2004]. Null: the units are independent, or more
+precisely, any dependence among them is too weak to survive averaging. A
+rejection means a pervasive, same-signed co-movement.
+
+**Run it.** Log house prices as an N × T matrix, built with `as_matrix()`
+from the setup chunk. `dcce::pcd_test` [@wasseja2026] computes CD and the
+three refinements met later in this section:
+
+```{r}
+#| label: c02-1-cd
+logp <- as_matrix(log(hp$price))
+dcce::pcd_test(logp, test = "pesaran")
+```
+
+Two comparison panels. First an independent one of the same shape. Then the
+residuals of a two-way fixed-effects regression of log price on log income, a
+state effect and a year effect, which removes everything fixed about a state
+and everything common to a year ([road map](../00-road-map/index.qmd)):
+
+```{r}
+#| label: c02-1-compare
+set.seed(1)
+iid <- matrix(rnorm(49 * 29), nrow = 49)
+fe <- plm::plm(log(price) ~ log(income), data = HousePricesUS,
+               model = "within", effect = "twoways")
+e <- as_matrix(residuals(fe))
+dcce::pcd_test(iid, test = "pesaran")
+dcce::pcd_test(e, test = "pesaran")
+```
+
+The 1 176 correlations that each statistic averages:
+
+```{r}
+#| label: c02-1-picture
+#| fig-cap: "The pairwise correlations behind each CD statistic: log prices
+#|   (left), an independent panel of the same shape (middle), and the
+#|   residuals of the two-way fixed-effects regression (right). Dashed line
+#|   at zero."
+#| fig-alt: "Three histograms of correlations from minus one to one. Left:
+#|   a wide pile leaning to the right, most of it above zero. Middle: a
+#|   narrow symmetric pile centred on zero. Right: a pile as wide as the
+#|   left one but symmetric around zero, with as much mass below zero as
+#|   above."
+pair_cor <- function(m) {
+  r <- stats::cor(t(m))
+  r[lower.tri(r)]
+}
+op <- graphics::par(mfrow = c(1, 3))
+graphics::hist(pair_cor(logp), breaks = 30, xlim = c(-1, 1),
+               main = "Log prices", xlab = "pairwise correlation")
+graphics::abline(v = 0, lty = 2)
+graphics::hist(pair_cor(iid), breaks = 30, xlim = c(-1, 1),
+               main = "Independent panel", xlab = "pairwise correlation")
+graphics::abline(v = 0, lty = 2)
+graphics::hist(pair_cor(e), breaks = 30, xlim = c(-1, 1),
+               main = "Two-way FE residuals", xlab = "pairwise correlation")
+graphics::abline(v = 0, lty = 2)
+graphics::par(op)
+```
+
+Two averages summarise each histogram: the signed mean $\bar\rho$, which CD
+is built on, and the mean of absolute values $\overline{\lvert\rho\rvert}$,
+which ignores sign:
+
+```{r}
+#| label: c02-1-rho-bars
+rho_bars <- function(m) {
+  r <- pair_cor(m)
+  c(rho_bar = mean(r), abs_rho_bar = mean(abs(r)))
+}
+rbind(prices = rho_bars(logp), independent = rho_bars(iid),
+      fe_residuals = rho_bars(e))
+```
+
+**Read it.**
+
+- **Rejects (log prices).** z = 53.26. The pile of correlations sits to the
+  right of zero, $\bar\rho$ = 0.29. *So:* the states share a common force,
+  and whatever is estimated on this panel has to allow for it.
+- **Does not reject (independent panel).** z inside ±1.96, correlations
+  scattered symmetrically around zero. *So:* this is what "no dependence"
+  looks like, and CD reads it right.
+- **Misleads (two-way FE residuals).** z = 0.02, p = 0.98: a cleaner
+  acceptance than the genuine null above. But the histogram is as wide as
+  the raw one, and $\overline{\lvert\rho\rvert}$ barely moves, 0.51 to 0.49.
+  *So:* the year effect forces the residuals to sum to zero across states
+  in every year, which makes their correlations cancel in sign. CD sees
+  nothing because nothing *signed* is left, not because the dependence is
+  gone [@croissant2019, sec. 10.1.2.2].
+
+**Three refinements.** Each attacks CD's blindness from a different side.
+None is in **plm**; all three are in `dcce::pcd_test`.
 
 | Test | Source | What it changes |
 |---|---|---|
-| CD | @pesaran2004 | The benchmark |
-| CDw | @juodis2022 | Rademacher weights, so estimated period-specific parameters cannot make CD diverge |
-| PEA | @fan2015 | A power-enhancement term that fires on sparse alternatives |
-| CD\* | @pesaran2021cd | A PCA bias correction, valid whether latent factors are weak or strong |
+| CDw | @juodis2022 | Random ±1 weights on the units, so a model's estimated year effects or averages cannot push CD off zero |
+| PEA | @fan2015 | Adds a term that fires when a few pairs are strongly correlated, however the rest cancel |
+| CD\* | @pesaran2021cd | Removes the bias from estimated common factors, so it stays valid on residuals |
 
-**Data.** `HousePricesUS` [@holly2010] in **pder** [@croissant2019] for the
-alternative; an independent simulated panel of the same shape for the null.
-All four statistics come from `dcce::pcd_test` [@wasseja2026].
+The same three panels, one call per test. CDw draws random weights, so it is
+the only one that needs a seed:
 
 ```{r}
-#| label: c02-1-setup
-# pcd_test()$rho_ij is exactly cor() across the N series, so the two averages
-# CD is built on need no test of their own.
-rho_bars <- function(m) {
-  r <- stats::cor(t(m))
-  diag(r) <- NA
-  c(rho_bar = mean(r, na.rm = TRUE),
-    abs_rho_bar = mean(abs(r), na.rm = TRUE))
-}
-```
-
-**Rejecting the null.** Raw log house prices. Every test but CDw fires, and
-$\bar\rho$ stays far from zero — 0.29, against an
-$\overline{\lvert\rho\rvert}$ of 0.51 — which is the signature of pervasive,
-same-signed co-movement rather than local correlations cancelling out. Each
-statistic is asked for on its own line:
-
-```{r}
-#| label: c02-1-reject
-logp <- as_matrix(log(hp$price))
-dcce::pcd_test(logp, test = "pesaran")
-# CDw draws Rademacher weights; it is the only one of the four needing a seed.
+#| label: c02-1-refine-prices
 set.seed(1)
 dcce::pcd_test(logp, test = "cdw")
 dcce::pcd_test(logp, test = "pea")
 dcce::pcd_test(logp, test = "cdstar")
-rho_bars(logp)
 ```
 
-**Accepting the null.** The same panel shape with no common component at all.
-All four statistics sit inside ±1.96, which is the nominal N(0,1) they claim:
-
 ```{r}
-#| label: c02-1-accept
-set.seed(1)
-iid <- matrix(rnorm(49 * 29), nrow = 49)
-dcce::pcd_test(iid, test = "pesaran")
+#| label: c02-1-refine-iid
 set.seed(1)
 dcce::pcd_test(iid, test = "cdw")
 dcce::pcd_test(iid, test = "pea")
 dcce::pcd_test(iid, test = "cdstar")
-rho_bars(iid)
 ```
 
-**The non-rejection that means nothing.** Two-way fixed effects force
-$\sum_i \hat e_{it} = 0$, which drives $\bar\rho$ to zero *mechanically*. CD
-duly reports nothing — p ≈ 0.98, a cleaner "acceptance" than the genuine null
-above. But $\overline{\lvert\rho\rvert}$ barely moves from the raw series, and
-PEA and CD\* both still fire:
-
 ```{r}
-#| label: c02-1-fe-artefact
-fe <- plm::plm(log(price) ~ log(income), data = HousePricesUS,
-               model = "within", effect = "twoways")
-e <- as_matrix(residuals(fe))
-dcce::pcd_test(e, test = "pesaran")
+#| label: c02-1-refine-fe
 set.seed(1)
 dcce::pcd_test(e, test = "cdw")
 dcce::pcd_test(e, test = "pea")
 dcce::pcd_test(e, test = "cdstar")
-rho_bars(e)
 ```
 
-Two readings of one panel, and only the average absolute correlation is honest
-in both: the within transformation removed almost none of the dependence
-($\overline{\lvert\rho\rvert}$ 0.51 → 0.49) while removing all of CD's ability
-to see it. This is the @croissant2019 [§10.1.2.2] artefact, and the general
-statement of it is @juodis2022: estimated period-specific parameters make CD
-diverge even when the dependence *has* been handled.
+**Read them.**
 
-CDw is the fix for that divergence, but it buys size at a real cost in power —
-it fails to reject on the raw series too, where the dependence is not in doubt.
-Read it as a guard against false positives, not as evidence of absence; CD\* is
-the statistic that keeps power on the raw series and on the residuals alike.
+- **On the independent panel**, all three sit inside ±1.96, as CD did. *So:*
+  none raises false alarms here.
+- **On the FE residuals**, PEA and CD\* both reject while CD could not. *So:*
+  the dependence CD lost to sign cancellation is still there, and these two
+  see it.
+- **CDw does not reject even on raw prices**, where the dependence is not in
+  doubt. *So:* read CDw as a guard against false positives, never as
+  evidence of absence. CD\* is the one that keeps power on raw series and
+  on residuals alike.
 
-**Book check.** `dcce::pcd_test(test = "pesaran")` should be the same statistic
-`plm::pcdtest(test = "cd")` computes, and **plm** is the implementation
-@croissant2019 documents:
+::: {.callout-note appearance="simple"}
+**Next.** CD rejects: ask how strong the dependence is,
+[the exponent α](index.qmd#sec-csd-exponent). CD does not reject: do not
+stop. Read $\overline{\lvert\rho\rvert}$, and if the units sit on a map, ask
+whether the dependence follows it ([spatial
+dependence](../03-spatial/index.qmd)).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# m: an N x T matrix, one row per unit; y: a pseries or a one-sided formula.
+dcce::pcd_test(m, test = "pesaran")   # CD
+plm::pcdtest(y, test = "cd")          # the same statistic in plm
+dcce::pcd_test(m, test = "cdstar")    # on residuals from a model with
+                                      # time effects or CCE averages
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Residuals from any model with estimated period effects.** Two-way FE and
+CCE both estimate something per period, and @juodis2022 show that plain CD
+then diverges as T grows even when the dependence has been handled. On such
+residuals use CD\* or CDw, never CD alone.
+
+**`plm::pcdtest` on a formula needs `library(plm)`.** It builds a call to
+`plm()` by its bare name, which the `::` prefix does not make visible.
+
+**CDw depends on its seed.** Its weights are random draws; set the seed and
+report it.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+`dcce::pcd_test(test = "pesaran")` should equal `plm::pcdtest(test = "cd")`,
+the implementation @croissant2019 [sec. 4.4] document:
 
 ```{r}
 #| label: c02-1-book-check
@@ -116,5 +215,6 @@ library(plm)
 plm::pcdtest(log(price) ~ 1, data = HousePricesUS, test = "cd")
 ```
 
-z = 53.26 on both, so the new package's CD is the one the book describes, and
-its other three statistics are read on that credit.
+z = 53.26 on both, so the new package's CD is the one the book describes,
+and its other three statistics are read on that credit.
+:::
