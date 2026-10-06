@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-05
 - **Author:** Eduard Bukin
-- **Status:** active
+- **Status:** done
 
 ## Goal
 
@@ -646,4 +646,47 @@ Each step ends in its own commit.
 
 ## Outcome
 
-Filled in when the status becomes done or superseded.
+Done on 2026-10-06. `chapters/03-spatial/` holds the chapter page, nine
+steps and five theory notes, all written; the chapter renders from a
+clean freeze with no R errors, and every book check prints the source's
+digits except the three noted below.
+
+- **Reproduced.** CM Ex. 10.2 (37.288, 0.002, 28.217, 0.002), Ex. 10.4
+  (0.6498, 0.8831), Ex. 10.6 (0.7913; 0.1342, 0.2505, 0.5419), Ex. 10.7
+  (0.3690, 0.4132), Ex. 10.8 (both models to four decimals), Ex. 10.9
+  (0.7807, 0.0801), Ex. 10.10 (305.5, 11.0, 21.2, which CM print as 310,
+  11, 21), Ex. 10.11 (all eight), Ex. 10.12–10.13 (−0.0134, p 0.9121),
+  Ex. 10.15 (319.5, 371.5, 11.894431, 75.8), Ex. 10.16 (0.2500, 0.1250,
+  0.6136); Millo & Piras 2012 sec. 5.2 (0.5574; 0.4553, 0.0886). The
+  hand impacts equal `spatialreg::impacts()` on a cross-section to every
+  printed digit, and pooled OLS on the partialled house-price panel
+  equals CCEP at 1.199407.
+- **Not reproduced.** The rice Hausman test under the lag model: CM print
+  2.6 (p 0.4), the installed version 0.63 (p 0.89); same verdict. Millo &
+  Piras 2012 sec. 7 on `Produc`: SLM1 0.083, SLM2 0.0151, CLMlambda
+  9.7157 and a GM Hausman of 7.48 print here as 67.5, 12.3, 14.4 and NA;
+  recorded in the step's Book check as not a usable target.
+- **Findings the plan did not anticipate.** The spatial Hausman verdict
+  on rice depends on the model it is run under: under the error model
+  the tests chose it rejects random effects (χ² = 31), under the lag
+  model it does not (0.63); the chapter reports both and keeps the
+  fixed-effects SEM. On the transformed house-price panel the SEM's raw
+  residuals still reject the shuffle (z = 32) while the filtered
+  innovations do not (z = 0.5, p = 0.54): the residual check has to be
+  on $(I - \lambda W)u$. The SARAR fit with one W is not identified on
+  house prices (lag −0.52, error 0.87). Driscoll–Kraay intervals cover
+  0.68–0.78 at T = 20 in the heterogeneous-slope simulation, worse than
+  the conventional ones (0.76–0.85); mean-group covers 0.97 until
+  λ = 0.8, where it drops to 0.91. The naive dynamic SAR-FE on house
+  prices gives γ = 0.65 and ρ = 0.30, inside the stability bound.
+- **Tooling.** `R/cce.R`, `R/spatial-residuals.R`, `R/spatial-impacts.R`,
+  `R/spatial-weights.R` and `sim_spatial_slope_panel()`; 29 bibliography
+  entries; `renv.lock` records splm, spdep, spatialreg, sf and spData.
+- **Open questions closed.** Both panels run through every step.
+  `impacts()` on a GM fit was not tested, since the ML one fails and the
+  hand computation serves both. The Nickell trap is shown by a fit, not
+  a simulation. The Durbin model is a sentence in the fixed-effects
+  pitfalls and the choice note, not a call.
+- **Not done.** Clicking through the pane links by hand in a browser; a
+  full-book render from a clean `_freeze/` is the next session's first
+  step.
