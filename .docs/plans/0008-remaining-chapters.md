@@ -47,8 +47,9 @@ links. Plan 0007 closed with one task left: a full-book render from a clean
 **Checked on 2026-10-06** in the project renv, R 4.6.1: plm 2.6.7 exports
 every function the spec names for these stages; all nine plm datasets are
 present; `urca` is installed; `pco`, `pdynmc`, `sphet` and `Westerlund` are
-not. `renv::status()` reports lockfile packages not installed; the first
-snapshot of this plan settles it.
+not. `renv::status()` reports the project in a consistent state once
+`.Rprofile` has been sourced; an R session started without it resolves to
+the user cache and sees no packages at all.
 
 **Structure.** Decided on 2026-10-06 and recorded in
 `.docs/notes/0002-book-outline.md`: serial correlation joins the core
@@ -175,8 +176,9 @@ panels".
 
 Each step ends in its own commit.
 
-- [ ] **Render check.** Clear `_freeze/` and `_book/`, render the whole
-  book, read the log, snapshot renv. Closes plan 0007's open item.
+- [x] **Render check.** Clear `_freeze/` and `_book/`, render the whole
+  book, read the log, snapshot renv. Closes plan 0007's open item. Done
+  2026-10-06: 16 pages, exit 0, no R error and no warning in the log.
 - [ ] **Core: recon.** Chapter plan 0009 drafted, every call run.
 - [ ] **Core: tooling.** Bibliography, helpers, snapshot.
 - [ ] **Core: steps.** `index.qmd` and seven steps.
