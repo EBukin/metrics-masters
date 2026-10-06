@@ -14,6 +14,7 @@ project:
     - chapters/03-spatial/theory-spatial-weights.qmd
     - chapters/03-spatial/theory-spatial-dependence-tests.qmd
     - chapters/03-spatial/theory-spatial-model-choice.qmd
+    - chapters/03-spatial/theory-spatial-estimation.qmd
     - chapters/03-spatial/theory-direct-indirect-effects.qmd
     - chapters/04-time/theory-panel-unit-roots.qmd
 
@@ -54,6 +55,7 @@ book:
     - chapters/03-spatial/theory-spatial-weights.qmd
     - chapters/03-spatial/theory-spatial-dependence-tests.qmd
     - chapters/03-spatial/theory-spatial-model-choice.qmd
+    - chapters/03-spatial/theory-spatial-estimation.qmd
     - chapters/03-spatial/theory-direct-indirect-effects.qmd
     - chapters/04-time/theory-panel-unit-roots.qmd
 

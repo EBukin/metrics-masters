@@ -1,27 +1,161 @@
 ---
-title: "Spatial weights: what W assumes before it estimates anything"
-subtitle: "Choosing W, standardisation, sparsity"
+title: "Spatial weights"
+subtitle: "What W assumes before it estimates anything"
 ---
 
-> **Code:** Stage 5.1 of the plan, `.docs/panel-spat-PLAN.md`. Related notes:
-> [testing for spatial dependence](theory-spatial-dependence-tests.qmd) and
-> [spatial model choice](theory-spatial-model-choice.qmd).
+> **Code:** [spatial weights](index.qmd#sec-sp-weights). Related notes:
+> [testing for spatial dependence](theory-spatial-dependence-tests.qmd),
+> [spatial model choice](theory-spatial-model-choice.qmd) and
+> [cross-sectional
+> dependence](../02-cross-dependence/theory-cross-sectional-dependence.qmd).
 
-::: {.callout-note}
-**Placeholder.** This note is planned, not written. Tracked in the node
-checklist in [the preface](../../index.qmd).
-:::
+## Why there has to be a matrix
 
-## What this note should cover
+Time has an order and a direction: 1999 comes before 2000, and the past
+can move the future but not the reverse. A cross-section of states has
+neither. Arizona is not "before" Nevada, and if Nevada's prices move
+Arizona's, Arizona's move Nevada's in the same year. To say anything
+about dependence across units, the analyst has to supply the order that
+time supplies for free: a statement of which units are close to which,
+and how close. That statement is the **spatial weights matrix** W, N × N,
+with $w_{ij}$ the weight of unit *j* in unit *i*'s row and zeros on the
+diagonal.
 
-- **W is an assumption, not data.** Contiguity, k-nearest-neighbours and
-  inverse distance encode different beliefs about who influences whom, and the
-  estimates inherit that choice.
-- **Row standardisation** and what it does to the interpretation of ρ, plus why
-  the parameter space is |ρ| < 1/τ\* with τ\* = min(‖W‖₁, ‖W‖∞) rather than
-  |ρ| < 1 unless W is row *and* column standardised.
-- **Granularity**: why SAR endogeneity needs non-granular weights.
-- **Sparsity**: W is sparse, but (I − ρW)⁻¹ is not, so a SAR model links every
-  unit to every other one.
-- The four cheap pre-checks that should be computed and reported for the
-  project's own W, rather than asserted from citation.
+Nothing in the data produces W. It is chosen, and @anselin1988 [p. 19]
+calls that choice "one of the most controversial subjects in spatial
+econometrics". Every estimate in this chapter is an estimate *given W*.
+
+## 1. Three ways to say neighbour
+
+**Contiguity.** $w_{ij} = 1$ when *i* and *j* share a border, 0
+otherwise; "queen" contiguity counts a shared corner as a border, "rook"
+does not. This is `usaw49` for the states and `riceww` for the farms,
+where the border is "same village". Binary contiguity imposes the least
+structure, makes $Wy$ the plain average of the neighbours, and is the
+usual choice when the aim is to *test* for spatial effects rather than to
+estimate a theoretically given process [@anselin1988, p. 21; @croissant2019,
+sec. 10.2].
+
+**Nearest neighbours.** $w_{ij} = 1$ for the *k* units closest to *i*.
+Every unit gets exactly *k* neighbours, which keeps W balanced where units
+differ wildly in size, at the price of links that cross no border, as the
+long lines in the West of the [weights section](index.qmd#sec-sp-weights)
+show.
+
+**Distance.** $w_{ij} = 1$, or $1/d_{ij}$, for every *j* within a cutoff
+of *i*, so that influence fades with distance and the cutoff says where it
+stops. Dense where units are small, thin where they are large.
+
+Whichever is chosen, the chapter assumes that W is **exogenous** and
+**fixed over time**. Geography is exogenous; a matrix of bilateral trade
+shares, built from the same economy as the outcome, is not
+[@croissant2019, sec. 10.2]. The distance need not be geographic: a space
+of economic or demographic characteristics works the same way, as long
+as it is not an outcome of the model.
+
+## 2. Row standardisation and what ρ means
+
+Dividing each row by its sum makes $\sum_j w_{ij} = 1$, and then
+
+$$
+(Wy)_i = \sum_j w_{ij}\, y_j
+$$
+
+is the average outcome of *i*'s neighbours. The spatial parameter ρ then
+reads as a share: ρ = 0.65 on the defactored house-price residuals means a
+state's residual carries 0.65 of its neighbours' average residual. Two
+costs. W stops being symmetric: Maine has one neighbour and gives it
+weight 1; New Hampshire has three and gives Maine 1/3. And ρ stops being
+comparable across matrices: with four nearest neighbours every weight is
+0.25, with a distance band the average weight is whatever the density
+makes it, and the same data return a different ρ̂ under each. The chapter
+reports every ρ̂ as a number for `usaw49`.
+
+## 3. The parameter space
+
+A spatial lag or error model has to invert $I - \rho W$. The inverse
+exists whenever ρ is not the reciprocal of an eigenvalue of W, so the
+admissible interval around zero runs from $1/\omega_{\min}$ to
+$1/\omega_{\max}$, with ω the real eigenvalues. For a row-standardised W,
+$\omega_{\max} = 1$, so the upper bound is 1; the lower bound is whatever
+the most negative eigenvalue gives, −1.39 for `usaw49`.
+
+A bound that needs no eigenvalues is [@kelejian2010; @pesaran2015,
+p. 799]
+
+$$
+|\rho| < \frac{1}{\tau^*}, \qquad
+\tau^* = \min\big(\lVert W\rVert_1, \lVert W\rVert_\infty\big),
+$$
+
+the smaller of the largest column sum and the largest row sum. With rows
+standardised, $\lVert W\rVert_\infty = 1$ and so $\tau^* \le 1$: any
+$|\rho| < 1$ is safe. The familiar statement "ρ lies in (−1, 1)" is exact
+only when W is row *and* column standardised [@pesaran2015, p. 802], and
+`usaw49`'s column sums run from 0.33 to 1.7.
+
+The eigenvalues matter for a second reason. The likelihood of every model
+in this chapter carries $\ln|I - \rho W| = \sum_i \ln(1 - \rho\,\omega_i)$,
+and `spml`'s default `method = "eigen"` computes exactly that sum at every
+step of the optimiser. For N in the thousands the eigenvalues are too
+expensive, and the sparse-matrix and Chebyshev approximations take over
+[@millo2012, sec. 5.2].
+
+## 4. Granularity: why a lag is endogenous
+
+A spatial lag $Wy$ is endogenous, and a within fit that includes it is
+biased, because $y_j$ for a neighbour *j* contains $u_j$, which is
+correlated with $u_i$ through the same W. @pesaran2015 [p. 800] make the
+condition precise: the covariance of $(Wy)_{it}$ with $u_{it}$ stays away
+from zero only when the weights are **non-granular**, that is, when some
+$w_{ij}$ stay bounded away from zero as N grows. If every weight were of
+order $1/N$, the lag would be a cross-section average, its covariance
+with any one unit's error would vanish, and there would be nothing to
+instrument.
+
+This is the bridge to the [previous
+chapter](../02-cross-dependence/theory-cross-sectional-dependence.qmd). A
+cross-section average *is* a spatial lag with a granular W, every weight
+$1/N$; it proxies a factor that every unit loads on, and CCE puts it on
+the right-hand side as an exogenous control. A contiguity W, with a
+handful of weights near 1/4 in every row, is the opposite case: its lag
+is endogenous, the dependence it generates is weak, and α stays below 1
+[@pesaran2015, sec. 30.3.3]. The largest weight in `usaw49` is 1, Maine's.
+
+## 5. Sparsity: what the model links
+
+W is sparse: 9% of `usaw49` is non-zero. The covariance of a spatial
+error model is not. With $u = (I - \lambda W)^{-1}\varepsilon$,
+
+$$
+\operatorname{Var}(u) = \sigma^2 \big[(I - \lambda W)'(I - \lambda W)\big]^{-1},
+$$
+
+and the inverse of a sparse matrix is dense: 99.7% of the cells of
+$(I - 0.5W)^{-1}$ are non-zero. A shock in California reaches Maine, in
+any spatial autoregressive model, through the chain of neighbours in
+between [@pesaran2015, p. 801]. Two alternative error forms keep the
+covariance as sparse as W: the spatial moving average, $u = \varepsilon +
+\lambda W\varepsilon$, and the spatial error components model, $u = W\xi +
+\varepsilon$ [@pesaran2015, eqs. 30.5–30.6]. They say a shock stops at the
+first neighbour. Neither is implemented in **splm**, whose
+`spatial.error` is the autoregressive form only, so the sharpest
+distinction in the theory is not available to the code.
+
+## If / then
+
+| If | Then |
+|---|---|
+| The question is whether space matters at all | Binary contiguity, row-standardised [@anselin1988, p. 21] |
+| Units differ wildly in size | *k* nearest neighbours; say what *k* and why |
+| A ρ̂ is reported above 1 | The fit is broken, or W is not row-standardised; check $\lVert W\rVert_\infty$ |
+| Two papers report ρ̂ on different W | They are not comparable; compare the impacts instead ([effects](index.qmd#sec-sp-impacts)) |
+| W is built from an outcome of the model (trade, migration) | It is endogenous; the chapter's estimators do not apply |
+| Every weight is of order 1/N | The lag is a cross-section average, and the question is a factor, not space |
+| A shock should stop at the first neighbour | The autoregressive error is the wrong form, and the right one is not implemented: say so |
+
+## Next
+
+With W chosen and checked, the next question is whether the dependence
+left in the data follows it: [testing for spatial
+dependence](theory-spatial-dependence-tests.qmd).

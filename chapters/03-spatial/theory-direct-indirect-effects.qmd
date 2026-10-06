@@ -1,27 +1,119 @@
 ---
-title: "Direct and indirect effects: why a SAR coefficient is not a
-  marginal effect"
-subtitle: "Impacts and feedback loops"
+title: "Direct and indirect effects"
+subtitle: "Why a spatial lag coefficient is not a marginal effect"
 ---
 
-> **Code:** Stage 5.8 of the plan, `.docs/panel-spat-PLAN.md`. Related note:
-> [spatial model choice](theory-spatial-model-choice.qmd).
+> **Code:** [direct and indirect effects](index.qmd#sec-sp-impacts).
+> Related notes: [spatial model choice](theory-spatial-model-choice.qmd)
+> and [spatial weights](theory-spatial-weights.qmd).
 
-::: {.callout-note}
-**Placeholder.** This note is planned, not written. Tracked in the node
-checklist in [the preface](../../index.qmd).
-:::
+## The question a reader of an impact evaluation asks
 
-## What this note should cover
+If Ohio's income rose by 10% and nothing else changed, by how much would
+Ohio's house prices rise? In a plain regression the answer is β, and the
+reader is done. In a spatial lag model it is not, because the model says
+Ohio's price depends on Pennsylvania's, Pennsylvania's on Ohio's, and the
+rise goes round that loop before it settles. A paper that fits
+$y = \rho W y + X\beta + u$ and reports β as "the effect of income" has
+not reported an effect of anything [@lesage2009, ch. 2].
 
-- **The mechanism**: with Wy on the right-hand side, a change in one unit's x
-  propagates through (I − ρW)⁻¹ and returns to that unit, so β alone is not the
-  effect of x on y.
-- **Direct, indirect and total impacts**, and why the direct effect already
-  contains the feedback loop.
-- **Reporting**: impacts, not coefficients, are the quantity a reader of an
-  impact evaluation wants.
-- **Computation**: `impacts()` for `splm` fits, and why `type = "mult"`
-  densifies the matrix at moderate N — use `"MC"` or `"moments"` instead.
-- That this is **not covered in Croissant & Millo (2019)**, which predates the
-  methods, so the package documentation is the reference.
+## 1. The reduced form
+
+Solve the lag model for *y*, for one period:
+
+$$
+y = (I - \rho W)^{-1} X\beta + (I - \rho W)^{-1} u.
+$$
+
+The matrix $(I - \rho W)^{-1}$ is the sum $I + \rho W + \rho^2 W^2 +
+\dots$, which converges whenever ρ is inside the parameter space of the
+[weights note](theory-spatial-weights.qmd). Its terms are the loop: the
+first is the own effect, the second the neighbours', the third the
+neighbours' neighbours', and so on without end. Differentiating with
+respect to regressor *k* in every unit at once gives an N × N matrix of
+partial effects [@lesage2009, eq. 2.49]
+
+$$
+S_k = \frac{\partial y}{\partial x_k'} = (I - \rho W)^{-1}\beta_k ,
+$$
+
+whose $(i, j)$ cell is the effect of $x_k$ in unit *j* on *y* in unit
+*i*. β is the value every cell would take if ρ were zero.
+
+## 2. Three averages
+
+N² numbers per regressor are too many to report. @lesage2009 [sec. 2.7]
+reduce them to three:
+
+- the **direct** effect, the average diagonal cell,
+  $\bar S_k^{\,d} = N^{-1}\operatorname{tr}(S_k)$: a unit's own
+  response, including what comes back to it through its neighbours;
+- the **total** effect, the average row sum,
+  $\bar S_k^{\,t} = N^{-1}\iota' S_k\, \iota$: the response of a typical
+  unit when $x_k$ rises in every unit;
+- the **indirect** effect, their difference: what a typical unit
+  receives from everyone else, or equivalently what a change in one unit
+  sends to all the others, since the average row sum and the average
+  column sum of $S_k$ are the same number.
+
+With a row-standardised W the row sums of $(I - \rho W)^{-1}$ all equal
+$1/(1-\rho)$, so the total effect is $\beta_k / (1 - \rho)$: the spatial
+multiplier. With ρ = 0.65 on house prices the multiplier is 2.8, and an
+income slope of 0.72 becomes a total effect of 2.0. The direct effect
+exceeds β by the feedback, $\beta_k[N^{-1}\operatorname{tr}(I - \rho
+W)^{-1} - 1]$, which is 0.11 on house prices and 0.01 on rice.
+
+## 3. Standard errors
+
+Each average is a nonlinear function of ρ and β, so its standard error is
+not read off the coefficient table. @lesage2009 [sec. 5.2] draw (ρ, β)
+from the estimated asymptotic normal distribution, recompute the three
+averages for each draw, and take the dispersion; 200 draws give two
+decimals. With large N the inverse is replaced by traces of powers of W,
+$\operatorname{tr}(W^q)$, computed once by `spatialreg::trW`, which is
+what `type = "MC"` and `"moments"` do in `impacts()`. The `"moments"`
+route needs a symmetric W, or the similar symmetric matrix of a
+row-standardised one.
+
+## 4. Where the effects live
+
+| Model | $\partial y / \partial x_k'$ | Indirect effects |
+|---|---|---|
+| SEM | $\beta_k I$ | none; β is the effect |
+| SAR | $(I - \rho W)^{-1}\beta_k$ | yes, through the multiplier |
+| SDM | $(I - \rho W)^{-1}(\beta_k I + \theta_k W)$ | yes, and not proportional to the direct ones |
+| SLX, $WX$ only | $\beta_k I + \theta_k W$ | yes, first neighbours only |
+
+The spatial error model has no indirect effects at all, which is the
+other half of the [choice note](theory-spatial-model-choice.qmd): a
+reader who wants spillovers has to have put a lag in. The Durbin term
+breaks the shortcut $\beta_k / (1 - \rho)$, and makes the ratio of
+indirect to direct effects differ across regressors [@baltagi2021,
+p. 406; @lesage2009, sec. 2.7].
+
+## If / then
+
+| If | Then |
+|---|---|
+| The fitted model has $Wy$ | Report direct, indirect and total with Monte Carlo intervals; never β alone |
+| The fitted model has only a spatial error | β is the effect; say that no spillover was estimated |
+| W is row-standardised and there is no Durbin term | The total effect is $\beta_k / (1 - \rho)$; check the hand computation against it |
+| N is in the thousands | Use trace approximations, not the dense inverse |
+| `splm::impacts()` fails | The arithmetic is three lines; `sar_impacts()` does it, and `spatialreg::impacts()` on one cross-section checks it |
+
+## Open
+
+- **No published target.** The `impacts()` example in `?spml` is commented
+  out, and @croissant2019 predate the method; the only check is
+  agreement with the cross-sectional machinery of **spatialreg**.
+- **The method is broken in the installed versions.** With **splm**
+  1.6-5 and **spatialreg** 1.4-3, `impacts()` on a within fit stops with
+  `!is.null(have_factor_preds) is not TRUE` whatever the `type`.
+- **Time-varying W.** Everything here assumes one W for every period; a
+  W that changes over time gives one $S_k$ per period, and the chapter's
+  tools do not handle it.
+
+## Next
+
+What this chapter cannot estimate, and what to write instead:
+[limits](index.qmd#sec-sp-limits).

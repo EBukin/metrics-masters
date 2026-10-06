@@ -1,27 +1,158 @@
 ---
-title: "Spatial model choice: what each specification claims about spillovers"
-subtitle: "SAR, SEM, SDM and SARAR"
+title: "Spatial model choice"
+subtitle: "SAR, SEM, SARAR and Durbin: what each claims, and how to choose"
 ---
 
-> **Code:** Stages 5.2 and 5.5 of the plan, `.docs/panel-spat-PLAN.md`.
-> Related notes: [spatial weights](theory-spatial-weights.qmd) and
+> **Code:** [lag or error](index.qmd#sec-sp-lag-or-error) and
+> [fixed effects](index.qmd#sec-sp-fe). Related notes:
+> [spatial weights](theory-spatial-weights.qmd),
+> [fitting spatial panels](theory-spatial-estimation.qmd) and
 > [direct and indirect effects](theory-direct-indirect-effects.qmd).
 
-::: {.callout-note}
-**Placeholder.** This note is planned, not written. Tracked in the node
-checklist in [the preface](../../index.qmd).
-:::
+## Two claims about the world
 
-## What this note should cover
+A spatial lag says that a neighbour's *outcome* moves yours: a tax rate
+set with an eye on the next state's, a disease that spreads, a price that
+buyers compare across a border. A spatial error says that only the
+*shocks* are shared: the weather that hits a whole valley, a
+measurement error that is local, a variable the model left out that
+happens to cluster on the map. The first is a mechanism; the second is a
+nuisance that has to be allowed for, or, as @holly2010 read it for
+house prices, the diffusion of a shock that is itself worth measuring
+[@croissant2019, sec. 10.2.2]. They are not two ways to fit one curve.
+They are different statements about what would happen if one unit's
+outcome were changed, and the [effects
+note](theory-direct-indirect-effects.qmd) spells out the difference.
 
-- **The substantive difference**: a spatial lag says your neighbour's *outcome*
-  moves yours; a spatial error says only the *shocks* are correlated. These are
-  different claims about the world, not two ways to fit the same curve.
-- **What is at stake**: under spatial errors, FE and RE stay consistent and
-  merely lose efficiency; under a spatial lag they are inconsistent.
-- **SARAR and the Durbin specification**, and when the encompassing model is
-  the honest answer to two tests that both reject.
-- **The testing battery** — joint, marginal and conditional LM tests — and why
-  a joint test that rejects gives no direction.
-- That SMA and SEC error specifications are **not implemented** in `splm`,
-  which removes the sharpest distinction in the theory.
+## 1. The specifications
+
+Stack the N units of period *t* [@pesaran2015, eqs. 30.1–30.9;
+@baltagi2021, pp. 401–406]:
+
+| Name | Equation | Claim |
+|---|---|---|
+| **SAR**, spatial lag | $y_t = \rho W y_t + X_t\beta + u_t$ | outcomes move outcomes |
+| **SEM**, spatial error | $y_t = X_t\beta + u_t,\ u_t = \lambda W u_t + \varepsilon_t$ | shocks are shared |
+| **SARAR** | both, with $W_1$ and $W_2$ possibly different | both |
+| **SDM**, Durbin | $y_t = \rho W y_t + X_t\beta + W X_t\theta + u_t$ | neighbours' regressors matter too |
+
+The reduced forms say what each does to an estimate. Under SAR,
+$y_t = (I - \rho W)^{-1}(X_t\beta + u_t)$: $Wy_t$ contains $u_t$ and is
+endogenous, so least squares on it, pooled or within, is inconsistent
+[@pesaran2015, p. 800; @baltagi2021, p. 401]. Under SEM,
+$u_t = (I - \lambda W)^{-1}\varepsilon_t$: the regressors stay exogenous,
+and least squares is consistent and merely inefficient, with standard
+errors that are wrong. @pesaran2015 [p. 801] put the consequence in one
+line: under spatial *errors*, fixed and random effects are
+$\sqrt{NT}$-consistent, and spatial modelling buys efficiency, not
+consistency.
+
+The Durbin term $WX_t$ costs nothing in estimation: $WX_t$ is as
+exogenous as $X_t$, and `splm::slag()` adds it to any formula. What it
+changes is the reading of the coefficients, since the effect of $x_k$ on
+unit *i* now runs through $\beta_k$ and $\theta_k$ together
+[@baltagi2021, p. 406; @lesage2009, sec. 2.7].
+
+## 2. The Lagrange multiplier battery
+
+The tests of @anselin1996 need only the non-spatial fit. With residuals
+*e*, the error test is
+
+$$
+LM_\lambda = \frac{(e'We/\hat\sigma^2)^2}{T_W}, \qquad
+T_W = \operatorname{tr}(W'W + W^2),
+$$
+
+and the lag test replaces $e'We$ with $e'Wy$ and $T_W$ with a term that
+also involves the fitted values. Each is $\chi^2_1$ under its null, and
+each rejects under the *other's* alternative, because an omitted lag
+leaves spatially correlated residuals and an omitted error makes $Wy$
+look informative. The **robust** versions subtract from each statistic
+the part the other effect would contribute [@anselin1996, eqs. 10, 13]:
+
+$$
+RLM_\lambda =
+  \frac{\big(e'We/\hat\sigma^2 - T_W\, \tilde J^{-1}\, e'Wy/\hat\sigma^2\big)^2}
+       {T_W\,(1 - T_W \tilde J^{-1})},
+$$
+
+with $\tilde J$ the information term of the lag test. The adjustment is
+exact for a *local* departure, a small value of the other parameter, and
+"can behave suboptimally" when both effects are large [@croissant2019,
+sec. 10.3.4.2]. The reading rule that follows is in two parts. When a
+plain test rejects and its robust version does not, the signal was the
+other effect's shadow, which is the rice case: `lml` = 39, `rlml` = 0.17.
+When both robust tests reject strongly, the tests have left their design
+range, which is the house-price case: `rlml` = 32, `rlme` = 28. The answer
+then comes from the fits.
+
+`slmtest` implements the four for a *pooled* model, which is what
+@anselin1996 derived. With unit effects, pass `model = "within"` or
+demean the variables with `plm::Within()` in the formula; the
+[lag-or-error section](index.qmd#sec-sp-lag-or-error) does both.
+
+## 3. The encompassing model as arbiter
+
+When the robust tests do not settle it, fit SARAR and read it two ways
+[@croissant2019, sec. 10.3.4.2]. A **Wald** *z* on each spatial parameter
+needs no robustification, since the other effect is in the model. A
+**likelihood ratio** between SARAR and the nested SAR or SEM,
+$2[\ln L_{\text{SARAR}} - \ln L_{\text{SEM}}] \sim \chi^2_1$, asks whether
+the lag adds anything given the error, and the reverse. On rice with
+random effects the lag given the error has p = 0.91: the error is the
+whole story.
+
+The arbiter has one weakness. With the *same* W in both places, a SARAR
+model is close to unidentified: a positive error and a negative lag can
+reproduce the covariance of a plain SEM, and the two parameters trade off
+against each other with large standard errors [@elhorst2014, ch. 2;
+@lesage2009, ch. 2]. The transformed house-price panel shows it, with a
+lag of −0.52 and an error of 0.87 where the separate fits gave 0.65 and
+0.69. In that case the encompassing model reports two numbers that mean
+less than either separate one, and the honest write-up gives SEM and SAR
+side by side with their impacts.
+
+## 4. The unit effect's own spatial structure
+
+With random effects there is a further choice [@baltagi2021, pp. 393–395;
+@pesaran2015, p. 803]. In Anselin's specification the unit effect is
+plain and only the period shock passes through $(I - \lambda W)^{-1}$;
+the spillovers are time-varying. In the specification of @kapoor2007
+the unit effect passes through it too, so a good farmer raises the
+neighbours' output in every season; the spillovers are time-invariant as
+well. @baltagi2013 nest both in a model with three matrices. The two
+differ only through the variance ratio of the unit effect; when it is
+small, as on rice, the fits are the same to the second decimal, and the
+[random-effects section](index.qmd#sec-sp-re) shows it. Whether the unit
+effect may be random at all is the spatial Hausman test's question, and
+its answer depends on the spatial model it is asked under: on rice it
+rejects under the error model and not under the lag model.
+
+## If / then
+
+| If | Then |
+|---|---|
+| The question is a mechanism, outcomes moving outcomes | SAR or SDM, and report impacts, not β |
+| The question is a slope, with shocks that cluster | SEM; β is the effect, and the fit buys precision |
+| Plain lag test rejects, robust lag test does not | The lag was the error's shadow; SEM |
+| Both robust tests reject strongly | Fit SEM, SAR and SARAR; if SARAR's parameters flip sign, report the two separate fits |
+| Neighbours' regressors plausibly matter | Add $WX$ with `splm::slag()`; the effects change, the estimation does not |
+| Unit effects are random and large | Anselin against KKP matters; with a small variance ratio it does not |
+| A shock should stop at the first neighbour | The error form needed is not implemented; state it |
+
+## Open
+
+- **SMA and SEC errors** [@pesaran2015, eqs. 30.5–30.6] are not in
+  **splm**, which fits the autoregressive error only.
+- **The fixed-effects LM and LR tests of @debarsy2010**, joint, marginal
+  and conditional, are not implemented; their LR *structure* can be
+  rebuilt from the log-likelihoods of nested `spml` fits, but the within
+  log-likelihoods of **splm** are not on one scale across lag and error
+  fits, so the comparison has to run with random effects.
+- **A test for the Durbin term** beyond the Wald *z* on $\theta$ is not
+  covered here.
+
+## Next
+
+Having chosen a specification, fit it: [fitting spatial
+panels](theory-spatial-estimation.qmd).

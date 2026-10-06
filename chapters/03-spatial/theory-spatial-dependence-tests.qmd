@@ -1,30 +1,152 @@
 ---
-title: "Testing for spatial dependence: does the co-movement follow the map?"
-subtitle: "Ordered alternatives and the randomised-W test"
+title: "Testing for spatial dependence"
+subtitle: "Ordered alternatives, local CD, and the randomised-W test"
 ---
 
-> **Code:** Stage 5.7 of the plan, `.docs/panel-spat-PLAN.md`. Related notes:
+> **Code:** [does it follow the map](index.qmd#sec-sp-map) and the
+> residual checks in [fixed effects](index.qmd#sec-sp-fe). Related notes:
 > [cross-sectional
 > dependence](../02-cross-dependence/theory-cross-sectional-dependence.qmd)
 > and [spatial weights](theory-spatial-weights.qmd).
 
-::: {.callout-note}
-**Placeholder.** This note is planned, not written. Tracked in the node
-checklist in [the preface](../../index.qmd).
-:::
+## Two families of test
 
-## What this note should cover
+The tests for cross-sectional dependence split by whether the units are
+**ordered** [@pesaran2015, p. 784]. The CD test, the LM tests and the
+exponent α treat the units as an unordered set: they ask whether the
+units move together, and how pervasively, without a notion of who is near
+whom. On a map they detect *whether anything exists*, never whether it
+has spatial structure.
 
-- The **ordered** family, which asks whether unit *i* correlates with its
-  *neighbours* specifically: CD_Moran and the W-weighted local CD.
-- **Why plain CD cannot answer this**: its implicit null *is* weak dependence,
-  so it does not fire on spatial alternatives — the point picked up from
-  [cross-sectional
-  dependence](../02-cross-dependence/theory-cross-sectional-dependence.qmd).
-- **Why local CD produces false positives** when non-spatial dependence is
-  present: it draws spatially related pairs from a population of correlated
-  ones, and so favours a spatial verdict.
-- The **randomised-W test** (`rwtest`), which is robust to factor dependence
-  and serial correlation, and why it displaces local CD as the primary tool.
-- That `rwtest` and `pcdtest` coerce W through `as.logical()`, so both test
-  neighbourhood *structure*, never the weighting scheme.
+That is not a small gap. The implicit null of the CD test is *weak*
+dependence, α below 1/4 when N and T grow together [@pesaran2015,
+p. 786], and spatial processes generate weak dependence [@pesaran2015,
+sec. 30.3.3]. From the other side, @pesaran2015 [p. 839] find the CD test
+to be the panel unit-root diagnostic *most robust to* spatial
+alternatives, which is to say it does not fire on them. A spatial panel
+can pass the CD test and still be spatially dependent in every residual.
+The ordered family exists for that case.
+
+## 1. The ordered statistics
+
+Put the map in. @pesaran2015 [eqs. 30.40–30.41] give two forms. The first
+is Moran's *I* on the panel,
+
+$$
+CD_{\text{Moran}} = \frac{\sum_t \sum_{i \ne j} w_{ij}\, \hat u_{it}\hat u_{jt}}
+  {\sqrt{\,\cdot\,}},
+$$
+
+the covariance of each residual with its neighbours' average, scaled to a
+standard normal [@kelejian1998]. For large N it is equivalent to the
+Lagrange multiplier test of @burridge1980, which is the `lme` statistic of
+the [lag-or-error section](index.qmd#sec-sp-lag-or-error). The second is
+the **local CD** statistic: the CD average restricted to pairs that W
+links, with the weights kept,
+
+$$
+CD_{P,\text{local}} = \sqrt{\frac{T}{\sum_{i<j} w_{ij}}}\
+  \sum_{i<j} w_{ij}\,\hat\rho_{ij}.
+$$
+
+What **plm** implements as `pcdtest(w = )` is the binary version:
+`w` is passed through `as.logical()`, so every non-zero cell becomes 1
+and the statistic averages the correlations of the linked pairs with
+equal weight [@croissant2019, sec. 10.1.2.1]. It tests the neighbourhood
+*structure*. The weighted form of eq. 30.41 and $CD_{\text{Moran}}$ are
+not implemented in this book's tools.
+
+## 2. Why local CD over-reads a factor
+
+Local CD inherits the CD test's virtue, exact centring for any T, and
+adds one of its own: it has power on cross-sectionally demeaned data,
+where global CD is dead by construction [@croissant2019, sec. 10.1.2.2].
+It also has a specific blind spot. If a factor moves every unit, every
+pair of units is correlated, neighbours included. Local CD then averages
+"a subset of spatially related pairs from a population of correlated
+ones", and rejects, favouring a spatial reading of what is not spatial
+[@croissant2019, sec. 10.1.2.2]. On the raw house-price index it gives
+z = 37, with the national force still in the data; on the CCEMG residuals
+it gives z = 28, with the force out. Only the second number is evidence
+about geography, and nothing in the first number says so.
+
+## 3. The randomised-W test
+
+@millo2017 turns the blind spot into a test. Under the null that the map
+does not matter, the units are **exchangeable**: hand each state a random
+set of "neighbours" by permuting the order of the units, and the local
+statistic should look the same. Compute it under B shuffled maps, $\tau_1,
+\dots, \tau_B$, and compare with the value under the true map, τ. The
+one-sided pseudo-p-value, for the usual alternative of positive spatial
+dependence, is [@croissant2019, eq. 10.1]
+
+$$
+p^{+} = \frac{1 + \sum_{h=1}^{B} \mathbf{1}[\tau_h \ge \tau]}{B + 1};
+$$
+
+the two-sided version takes absolute values of cross-sectionally
+demeaned data, and the asymmetric version counts each tail separately
+[@croissant2019, eqs. 10.2–10.3]. `rwtest` defaults to `alternative =
+"twosided"` and to `test = "rho"`, the average correlation of the linked
+pairs; `"cd"` and `"sclm"` use the local CD and scaled-LM statistics
+instead.
+
+The test is robust to what local CD is not. A factor moves the whole
+distribution of shuffled statistics, true map included, so it cancels in
+the comparison; serial correlation does the same. That is why @croissant2019
+[sec. 10.1.2.2] run it on the MG residuals, with the factor still in
+them, and get the same p = 0.002 as on the raw index. It is the test that
+displaces local CD as the primary tool, and local CD becomes the
+statistic that the shuffle is applied to.
+
+Its limits are the ones its construction implies. With B = 999 the
+smallest p-value is 0.001 and the pile has 999 points; with the default
+B = 99 it is coarse. It reads W through `as.logical()` like `pcdtest`, so
+it never tests a weighting scheme. And it tests one order of
+neighbourhood at a time; `order = 2` shuffles the second-order map.
+
+## 4. Before and after the fit
+
+The same two tests serve twice [@croissant2019, sec. 10.1.2]. On the raw
+data, or on residuals from which a factor has been removed, they say
+whether a spatial model is called for. On the residuals of the spatial
+model, they say whether it did its job. The second use has a trap. A
+spatial error model's residuals $u = y - X\hat\beta$ are spatially
+correlated *by construction*: the model says $u = (I - \lambda
+W)^{-1}\varepsilon$, so a residual test on $u$ rejects whenever the model
+is right. What the model claims to be free of spatial correlation is
+$\varepsilon = (I - \hat\lambda W)u$, period by period, and that is what
+the check must test. On the transformed house-price panel the local CD of
+$u$ is 32 and that of $\varepsilon$ is 0.5; on rice, 47 and −0.5. A
+spatial lag model's residuals $y - \hat\rho Wy - X\hat\beta$ are already
+the innovations, and need no filter.
+
+## If / then
+
+| If | Then |
+|---|---|
+| CD does not reject and the units sit on a map | Nothing is settled; run local CD and the shuffle [@pesaran2015, p. 839] |
+| Local CD rejects on raw data with α near 1 | A factor is in the way; defactor first, or read the shuffle, never local CD alone |
+| The shuffle rejects on MG residuals | The dependence follows the map, factor or no factor |
+| The shuffle does not reject | Space adds nothing; the dependence is a factor, or noise; robust standard errors |
+| Checking a spatial error fit | Test the filtered innovations $(I - \hat\lambda W)u$, not $u$ |
+| Checking a spatial lag fit | Test the residuals as they are |
+| Negative spatial dependence is plausible | `alternative = "symmetric"` or the asymmetric form; the one-sided test can miss it |
+| W carries distances | Both tests drop them; report that only the structure was tested |
+
+## Open
+
+- **The weighted local CD and $CD_{\text{Moran}}$** of @pesaran2015
+  [eqs. 30.40–30.41] are not implemented; a hand-coded version would have
+  no target beyond agreement with the binary one.
+- **Robinson's quadratic forms** [@pesaran2015, p. 815] are not
+  implemented.
+- **Higher orders.** The shuffle at `order = 2` tests the
+  neighbours-of-neighbours map, which is the natural follow-up when the
+  first-order test rejects and the question is how far the dependence
+  reaches. No published number exists for it on either panel.
+
+## Next
+
+A rejection says the dependence follows the map. Which equation it belongs
+in is the next note: [spatial model choice](theory-spatial-model-choice.qmd).

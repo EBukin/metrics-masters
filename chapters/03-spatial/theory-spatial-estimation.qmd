@@ -1,0 +1,206 @@
+---
+title: "Fitting spatial panels"
+subtitle: "Maximum likelihood, generalised moments, fixed and random effects"
+---
+
+> **Code:** [fixed effects](index.qmd#sec-sp-fe),
+> [random effects](index.qmd#sec-sp-re) and
+> [serial correlation too](index.qmd#sec-sp-serial). Related notes:
+> [spatial model choice](theory-spatial-model-choice.qmd) and
+> [spatial weights](theory-spatial-weights.qmd).
+
+## Why least squares is not enough
+
+A spatial error model could be fitted by least squares: the slopes would
+be consistent, only their standard errors wrong. A spatial lag model
+could not, since $Wy$ is endogenous. Both need an estimator that knows
+about W, and two families supply it. **Maximum likelihood** writes down
+the joint normal density of all NT observations, with the determinant
+that the spatial transformation adds, and maximises it. **Generalised
+moments** uses the fact that the innovations are uncorrelated with their
+own spatial lags, solves a small set of moment equations for λ, and
+finishes with feasible GLS. The first is efficient under normality and
+inconsistent under heteroskedasticity of unknown form [@lin2010;
+@pesaran2015, p. 807]; the second needs neither normality nor a
+determinant, and gives no standard error for the spatial parameter.
+
+## 1. The likelihood and its Jacobian
+
+For the pooled spatial error model, with $B = I_N - \lambda W$ and
+$u = y - X\beta$ [@anselin1988, ch. 6; @croissant2019, sec. 10.2.3]:
+
+$$
+\ln L = -\frac{NT}{2}\ln(2\pi\sigma^2) + T\ln|B|
+  - \frac{1}{2\sigma^2}\, u'(I_T \otimes B'B)\,u .
+$$
+
+The term $T \ln|B| = T \sum_i \ln(1 - \lambda\omega_i)$, with ω the
+eigenvalues of W, is the Jacobian of the transformation from the
+innovations to the observed errors; without it the likelihood would push
+λ to the edge of its range. For the spatial lag model the transformation
+is on the outcome, $A y = X\beta + u$ with $A = I_N - \rho W$, and the
+Jacobian is $T\ln|A|$. `spml` computes the eigenvalues once and the sum
+at every step of `nlminb`; for N in the thousands it switches to sparse
+or approximate determinants [@millo2012, sec. 5].
+
+## 2. Fixed effects: transformation or correction
+
+Within estimation demeans every variable by unit. For a spatial model the
+demeaning has a side effect: the T demeaned errors of a unit are no
+longer independent, so the likelihood above is misspecified on the
+demeaned data [@croissant2019, sec. 10.3.1]. @lee2010 give two ways out.
+The first replaces demeaning with an **orthonormal transformation**, a
+matrix that removes the unit mean and leaves T − 1 uncorrelated errors
+behind; the estimator is then consistent and asymptotically normal when
+either N or T grows [@pesaran2015, pp. 802–803]. The second keeps
+demeaning and corrects the error variance after the fact [@lee2010,
+sec. 3.2]. **splm** takes the second route: `spml(model = "within")` is
+the pooled fit on demeaned data with the variance corrected, and the
+"either N or T" property of the first route does not transfer to it.
+@millo2012 [sec. 8.2] check by simulation that the practical difference
+is small.
+
+## 3. Random effects: two covariances, twelve error structures
+
+With a random unit effect the error is $u_{it} = \mu_i + v_{it}$, and the
+question is where W enters. In Anselin's specification only the period
+shock is spatial, $v_{\cdot t} = \lambda W v_{\cdot t} + \varepsilon_{\cdot
+t}$, and with $\phi = \sigma^2_\mu/\sigma^2_\varepsilon$ [@baltagi2021,
+eq. 13.10; @croissant2019, sec. 10.3.2.1]
+
+$$
+\Omega = \sigma^2_\varepsilon
+  \big[\phi\,(J_T \otimes I_N) + I_T \otimes (B'B)^{-1}\big].
+$$
+
+In the specification of @kapoor2007 the unit effect passes through W as
+well, so the whole composite error is spatially filtered
+[@croissant2019, sec. 10.3.2.2]:
+
+$$
+\Omega = \sigma^2_\varepsilon\, (\phi J_T + I_T) \otimes (B'B)^{-1}.
+$$
+
+`spml(model = "random")` calls these `spatial.error = "b"` and `"kkp"`.
+Both are cases of the error menu of `spreml`, which composes three
+letters: `sem` for a spatial error, `sr` for a serially correlated
+remainder, $\varepsilon_{it} = \psi\varepsilon_{i,t-1} + \eta_{it}$, and
+`re` for the random effect. `"semsrre"` holds all three [@millo2014;
+@baltagi2007serial]; `"semsr"` drops the effect; `"sem2re"` is the KKP
+form; `"ols"` is a plain regression, which with `lag = TRUE` is the pure
+spatial lag of the [map section](index.qmd#sec-sp-map). The likelihood
+"is not well behaved": `nlminb` from zero starting values is the default,
+`initval = "estimate"` starts from the restricted fits, and a singular
+Hessian means a parameter is not there to estimate, as on a panel from
+which the unit means have already been partialled out.
+
+## 4. Generalised moments
+
+@kelejian1999 estimate λ from three moment conditions on the innovations
+$\varepsilon = B u$: their mean square equals $\sigma^2$, the mean square
+of $W\varepsilon$ equals $\sigma^2\operatorname{tr}(W'W)/N$, and
+$\varepsilon$ and $W\varepsilon$ are uncorrelated. Replace *u* by
+consistent residuals, solve the three equations in λ and $\sigma^2$, and
+run GLS with the implied covariance. @kapoor2007 extend the conditions to
+six for the random-effects panel [@baltagi2021, eq. 13.13], which can be
+used three ways: the first three only (`moments = "initial"`, the
+default and the least efficient), all six weighted by their covariance
+under normality (`"fullweights"`), or all six with a simplified weight
+(`"weights"`). For fixed effects, @mutl2011 replace the OLS residuals by
+within two-stage least squares residuals and use the first three
+conditions. `spgm` wraps all of it, with `method` choosing among the
+within, between, GLS and error-component 2SLS estimators of
+@baltagi2021 [pp. 401–404] when a lag is present. Two costs: no standard
+error for λ, so no significance test on it, and with a single regressor
+the `summary()` method of **splm** 1.6-5 fails, so the fit is read from
+`coef()` and `$rho`.
+
+## 5. The tests that need only the restricted model
+
+Three families of Lagrange multiplier test fit from the OLS residuals, so
+that the expensive model is estimated only once a test has asked for it.
+
+**Lag against error.** The four statistics of @anselin1996, in the
+[choice note](theory-spatial-model-choice.qmd).
+
+**Random effect and spatial error.** @baltagi2003 derive the joint test
+of $\sigma^2_\mu = 0$ and λ = 0 (`LMH`), the marginal tests of each
+(`LM1`, `LM2`), and the conditional tests of each allowing the other
+(`CLMmu`, `CLMlambda`); the conditional ones are the ones to read,
+since the joint test rejects for either reason [@croissant2019, sec.
+10.3.4.1].
+
+**Random effect, spatial error and serial correlation.**
+@baltagi2007serial add ψ as a third symptom, with a joint test `J` and
+the three conditional tests `C.1` (λ given the other two), `C.2` (ψ given
+the other two) and `C.3` ($\sigma^2_\mu$ given the other two). Each
+conditional test fits the model with the other two effects and tests the
+third from its score, which is why `C.2` on rice takes a few seconds.
+Testing for any one of the three while ignoring the other two "leads to
+misleading results"; the full `semsrre` fit then puts magnitudes beside
+the tests.
+
+**Fixed against random.** The spatial Hausman test of @mutl2011 compares
+the random-effects GLS slopes with the within slopes,
+
+$$
+H = (\hat\beta_{RE} - \hat\beta_{FE})'\,
+    [\widehat V_{FE} - \widehat V_{RE}]^{-1}\,
+    (\hat\beta_{RE} - \hat\beta_{FE}) \sim \chi^2_k ,
+$$
+
+[@millo2012, eq. 32]. `sphtest` fits both from a formula, by ML with
+`errors = "BSK"` or `"KKP"`, or by GM with no error structure to choose;
+or takes two fitted objects. The statistic is conditional on the spatial
+model passed as `spatial.model`: on the rice panel it rejects random
+effects under the error model, χ² = 31, and does not under the lag
+model, χ² = 0.6. The verdict that counts is the one under the model the
+[choice note](theory-spatial-model-choice.qmd) selected.
+
+## 6. Reading the output: the naming trap
+
+Four conventions meet in this chapter, and two are each other's reverse:
+
+| Where | Spatial lag | Spatial error |
+|---|---|---|
+| @pesaran2015 [eqs. 30.1, 30.4], and this book | ρ | λ |
+| `spml(model = "within")`: `coef()` and the printed table | `lambda` | `rho` |
+| `spml(model = "random")` and `spreml` | `lambda` in `$arcoef` | `rho` in `$errcomp` |
+| @millo2012, printed output | `rho` | `lambda` |
+
+Read a parameter by what it does. A within SEM fit has one spatial
+number in `coef()`, called `rho`, and it is the error parameter; a within
+SAR fit has one, called `lambda`, and it is the lag. Residuals of either
+come back stacked by period, then unit, and `splm_residuals()` puts them
+in panel order before any test touches them.
+
+## If / then
+
+| If | Then |
+|---|---|
+| Errors may be non-normal or heteroskedastic | GM; report that λ has no standard error |
+| Normality is plausible and N is moderate | ML; the Wald *z* on λ or ρ is then available |
+| Fixed effects with a spatial lag | `spml(model = "within", lag = TRUE)`; the within correction, not the orthonormal transformation |
+| The unit effect may itself be spatial | Compare `"b"` with `"kkp"`; with a small φ it does not matter |
+| The random-effects fit stops with a singular Hessian | A parameter is absent; on partialled data, the unit effect is already gone |
+| The error may carry three things | `bsjktest` C.1 to C.3, then `spreml(errors = "semsrre")` |
+| A printed `rho` and `lambda` | Check which model it is before reading either |
+
+## Open
+
+- **Heteroskedasticity-robust panel GM** [@lin2010; @kelejian2010] is not
+  implemented for panels; **sphet** [@piras2010] is cross-sectional only.
+- **The fixed-effects LM and LR tests of @debarsy2010** are not
+  implemented.
+- **Dynamic spatial panels** have no estimator in R; the [limits
+  section](index.qmd#sec-sp-dynamic) states what that costs.
+- **The within log-likelihoods** that `spml` returns for lag and error
+  fits are not on one scale, so a likelihood-ratio test between a within
+  SAR and a within SEM cannot be read off them; run the comparison with
+  random effects, as the [random-effects section](index.qmd#sec-sp-re)
+  does.
+
+## Next
+
+The fitted lag parameter is not an effect:
+[direct and indirect effects](theory-direct-indirect-effects.qmd).
