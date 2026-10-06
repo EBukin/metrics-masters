@@ -1,0 +1,14 @@
+---
+title: "Dynamic panels"
+---
+
+::: {.callout-note}
+**Placeholder.** This chapter is planned, not written. Tracked in the node
+checklist in [the preface](../../index.qmd).
+:::
+
+When last year's outcome belongs on the right-hand side, the fixed-effects
+estimator of the [core chapter](../05-core/index.qmd) is biased, and the
+bias shrinks only as the number of periods grows. This chapter shows the
+bias, the instruments that remove it, and the diagnostics that say whether
+they did. The plan is `.docs/plans/0010-dynamic-chapter.md`.

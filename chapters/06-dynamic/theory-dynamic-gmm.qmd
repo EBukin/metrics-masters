@@ -1,0 +1,18 @@
+---
+title: "Dynamic panel GMM"
+subtitle: "Why a lagged outcome breaks fixed effects, and how instruments repair it"
+---
+
+> **Code:** [the bias](index.qmd#sec-dyn-bias).
+
+::: {.callout-note}
+**Placeholder.** This note is planned, not written. Tracked in the node
+checklist in [the preface](../../index.qmd).
+:::
+
+## What this note should cover
+
+- The Nickell bias of the within estimator and its size by T.
+- Anderson–Hsiao, difference GMM and system GMM: the moment conditions.
+- Sargan, the AR tests, the Windmeijer correction and instrument
+  proliferation.

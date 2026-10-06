@@ -8,6 +8,7 @@ project:
     - chapters/03-spatial/index.qmd
     - chapters/04-time/index.qmd
     - chapters/05-core/index.qmd
+    - chapters/06-dynamic/index.qmd
     - references.qmd
     - chapters/02-cross-dependence/theory-cross-sectional-dependence.qmd
     - chapters/02-cross-dependence/theory-common-factors-cce.qmd
@@ -17,6 +18,7 @@ project:
     - chapters/03-spatial/theory-spatial-estimation.qmd
     - chapters/03-spatial/theory-direct-indirect-effects.qmd
     - chapters/04-time/theory-panel-unit-roots.qmd
+    - chapters/06-dynamic/theory-dynamic-gmm.qmd
 
 book:
   title: "Metrics Masters"
@@ -45,6 +47,7 @@ book:
     - part: "Models"
       chapters:
         - chapters/05-core/index.qmd
+        - chapters/06-dynamic/index.qmd
     - references.qmd
   # Theory notes sit outside the reading order. A book cannot carry a custom
   # sidebar group, and a page listed only in project: render: is not built,
@@ -58,6 +61,7 @@ book:
     - chapters/03-spatial/theory-spatial-estimation.qmd
     - chapters/03-spatial/theory-direct-indirect-effects.qmd
     - chapters/04-time/theory-panel-unit-roots.qmd
+    - chapters/06-dynamic/theory-dynamic-gmm.qmd
 
 language:
   section-title-appendices: "Theory"
