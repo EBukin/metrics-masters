@@ -1,0 +1,206 @@
+## Difference and instrument {#sec-dyn-ah}
+
+**Question.** With the firm effect differenced away, what can stand in for
+last year's change in employment that does not carry this year's shock?
+
+**Intuition.** Differencing removes $\alpha_i$ but makes the lag
+$\Delta y_{i,t-1}$ share $\varepsilon_{i,t-1}$ with the error
+$\Delta\varepsilon_{it}$. The level two periods back, $y_{i,t-2}$, is
+correlated with $\Delta y_{i,t-1}$, since it is half of it, and not with
+$\Delta\varepsilon_{it}$, as long as the $\varepsilon_{it}$ are not serially
+correlated [@anderson1982; @baltagi2021, p. 188; @pesaran2015, p. 682]. Use
+it as an instrument and the differenced equation can be estimated by
+two-stage least squares: one instrument, one equation, consistent but not
+efficient, because it uses one moment condition where many hold
+[@baltagi2021, p. 188]. The difference $\Delta y_{i,t-2}$ is a valid
+instrument too, but @arellano1989 found that version "has a singularity
+point and very large variances over a significant range of parameter
+values", while the level "has no singularities and much smaller variances"
+[@baltagi2021, p. 188]; @croissant2019 [p. 167] say the level "is often a
+much better instrument". The instrument weakens as γ approaches one and
+fails at γ = 1 [@pesaran2015, p. 682].
+
+::: {.callout-tip appearance="simple"}
+Why the within model cannot be instrumented this way, and the orthogonal
+deviations alternative to differencing: [dynamic panel
+GMM](theory-dynamic-gmm.qmd).
+:::
+
+The estimator rests on one moment condition per equation,
+
+$$
+E\left[ y_{i,t-2}\, \Delta\varepsilon_{it} \right] = 0,
+\qquad t = 3, \dots, T,
+$$
+
+which holds because $y_{i,t-2}$ is built from shocks up to $t - 2$ and
+$\Delta\varepsilon_{it}$ from the shocks at $t - 1$ and $t$ [@pesaran2015,
+p. 682]. The first usable year is the third, since the lag costs one and the
+difference another [@croissant2019, p. 168].
+
+**The estimator.** Anderson–Hsiao [@anderson1982]: 2SLS on the differenced
+equation, with $y_{i,t-2}$ (the level form) or $\Delta y_{i,t-2}$ (the
+difference form) as the instrument for $\Delta y_{i,t-1}$ and the
+differenced exogenous regressors as their own instruments. No null to
+reject; the question is how wide the band is.
+
+**Run it.** The one-lag equation of the chapter page, differenced inside the
+formula, with the instruments after the `|`. `plm::plm` with a two-part
+formula and `model = "pooling"` is the form of Example 7.4 of @croissant2019
+[p. 168]; the Pitfalls box says why `model = "fd"` cannot be used. First the
+level form:
+
+```{r}
+#| label: c06-2-ah-level
+ah_level <- plm::plm(
+  diff(log(emp)) ~ lag(diff(log(emp))) + diff(log(wage)) +
+    lag(diff(log(wage))) + diff(log(capital)) + lag(diff(log(capital))) +
+    year - 1 |
+    lag(log(emp), 2) + diff(log(wage)) + lag(diff(log(wage))) +
+    diff(log(capital)) + lag(diff(log(capital))) + year - 1,
+  data = pe, model = "pooling")
+coef(summary(ah_level))[1:5, ]
+```
+
+Then the difference form, the same call with `lag(diff(log(emp)), 2)` as the
+instrument:
+
+```{r}
+#| label: c06-2-ah-diff
+ah_diff <- plm::plm(
+  diff(log(emp)) ~ lag(diff(log(emp))) + diff(log(wage)) +
+    lag(diff(log(wage))) + diff(log(capital)) + lag(diff(log(capital))) +
+    year - 1 |
+    lag(diff(log(emp)), 2) + diff(log(wage)) + lag(diff(log(wage))) +
+    diff(log(capital)) + lag(diff(log(capital))) + year - 1,
+  data = pe, model = "pooling")
+coef(summary(ah_diff))[1:5, ]
+```
+
+The Arellano–Bond equation has two lags of employment, so it needs two
+instruments, $y_{i,t-2}$ and $y_{i,t-3}$, and is exactly identified:
+
+```{r}
+#| label: c06-2-ah-two
+ah_two <- plm::plm(
+  diff(log(emp)) ~ lag(diff(log(emp)), 1:2) + diff(log(wage)) +
+    lag(diff(log(wage))) + diff(log(capital)) + diff(log(output)) +
+    lag(diff(log(output))) + year - 1 |
+    lag(log(emp), 2:3) + diff(log(wage)) + lag(diff(log(wage))) +
+    diff(log(capital)) + diff(log(output)) + lag(diff(log(output))) +
+    year - 1,
+  data = pe, model = "pooling")
+round(coef(summary(ah_two))[1:2, 1:2], 3)
+```
+
+And the pure AR(1), the level form with nothing but time dummies beside the
+lag:
+
+```{r}
+#| label: c06-2-ar1
+ah_ar1 <- plm::plm(
+  diff(log(emp)) ~ lag(diff(log(emp))) + year - 1 |
+    lag(log(emp), 2) + year - 1,
+  data = pe, model = "pooling")
+round(coef(summary(ah_ar1))[1, 1:2], 3)
+```
+
+```{r}
+#| label: c06-2-picture
+#| fig-cap: "The persistence of employment in the one-lag equation by four
+#|   estimators, with 95% bands: pooled OLS, two-way within, Anderson–Hsiao
+#|   with the level instrument, and with the difference instrument. The grey
+#|   band is the OLS–within bracket of step 1."
+#| fig-alt: "A dot-and-whisker chart with four rows. OLS at 0.96 and within
+#|   at 0.63 have whiskers too short to see, and a grey vertical band
+#|   spans the gap between them. Anderson–Hsiao with the level instrument
+#|   sits at 1.23 with a whisker from minus 0.46 to 2.92, covering the whole
+#|   band. With the difference instrument it sits at minus 0.11 with a
+#|   whisker from minus 0.69 to 0.48, to the left of the band."
+est <- c(`pooled OLS` = coef(summary(one_ols))[2, 1],
+         `two-way within` = coef(summary(one_within))[1, 1],
+         `AH, level y[t-2]` = coef(summary(ah_level))[1, 1],
+         `AH, difference` = coef(summary(ah_diff))[1, 1])
+se <- c(coef(summary(one_ols))[2, 2], coef(summary(one_within))[1, 2],
+        coef(summary(ah_level))[1, 2], coef(summary(ah_diff))[1, 2])
+op <- graphics::par(mar = c(4, 9, 1, 1))
+plot(est, 4:1, xlim = c(-1, 3), yaxt = "n", pch = 16, ylab = "",
+     xlab = "estimate of gamma, one-lag equation")
+graphics::rect(est[2], 0, est[1], 5, col = "grey90", border = NA)
+graphics::segments(est - 1.96 * se, 4:1, est + 1.96 * se, 4:1, lwd = 2)
+graphics::points(est, 4:1, pch = 16)
+graphics::axis(2, at = 4:1, labels = names(est), las = 1)
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Level instrument.** 1.23 with standard error 0.86: a band from −0.46 to
+  2.92. *So:* consistent and uninformative; the band holds the whole
+  OLS–within bracket, and the point estimate above one means nothing.
+- **Difference instrument.** −0.11 with standard error 0.30: a band from
+  −0.69 to 0.48, below the bracket. *So:* the version Arellano warned of; a
+  point below within and a band that crosses zero.
+- **Two lags, two instruments.** 11.1 (58.5) and −2.3 (12.2). *So:* with
+  nothing to spare, the estimator has no precision at all; this equation
+  needs more instruments than years.
+- **Misleads (the pure AR(1)).** 1.18 with standard error 1.23. *So:* a
+  reader who prints the point reads explosive employment; the standard
+  error says the number carries no information, and step 3 says why.
+
+::: {.callout-note appearance="simple"}
+**Next.** There are more valid instruments than one: every earlier level is
+valid for every later difference
+([difference and system GMM](index.qmd#sec-dyn-gmm)).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# d: a pdata.frame; y the outcome, x an exogenous regressor; level form.
+plm::plm(diff(y) ~ lag(diff(y)) + diff(x) + year - 1 |
+           lag(y, 2) + diff(x) + year - 1,
+         data = d, model = "pooling")
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**`model = "fd"` differences the instruments too.** With a two-part formula,
+`plm::plm(model = "fd")` applies the first-difference transformation to both
+parts, so `lag(log(emp), 2)` in the instrument part becomes
+$\Delta y_{i,t-2}$, not the level. The only form that keeps the level is
+`diff()` inside the formula with `model = "pooling"`, as above.
+
+**Two rows per gap.** For every year a firm is missing, the differenced
+equation loses two observations, that year and the next [@croissant2019,
+p. 166]. The level-form fit above uses 751 firm-years of the 1031.
+
+**T must stay small relative to N.** Ignoring the MA(1) structure of the
+differenced error "leads to inconsistency of the IV estimator if
+T/N → c > 0" [@pesaran2015, p. 682], a result of Alvarez and Arellano (2003)
+quoted there and not reproduced here.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [p. 168, Example 7.4] print 0.4687 (0.1182) on the lagged
+difference of democracy and −0.1036 (0.3049) on lagged income for the
+Anderson–Hsiao estimator on `DemocracyIncome`; the chunk below is that call
+and reproduces both to the printed digits. No source on disk prints an
+Anderson–Hsiao estimate on `EmplUK`, so the four fits above have no
+published target.
+
+```{r}
+#| label: c06-2-cm
+cm_ah <- plm::plm(
+  diff(democracy) ~ lag(diff(democracy)) + lag(diff(income)) + year - 1 |
+    lag(democracy, 2) + lag(income, 2) + year - 1,
+  data = DemocracyIncome, index = c("country", "year"),
+  model = "pooling", subset = sample == 1)
+coef(summary(cm_ah))[1:2, ]
+```
+:::

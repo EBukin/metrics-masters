@@ -1,0 +1,224 @@
+## The bias {#sec-dyn-bias}
+
+**Question.** If last year's employment explains this year's, how wrong is
+the within estimate of that persistence, and does more data fix it?
+
+**Intuition.** Demeaning subtracts each firm's average over its sample
+years, and that average contains every shock the firm had, including the
+ones that built last year's employment. So the demeaned lag and the demeaned
+error are correlated through those shocks, and negatively: the within
+estimate of γ is too small, by about $(1 + \gamma)/(T - 1)$ [@nickell1981;
+@croissant2019, p. 165]. The bias is of order $1/T$, so more firms do not
+help and more years do [@baltagi2021, p. 188; @pesaran2015, p. 679]. Pooled
+OLS without firm effects errs the other way: the firm effect sits in the
+error and in the lag, so γ is pushed up [@croissant2019, p. 164]. The truth
+lies between the two [@croissant2019, p. 168]. The random-effects estimator
+quasi-demeans and is biased for the same reason [@pesaran2015, p. 678].
+
+::: {.callout-tip appearance="simple"}
+Where the bias comes from, term by term, and how GMM removes it:
+[dynamic panel GMM](theory-dynamic-gmm.qmd).
+:::
+
+The exact large-N bias of the within estimator in the pure AR(1) with fixed
+effects is [@pesaran2015, p. 679, eq. 27.11; @croissant2019, p. 165]
+
+$$
+\operatorname*{plim}_{N \to \infty}\left(\hat\gamma_{\text{within}}
+  - \gamma\right)
+  = -\frac{1 + \gamma}{T - 1}\,
+    \frac{A}{1 - \dfrac{2\gamma A}{(1 - \gamma)(T - 1)}},
+\qquad
+A = 1 - \frac{1 - \gamma^{T}}{T(1 - \gamma)},
+$$
+
+where T is the number of periods in the regression after the lag is taken.
+`nickell_bias(gamma, t)` in `R/simulate-panels.R` is this expression. The
+leading factor $-(1 + \gamma)/(T - 1)$ is what the rest of the chapter means
+by "the Nickell bias"; @pesaran2015 [p. 679] writes it more compactly as
+$-(1 + \gamma)/T$ plus a term of order $T^{-2}$.
+
+**The estimators.** No test here: two estimators on a known truth. Pooled OLS
+(`plm::plm(model = "pooling")`) ignores the firm effect; the within estimator
+(`model = "within"`) demeans it away. Both are inconsistent for fixed T.
+
+**Run it.** `sim_dynamic_panel(n, t)` draws
+$y_{it} = 0.5\, y_{i,t-1} + \alpha_i + \varepsilon_{it}$ for `n` firms with
+$\alpha_i \sim N(0, 1)$ and $\varepsilon_{it} \sim N(0, 1)$, after a 50-period
+burn-in, and keeps `t + 1` periods so that a regression on one lag uses
+exactly `t`. First one draw of 100 firms at T = 10, both estimators in the
+open:
+
+```{r}
+#| label: c06-1-one-draw
+set.seed(1)
+d <- sim_dynamic_panel(100, 10)
+plm::plm(y ~ lag(y, 1), data = d, model = "pooling")
+plm::plm(y ~ lag(y, 1), data = d, model = "within")
+```
+
+The truth is 0.5. OLS says 0.844, within says 0.367. One draw proves
+nothing, so repeat 200 times at five values of T, and put the exact formula
+beside the means:
+
+```{r}
+#| label: c06-1-grid
+# One replication: the two calls above, kept for their slope on the lag.
+fit_both <- function(t) {
+  d <- sim_dynamic_panel(100, t)
+  within <- plm::plm(y ~ lag(y, 1), data = d, model = "within")
+  ols <- plm::plm(y ~ lag(y, 1), data = d, model = "pooling")
+  c(within = unname(coef(within)), ols = unname(coef(ols)[2]))
+}
+set.seed(1)
+t_grid <- c(5, 10, 20, 30, 50)
+draws <- lapply(t_grid, function(t) replicate(200, fit_both(t)))
+grid <- data.frame(
+  T = t_grid,
+  within = sapply(draws, function(m) mean(m["within", ])),
+  within_sd = sapply(draws, function(m) sd(m["within", ])),
+  ols = sapply(draws, function(m) mean(m["ols", ])),
+  nickell = 0.5 + nickell_bias(0.5, t_grid),
+  leading = 0.5 - 1.5 / (t_grid - 1)
+)
+round(grid, 3)
+```
+
+```{r}
+#| label: c06-1-picture
+#| fig-cap: "Left: mean estimate of γ over 200 draws against T, within
+#|   (black) and pooled OLS (grey), with the exact Nickell curve dashed
+#|   through the within points and the true 0.5 as a dotted line. Right: the
+#|   200 within (black) and OLS (grey) estimates at T = 10 as histograms;
+#|   the dotted line is the truth."
+#| fig-alt: "Two panels. Left: a black line of points rises from 0.16 at T
+#|   = 5 to 0.47 at T = 50 along a dashed curve, towards a dotted line at
+#|   0.5. A grey line of points stays flat at 0.87 above it. Right: two
+#|   separate histograms, a black one between 0.24 and 0.43 and a grey one
+#|   between 0.82 and 0.92, with the dotted line at 0.5 in the empty gap
+#|   between them."
+op <- graphics::par(mfrow = c(1, 2))
+plot(grid$T, grid$within, type = "b", pch = 16, ylim = c(0, 1),
+     xlab = "periods in the regression, T", ylab = "mean estimate of gamma")
+graphics::lines(grid$T, grid$ols, type = "b", pch = 16, col = "grey55")
+graphics::lines(3:50, 0.5 + nickell_bias(0.5, 3:50), lty = 2)
+graphics::abline(h = 0.5, lty = 3)
+graphics::legend("bottomright", c("within", "pooled OLS", "exact bias curve"),
+                 col = c("black", "grey55", "black"), pch = c(16, 16, NA),
+                 lty = c(1, 1, 2), bty = "n")
+at10 <- draws[[2]]
+bins <- seq(0, 1, by = 0.01)
+graphics::hist(at10["within", ], breaks = bins, col = "black",
+               border = "white", xlim = c(0, 1),
+               xlab = "estimate of gamma at T = 10", main = "")
+graphics::hist(at10["ols", ], breaks = bins, col = "grey70",
+               border = "white", add = TRUE)
+graphics::abline(v = 0.5, lty = 3)
+graphics::par(op)
+```
+
+The same two estimators on real data, where the truth is unknown. Pooled OLS
+and the two-way within estimator, on the Arellano–Bond equation and on the
+one-lag equation:
+
+```{r}
+#| label: c06-1-emp
+ab_f <- log(emp) ~ lag(log(emp), 1:2) + lag(log(wage), 0:1) + log(capital) +
+  lag(log(output), 0:1)
+one_f <- log(emp) ~ lag(log(emp), 1) + lag(log(wage), 0:1) +
+  lag(log(capital), 0:1)
+ab_ols <- plm::plm(ab_f, data = pe, model = "pooling")
+ab_within <- plm::plm(ab_f, data = pe, model = "within", effect = "twoways")
+one_ols <- plm::plm(one_f, data = pe, model = "pooling")
+one_within <- plm::plm(one_f, data = pe, model = "within", effect = "twoways")
+round(coef(summary(ab_ols))[2:3, 1:2], 3)
+round(coef(summary(ab_within))[1:2, 1:2], 3)
+round(coef(summary(one_ols))[2, 1:2], 3)
+round(coef(summary(one_within))[1, 1:2], 3)
+```
+
+**Read it.**
+
+- **Within, on the curve.** 0.164 at T = 5, 0.337 at T = 10, 0.469 at T =
+  50, against the exact 0.169, 0.338 and 0.469. *So:* the formula is the
+  bias, and the only cure is more years: at T = 30 the estimate is still 10%
+  below the truth.
+- **OLS, flat.** 0.872 at every T. *So:* years do not help OLS at all; the
+  firm effect never leaves the error, and its share of the variance sets the
+  bias.
+- **The spread does not reach the truth.** At T = 10 the 200 within
+  estimates run from 0.24 to 0.43 with standard deviation 0.031; not one
+  reaches 0.5. *So:* this is bias, not noise, and averaging over draws or
+  adding firms cannot remove it.
+- **The real-data bracket.** On the Arellano–Bond equation γ₁ is 1.143 by
+  OLS and 0.700 within, with γ₁ + γ₂ at 0.95 and 0.53; on the one-lag
+  equation 0.962 and 0.626. *So:* the persistence of employment is somewhere
+  inside each bracket, and nothing in this step says where.
+
+::: {.callout-note appearance="simple"}
+**Next.** Remove the firm effect by differencing instead of demeaning, and
+find an instrument for the differenced lag
+([difference and instrument](index.qmd#sec-dyn-ah)).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# d: a pdata.frame with outcome y; gamma: the true persistence.
+plm::plm(y ~ lag(y, 1), data = d, model = "pooling")   # biased up
+plm::plm(y ~ lag(y, 1), data = d, model = "within")    # biased down
+nickell_bias(gamma, t)   # exact large-N bias of the within estimator
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Which T.** The T in the formula is the number of periods in the
+regression, one fewer than the series has after the lag is taken.
+`sim_dynamic_panel()` keeps `t + 1` periods for that reason; a first draft
+of this step kept `t` and read 0.09 at "T = 5" where the formula said 0.17.
+
+**The bias grows with γ.** @judson1999 found, in Monte Carlo at N = 20 or 100
+and T up to 30, that the within bias "increases with ρ and decreases with
+T", and "even for T = 30, this bias could be as much as 20% of the true
+value" [@baltagi2021, p. 188]. The 10% error at γ = 0.5, T = 30 above is
+the mild case.
+
+**Bias-corrected within.** @kiviet1995 derived an approximation to this
+bias and a within estimator that subtracts it [@baltagi2021, p. 188]. It
+needs a balanced panel and treats the other regressors as exogenous
+[@croissant2019, p. 166]. There is no R implementation in this book's
+tools; benchmark: Stata `xtlsdvc`.
+
+**Random effects is no escape.** Quasi-demeaning introduces the same
+correlation of order $1/T$, so RE is biased too [@pesaran2015, p. 678].
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 [p. 165] print the bias as −0.167 at T = 10 and γ = 0.5. That
+is the leading factor, −1.5/9; the full expression they print on the same
+page, `nickell_bias(0.5, 10)`, gives −0.162, and the 200-draw mean above is
+0.337 − 0.5 = −0.163. The structure of Table 1 of @nickell1981 is the
+`nickell` column of the grid; the paper itself is not in `lit/`, so the
+check is against the formula as @pesaran2015 [p. 679] prints it, not against
+the table.
+
+The two `plm::plm` calls reproduce Examples 7.2 and 7.3 of @croissant2019
+[pp. 164–165] on `DemocracyIncome`: OLS with time effects 0.70637 (0.024293)
+and two-way within 0.37863 (0.03344) on lagged democracy:
+
+```{r}
+#| label: c06-1-cm
+data("DemocracyIncome", package = "pder")
+cm_ols <- plm::plm(democracy ~ lag(democracy) + lag(income),
+                   data = DemocracyIncome, index = c("country", "year"),
+                   model = "within", effect = "time", subset = sample == 1)
+cm_within <- update(cm_ols, effect = "twoways")
+coef(summary(cm_ols))
+coef(summary(cm_within))
+```
+:::

@@ -1,0 +1,384 @@
+## Difference and system GMM {#sec-dyn-gmm}
+
+**Question.** Using every lagged level a firm offers, how persistent is
+employment, and when do those instruments stop carrying information?
+
+**Intuition.** In the third year one level is a valid instrument, $y_{i1}$;
+in the fourth, $y_{i1}$ and $y_{i2}$; and so on, "adding an extra valid
+instrument with each forward period" [@baltagi2021, p. 190]. The instrument
+matrix of a firm is block-diagonal with a block that grows by one column per
+period [@holtzeakin1988; @baltagi2021, p. 190, eq. 8.6; @croissant2019,
+p. 168, eq. 7.4]. With more moment conditions than parameters, GMM picks the
+estimate that makes the weighted sum of squared sample moments smallest
+[@hansen1982; @croissant2019, p. 169]. The **one-step** estimator weights
+them by the known MA(1) covariance of a differenced error [@baltagi2021,
+p. 190, eq. 8.8; @croissant2019, p. 169]; the **two-step** estimator
+re-weights them by a covariance built from the one-step residuals
+[@baltagi2021, p. 191, eq. 8.9; @croissant2019, p. 171]. The two are
+asymptotically equivalent when the shocks are homoskedastic [@baltagi2021,
+p. 191]. The trap is a persistent series: when γ is near one, $y_{i,t-2}$
+barely predicts $\Delta y_{i,t-1}$, and the instruments are **weak**
+[@blundell1998; @baltagi2021, p. 201; @croissant2019, p. 174]. @blundell1998
+add the levels equation, instrumented by the lagged difference, which stays
+informative when the lagged levels do not [@baltagi2021, p. 202]: that is
+**system GMM**.
+
+::: {.callout-tip appearance="simple"}
+The instrument matrix, the two weighting matrices, the first-stage algebra
+of the weak-instrument case and the redundancy argument behind the system
+moments: [dynamic panel GMM](theory-dynamic-gmm.qmd).
+:::
+
+Two equations carry the step. The weak-instrument case is one first-stage
+regression: with T = 3 the only instrument is $y_{i1}$, the first stage is
+$\Delta y_{i2}$ on $y_{i1}$, and its slope has the limit [@blundell1998;
+@baltagi2021, p. 201, eq. 8.34; @croissant2019, p. 174, eq. 7.19]
+
+$$
+\operatorname{plim}\,\hat\pi
+  = (\gamma - 1)\,\frac{c}{c + \sigma_\alpha^2 / \sigma_\varepsilon^2},
+\qquad c = \frac{1 - \gamma}{1 + \gamma},
+$$
+
+which goes to zero as $\gamma \to 1$, and also as the firm effect's variance
+grows relative to the shock's. The system estimator adds to the difference
+moments $E[y_{i,t-s}\,\Delta\varepsilon_{it}] = 0$, $s \ge 2$, the level
+moments
+
+$$
+E\left[\Delta y_{i,t-1}\,(\alpha_i + \varepsilon_{it})\right] = 0,
+\qquad t = 3, \dots, T,
+$$
+
+valid when each firm's distance from its steady state at the start of the
+sample is uncorrelated with its effect [@blundell1998; @baltagi2021, p. 202;
+@croissant2019, p. 176]. For T = 4 and a firm-effect variance equal to the
+shock variance, the asymptotic variance of difference GMM is 1.75 times that
+of system GMM at γ = 0, 3.26 times at γ = 0.5 and 55.4 times at γ = 0.9
+[@blundell1998; @baltagi2021, p. 202].
+
+**The estimators.** Difference GMM, one-step and two-step [@arellano1991];
+system GMM [@arellano1995; @blundell1998]. In `plm::pgmm` the formula has
+three parts, `y ~ regressors | GMM instruments | normal instruments`;
+`lag(log(emp), 2:99)` means every lag from the second; `effect = "twoways"`
+adds the time dummies as normal instruments; `transformation = "ld"` is the
+system estimator [@croissant2019, pp. 171, 177]. Everything in the normal
+part defaults to the regressors not used as GMM instruments.
+
+**Run it.** The Arellano–Bond equation with every lag of employment from the
+second as a GMM instrument. One-step first, with the robust covariance:
+
+```{r}
+#| label: c06-3-ab-onestep
+ab_g <- log(emp) ~ lag(log(emp), 1:2) + lag(log(wage), 0:1) + log(capital) +
+  lag(log(output), 0:1) | lag(log(emp), 2:99)
+ab_one <- plm::pgmm(ab_g, data = pe, effect = "twoways", model = "onestep")
+summary(ab_one, robust = TRUE)
+```
+
+Two-step, printed twice: with the conventional two-step covariance, which is
+the paper's table, and then with the corrected one, which is the one to
+report. Step 4 is about the gap between them:
+
+```{r}
+#| label: c06-3-ab-twostep
+ab_two <- plm::pgmm(ab_g, data = pe, effect = "twoways", model = "twosteps")
+summary(ab_two, robust = FALSE)
+summary(ab_two, robust = TRUE)
+```
+
+The fit keeps its instrument matrix, one per firm, in `W`. Its column count
+is the number of instruments, time dummies and exogenous regressors
+included:
+
+```{r}
+#| label: c06-3-count
+ncol(ab_two$W[[1]])
+nobs(ab_two)
+```
+
+The weak-instrument case: the pure AR(1) of log employment, by OLS, within,
+two-step difference GMM and two-step system GMM, with a Sargan test on each
+GMM fit:
+
+```{r}
+#| label: c06-3-weak
+ar1_ols <- plm::plm(log(emp) ~ lag(log(emp)), data = pe, model = "pooling")
+ar1_within <- plm::plm(log(emp) ~ lag(log(emp)), data = pe,
+                       model = "within", effect = "twoways")
+ar1_dif <- plm::pgmm(log(emp) ~ lag(log(emp)) | lag(log(emp), 2:99),
+                     data = pe, effect = "twoways", model = "twosteps")
+ar1_sys <- plm::pgmm(log(emp) ~ lag(log(emp)) | lag(log(emp), 2:99),
+                     data = pe, effect = "twoways", model = "twosteps",
+                     transformation = "ld")
+round(coef(ar1_ols)[2], 3)
+round(coef(ar1_within), 3)
+round(coef(summary(ar1_dif))[1, 1:2], 3)
+plm::sargan(ar1_dif)
+round(coef(summary(ar1_sys))[1, 1:2], 3)
+plm::sargan(ar1_sys)
+```
+
+System GMM. First the one-lag equation in the form of the `?pgmm`
+Blundell–Bond example, every lag from the second of all three variables as
+GMM instruments, one-step and then two-step; then the Arellano–Bond equation,
+one-step and two-step:
+
+```{r}
+#| label: c06-3-sys
+bb_g <- log(emp) ~ lag(log(emp), 1) + lag(log(wage), 0:1) +
+  lag(log(capital), 0:1) | lag(log(emp), 2:99) + lag(log(wage), 2:99) +
+  lag(log(capital), 2:99)
+bb_one <- plm::pgmm(bb_g, data = pe, effect = "twoways", model = "onestep",
+                    transformation = "ld")
+summary(bb_one, robust = TRUE)
+bb_two <- plm::pgmm(bb_g, data = pe, effect = "twoways", model = "twosteps",
+                    transformation = "ld")
+round(coef(summary(bb_two, robust = TRUE))[1:5, 1:2], 4)
+plm::sargan(bb_two)
+ab_sys1 <- plm::pgmm(ab_g, data = pe, effect = "twoways", model = "onestep",
+                     transformation = "ld")
+round(coef(summary(ab_sys1, robust = TRUE))[1:2, 1:2], 3)
+ab_sys <- plm::pgmm(ab_g, data = pe, effect = "twoways", model = "twosteps",
+                    transformation = "ld")
+round(coef(summary(ab_sys, robust = TRUE))[1:7, 1:2], 3)
+plm::sargan(ab_sys)
+ncol(ab_sys$W[[1]])
+```
+
+The bracket on the one-lag equation: difference GMM, one-step and two-step,
+to sit beside the OLS and within fits of step 1 and the system fits above:
+
+```{r}
+#| label: c06-3-bracket
+one_dif1 <- plm::pgmm(bb_g, data = pe, effect = "twoways", model = "onestep")
+one_dif2 <- plm::pgmm(bb_g, data = pe, effect = "twoways", model = "twosteps")
+round(rbind(
+  `pooled OLS` = coef(summary(one_ols))[2, 1:2],
+  `two-way within` = coef(summary(one_within))[1, 1:2],
+  `DIF, one-step` = coef(summary(one_dif1, robust = TRUE))[1, 1:2],
+  `DIF, two-step` = coef(summary(one_dif2, robust = TRUE))[1, 1:2],
+  `SYS, one-step` = coef(summary(bb_one, robust = TRUE))[1, 1:2],
+  `SYS, two-step` = coef(summary(bb_two, robust = TRUE))[1, 1:2]), 3)
+plm::sargan(one_dif2)
+ncol(one_dif2$W[[1]])
+```
+
+```{r}
+#| label: c06-3-picture
+#| fig-cap: "Left: the persistence of employment in the one-lag equation
+#|   as a ladder, within at the bottom, OLS at the top, the four GMM fits
+#|   between, each with its 95% band; the grey background is the
+#|   Anderson–Hsiao band of step 2, which covers the whole axis. Right: the
+#|   instrument matrix of one firm observed for nine years in the
+#|   Arellano–Bond fit, black where an entry is non-zero: six differenced
+#|   equations in rows, 38 instruments in columns, the staircase of lagged
+#|   levels on the left and the regressors and time dummies on the right."
+#| fig-alt: "Two panels. Left: a dot-and-whisker chart on a grey
+#|   background with six rows. From bottom to top: pooled OLS at 0.96 with
+#|   a tiny whisker, SYS two-step at 0.93 and SYS one-step at 0.94 with
+#|   whiskers of about 0.05 each side, DIF two-step at 0.68 and DIF
+#|   one-step at 0.71 with whiskers of about 0.17 each side, and two-way
+#|   within at 0.63 with a whisker of 0.06. Right: a six-row block pattern.
+#|   Row one has two black cells at the far left, row two three, up to row
+#|   six with seven, forming a staircase; a block of black cells fills the
+#|   rightmost columns of every row."
+lad <- rbind(
+  `pooled OLS` = coef(summary(one_ols))[2, 1:2],
+  `SYS, one-step` = coef(summary(bb_one, robust = TRUE))[1, 1:2],
+  `SYS, two-step` = coef(summary(bb_two, robust = TRUE))[1, 1:2],
+  `DIF, one-step` = coef(summary(one_dif1, robust = TRUE))[1, 1:2],
+  `DIF, two-step` = coef(summary(one_dif2, robust = TRUE))[1, 1:2],
+  `two-way within` = coef(summary(one_within))[1, 1:2])
+ah <- coef(summary(ah_level))[1, 1:2]
+op <- graphics::par(mfrow = c(1, 2), mar = c(4, 7, 1, 1))
+plot(lad[, 1], 6:1, xlim = c(0.4, 1.2), yaxt = "n", pch = 16, ylab = "",
+     xlab = "gamma, one-lag equation")
+graphics::rect(ah[1] - 1.96 * ah[2], 0, ah[1] + 1.96 * ah[2], 7,
+               col = "grey92", border = NA)
+graphics::segments(lad[, 1] - 1.96 * lad[, 2], 6:1,
+                   lad[, 1] + 1.96 * lad[, 2], 6:1, lwd = 2)
+graphics::points(lad[, 1], 6:1, pch = 16)
+graphics::axis(2, at = 6:1, labels = rownames(lad), las = 1)
+w <- ab_two$W[["127"]]
+graphics::image(seq_len(ncol(w)), seq_len(nrow(w)),
+                1 * t(w != 0)[, nrow(w):1], col = c("white", "black"),
+                xlab = "instrument column", ylab = "", yaxt = "n")
+graphics::axis(2, at = nrow(w):1, labels = rownames(w), las = 1)
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Two-step difference GMM, the Arellano–Bond equation.** γ₁ = 0.474, γ₂ =
+  −0.053; the wage −0.51 now and +0.22 lagged, capital 0.29, output 0.61 now
+  and −0.45 lagged. One-step gives 0.535. *So:* the coefficient the help
+  page names as the paper's Table 4(b); the long-run persistence
+  γ₁ + γ₂ is 0.42.
+- **The one-lag equation, inside the bracket.** Difference GMM 0.68 to 0.71,
+  system GMM 0.93 to 0.94, between within at 0.63 and OLS at 0.96. *So:*
+  both consistent estimators land where the theory says, yet 0.25 apart,
+  and the Sargan tests accept both (p = 0.21 and 0.22). The instruments
+  decide, not the data.
+- **The Arellano–Bond equation, outside it.** Difference GMM 0.47 sits
+  *below* within 0.70, and system GMM 1.16 above OLS 1.14. *So:* the
+  symptom of weak lagged-level instruments on a persistent series, where
+  the level restrictions "remain informative in cases where first
+  differenced instruments become weak" [@baltagi2021, p. 202]; read 0.47 as
+  a warning, not a result, and note that the system fit's Sargan rejects
+  (p = 0.018) with 51 instruments.
+- **Misleads (the pure AR(1)).** OLS 0.997, within 0.744, difference GMM
+  0.31 (0.16) with Sargan p = 0.030, system GMM 1.09 (0.04) with Sargan
+  p = 0.0002. *So:* a series this persistent breaks the difference
+  instruments and the system restriction alike; this is a unit-root
+  problem, not a dynamic-panel problem
+  ([why it matters](../04-time/index.qmd#sec-ur-why)).
+
+::: {.callout-note appearance="simple"}
+**Next.** Which of these fits can be believed: the spare moment conditions,
+the serial correlation of the residuals, the standard errors and the
+instrument count ([diagnostics](index.qmd#sec-dyn-diagnostics)).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# d: a pdata.frame; plm attached, because pgmm() evaluates a plm() call.
+library(plm)
+f <- y ~ lag(y, 1:2) + x | lag(y, 2:99)          # x exogenous, own instrument
+plm::pgmm(f, data = d, effect = "twoways", model = "twosteps")   # difference
+plm::pgmm(f, data = d, effect = "twoways", model = "twosteps",
+          transformation = "ld")                                # system
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**Defaults that differ from `plm`.** `pgmm(effect = )` defaults to
+`"twoways"` where `plm` defaults to `"individual"`; with
+`effect = "individual"` the Arellano–Bond equation gives γ₁ = 0.449 (0.183),
+not 0.474. `model` defaults to `"onestep"`; the paper's table is
+`"twosteps"`. And `pgmm` fails with "could not find function" unless `plm`
+is attached, because it builds and evaluates a `plm()` call.
+
+**Two Sargan lines on one instrument set.** The one-step summary prints
+Sargan 44.6 (p = 0.009) and the two-step summary 30.1 (p = 0.22) for the same
+38 instruments. Step 4 reads the two-step statistic, the value of the
+two-step objective function at the estimate [@croissant2019, p. 180].
+
+**System counts are not difference counts.** The system fit adds an
+intercept, one more period and one level moment per period, so its
+instrument count and Sargan degrees of freedom cannot be compared with the
+difference fit's [@croissant2019, pp. 177, 180]: 51 against 38 on the
+Arellano–Bond equation, 113 against 91 on the one-lag one.
+
+**System GMM has its own weak instruments.** @bun2010 show the system
+estimator keeps a weak-instrument problem that grows with the variance
+ratio of the firm effect to the shock, and that its Wald tests over-reject
+further as that ratio grows [@baltagi2021, p. 202]. @hayakawa2009 shows the
+other side: when the initial condition makes the series mean-nonstationary
+and the firm-effect variance is large, difference GMM does well and the
+system restriction fails [@baltagi2021, pp. 202–203].
+
+**Moments plm leaves out.** @ahn1995 derive T − 2 further nonlinear moment
+conditions from the same assumptions [@baltagi2021, p. 189; @pesaran2015,
+p. 685]. `plm` does not use them; **pdynmc** [@fritsch2021] does. Its
+two-step on the `?pgmm` Table 4(a2) equation equals `pgmm`'s, and with
+`use.mc.nonlin = TRUE` it adds the Ahn–Schmidt conditions; that fit took
+2.7 minutes on this machine:
+
+```{r}
+#| label: c06-3-pdynmc
+#| results: hide
+#| message: false
+ab_a2 <- plm::pgmm(log(emp) ~ lag(log(emp), 1:2) + lag(log(wage), 0:1) +
+  lag(log(capital), 0:2) + lag(log(output), 0:2) | lag(log(emp), 2:99),
+  data = pe, effect = "twoways", model = "twosteps")
+data("ABdata", package = "pdynmc")
+abd <- ABdata
+abd[, 4:7] <- log(abd[, 4:7])
+pd_two <- pdynmc::pdynmc(
+  dat = abd, varname.i = "firm", varname.t = "year",
+  use.mc.diff = TRUE, use.mc.lev = FALSE, use.mc.nonlin = FALSE,
+  include.y = TRUE, varname.y = "emp", lagTerms.y = 2,
+  fur.con = TRUE, fur.con.diff = TRUE, fur.con.lev = FALSE,
+  varname.reg.fur = c("wage", "capital", "output"),
+  lagTerms.reg.fur = c(1, 2, 2),
+  include.dum = TRUE, dum.diff = TRUE, dum.lev = FALSE, varname.dum = "year",
+  w.mat = "iid.err", std.err = "corrected", estimation = "twostep",
+  opt.meth = "none")
+pd_nl <- pdynmc::pdynmc(
+  dat = abd, varname.i = "firm", varname.t = "year",
+  use.mc.diff = TRUE, use.mc.lev = FALSE, use.mc.nonlin = TRUE,
+  include.y = TRUE, varname.y = "emp", lagTerms.y = 2,
+  fur.con = TRUE, fur.con.diff = TRUE, fur.con.lev = FALSE,
+  varname.reg.fur = c("wage", "capital", "output"),
+  lagTerms.reg.fur = c(1, 2, 2),
+  include.dum = TRUE, dum.diff = TRUE, dum.lev = FALSE, varname.dum = "year",
+  w.mat = "iid.err", std.err = "corrected", estimation = "twostep",
+  opt.meth = "BFGS")
+```
+
+```{r}
+#| label: c06-3-pdynmc-read
+round(cbind(pdynmc = coef(pd_two)[1:2], pgmm = coef(ab_a2)[1:2]), 4)
+round(cbind(pdynmc = pd_two$stderr$step2[1:2],
+            pgmm = sqrt(diag(plm::vcovHC(ab_a2)))[1:2]), 4)
+summary(pd_nl)
+```
+
+Linear moments only: 0.6287 (0.1934) from both packages. With the
+Ahn–Schmidt moments added: γ₁ = 0.665 (0.200), γ₂ = −0.084 (0.052), the wage
+−0.50 (0.15), capital 0.26 (0.07), and a J test of 40.35 on 29 degrees of
+freedom, p = 0.078. The extra moments move γ₁ up by 0.04 and do not narrow
+its band.
+
+**Time-invariant regressors.** Differencing removes them with the firm
+effect. @arellano1995 set the estimator in the Hausman–Taylor frame, where
+some level instruments identify such coefficients [@baltagi2021, p. 194],
+and @kripfganz2019 give a two-step estimator for them. Neither is in this
+book's tools; benchmark: Stata `xtseqreg`.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+`?pgmm` annotates `ab.b`, the two-step difference fit of the Arellano–Bond
+equation with `robust = FALSE`, as "Arellano and Bond (1991), table 4
+col. b", the table @baltagi2021 [p. 223] names as "Table 4 of Arellano and
+Bond (1991) (p. 290)"; `c06-3-ab-twostep` above is that call and prints
+0.474151 (0.085303), −0.052967 (0.027284), −0.513205 (0.049345), 0.224640
+(0.080063), 0.292723 (0.039463), 0.609775 (0.108524), −0.446373 (0.124815),
+Sargan 30.11 on 25 degrees of freedom. `?pgmm` annotates `bb.4`, the
+one-step system fit of the one-lag equation with `robust = TRUE`, as
+"Blundell and Bond (1998) table 4 (cf. DPD for OX p. 12 col. 4)";
+`c06-3-sys` above prints 0.935605 (0.026295). Neither paper is in `lit/`,
+so what is matched here is the help page's annotation, not a page of the
+paper.
+
+Example 7.5 of @croissant2019 [pp. 171–172] prints 0.50499 (0.09049) for
+the one-step and 0.554007 (0.10783) for the two-step difference fit, and
+Example 7.7 [@croissant2019, p. 177] prints 0.6176 (0.05714) for the
+two-step system fit, all on `DemocracyIncome`. All three reproduce to the
+printed digits:
+
+```{r}
+#| label: c06-3-cm
+cm_diff1 <- plm::pgmm(democracy ~ lag(democracy) + lag(income) |
+                        lag(democracy, 2:99) | lag(income, 2),
+                      data = DemocracyIncome, index = c("country", "year"),
+                      model = "onestep", effect = "twoways",
+                      subset = sample == 1)
+cm_diff2 <- update(cm_diff1, model = "twosteps")
+cm_sys2 <- plm::pgmm(democracy ~ lag(democracy) + lag(income) |
+                       lag(democracy, 2:99) | lag(income, 2),
+                     data = DemocracyIncome, index = c("country", "year"),
+                     model = "twosteps", effect = "twoways",
+                     transformation = "ld")
+coef(summary(cm_diff1))
+coef(summary(cm_diff2))
+coef(summary(cm_sys2))
+```
+:::

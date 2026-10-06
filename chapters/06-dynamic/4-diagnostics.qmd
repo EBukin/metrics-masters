@@ -1,0 +1,310 @@
+## Diagnostics {#sec-dyn-diagnostics}
+
+**Question.** The fit prints a Sargan test, two autocorrelation tests and
+two sets of standard errors: which numbers decide whether 0.47 is an
+estimate or an artefact?
+
+**Intuition.** With J instruments and K coefficients, the estimator needs K
+moment conditions and has J − K to spare. The **Sargan test** asks whether
+those spare moments are also near zero at the estimate; if the instruments
+are valid they should be [@sargan1958; @hansen1982; @croissant2019, p. 180;
+@baltagi2021, p. 191]. With too many of them it stops being able to tell:
+@bowsher2002 found that at N = 100 and T = 15 the statistic's Monte Carlo
+variance is 13.7 where the χ² says 180, so it "never rejects when T is too
+large for a given N" [@baltagi2021, p. 192]. The **autocorrelation tests**
+ask whether the original shocks are serially uncorrelated, which is what
+makes $y_{i,t-2}$ a valid instrument: consistency "relies upon the fact that
+$E[\Delta\nu_{it}\Delta\nu_{i,t-2}] = 0$" [@baltagi2021, p. 192]. A
+differenced white-noise error is MA(1), so first-order correlation of the
+differenced residuals is expected and second-order is not: m1 should reject
+and m2 should not [@baltagi2021, p. 192; @croissant2019, p. 182]. The
+**two-step standard errors** are built from a weight matrix estimated with
+one-step residuals and understate the variance in small samples, so Wald
+tests are oversized; @windmeijer2005 traced the bias to that estimation and
+derived the correction [@baltagi2021, p. 193; @croissant2019, p. 179].
+Finally, the **instrument count** is a choice. @ziliak1997 saw an
+elasticity fall from 0.519 to 0.093 as the moment conditions rose from 9 to
+212, with the standard error dropping from 0.36 to 0.07 [@baltagi2021,
+p. 194]; @roodman2009note made the case against too many instruments and
+`collapse` is the fix in software [@roodman2009; @baltagi2021, p. 194;
+@croissant2019, p. 173].
+
+::: {.callout-tip appearance="simple"}
+The Sargan statistic as the GMM objective, the $a_l$ and $b_l$ of the
+autocorrelation test, and the terms Windmeijer's expansion adds:
+[dynamic panel GMM](theory-dynamic-gmm.qmd).
+:::
+
+Two statistics to read. The Sargan statistic is the two-step objective
+function at the estimate, with $\hat{\Delta\varepsilon}$ the two-step
+residuals and $W$ the instruments [@croissant2019, p. 180; @baltagi2021,
+p. 191]:
+
+$$
+S = \left(\sum_i W_i'\hat{\Delta\varepsilon}_i\right)'
+    \left(\sum_i W_i'\hat{\Delta\varepsilon}_i
+          \hat{\Delta\varepsilon}_i' W_i\right)^{-1}
+    \left(\sum_i W_i'\hat{\Delta\varepsilon}_i\right)
+  \;\sim\; \chi^2_{J - K} .
+$$
+
+The autocorrelation test of order $l$ divides the sample covariance of the
+differenced residuals with their own $l$-th lag by a standard error that
+allows for the estimated coefficients [@arellano1991; @croissant2019,
+pp. 181–182]:
+
+$$
+m_l = \frac{a_l}{\sqrt{b_l}},
+\qquad
+a_l = \frac{1}{\sqrt N}\,\hat{\Delta\varepsilon}'\hat{\Delta\varepsilon}_{-l},
+\qquad m_l \sim N(0, 1) .
+$$
+
+**The tests.** Sargan–Hansen [@sargan1958; @hansen1982], `plm::sargan`.
+Null: the overidentifying moment conditions hold. A rejection means at
+least one instrument is correlated with the differenced error. Arellano–Bond
+m1 and m2 [@arellano1991], `plm::mtest`. Null: no serial correlation of that
+order in the differenced residuals. m2 rejecting means the levels error is
+AR(1) and the instruments from $t - 2$ fail; m1 is expected to reject
+[@croissant2019, p. 182]. Windmeijer's corrected covariance
+[@windmeijer2005], `plm::vcovHC` and `summary(robust = TRUE)`.
+
+**Run it.** All on `ab_two`, the two-step difference fit of the
+Arellano–Bond equation from step 3. The Sargan test:
+
+```{r}
+#| label: c06-4-sargan
+plm::sargan(ab_two)
+```
+
+First-order autocorrelation, with the conventional and then the corrected
+covariance:
+
+```{r}
+#| label: c06-4-m1
+plm::mtest(ab_two, order = 1L)
+plm::mtest(ab_two, order = 1L, vcov = plm::vcovHC)
+```
+
+Second order, the one that matters:
+
+```{r}
+#| label: c06-4-m2
+plm::mtest(ab_two, order = 2L)
+plm::mtest(ab_two, order = 2L, vcov = plm::vcovHC)
+```
+
+The same pair on the one-step fit with the robust covariance, which is the
+form `?mtest` pairs with Windmeijer's Table 2:
+
+```{r}
+#| label: c06-4-mtest-onestep
+plm::mtest(ab_one, order = 1L, vcov = plm::vcovHC)
+plm::mtest(ab_one, order = 2L, vcov = plm::vcovHC)
+```
+
+The two standard errors side by side, the form of Example 7.8 of
+@croissant2019 [p. 179]:
+
+```{r}
+#| label: c06-4-windmeijer
+round(rbind(twostep = sqrt(diag(vcov(ab_two))),
+            windmeijer = sqrt(diag(plm::vcovHC(ab_two))))[, 1:7], 4)
+```
+
+The instrument count. Five two-step fits of the same equation, each `pgmm`
+call written out: lags 2 to 3, 2 to 4, 2 to 6, every lag, and every lag
+collapsed; then one table built from the five objects:
+
+```{r}
+#| label: c06-4-count
+m_23 <- plm::pgmm(log(emp) ~ lag(log(emp), 1:2) + lag(log(wage), 0:1) +
+  log(capital) + lag(log(output), 0:1) | lag(log(emp), 2:3),
+  data = pe, effect = "twoways", model = "twosteps")
+m_24 <- plm::pgmm(log(emp) ~ lag(log(emp), 1:2) + lag(log(wage), 0:1) +
+  log(capital) + lag(log(output), 0:1) | lag(log(emp), 2:4),
+  data = pe, effect = "twoways", model = "twosteps")
+m_26 <- plm::pgmm(log(emp) ~ lag(log(emp), 1:2) + lag(log(wage), 0:1) +
+  log(capital) + lag(log(output), 0:1) | lag(log(emp), 2:6),
+  data = pe, effect = "twoways", model = "twosteps")
+m_all <- plm::pgmm(log(emp) ~ lag(log(emp), 1:2) + lag(log(wage), 0:1) +
+  log(capital) + lag(log(output), 0:1) | lag(log(emp), 2:99),
+  data = pe, effect = "twoways", model = "twosteps")
+m_coll <- plm::pgmm(log(emp) ~ lag(log(emp), 1:2) + lag(log(wage), 0:1) +
+  log(capital) + lag(log(output), 0:1) | lag(log(emp), 2:99),
+  data = pe, effect = "twoways", model = "twosteps", collapse = TRUE)
+fits <- list(`2:3` = m_23, `2:4` = m_24, `2:6` = m_26, `2:99` = m_all,
+             `2:99 collapsed` = m_coll)
+# Plumbing: one row per fitted object, nothing estimated here.
+count_tab <- t(sapply(fits, function(m) {
+  s <- plm::sargan(m)
+  c(instruments = ncol(m$W[[1]]),
+    gamma1 = unname(coef(m)[1]),
+    se_twostep = unname(sqrt(diag(vcov(m)))[1]),
+    se_windmeijer = unname(sqrt(diag(plm::vcovHC(m)))[1]),
+    sargan = unname(s$statistic), df = unname(s$parameter),
+    p = unname(s$p.value),
+    m2 = unname(plm::mtest(m, order = 2L, vcov = plm::vcovHC)$statistic))
+}))
+round(count_tab, 3)
+```
+
+```{r}
+#| label: c06-4-picture
+#| fig-cap: "Left: the two-step estimate of γ₁ with its Windmeijer 95% band
+#|   against the instrument count, for the five instrument sets above;
+#|   dashed, the two-way within estimate; dotted, pooled OLS. Right: the
+#|   two standard errors of γ₁ against the instrument count, conventional
+#|   two-step (filled) and Windmeijer-corrected (open)."
+#| fig-alt: "Two panels. Left: five points with vertical whiskers. At 23
+#|   and 28 instruments the point is near 0.02 with whiskers from about
+#|   minus 0.5 to 0.5; at 35 it is 0.36 and at 38 it is 0.47 with whiskers
+#|   of about 0.4 each side; the collapsed set at 18 instruments is at 0.85
+#|   with a whisker from minus 0.25 to 1.96. A dashed line at 0.70 and a
+#|   dotted line at 1.14 cross the panel. Right: filled points fall from
+#|   0.16 at 23 instruments to 0.085 at 38, with 0.26 at the collapsed 18;
+#|   open points stay between 0.19 and 0.28, with 0.56 at the collapsed 18."
+x <- count_tab[, "instruments"]
+g <- count_tab[, "gamma1"]
+op <- graphics::par(mfrow = c(1, 2))
+plot(x, g, pch = 16, ylim = c(-0.6, 2.1), xlim = c(15, 42),
+     xlab = "instrument count", ylab = "gamma_1, two-step")
+graphics::segments(x, g - 1.96 * count_tab[, "se_windmeijer"],
+                   x, g + 1.96 * count_tab[, "se_windmeijer"], lwd = 2)
+graphics::abline(h = coef(ab_within)[1], lty = 2)
+graphics::abline(h = coef(ab_ols)[2], lty = 3)
+graphics::text(x, g, rownames(count_tab), pos = 4, cex = 0.8)
+plot(x, count_tab[, "se_twostep"], pch = 16, ylim = c(0, 0.6),
+     xlim = c(15, 42), xlab = "instrument count",
+     ylab = "standard error of gamma_1")
+graphics::points(x, count_tab[, "se_windmeijer"], pch = 1)
+graphics::legend("topright", c("two-step", "Windmeijer"), pch = c(16, 1),
+                 bty = "n")
+graphics::par(op)
+```
+
+**Read it.**
+
+- **Sargan does not reject.** 30.1 on 25 degrees of freedom, p = 0.22. *So:*
+  the 25 spare moment conditions are consistent with the 13 the estimate
+  used; the instruments pass the test they can be given.
+- **m1 rejects, m2 does not.** m1 = −2.43 (p = 0.015), m2 = −0.33
+  (p = 0.74). *So:* the pattern a valid differenced model shows; the levels
+  shocks look serially uncorrelated and $y_{i,t-2}$ stays a valid
+  instrument. With the corrected covariance m1 is −1.54 (p = 0.12) and m2
+  −0.28 (p = 0.78); on the one-step fit the robust pair is −2.49 and −0.36.
+  The m2 verdict is the same in every version.
+- **Windmeijer more than doubles the standard error.** The standard error of
+  γ₁ goes from 0.085 to 0.185, and two coefficients lose their stars: γ₂
+  (p from 0.05 to 0.31) and the lagged wage (0.005 to 0.11). *So:* the
+  conventional two-step standard errors are not the ones to report.
+- **The instrument count moves γ₁ across the whole bracket.** 0.02 with 23
+  instruments, 0.36 with 35, 0.47 with 38, 0.85 with the 18 collapsed ones,
+  and Sargan accepts the first four alike (p from 0.20 to 0.42); the only
+  set it questions is the collapsed one (p = 0.04), which also has the
+  widest band. The two-step standard error halves as instruments are added
+  while the corrected one barely moves. *So:* the Ziliak and Bowsher
+  points at once; a Sargan p-value cannot pick the instrument set, so the
+  set is a choice to report.
+- **Misleads (a p-value near one).** With many instruments and few units a
+  Sargan p-value near 1 is the Bowsher pathology, not a clean bill:
+  @croissant2019 [p. 181] show p = 0.919 with every lag against 0.071 with
+  three on 25 countries over seven periods. *So:* report the count beside
+  the p-value, and rerun with fewer lags before trusting either.
+
+::: {.callout-note appearance="simple"}
+**Next.** Report the two-step estimate with Windmeijer standard errors, the
+Sargan statistic with its degrees of freedom, m1 and m2, and the instrument
+count, and show how γ moves across instrument sets
+([summary](index.qmd#sec-dyn-summary)).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# m: a two-step pgmm fit.
+plm::sargan(m)
+plm::mtest(m, order = 1L, vcov = plm::vcovHC)
+plm::mtest(m, order = 2L, vcov = plm::vcovHC)
+summary(m, robust = TRUE)            # Windmeijer standard errors
+ncol(m$W[[1]])                       # instrument count
+update(m, collapse = TRUE)           # the same with collapsed instruments
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**`mtest` on a two-step fit uses one-step residuals.** The help page says
+so, and it is what DPD and Stata's `xtabond` do. On the `?pgmm` Table 4(a2)
+equation this gives m2 = −0.416 where the help page says the paper prints
+−0.434; with `vcov = plm::vcovHC` it is −0.352:
+
+```{r}
+#| label: c06-4-a2
+plm::mtest(ab_a2, order = 2L)
+plm::mtest(ab_a2, order = 2L, vcov = plm::vcovHC)
+```
+
+**`sargan(weights = "onestep")` is a different statistic.** On the same
+two-step fit it gives 79.5 instead of 30.1 and is not the one to report:
+
+```{r}
+#| label: c06-4-sargan-onestep
+plm::sargan(ab_two, weights = "onestep")
+```
+
+**The summary's AR lines follow its `robust` argument.** `summary(ab_two,
+robust = FALSE)` prints m1 = −2.43 and `robust = TRUE` prints −1.54; the
+Sargan line does not change.
+
+**Wald tests on two-step fits over-reject.** @bond2001 suggest
+criterion-based tests, the difference of the Sargan statistics of the
+restricted and unrestricted fits, in place of Wald tests [@baltagi2021,
+p. 193]. Not implemented here.
+
+**Sargan's power can be bad.** On his own cigarette example at N = 46 and
+T = 28, @baltagi2021 [p. 209] reads a non-rejection as possibly "due to the
+bad power of this test" and collapses the instruments.
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+`?mtest` annotates `ab.b.onestep` with `vcov = vcovHC` as "Windmeijer
+(2005), table 2, onestep with corrected std. err"; `c06-4-mtest-onestep`
+above is that pair and prints m1 = −2.4934 (p = 0.013) and m2 = −0.3594
+(p = 0.719). `?pgmm` annotates `summary(ab.b, robust = TRUE)` as the
+Windmeijer two-step corrected standard errors; `c06-4-windmeijer` above
+prints them, 0.185398 on γ₁ and the rest of the row. The paper is not in
+`lit/`, so the match is to the help-page annotation. Ziliak's 0.519 →
+0.093 [@baltagi2021, p. 194] and Bowsher's variance of 13.7 against 180
+[@baltagi2021, p. 192] are quoted; the count table above reproduces the
+structure of both, γ₁ from 0.02 to 0.85 across sets with Sargan p from 0.20
+to 0.42, not their numbers.
+
+On `DemocracyIncome`, @croissant2019 print standard errors 0.04795 and
+0.04646 from `vcov` against 0.10783 and 0.06054 from `vcovHC` in Example
+7.8 [@croissant2019, p. 179]; Sargan "chisq = 50, df = 44, p-value = 0.3"
+for the difference fit and "56, 54, 0.4" for the system fit in Example 7.9
+[@croissant2019, p. 180]; m2 "normal = 0.88, p-value = 0.4" in Example 7.10
+[@croissant2019, p. 182]; and on `DemocracyIncome25` a Sargan p-value of
+0.91890 with every lag [@croissant2019, p. 181]. Here: 49.881 (44)
+p = 0.251, 55.678 (54) p = 0.411, 0.88094 p = 0.378 and 0.9189, all within
+the rounding CM print.
+
+```{r}
+#| label: c06-4-cm
+sqrt(diag(vcov(cm_diff2)))[1:2]
+sqrt(diag(plm::vcovHC(cm_diff2)))[1:2]
+plm::sargan(cm_diff2)
+plm::sargan(cm_sys2)
+plm::mtest(cm_diff2, order = 2)
+data("DemocracyIncome25", package = "pder")
+d25 <- plm::pgmm(democracy ~ lag(democracy) + lag(income) |
+                   lag(democracy, 2:99) + lag(income, 2:99),
+                 data = DemocracyIncome25, model = "twosteps")
+plm::sargan(d25)$p.value
+```
+:::

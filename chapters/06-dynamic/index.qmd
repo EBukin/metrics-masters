@@ -2,13 +2,144 @@
 title: "Dynamic panels"
 ---
 
-::: {.callout-note}
-**Placeholder.** This chapter is planned, not written. Tracked in the node
-checklist in [the preface](../../index.qmd).
-:::
+A firm's payroll this year is mostly last year's payroll. Hiring takes months
+of search and training, firing takes notice periods and severance, so when
+wages rise or demand falls, employment moves part of the way this year and the
+rest over the next few. The question an economist asks is "how fast?", and
+the answer is one number: the coefficient on last year's employment. At 0.5,
+half the gap to the new level closes each year; at 0.9, the firm is still
+adjusting a decade later. Every static estimator of the earlier chapters gets
+that number wrong, and this chapter is about how wrong and what to do instead.
 
-When last year's outcome belongs on the right-hand side, the fixed-effects
-estimator of the [core chapter](../05-core/index.qmd) is biased, and the
-bias shrinks only as the number of periods grows. This chapter shows the
-bias, the instruments that remove it, and the diagnostics that say whether
-they did. The plan is `.docs/plans/0010-dynamic-chapter.md`.
+A **dynamic panel** is a panel regression with the lagged outcome among the
+regressors. The lag carries the firm effect inside it, since last year's
+employment was built by the same firm with the same effect, so the lag is
+correlated with the error. The within transformation of the
+[core chapter](../05-core/index.qmd#sec-core-fe-re), which subtracts each
+firm's sample mean, removes the firm effect but puts the firm's whole error
+history into every demeaned lag. The bias that results shrinks as the number
+of years T grows and does not shrink as the number of firms N grows
+[@nickell1981; @baltagi2021, p. 188].
+
+**The equation.** With $\gamma$ the persistence, $x_{it}$ the other
+regressors, $\alpha_i$ the firm effect and $\varepsilon_{it}$ a shock that is
+not serially correlated,
+
+$$
+y_{it} = \gamma\, y_{i,t-1} + x_{it}'\beta + \alpha_i + \varepsilon_{it},
+\qquad i = 1,\dots,N,\; t = 2,\dots,T .
+$$
+
+Its pure autoregressive form, without $x_{it}$, is the model @pesaran2015
+[p. 678, eq. 27.5] and @baltagi2021 [p. 189, eq. 8.3] use to show the
+bias and the estimators. Taking first differences removes $\alpha_i$:
+
+$$
+\Delta y_{it} = \gamma\, \Delta y_{i,t-1} + \Delta x_{it}'\beta
+  + \Delta\varepsilon_{it} .
+$$
+
+But $\Delta y_{i,t-1} = y_{i,t-1} - y_{i,t-2}$ contains
+$\varepsilon_{i,t-1}$, and so does
+$\Delta\varepsilon_{it} = \varepsilon_{it} - \varepsilon_{i,t-1}$: the
+differenced lag and the differenced error share one shock, so least squares
+on the differenced equation is inconsistent as well [@pesaran2015, p. 682].
+The whole chapter is about what to put in place of $\Delta y_{i,t-1}$.
+
+**Terms from earlier chapters.** Fixed effects and the within transformation
+are the subject of the [core chapter](../05-core/index.qmd#sec-core-fe-re).
+A series with a **unit root** does not return to any level
+([why it matters](../04-time/index.qmd#sec-ur-why)); when employment is that
+persistent, every estimator here is in trouble, and step 3 shows how. Serial
+correlation of $\varepsilon_{it}$ is what the diagnostics of step 4 test for,
+and the [serial-correlation tests](../05-core/index.qmd#sec-core-serial) of
+the core chapter are the static version of the same question.
+
+**The running example.** `EmplUK` in **plm** [@croissant2008]: 140 UK firms
+observed for 7 to 9 years between 1976 and 1984, 1031 firm-years, with
+employment, the wage, capital and industry output, all in logs here. It is
+the data of @arellano1991, "the benchmark data set used in Stata and EViews"
+[@baltagi2021, p. 193], and @croissant2019 [p. 183] list @blundell1998,
+@windmeijer2005 and @roodman2009 among the papers that reuse it. Three
+equations on it do three jobs:
+
+1. The **Arellano–Bond equation**: log employment on its first two lags, the
+   log wage and its lag, log capital, log output and its lag, with time
+   dummies. It carries the book checks and the diagnostics.
+2. The **one-lag equation**: log employment on one lag, the log wage and log
+   capital each with one lag, with time dummies. It carries the picture of
+   OLS above, within below, and the consistent estimators between.
+3. The **pure AR(1)** of log employment with time dummies: the case where
+   every estimator misleads, because the series is close to a unit root.
+
+**In this chapter.**
+
+1. The bias: how far the within and OLS estimates sit from a known truth,
+   and why only T shrinks the gap.
+2. Difference and instrument: one instrument per equation, the
+   Anderson–Hsiao estimator, consistent and imprecise.
+3. All the instruments: difference GMM, the weak-instrument trap on a
+   persistent series, and system GMM as the answer.
+4. The diagnostics that decide which fit to believe: Sargan, the two
+   autocorrelation tests, the corrected standard errors, the instrument
+   count.
+5. Summary: the recipe and one table of every estimate.
+
+```{r}
+#| label: c06-0-setup
+# Shared simulators live in R/; see R/simulate-panels.R.
+devtools::load_all(quiet = TRUE)
+# pgmm() builds a plm() call and evaluates it in the caller's environment,
+# so plm must be attached; the plm:: prefix stays for the reader.
+library(plm)
+data("EmplUK", package = "plm")
+pe <- plm::pdata.frame(EmplUK, index = c("firm", "year"))
+```
+
+The bias, drawn. The curve is the large-N limit of the within estimate of
+$\gamma = 0.5$ as a function of T, from the exact formula of step 1; the
+circles are one simulated panel of 100 firms at each T:
+
+```{r}
+#| label: c06-0-picture
+#| fig-cap: "The within estimate of γ against the number of periods T, for
+#|   γ = 0.5. Solid: the exact large-N bias curve (`nickell_bias()`).
+#|   Circles: one simulated draw of 100 firms at T = 5, 10, 20, 30 and 50,
+#|   within (black) and pooled OLS (grey). Dashed: the true value."
+#| fig-alt: "A line chart with T from 3 to 50 on the horizontal axis and the
+#|   estimate on the vertical axis. A solid curve rises steeply from just
+#|   below zero at T = 3 to 0.47 at T = 50, approaching a dashed horizontal
+#|   line at 0.5 from below. Black circles sit near the curve. Grey circles
+#|   sit flat between 0.85 and 0.89, above the dashed line, at every T."
+t_seq <- 3:50
+set.seed(1)
+one_draw <- sapply(c(5, 10, 20, 30, 50), function(t) {
+  d <- sim_dynamic_panel(100, t)
+  c(within = unname(coef(plm::plm(y ~ lag(y, 1), data = d,
+                                  model = "within"))),
+    ols = unname(coef(plm::plm(y ~ lag(y, 1), data = d,
+                               model = "pooling"))[2]))
+})
+plot(t_seq, 0.5 + nickell_bias(0.5, t_seq), type = "l", lwd = 2,
+     ylim = c(0, 1), xlab = "periods in the regression, T",
+     ylab = "estimate of gamma")
+graphics::abline(h = 0.5, lty = 2)
+graphics::points(c(5, 10, 20, 30, 50), one_draw["within", ], pch = 21,
+                 bg = "black", cex = 1.3)
+graphics::points(c(5, 10, 20, 30, 50), one_draw["ols", ], pch = 21,
+                 bg = "grey70", cex = 1.3)
+graphics::legend("bottomright", c("within, one draw", "pooled OLS, one draw",
+                            "exact within bias", "true gamma"),
+                 pch = c(21, 21, NA, NA), pt.bg = c("black", "grey70", NA, NA),
+                 lty = c(NA, NA, 1, 2), lwd = c(NA, NA, 2, 1), bty = "n")
+```
+
+{{< include 1-problem.qmd >}}
+
+{{< include 2-anderson-hsiao.qmd >}}
+
+{{< include 3-gmm.qmd >}}
+
+{{< include 4-diagnostics.qmd >}}
+
+{{< include 5-summary.qmd >}}
