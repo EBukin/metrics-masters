@@ -71,6 +71,29 @@ sim_spatial_rw_panel <- function(w, lambda, t = 30) {
   apply(eps %*% t(spill), 2, cumsum)
 }
 
+#' Simulate a panel with unit-specific slopes and spatially correlated shocks
+#'
+#' `y_it = a_i + b_i x_it + u_it`, with slopes `b_i ~ N(1, sd_b^2)` and
+#' each period's shocks spilling over through `(I - lambda W)^-1`, as in
+#' `sim_spatial_rw_panel()` but stationary. The mean slope is 1.
+#'
+#' @param w Row-standardised weights matrix.
+#' @param lambda Spatial autoregressive parameter of the shocks.
+#' @param t Number of periods.
+#' @param sd_b Standard deviation of the slopes across units.
+#' @return A `pdata.frame` with columns `id`, `period`, `y` and `x`.
+#' @export
+sim_spatial_slope_panel <- function(w, lambda, t = 20, sd_b = 0.3) {
+  n <- nrow(w)
+  spill <- solve(diag(n) - lambda * w)
+  b <- stats::rnorm(n, 1, sd_b)
+  a <- stats::rnorm(n)
+  x <- matrix(stats::rnorm(t * n), t, n)
+  e <- matrix(stats::rnorm(t * n), t, n) %*% t(spill)
+  y <- sweep(sweep(x, 2, b, "*"), 2, a, "+") + e
+  as_pdata(y, x)
+}
+
 #' Simulate two series that share one stochastic trend
 #'
 #' Both series load on the same random walk, so `1.3 a - 0.8 b` is
