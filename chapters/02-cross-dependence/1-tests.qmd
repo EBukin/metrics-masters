@@ -3,7 +3,7 @@
 ::: {.callout-tip appearance="simple"}
 Why CD's signed summation is both its virtue and its fatal flaw, and what its
 implicit null actually is:
-[theory note 01](theory-cross-sectional-dependence.qmd).
+[cross-sectional dependence](theory-cross-sectional-dependence.qmd).
 :::
 
 **Theory.** Pesaran's CD [@pesaran2004; @pesaran2015, eq. 29.76, p. 786] is the

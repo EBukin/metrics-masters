@@ -9,7 +9,7 @@ exactly what the within transformation cannot remove.
 ::: {.callout-tip appearance="simple"}
 Full treatment, including the effective-sample-size reading and why the CD
 test cannot substitute for α:
-[theory note 01](theory-cross-sectional-dependence.qmd).
+[cross-sectional dependence](theory-cross-sectional-dependence.qmd).
 :::
 
 **Theory.** α measures how fast averaging across units washes out their common

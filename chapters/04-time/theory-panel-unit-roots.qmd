@@ -1,6 +1,6 @@
 ---
 title: "Panel unit roots: what a rejection is worth"
-subtitle: "Theory note 07 — the three alternatives, and size before power"
+subtitle: "The three alternatives, and size before power"
 ---
 
 > **Code:** [state the alternative first](index.qmd#sec-ur-alternative),
@@ -10,9 +10,9 @@ subtitle: "Theory note 07 — the three alternatives, and size before power"
 > [size under spatial dependence](index.qmd#sec-ur-spatial-size) and
 > [cross-unit cointegration](index.qmd#sec-ur-cross-coint).
 > Related notes:
-> [01 — cross-sectional
+> [cross-sectional
 > dependence](../02-cross-dependence/theory-cross-sectional-dependence.qmd)
-> and [04 — common factors and
+> and [common factors and
 > CCE](../02-cross-dependence/theory-common-factors-cce.qmd).
 
 ## Why pool at all
@@ -130,7 +130,8 @@ are independent once a common time effect is removed.
 The first generation allows exactly one form of dependence. Subtract the
 cross-section mean each period and a common shock that hits every unit
 *equally* disappears. That is the two-way fixed-effects identity of
-[theory note 01](../02-cross-dependence/theory-cross-sectional-dependence.qmd):
+[cross-sectional
+dependence](../02-cross-dependence/theory-cross-sectional-dependence.qmd):
 a time effect is a factor model with every loading equal to one. If the
 loadings differ, demeaning leaves the factor in the residuals and every
 unit's evidence is partly the same evidence.
@@ -146,8 +147,8 @@ The averages proxy the single unobserved factor, and each unit gets its own
 coefficients on them, so each unit gets its own loading. CIPS is the mean of
 the resulting *t* statistics — IPS on defactored regressions
 [@baltagi2021, pp. 352–353]. The idea is the same one that drives CCE
-estimation, in [theory
-note 04](../02-cross-dependence/theory-common-factors-cce.qmd).
+estimation, in [common factors and
+CCE](../02-cross-dependence/theory-common-factors-cce.qmd).
 
 `plm::cipstest` exposes all three levels of this argument through `model`:
 

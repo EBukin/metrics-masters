@@ -2,7 +2,7 @@
 
 ::: {.callout-tip appearance="simple"}
 Why cross-section averages stand in for the unobserved factors:
-[theory note 04](theory-common-factors-cce.qmd).
+[common factors and CCE](theory-common-factors-cce.qmd).
 :::
 
 **Theory.** Under strong dependence, unobserved common factors bias standard

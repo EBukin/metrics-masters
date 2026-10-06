@@ -1,6 +1,7 @@
 ---
-title: "Direct and indirect effects: why a SAR coefficient is not a marginal effect"
-subtitle: "Theory note 06 — impacts and feedback loops"
+title: "Direct and indirect effects: why a SAR coefficient is not a
+  marginal effect"
+subtitle: "Impacts and feedback loops"
 ---
 
 > **Code:** Stage 5.8 of the plan, `.docs/panel-spat-PLAN.md`. Related note:

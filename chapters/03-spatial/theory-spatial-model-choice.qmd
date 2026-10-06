@@ -1,6 +1,6 @@
 ---
 title: "Spatial model choice: what each specification claims about spillovers"
-subtitle: "Theory note 05 — SAR, SEM, SDM and SARAR"
+subtitle: "SAR, SEM, SDM and SARAR"
 ---
 
 > **Code:** Stages 5.2 and 5.5 of the plan, `.docs/panel-spat-PLAN.md`.
