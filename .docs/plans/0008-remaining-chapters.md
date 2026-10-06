@@ -60,8 +60,11 @@ Writing order is core, dynamic, cointegration, by verification value.
 Baltagi (2021), Croissant & Millo (2019), Pesaran (2015), Millo & Piras
 (2012). The `Read` tool cannot render these PDFs on this machine (no
 `pdftoppm`); `pdftotext -f N -l N file.pdf -` from Bash extracts a page's
-text. Printed page = PDF page − 16 for Baltagi, − 31 for Pesaran, − 21 for
-Croissant & Millo (found by the recon agents on 2026-10-06). Not on disk:
+text. Printed page = PDF page − 31 for Pesaran and − 21 for Croissant &
+Millo; Baltagi's offset varies by chapter (− 18 in chapters 2 to 5, − 16 in
+chapter 7, − 12 in chapter 13), so read the printed page from the page
+header of the extracted text before citing it (found by the recon and
+theory agents on 2026-10-06). Not on disk:
 Arellano & Bond (1991), Windmeijer (2005), Nickell (1981), Pedroni (1999),
 Pfaff (2008); these are cited without a page.
 

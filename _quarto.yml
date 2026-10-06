@@ -18,6 +18,8 @@ project:
     - chapters/03-spatial/theory-spatial-estimation.qmd
     - chapters/03-spatial/theory-direct-indirect-effects.qmd
     - chapters/04-time/theory-panel-unit-roots.qmd
+    - chapters/05-core/theory-fixed-random.qmd
+    - chapters/05-core/theory-panel-error.qmd
     - chapters/06-dynamic/theory-dynamic-gmm.qmd
 
 book:
@@ -61,6 +63,8 @@ book:
     - chapters/03-spatial/theory-spatial-estimation.qmd
     - chapters/03-spatial/theory-direct-indirect-effects.qmd
     - chapters/04-time/theory-panel-unit-roots.qmd
+    - chapters/05-core/theory-fixed-random.qmd
+    - chapters/05-core/theory-panel-error.qmd
     - chapters/06-dynamic/theory-dynamic-gmm.qmd
 
 language:
