@@ -116,7 +116,7 @@ round(1 + apply(v, 2, slope) / 2, 2)
 - **Weak (CCEMG residuals).** α = 0.51, the floor, and the line falls as
   steeply as the independent panel's. *So:* once the national force is out,
   what is left is local. Only now is a spatial model a legitimate question
-  ([spatial dependence](../03-spatial/index.qmd)).
+  ([does it follow the map](../03-spatial/index.qmd#sec-sp-map)).
 - **The picture's own estimate.** The slopes give 0.85, 0.47 and 0.51, next
   to 0.83 and 0.51 from the residual method. *So:* α is not a black box; it
   is the slope of this picture with a finite-N correction, and that
@@ -125,8 +125,9 @@ round(1 + apply(v, 2, slope) / 2, 2)
 ::: {.callout-note appearance="simple"}
 **Next.** α near 1: [common correlated effects](index.qmd#sec-cce). α near
 ½: fixed effects are consistent; ask whether the dependence follows a map
-([spatial dependence](../03-spatial/index.qmd)). Either way, do not route on
-α alone: the spatial chapter's randomised-W test is the corroboration.
+([does it follow the map](../03-spatial/index.qmd#sec-sp-map)). Either way,
+do not route on α alone: the spatial chapter's randomised-W test is the
+corroboration.
 :::
 
 ::: {.callout-note collapse="true"}

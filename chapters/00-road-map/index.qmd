@@ -98,8 +98,15 @@ flowchart TD
    ([CCE](../02-cross-dependence/index.qmd#sec-cce)). This chapter gives the
    1.14 above.
 3. **Spatial dependence.** When dependence is weak and local, neighbours
-   matter more than the whole panel; still to come
-   ([spatial dependence](../03-spatial/index.qmd)).
+   matter more than the whole panel. Write the map as a weights matrix
+   ([weights](../03-spatial/index.qmd#sec-sp-weights)), test whether the
+   dependence follows it
+   ([does it follow the map](../03-spatial/index.qmd#sec-sp-map)), choose
+   between a neighbour's outcome and a neighbour's shock
+   ([lag or error](../03-spatial/index.qmd#sec-sp-lag-or-error)), fit it
+   ([fixed effects](../03-spatial/index.qmd#sec-sp-fe)), and read the
+   coefficients as effects on the map
+   ([direct and indirect effects](../03-spatial/index.qmd#sec-sp-impacts)).
 4. **Time dependence.** Do series wander with no level to return to
    ([why it matters](../04-time/index.qmd#sec-ur-why))? First-generation
    tests assume independent units

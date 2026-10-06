@@ -50,16 +50,32 @@ placeholders describing what they should cover.
 
 ### Spatial dependence
 
-- [ ] [Spatial dependence](chapters/03-spatial/index.qmd) — weak, local
-  dependence that follows a map; not yet written
-- [ ] [Spatial weights: what W assumes before it estimates
+- [x] [Spatial dependence](chapters/03-spatial/index.qmd) — weak, local
+  dependence that follows a map, on house prices and on rice farms
+- [x] [Spatial weights](chapters/03-spatial/index.qmd#sec-sp-weights)
+- [x] [Does it follow the map?](chapters/03-spatial/index.qmd#sec-sp-map)
+- [x] [Lag or error?](chapters/03-spatial/index.qmd#sec-sp-lag-or-error)
+- [x] [Fixed effects](chapters/03-spatial/index.qmd#sec-sp-fe)
+- [x] [Random effects](chapters/03-spatial/index.qmd#sec-sp-re)
+- [x] [Serial correlation too](chapters/03-spatial/index.qmd#sec-sp-serial)
+- [x] [Direct and indirect
+  effects](chapters/03-spatial/index.qmd#sec-sp-impacts)
+- [x] [Limits](chapters/03-spatial/index.qmd#sec-sp-limits):
+  [heterogeneous
+  slopes](chapters/03-spatial/index.qmd#sec-sp-heterogeneous),
+  [dynamic spatial panels](chapters/03-spatial/index.qmd#sec-sp-dynamic),
+  [forecasting](chapters/03-spatial/index.qmd#sec-sp-forecast)
+- [x] [Summary](chapters/03-spatial/index.qmd#sec-sp-summary)
+- [x] [Spatial weights: what W assumes before it estimates
   anything](chapters/03-spatial/theory-spatial-weights.qmd)
-- [ ] [Spatial model choice: what each specification claims about
-  spillovers](chapters/03-spatial/theory-spatial-model-choice.qmd)
-- [ ] [Testing for spatial dependence: does the co-movement follow the
-  map?](chapters/03-spatial/theory-spatial-dependence-tests.qmd)
-- [ ] [Direct and indirect effects: why a SAR coefficient is not a marginal
-  effect](chapters/03-spatial/theory-direct-indirect-effects.qmd)
+- [x] [Testing for spatial dependence: ordered alternatives and the
+  randomised-W test](chapters/03-spatial/theory-spatial-dependence-tests.qmd)
+- [x] [Spatial model choice: what each specification claims, and how to
+  choose](chapters/03-spatial/theory-spatial-model-choice.qmd)
+- [x] [Fitting spatial panels: maximum likelihood, generalised moments,
+  fixed and random effects](chapters/03-spatial/theory-spatial-estimation.qmd)
+- [x] [Direct and indirect effects: why a spatial lag coefficient is not a
+  marginal effect](chapters/03-spatial/theory-direct-indirect-effects.qmd)
 
 ### Time dependence
 

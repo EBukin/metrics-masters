@@ -143,7 +143,8 @@ CCEMG would be the one to report.
   [time dependence](../04-time/index.qmd).
 - **Weak dependence.** When α is near ½ the averages carry nothing and CCE
   changes nothing. The dependence that remains is local, and a spatial
-  model is the tool ([spatial dependence](../03-spatial/index.qmd)).
+  model is the tool ([does it follow the
+  map](../03-spatial/index.qmd#sec-sp-map)).
 - **Interactive fixed effects** [@bai2009] estimate the factors and
   loadings by principal components instead of proxying them. They need the
   number of factors chosen in advance and more of T; CCE needs neither,

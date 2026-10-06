@@ -171,8 +171,8 @@ dcce::pcd_test(e, test = "cdstar")
 **Next.** CD rejects: ask how strong the dependence is,
 [the exponent α](index.qmd#sec-csd-exponent). CD does not reject: do not
 stop. Read $\overline{\lvert\rho\rvert}$, and if the units sit on a map, ask
-whether the dependence follows it ([spatial
-dependence](../03-spatial/index.qmd)).
+whether the dependence follows it ([does it follow the
+map](../03-spatial/index.qmd#sec-sp-map)).
 :::
 
 ::: {.callout-note collapse="true"}

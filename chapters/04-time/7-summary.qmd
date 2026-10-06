@@ -15,7 +15,7 @@ not wander: the two are cointegrated, and the levels regression is meaningful.
 | CD rejects, or N/T is well above 1 | CIPS ([second generation](index.qmd#sec-ur-second-gen)) |
 | The panel rejects | Name the units with `phansitest` ([which series](index.qmd#sec-ur-fraction)) |
 | The panel does not reject | Treat as I(1); difference, or test cointegration |
-| Shocks spill over locally | Simulate size at your own W ([traps](index.qmd#sec-ur-spatial-size)) |
+| Shocks spill over locally | Simulate size at your own W ([traps](index.qmd#sec-ur-spatial-size)); build and check that W first ([spatial weights](../03-spatial/index.qmd#sec-sp-weights)) |
 | Your text says "the panel is stationary" | Rewrite it: say which alternative, and how many units |
 
 **The whole recipe**, for a variable `y` in a `pdata.frame`:
