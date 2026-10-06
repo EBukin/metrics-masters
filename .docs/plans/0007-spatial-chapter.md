@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-05
 - **Author:** Eduard Bukin
-- **Status:** draft
+- **Status:** active
 
 ## Goal
 
@@ -95,21 +95,59 @@ villages, symmetric, row-standardised, and `spdep::mat2listw` warns of six
 sub-graphs. `mat2listw` must be called with `style = "W"`, or the object
 carries style `M` and later methods refuse it.
 
-**Running examples.** The chapter has two halves and two panels.
+**Running examples.** Both panels run through every step (decided
+2026-10-06).
 
-- *Diagnosis* on `HousePricesUS` with `usaw49`: continuity with chapter 02,
-  and the four-number pattern the spec calls the most useful verification
-  target in Stage 5. The spatial model fitted here is the pure SAR on the
-  CCEMG residuals (Holly et al. 2010; CM Ex. 10.4). A spatial regression of
-  prices on income on the raw panel would pick up the national factor, the
-  trap the cross-sectional dependence theory note names, so it appears only
-  as a "misleads" case.
-- *Modelling* on `RiceFarms` with `riceww`: 171 farms over six seasons, so
-  N/T = 28, the one canonical panel shaped like the project's target
-  (N ≫ T); a credible spatial *error* story (a village's weather and pests);
-  and every estimator and test of CM chapter 10 printed on it. Munnell's
-  `Produc` with `usaww` appears in book checks only, for the Millo & Piras
-  numbers.
+- `HousePricesUS` with `usaw49` carries the story: continuity with chapter
+  02, the four-number pattern the spec calls the most useful verification
+  target in Stage 5, and the maps. Through the fits it goes as a
+  **two-stage** regression (Bailey, Holly & Pesaran 2016): stage one
+  partials the cross-state averages of log price and log income out of
+  each state's series, which is the CCE transformation; stage two fits the
+  spatial model to what is left. Pooled OLS on the partialled data gives
+  the CCEP slope exactly, 1.199407 against `pcce(model = "p")`'s
+  1.199407, which is the internal check. A spatial regression on the raw
+  panel picks up the national factor, the trap named in the
+  cross-sectional dependence theory note, and appears as a "misleads"
+  case: SAR-FE on raw log prices gives ρ = 0.68 with an income slope of
+  0.15, two-way FE 0.60 and 0.70, the partialled panel 0.65 and 0.72.
+- `RiceFarms` with `riceww` carries the book checks: 171 farms over six
+  seasons, so N/T = 28, the one canonical panel shaped like the project's
+  target (N ≫ T); a credible spatial *error* story (a village's weather and
+  pests); and every estimator and test of CM chapter 10 printed on it.
+  Munnell's `Produc` with `usaww` appears in book checks only, for the
+  Millo & Piras numbers.
+
+House prices through the fits, checked 2026-10-06 on the partialled panel
+(`lp_t`, `li_t`), `model = "within"`:
+
+| Call | Result |
+|---|---|
+| `slmtest` lml, lme, rlml, rlme | 942, 938, 32.2, 27.5: both robust tests reject |
+| SEM-FE | λ = 0.685 (0.020), slope 0.861 (0.063) |
+| SAR-FE | ρ = 0.645 (0.020), slope 0.715 (0.056) |
+| SARAR-FE | lag −0.52, error 0.87: not identified with one W |
+| GM SEM-FE | λ = 0.653, slope 0.869; `summary()` fails with one regressor |
+| SEM residuals u, local CD / rwtest | z = 31.7, p = 0.002: still spatial, by construction |
+| filtered (I − λW)u | z = 0.53, p = 0.54: the SEM captured it |
+| `bsktest` LMH, CLMmu, CLMlambda | 938, 4.39, then `spreml` fails: singular Hessian |
+| `sphtest` | singular: no state effect is left after partialling |
+| `bsjktest` J, C.1, C.2, C.3 | 2038, 46.2, 216, 20.1 |
+| `spreml(errors = "semsr")` | ψ = 0.825 (0.015), λ = 0.605 (0.022) |
+| hand impacts on SAR-FE | β 0.715, direct 0.827, indirect 1.19, total 2.01 |
+
+Two consequences for the chapter. The random-effects branch does not
+apply to the partialled panel, because partialling removes the state
+effect along with the factor; the step shows the refusal with `error:
+true` and reads it. The serial correlation of 0.82 in the house-price
+errors is the hand-off to the time chapter: the static two-stage model is
+not Holly et al.'s spatio-temporal one.
+
+Residuals of a `spml(model = "within")` fit come back stacked by period,
+then unit, not in the `pdata.frame` order; and a SEM's residuals are
+$u = y - X\beta$, spatially correlated by construction, so a residual
+check needs the filtered innovations $(I - \lambda W) u$. On RiceFarms the
+same filter takes the local CD from z = 46.9 on u to −0.49 on ε.
 
 **Order.** The placeholder lists FE, RE, then testing. The chapter follows
 the workflow instead: tests that need only the restricted model come
@@ -249,15 +287,20 @@ village; N/T = 28. Say why it is the modelling example.
 - **The tests.** `slmtest`: `lml`, `lme`, `rlml`, `rlme` [@anselin1996;
   CM §10.3.4.2]. Nulls: ρ = 0 and λ = 0, each robust version allowing a
   small value of the other parameter.
-- **Run it.** Four calls on the pooled model with village and season
-  dummies, as CM Ex. 10.11, then the same four with `model = "within"`.
+- **Run it.** House prices first: the partialled panel, four calls with
+  `model = "within"`. Then rice: four calls on the pooled model with
+  village and season dummies, as CM Ex. 10.11, then the same four with
+  `model = "within"`.
 - **Picture.** A Moran scatterplot of the within residuals against their
-  spatial lag, with the regression line, next to the same for the fitted
-  outcome; the first slope is the error signal, the second the lag signal.
-- **Read it.** `lml` rejects (39.3) but `rlml` does not (0.17): the lag
-  signal was the error's shadow. `lme` and `rlme` both reject (245, 206):
-  the shocks are shared. *So:* a spatial error model. Misleads: the plain
-  `lml` alone would have put a neighbour's harvest into the equation.
+  spatial lag, with the regression line, for each panel; the slope is
+  Moran's I, the error signal.
+- **Read it.** Rice: `lml` rejects (39.3) but `rlml` does not (0.17): the
+  lag signal was the error's shadow. `lme` and `rlme` both reject (245,
+  206): the shocks are shared. *So:* a spatial error model. House prices:
+  all four reject, `rlml` 32 and `rlme` 28. *So:* neither robust test can
+  rule the other out; fit both and the encompassing model, and let the
+  fits decide. Misleads: the plain `lml` alone would have put a
+  neighbour's harvest into the rice equation.
 - **Next.** Error: [fixed effects](index.qmd#sec-sp-fe). Both robust tests
   reject strongly: fit SARAR and let the encompassing model decide.
 - **Pitfalls.** `slmtest` assumes pooling; `model = "within"` must be
@@ -281,15 +324,25 @@ village; N/T = 28. Say why it is the modelling example.
 - **Estimators.** `spml(model = "within")` with `spatial.error = "b"`,
   `lag = TRUE`, both; `spgm(model = "within", spatial.error = TRUE)`.
   The within correction of Lee & Yu (2010a, §3.2) in words.
-- **Run it.** Four fits, one chunk each: plain FE with `plm::plm`, SEM-FE,
-  SAR-FE, SARAR-FE by ML; then SEM-FE by GM. A log-likelihood table of the
-  three ML fits and the LR tests between nested pairs, CM Ex. 10.13.
-- **Picture.** Dot-and-whisker of the three slopes under the five fits:
-  the SEM moves the standard errors, the SAR moves the point estimates.
-- **Read it.** SEM-FE: λ = 0.79, slopes 0.13, 0.25, 0.54, almost the FE
-  slopes with wider intervals. SAR-FE: ρ = 0.51, slopes shrink, because
-  part of the effect is routed through the neighbours. SARAR: the LR test
-  on ρ given λ. GM: λ = 0.78 with no SE, slopes to the third decimal.
+- **Run it.** House prices: plain FE with `plm::plm` on the partialled
+  panel (the CCEP slope 1.20, the check), SEM-FE, SAR-FE, SARAR-FE by ML,
+  SEM-FE by GM, one chunk each. Then the residual check that closes the
+  loop: local CD and `rwtest` on the SEM residuals, which still reject,
+  and on the filtered innovations $(I - \lambda W)u$, which do not. Then
+  rice: the same five fits.
+- **Picture.** Dot-and-whisker of the income elasticity under plain FE on
+  raw prices, two-way FE, SAR-FE on raw prices, and the four fits on the
+  partialled panel: how the slope swings with the treatment of the
+  national factor. Beside it the three rice slopes under the five fits.
+- **Read it.** House prices: SEM-FE λ = 0.69, slope 0.86 (0.06); SAR-FE
+  ρ = 0.65, slope 0.72; the CCEP slope 1.20 sits between. SARAR with one W
+  returns a lag of −0.52 and an error of 0.87: not identified, the
+  encompassing model does not settle it here. Rice: SEM-FE λ = 0.79,
+  slopes 0.13, 0.25, 0.54 against FE's 0.21, 0.29, 0.50, moved by the GLS
+  weighting under λ ≈ 0.8; SAR-FE ρ = 0.51; SARAR ρ = 0.24, λ = 0.71, the
+  LR test on ρ given λ; GM λ = 0.78 with no SE, slopes to the third
+  decimal. Misleads: SAR-FE on raw log prices, ρ = 0.68 and slope 0.15,
+  the factor read as geography.
 - **Next.** Are the farm effects random draws, and does the error battery
   agree ([random effects](index.qmd#sec-sp-re))?
 - **Pitfalls.** Names: in `spml(model = "within")` the lag prints as
@@ -320,8 +373,12 @@ village; N/T = 28. Say why it is the modelling example.
 - **Tests and estimators.** `bsktest` `LMH`, `CLMmu`, `CLMlambda`;
   `spml(model = "random", spatial.error = "b")` and `"kkp"`;
   `spml(model = "random", lag = TRUE)` for comparison; `sphtest`.
-- **Run it.** Three `bsktest` calls, one chunk each; three fits; one
-  `sphtest` on the formula and one on two fits.
+- **Run it.** Rice: three `bsktest` calls, one chunk each; three fits; one
+  `sphtest` on the formula and one on two fits. House prices: `bsktest`
+  LMH and CLMmu run (938, 4.4); CLMlambda and `sphtest` fail on the
+  partialled panel with a singular Hessian, shown with `error: true` and
+  read: partialling removed the state effect with the factor, so there is
+  no random effect left to test, and the FE fits of step 4 stand.
 - **Picture.** The estimated spatial parameter with its interval under
   SEM-FE, SEM-RE (b), SEM-RE (kkp) and SAR-RE, with the FE value as a
   reference line; and the variance ratio φ beside it.
@@ -357,15 +414,20 @@ village; N/T = 28. Say why it is the modelling example.
   unwritten part.
 - **Tests and estimator.** `bsjktest` `J`, `C.1`, `C.2`, `C.3`;
   `spreml(errors = "semsrre")`.
-- **Run it.** Four `bsjktest` calls, one chunk each; one `spreml` fit,
-  printing `$ErrCompTable`.
-- **Picture.** The within residuals of one village over the six seasons,
-  farm by farm, next to their lag-1 autocorrelation distribution across
-  farms with the estimated ψ marked.
-- **Read it.** J = 320, C.1 = 372 (spatial), C.3 = 76 (farm effect) reject
-  hard; C.2 = 11.9, p = 0.0006 (serial) rejects softly. The encompassing
-  fit: φ = 0.25, ψ = 0.13, λ = 0.61. *So:* the spatial shock is the
-  strongest effect; serial correlation is real and small.
+- **Run it.** House prices: four `bsjktest` calls on the partialled panel,
+  then `spreml(errors = "semsr")`, spatial plus serial without random
+  effects. Rice: four `bsjktest` calls, one chunk each; one `spreml`
+  fit with `errors = "semsrre"`, printing `$ErrCompTable`.
+- **Picture.** The lag-1 autocorrelation of the filtered innovations, one
+  point per unit, for both panels, with the estimated ψ marked: 0.82 for
+  states, 0.13 for farms.
+- **Read it.** House prices: C.2 = 216, ψ = 0.82 (0.015). *So:* the
+  errors of the static two-stage model carry most of last year's shock;
+  the model is incomplete in time, which is the time chapter's question.
+  Rice: J = 320, C.1 = 372 (spatial), C.3 = 76 (farm effect) reject hard;
+  C.2 = 11.9, p = 0.0006 (serial) rejects softly. The encompassing fit:
+  φ = 0.25, ψ = 0.13, λ = 0.61. *So:* the spatial shock is the strongest
+  effect; serial correlation is real and small.
 - **Next.** Read the lag model's coefficients as effects
   ([direct and indirect effects](index.qmd#sec-sp-impacts)).
 - **Pitfalls.** `bsjktest` takes `data = RiceFarms, index = "id"`, not
@@ -385,19 +447,23 @@ village; N/T = 28. Say why it is the modelling example.
   $x_k$ is the matrix $(I - \rho W)^{-1}\beta_k$: its diagonal averaged is
   the **direct** effect (feedback included), its row sums averaged the
   **total**, the difference the **indirect**. β alone is neither.
-- **Run it.** On the SAR-FE fit of step 4, the three numbers computed in
-  the open: $S = (I - \hat\rho W)^{-1}$, `mean(diag(S)) * b`,
-  `mean(rowSums(S)) * b`. Then the Monte Carlo interval: draw (ρ, β) from
-  the fit's asymptotic normal 200 times and repeat. `splm::impacts()` is
-  tried in the Pitfalls box with `error: true`, so the reader sees the
-  refusal.
-- **Picture.** For one farm, the row of $S$ sorted by neighbour order:
-  the effect of its own land, its village's, and the zero beyond the
-  village; next to it, direct, indirect and total for the three inputs with
-  intervals.
-- **Read it.** Direct 0.512 against β = 0.503 for land: the feedback adds
-  2 %. Indirect 0.517: as much again spills to the village. Total 1.03.
-  Misleads: reporting β = 0.50 as "the land elasticity" halves it.
+- **Run it.** On the SAR-FE fits of step 4, both panels, the three
+  numbers computed in the open: $S = (I - \hat\rho W)^{-1}$,
+  `mean(diag(S)) * b`, `mean(rowSums(S)) * b`. Then the Monte Carlo
+  interval: draw (ρ, β) from the fit's asymptotic normal 200 times and
+  repeat. `splm::impacts()` is tried in the Pitfalls box with
+  `error: true`, so the reader sees the refusal.
+- **Picture.** The row of $S$ for one state, drawn on the map: Ohio's own
+  cell, its neighbours, their neighbours, fading; next to it, direct,
+  indirect and total for income with intervals, and the same three for
+  the rice inputs.
+- **Read it.** House prices: β = 0.72, direct 0.83, indirect 1.19, total
+  2.01: with ρ = 0.65 the multiplier $1/(1-\rho)$ is 2.8. Rice: direct
+  0.512 against β = 0.503 for land, the feedback adds 2 %; indirect
+  0.517, as much again spills to the village; total 1.03. Misleads:
+  reporting β as "the elasticity" halves the rice number and misses two
+  thirds of the house-price one. Both are SAR readings; step 3 preferred a
+  SEM for rice, where β is the whole effect.
 - **Next.** What the spatial parameters cannot do
   ([limits](index.qmd#sec-sp-limits)).
 - **Pitfalls.** `impacts()` fails in splm 1.6-5 with spatialreg 1.4-3
@@ -527,11 +593,17 @@ Jong, Lee). Keys `baltagi2007` (unit roots) and `millo2017` exist already.
 Each step ends in its own commit.
 
 - [ ] **Tooling.** `renv::snapshot()` so `renv.lock` records splm, spdep,
-  spatialreg, sf and spData. Add the bibliography entries above. In `R/`:
-  `spatial-impacts.R` (`sar_impacts(rho, beta, W)` and its Monte Carlo
-  interval, roxygen-documented), `spatial-weights.R` (`usaw49_names()`
-  mapping `usaw49` row names to `spData::us_states`), and in
-  `simulate-panels.R` a `sim_spatial_slope_panel()` DGP for step 8.
+  spatialreg, sf and spData (after the chapter calls them). Add the
+  bibliography entries above plus `bailey2016spatio` (Bailey, Holly &
+  Pesaran 2016, *J. Applied Econometrics*). In `R/`: `cce.R`
+  (`cce_partial()`, partial the cross-section averages out of a variable
+  unit by unit), `spatial-residuals.R` (`splm_residuals()`, put a within
+  fit's residuals back in `pdata.frame` order; `spatial_filter()`, the
+  innovations $(I - \lambda W)u$), `spatial-impacts.R` (`sar_impacts()`
+  and its Monte Carlo interval), `spatial-weights.R` (`us_states_sf()`,
+  the 49 polygons in `usaw49` order; `w_checks()`, the four pre-checks),
+  and in `simulate-panels.R` a `sim_spatial_slope_panel()` DGP for
+  step 8. All roxygen-documented.
 - [ ] **Chapter page.** Rewrite `index.qmd` on `.docs/_templates/chapter.qmd`:
   opener, definition, the two maps, the two equations, glosses, numbered
   points, setup chunk, includes.
@@ -559,10 +631,9 @@ Each step ends in its own commit.
 
 ## Open questions
 
-- RiceFarms as the modelling example, or carry house prices through the
-  fits with a CCE-augmented spatial regression (cross-state averages as
-  regressors inside `spml`)? The second has no book check and mixes two
-  estimators the sources never combine. Recommendation: RiceFarms.
+- ~~RiceFarms as the modelling example, or house prices through the fits
+  too?~~ Both, decided 2026-10-06; house prices as the two-stage
+  regression above.
 - Does `impacts()` work on an `splm_GM` fit? If it does, step 7 can show
   it on the GM SAR-FE next to the hand computation.
 - Should step 8 show the Nickell bias of a naive `spml` with a lagged
