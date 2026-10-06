@@ -58,8 +58,12 @@ Writing order is core, dynamic, cointegration, by verification value.
 
 **Literature in `lit/`.** The four anchor texts are on disk as PDFs:
 Baltagi (2021), Croissant & Millo (2019), Pesaran (2015), Millo & Piras
-(2012). The `Read` tool opens a PDF by page range, so a page reference can
-be checked before it is cited.
+(2012). The `Read` tool cannot render these PDFs on this machine (no
+`pdftoppm`); `pdftotext -f N -l N file.pdf -` from Bash extracts a page's
+text. Printed page = PDF page − 16 for Baltagi, − 31 for Pesaran, − 21 for
+Croissant & Millo (found by the recon agents on 2026-10-06). Not on disk:
+Arellano & Bond (1991), Windmeijer (2005), Nickell (1981), Pedroni (1999),
+Pfaff (2008); these are cited without a page.
 
 ## Rules for this plan
 
