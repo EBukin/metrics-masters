@@ -64,3 +64,46 @@ gets a one-line gloss and a link forward.
 Each chapter folder holds its theory notes. The current `theory/` notes move
 as follows: 01 and 04 to `02-cross-dependence`; 02, 03, 05 and 06 to
 `03-spatial`; 07 to `04-time`.
+
+## Amendment, 2026-10-06 (verbatim)
+
+Chapters 00 to 03 and the unit-root part of 04 were written. Asked how to
+implement the rest of `.docs/panel-spat-PLAN.md`, the proposal was to keep
+chapter 04 to the time dependence of the series (unit roots, cointegration),
+to put serial correlation beside the effects tests in the core chapter, and
+to give dynamic panels a chapter of their own; the alternative was the outline
+above, with about seventeen steps on one page. The decision:
+
+> Okay, with your split in three chapters. Um, state and benchmark are not
+> necessary right now, so don't do state and benchmark, keep it planned for
+> later. What I would like to do is to ensure that every chapter is written
+> nicely and it's been properly backed by literature, so it uses literature
+> rigorously and references it properly. And uh, yeah, I would like you to
+> flag this in the, in the um, plan. Also, it's important that every single
+> chapter is written by a different subagent. with a sufficient context in
+> the right context to focus on. So that's another point. And please use
+> subagents to, to write every single component or chapter um, you decide,
+> but this subagent shouldn't be overloaded with the context.
+
+"State and benchmark" is read as the Stata benchmarks proposed for the
+elements the spec lists as blocked in R (Pesaran–Yamagata Δ, Kao, Breitung,
+SDPD). They are deferred, not dropped.
+
+The outline from point 5 on becomes:
+
+5. **Time dependence** (`04-time`). Unit roots (stage 1); cointegration
+   (stage 2).
+6. **Core panel models** (`05-core`). Poolability and slope homogeneity
+   (3.1, 3.2); heteroskedasticity (3.3); serial correlation (3.4); effects
+   tests, FE vs RE (4a.1, 4a.2); robust standard errors (4a.4).
+7. **Dynamic panels** (`06-dynamic`). The problem (4b.1); estimators (4b.2);
+   diagnostics (4b.3).
+
+Serial correlation moves from the time chapter to the core chapter because
+its tests run on the residuals of a `plm` fit and the Bera–Sosa-Escudero–Yoon
+family tests random effects and serial correlation jointly. Dynamic panels
+get their own chapter because the spec treats them as a stage of their own
+(4b, beside the static 4a) and they carry the strongest verification target
+in the book. The three chapters are written in the order core, dynamic,
+cointegration, by verification value, not reading order; the plan is
+`.docs/plans/0008-remaining-chapters.md`.
