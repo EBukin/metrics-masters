@@ -116,5 +116,7 @@ elasticity 1.14).
   (`AppData/Local/R/cache/R/renv/library/metrics-masters-*`) that holds only
   renv, not to `renv/library/`. The render ran with
   `RENV_PATHS_LIBRARY=<project>/renv/library` set for the command. The cause
-  is not yet found.
+  is found in plan 0006: `renv/activate.R` treats a project with a
+  `DESCRIPTION` file as a package and moves its library to the user cache.
+  `.Rprofile` now sets the library path itself.
 - Not done: clicking through the pane links by hand in a browser.
