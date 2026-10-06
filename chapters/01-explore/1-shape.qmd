@@ -1,39 +1,139 @@
-## Panel dimensions, balance, variation {#sec-panel-shape}
+## Panel shape {#sec-panel-shape}
 
-**Theory.** The shape of the panel decides which methods are usable. *Micro*
-panels have large N (hundreds or thousands) and short T (rarely over 10–20),
-so asymptotics are large N, fixed T. *Macro* panels have moderate N (7 to 200
-countries) over 20–60 years, so asymptotics can be large N and T
-[@baltagi2021, p. 1]. With N large (say over 100) and T small (under 50),
-panel unit-root and cointegration analysis "can proceed only under restrictive
-assumptions such as dynamic homogeneity and/or local cross-sectional
-dependence as in spatial autoregressive or moving average models"
-[@pesaran2015, p. 817].
+**Question.** House prices in 49 states over 29 years: how many units, how
+many periods, is every state there every year, and which variables change
+within a state at all?
 
-A panel is *unbalanced* when units are observed over different periods. In the
-one-way model the Within estimator carries over unchanged, while GLS becomes
-weighted least squares with weights that vary with each unit's Tᵢ, and
-variance components lose their optimal estimators [@baltagi2021, pp. 230–232].
+**Intuition.** A panel is a grid, units down the side and periods across.
+Three facts about the grid decide which tools apply, before any test runs.
 
-**Data.** `TobinQ` (balanced) and `Tileries` (unbalanced), both in **pder**
-[@croissant2019].
+- **Dimensions.** N units and T periods. *Micro* panels have many units and
+  few periods, thousands of households over five years; *macro* panels have
+  a moderate number of units over decades, twenty countries over forty years
+  [@baltagi2021, p. 1]. A method's guarantees hold as one of these shapes
+  grows, and a test built for a long T can fail badly when T is short
+  ([when the tests lie](../04-time/index.qmd#sec-ur-traps)). With N large
+  and T short, 170 regions over 20 years say, panel unit-root and
+  cointegration analysis "can proceed only under restrictive assumptions"
+  [@pesaran2015, p. 817].
+- **Balance.** A panel is **balanced** when every unit is observed in every
+  period. In an unbalanced panel, comparing each unit with its own average
+  over time, the fixed-effects idea of the
+  [road map](../00-road-map/index.qmd), works as before; anything that
+  weights units by their own T has to be reworked [@baltagi2021,
+  pp. 230–232], and several unit-root tests refuse the panel outright
+  ([tests that assume independent
+  units](../04-time/index.qmd#sec-ur-first-gen)).
+- **Variation.** A variable that never changes within a unit, a state's
+  region say, cannot explain changes within that unit: comparing the state
+  with itself absorbs it. A variable that never changes across units, the
+  year, is absorbed the same way by comparing each year with itself.
+
+**The tools.** `plm::pdim()` reports N, T and balance. `plm::punbalancedness()`
+measures how far a panel is from balanced, with two indices of @ahrens1981
+that equal 1 for a balanced panel and fall toward 0. `plm::pvar()` lists which
+variables vary within units and which across.
+
+**Run it.** The running example first, then two panels from **pder**
+[@croissant2019] chosen for their shape: `TobinQ`, large and balanced, and
+`Tileries`, small and unbalanced.
 
 ```{r}
 #| label: c01-1-pdim
+data("HousePricesUS", package = "pder")
 data("TobinQ", package = "pder")
 data("Tileries", package = "pder")
+plm::pdim(HousePricesUS)
 plm::pdim(TobinQ)
 plm::pdim(Tileries)
 ```
-
-How unbalanced? Both measures equal 1 for a balanced panel and fall toward 0
-as balance worsens [@ahrens1981]:
 
 ```{r}
 #| label: c01-1-punbalancedness
 plm::punbalancedness(Tileries)
 ```
 
-**Book check.** @croissant2019 prints `n = 188, T = 35, N = 6580` for TobinQ
-[p. 32] and `n = 25, T = 12-22, N = 483` for Tileries [p. 62]. The book prints
-no `punbalancedness` output.
+```{r}
+#| label: c01-1-pvar
+plm::pvar(HousePricesUS)
+```
+
+A balanced panel is a full rectangle. The unbalanced one has holes, and
+where they sit matters:
+
+```{r}
+#| label: c01-1-picture
+#| fig-cap: "Which tile works are observed in which weeks in `Tileries`. A
+#|   filled square is one observation."
+#| fig-alt: "A dot grid with weeks 1 to 22 across and 25 tile works down.
+#|   Most rows are filled from the first week to the last. A few rows start
+#|   late or stop early, and a few have a missing square in the middle."
+works <- factor(Tileries$id)
+graphics::plot(Tileries$week, as.integer(works), pch = 15, cex = 0.8,
+               xlab = "week", ylab = "tile works", yaxt = "n")
+graphics::axis(2, at = seq_along(levels(works)), labels = levels(works),
+               las = 1, cex.axis = 0.6)
+```
+
+**Read it.**
+
+- **Balanced (`HousePricesUS`).** 49 states × 29 years, 1 421 observations,
+  no gaps. N/T = 1.7, a macro shape. *So:* every tool in this book runs on
+  it.
+- **Balanced and large (`TobinQ`).** 188 firms × 35 years, 6 580
+  observations. *So:* the same shape class, with N large enough for results
+  that need it.
+- **Unbalanced (`Tileries`).** 25 tile works over 12 to 22 weeks, 483
+  observations. Both indices are 0.97–0.98, close to balanced, and the
+  picture shows why: most works are seen in 19 weeks or more, a few start
+  late, and a few skip a week. *So:* fixed-effects estimates are fine;
+  tests that need a balanced panel are not.
+- **Variation (`HousePricesUS`).** `state`, `region` and the other labels
+  never change within a state: a state effect absorbs them. `year` never
+  changes across states: a year effect absorbs it. Only `price` and `income`
+  vary both ways. *So:* only they can carry a within-state slope.
+
+::: {.callout-note appearance="simple"}
+**Next.** With the shape known, ask whether the states move together:
+[cross-sectional dependence](../02-cross-dependence/index.qmd).
+:::
+
+::: {.callout-note collapse="true"}
+## Recipe
+
+```r
+# d: a data frame whose first two columns are the unit and the period,
+# or a plm::pdata.frame(d, index = c("id", "year")).
+plm::pdim(d)              # N, T, balance
+plm::punbalancedness(d)   # 1, 1 when balanced
+plm::pvar(d)              # which variables vary within and across units
+```
+:::
+
+::: {.callout-caution collapse="true"}
+## Pitfalls
+
+**The index is guessed.** On a plain data frame, **plm** takes the first two
+columns as unit and period. When they are elsewhere, say so once with
+`plm::pdata.frame(d, index = c("id", "year"))` and pass that object to every
+call.
+
+**Unbalanced can also mean gappy.** A unit that starts late is one thing; a
+unit that skips a period in the middle is another, because a lag or a first
+difference across the gap spans two periods instead of one.
+`plm::is.pconsecutive()` finds the gaps, and `Tileries` has six works with
+one:
+
+```{r}
+#| label: c01-1-gaps
+table(plm::is.pconsecutive(Tileries))
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## Book check
+
+@croissant2019 prints `n = 188, T = 35, N = 6580` for `TobinQ` [p. 32] and
+`n = 25, T = 12-22, N = 483` for `Tileries` [p. 62]; the `pdim` calls above
+print the same. The book prints no `punbalancedness` output.
+:::
