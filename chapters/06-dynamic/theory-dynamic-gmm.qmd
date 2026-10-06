@@ -1,18 +1,472 @@
 ---
 title: "Dynamic panel GMM"
-subtitle: "Why a lagged outcome breaks fixed effects, and how instruments repair it"
+subtitle: "Why a lagged outcome breaks fixed effects and how instruments fix it"
 ---
 
-> **Code:** [the bias](index.qmd#sec-dyn-bias).
+> **Code:** [the bias](index.qmd#sec-dyn-bias),
+> [difference and instrument](index.qmd#sec-dyn-ah),
+> [difference and system GMM](index.qmd#sec-dyn-gmm) and
+> [diagnostics](index.qmd#sec-dyn-diagnostics).
 
-::: {.callout-note}
-**Placeholder.** This note is planned, not written. Tracked in the node
-checklist in [the preface](../../index.qmd).
-:::
+## Why last year's outcome breaks the within estimator
 
-## What this note should cover
+A firm does not jump to the workforce it wants. Hiring takes months and
+firing costs money, so this year's employment is last year's employment
+moved part of the way toward a target set by wages, capital and demand.
+Put last year's outcome on the right-hand side and the panel regression is
+**dynamic**:
 
-- The Nickell bias of the within estimator and its size by T.
-- Anderson–Hsiao, difference GMM and system GMM: the moment conditions.
-- Sargan, the AR tests, the Windmeijer correction and instrument
-  proliferation.
+$$
+y_{it} = \gamma\, y_{i,t-1} + x_{it}'\beta + \alpha_i + \varepsilon_{it},
+\qquad i = 1, \dots, N;\ t = 1, \dots, T,
+$$
+
+with $\alpha_i$ the firm effect and $\varepsilon_{it}$ an innovation that
+is serially uncorrelated and uncorrelated with $\alpha_i$ [@baltagi2021,
+eqs. 8.1–8.2; @croissant2019, sec. 7.1]. The coefficient γ is the
+**persistence** of the outcome: how much of last year survives into this
+year. The 140 UK firms of @arellano1991, observed 1976–1984, are the panel
+on which every method in this note was first run, and the benchmark data
+set of Stata and EViews [@baltagi2021, p. 193; @croissant2019, p. 183].
+
+Two things go wrong at once. The effect $\alpha_i$ is in every period's
+$y$, so it is in $y_{i,t-1}$ too: the lagged outcome is correlated with
+the error, and pooled OLS is biased upward, by an amount that vanishes
+only when $\sigma^2_\alpha$ does [@baltagi2021, p. 187; @croissant2019,
+pp. 163–164]. The obvious cure is the within transformation of the
+[core chapter](../05-core/index.qmd#sec-core-fe-re), which subtracts each
+firm's mean and so removes $\alpha_i$. It trades one correlation for
+another. The demeaned lag $y_{i,t-1} - \bar y_{i,-1}$ contains every
+period's $y$ and hence every period's $\varepsilon$; the demeaned error
+$\varepsilon_{it} - \bar\varepsilon_i$ contains every period's
+$\varepsilon$ as well, among them the $\varepsilon_{i,t-1}$ that sits
+inside $y_{i,t-1}$. The two share a term in every period, and the sum of
+those shared terms is the **Nickell bias**: of order $1/T$, so it does not
+shrink as more firms are added, only as more years are [@nickell1981;
+@baltagi2021, p. 188; @croissant2019, p. 165]. It is a bias of demeaning,
+not of the fixed-effects assumption: random-effects GLS quasi-demeans and
+is biased the same way [@pesaran2015, p. 678].
+
+The size of it is known exactly. For the pure autoregression with no
+regressors, @pesaran2015 [eqs. 27.7–27.11] takes the large-$N$ limit of
+the within estimator from the moments of the demeaned lag. In the form
+@croissant2019 [p. 165] print, with $T$ the number of periods in the
+regression once one lag is taken and
+$A = 1 - (1 - \gamma^{T}) / \{T(1 - \gamma)\}$,
+
+$$
+\operatorname*{plim}_{N \to \infty}\,(\hat\gamma_{FE} - \gamma)
+= -\,\frac{1 + \gamma}{T - 1}\;
+  \frac{A}{1 - \dfrac{2\gamma A}{(1 - \gamma)(T - 1)}} .
+$$
+
+Compactly, the limit is $-(1 + \gamma)/T + O(T^{-2})$: negative for
+$\gamma \geq 0$, equal to $-1/T$ at $\gamma = 0$, and large when $T$ is
+in the 3 to 8 range typical of household and firm panels [@pesaran2015,
+pp. 679–680]. At $\gamma = 0.5$ and $T = 10$, which CM call "a fairly long
+time span", the bias is $-0.167$: a third of the coefficient
+[@croissant2019, p. 165]. Longer panels do not make it safe. In the Monte
+Carlo of @judson1999, with $N = 20$ or $100$ and $T$ up to 30, the bias
+grows with γ, falls with $T$, and even at $T = 30$ can still be 20 % of
+the true value [@baltagi2021, p. 188]. The within estimator is consistent
+only as $T \to \infty$ [@baltagi2021, p. 188].
+
+Two numbers bracket the truth. OLS is biased up, within is biased down,
+so any consistent estimator should land between them [@croissant2019,
+p. 168]. The bias step draws exactly that picture. Three ways out exist:
+correct the within estimator for its known bias [@kiviet1995;
+@baltagi2021, p. 188], write a likelihood that handles the initial
+observation [@hsiao2002; @pesaran2015, sec. 27.6], or remove $\alpha_i$ by
+a transformation that leaves a usable instrument behind. This note is
+about the third.
+
+## The minimum math
+
+### Difference, then instrument
+
+First differences remove the effect without averaging over time,
+
+$$
+\Delta y_{it} = \gamma\, \Delta y_{i,t-1} + \Delta x_{it}'\beta
+  + \Delta\varepsilon_{it}, \qquad t = 3, \dots, T,
+$$
+
+and with it every time-invariant regressor [@baltagi2021, eq. 8.4 and
+p. 192; @pesaran2015, eq. 27.19]. The lag is still endogenous:
+$\Delta y_{i,t-1}$ contains $\varepsilon_{i,t-1}$ and
+$\Delta\varepsilon_{it} = \varepsilon_{it} - \varepsilon_{i,t-1}$ contains
+it with a minus sign, so
+$E[\Delta y_{i,t-1}\Delta\varepsilon_{it}] = -\sigma^2_\varepsilon$ and
+OLS on the differenced equation is inconsistent. The differenced error is
+also a first-order moving average: its variance is $2\sigma^2_\varepsilon$,
+its first autocovariance $-\sigma^2_\varepsilon$, and all higher ones zero
+[@pesaran2015, p. 682; @croissant2019, p. 166].
+
+An **instrument** is a variable correlated with the regressor that causes
+trouble and uncorrelated with the error. @anderson1982 saw that $y_{i,t-2}$
+is one: it is correlated with $\Delta y_{i,t-1}$, and it is uncorrelated
+with $\Delta\varepsilon_{it}$ as long as the innovations themselves are
+serially uncorrelated. The difference $\Delta y_{i,t-2}$ qualifies on the
+same argument [@baltagi2021, p. 188; @pesaran2015, p. 682]. Between the
+two, @arellano1989 found that the estimator on the differenced instrument
+has a singularity point and very large variances over a significant range
+of parameter values, while the one on the level has no singularity and much
+smaller variances, and is the one to use [@baltagi2021, p. 188;
+@croissant2019, p. 167]. The within transformation cannot take the place
+of differencing here: its error $\varepsilon_{it} - \bar\varepsilon_i$
+contains every realisation of $\varepsilon$, so no lag of $y$ is
+uncorrelated with it [@croissant2019, p. 166]. (Orthogonal deviations,
+each observation minus the mean of those after it, are the other
+transformation that works, and lose one observation per gap instead of
+two [@croissant2019, pp. 166–167].)
+
+The instrument is not strong. With no regressors,
+$E[\Delta y_{i,t-2}\,\Delta y_{i,t-1}]$ is proportional to
+$-\sigma^2_\varepsilon(1 - \gamma)$: it shrinks toward zero as γ
+approaches one, and the approach breaks down at $\gamma = 1$
+[@pesaran2015, p. 682]. Anderson–Hsiao is consistent but not efficient,
+for two reasons: it uses one instrument where several are valid, and it
+ignores the moving-average structure of the differenced error
+[@baltagi2021, p. 188; @pesaran2015, p. 682; @croissant2019, p. 168].
+
+### Every lag is an instrument
+
+@arellano1991 fixed both. In the first usable period, $t = 3$, the
+equation $\Delta y_{i3} = \gamma \Delta y_{i2} + \Delta\varepsilon_{i3}$
+has one valid instrument, $y_{i1}$. At $t = 4$ both $y_{i1}$ and $y_{i2}$
+are uncorrelated with $\Delta\varepsilon_{i4}$; one more instrument
+arrives with each period, until at $t = T$ the set is
+$y_{i1}, \dots, y_{i,T-2}$ [@baltagi2021, pp. 189–190; @pesaran2015,
+p. 683; @croissant2019, p. 168]. Stacked, the instruments of one firm
+form the block-diagonal matrix
+
+$$
+W_i = \begin{pmatrix}
+  [y_{i1}] & & & 0 \\
+  & [y_{i1}, y_{i2}] & & \\
+  & & \ddots & \\
+  0 & & & [y_{i1}, \dots, y_{i,T-2}]
+\end{pmatrix},
+$$
+
+one row per differenced period, and the claim that each block is
+uncorrelated with its period's error is the set of **moment conditions**
+$E(W_i'\Delta\varepsilon_i) = 0$ [@baltagi2021, eq. 8.6; @pesaran2015,
+eq. 27.27; @croissant2019, eq. 7.4]. @holtzeakin1988 and @ahn1995 stated
+the same conditions [@baltagi2021, p. 190]. Their number is
+$\tfrac12(T-1)(T-2)$ for $T$ periods: 36 at $T = 10$, and it grows with
+the square of $T$ [@croissant2019, p. 172].
+
+The **generalised method of moments** (GMM) turns the conditions into an
+estimator. Replace the expectation by the sample mean
+$m(\theta) = N^{-1}\sum_i W_i'\Delta\varepsilon_i(\theta)$, and since
+there are more conditions than parameters, choose θ to make
+$m(\theta)'\,A\,m(\theta)$ as small as possible for a weighting matrix $A$
+[@hansen1982; @croissant2019, eqs. 7.5–7.7]. The efficient weight is the
+inverse of the covariance of the moments [@croissant2019, p. 169]. If the
+innovations are homoskedastic and serially uncorrelated, that covariance
+is known up to scale, because the differenced error of a firm has
+$E(\Delta\varepsilon_i\Delta\varepsilon_i') = \sigma^2_\varepsilon G$ with
+$G$ the $(T-2) \times (T-2)$ band matrix of 2 on the diagonal and $-1$
+beside it [@baltagi2021, eq. 8.5; @pesaran2015, eq. 27.33;
+@croissant2019, eq. 7.8]. Using $A = (\sum_i W_i' G W_i)^{-1}$ gives the
+**one-step** estimator,
+
+$$
+\hat\gamma_1 = \big[\Delta y_{-1}' W (W'(I_N \otimes G)W)^{-1}
+  W' \Delta y_{-1}\big]^{-1}
+  \big[\Delta y_{-1}' W (W'(I_N \otimes G)W)^{-1} W' \Delta y\big],
+$$
+
+[@baltagi2021, eq. 8.8]. The **two-step** estimator replaces the assumed
+covariance by one built from the one-step residuals,
+$V_N = \sum_i W_i'\,\Delta\hat\varepsilon_i\Delta\hat\varepsilon_i'\,W_i$,
+
+$$
+\hat\gamma_2 = \big[\Delta y_{-1}' W V_N^{-1} W' \Delta y_{-1}\big]^{-1}
+  \big[\Delta y_{-1}' W V_N^{-1} W' \Delta y\big],
+\qquad
+\widehat{\operatorname{var}}(\hat\gamma_2)
+  = \big[\Delta y_{-1}' W V_N^{-1} W' \Delta y_{-1}\big]^{-1},
+$$
+
+which is the optimal GMM estimator of @hansen1982 for $N \to \infty$ at
+fixed $T$, needs no assumption about the initial observations or the
+distributions of $\alpha_i$ and $\varepsilon_{it}$, and is robust to
+heteroskedasticity and serial correlation in the weight [@baltagi2021,
+eqs. 8.9–8.10 and p. 191; @croissant2019, p. 171]. The two steps are
+asymptotically equivalent when the innovations are IID [@baltagi2021,
+p. 191]. Regressors join on the same logic: a strictly exogenous
+$x_{it}$ instruments itself, a predetermined one contributes its lags
+$x_{i1}, \dots, x_{i,t-1}$ as further columns of $W_i$ [@pesaran2015,
+pp. 683–685]. This is **difference GMM**.
+
+### The system and its price
+
+Difference GMM inherits the weakness of its instruments. Take the
+autoregression with $T = 3$, where the single moment condition
+$E(y_{i1}\Delta\varepsilon_{i3}) = 0$ just identifies γ and GMM is plain
+two-stage least squares. The first stage regresses $\Delta y_{i2}$ on
+$y_{i1}$, and the model says
+$\Delta y_{i2} = (\gamma - 1)\,y_{i1} + \alpha_i + \varepsilon_{i2}$, so
+with $c = (1 - \gamma)/(1 + \gamma)$ the first-stage coefficient has
+
+$$
+\operatorname{plim}\,\hat\pi = (\gamma - 1)\,
+  \frac{c}{c + \sigma^2_\alpha / \sigma^2_\varepsilon} ,
+$$
+
+which is pulled toward zero as γ approaches one or as the effect variance
+grows relative to the innovation variance; the first-stage $F$ converges
+to a non-central $\chi^2_1$ whose non-centrality goes to zero as
+$\gamma \to 1$ [@blundell1998; @baltagi2021, eqs. 8.33–8.35;
+@croissant2019, eq. 7.19]. The series is nearly a unit root, the random
+walk of the [time chapter](../04-time/index.qmd#sec-ur-why), and lagged
+levels then say almost nothing about current changes. The estimator is
+biased and imprecise, and @blundell1998 named the cause: **weak
+instruments** [@baltagi2021, p. 201; @pesaran2015, p. 685].
+
+@arellano1995 and @blundell1998 add a second equation. Keep the model in
+levels, $y_{it} = \gamma y_{i,t-1} + \alpha_i + \varepsilon_{it}$, and
+instrument $y_{i,t-1}$ with the lagged difference $\Delta y_{i,t-1}$,
+which carries no $\alpha_i$. The moment conditions
+
+$$
+E\big[\Delta y_{i,t-1}\,(\alpha_i + \varepsilon_{it})\big] = 0,
+\qquad t = 3, \dots, T,
+$$
+
+are $T - 2$ in number and not redundant given the difference conditions
+[@baltagi2021, p. 202]; the longer lags $\Delta y_{i,t-s}$, $s \geq 2$,
+would add nothing, since each is a combination of conditions already used
+[@croissant2019, pp. 175–176]. Stacking the two sets of equations and the
+two sets of instruments gives **system GMM**, which also estimates an
+intercept [@croissant2019, p. 177]. Its price is an assumption about
+where each firm started. The levels conditions hold if
+
+$$
+E\Big[\Big(y_{i1} - \frac{\alpha_i}{1 - \gamma}\Big)\alpha_i\Big] = 0 :
+$$
+
+the deviation of the first observation from the firm's long-run mean is
+uncorrelated with the effect, so that from the second period on each
+series converges toward its own mean [@baltagi2021, eq. 8.36;
+@pesaran2015, eqs. 27.37–27.38]. @croissant2019 [p. 176] show that this
+**initial-condition restriction** either holds in every period or in none,
+and read it pragmatically: the deviation decays at rate γ, so a process
+that started long ago is near its steady state and the condition is close
+enough. Its validity is what the whole estimator rests on [@pesaran2015,
+p. 689], which is why the Sargan test of the next section is best run on
+the levels conditions alone as well as on the full set [@croissant2019,
+p. 180].
+
+What the extra equation buys is large when the instruments of the
+difference equation are weak. For $T = 4$ and
+$\sigma^2_\alpha / \sigma^2_\varepsilon = 1$, the asymptotic variance of
+difference GMM divided by that of system GMM is 1.75 at $\gamma = 0$, 3.26
+at $\gamma = 0.5$ and 55.4 at $\gamma = 0.9$ [@blundell1998; @baltagi2021,
+p. 202]; the Monte Carlo of @blundell2000ifs finds the same in finite
+samples, especially in the weak-instrument case [@pesaran2015, p. 689]. On
+a production function for 509 US firms, difference GMM gave a low capital
+coefficient with low precision and system GMM a reasonable one that did
+not reject constant returns [@blundell2000; @baltagi2021, p. 202]. Two
+cautions. @bun2010 show that system GMM keeps a weak-instrument problem of
+its own: its bias and root mean squared error are smaller than difference
+GMM's when the series is persistent, but both grow with
+$\sigma^2_\alpha / \sigma^2_\varepsilon$ and can become substantial, and
+its Wald test, already size-distorted for both estimators with persistent
+data, deteriorates further as that ratio rises [@baltagi2021, p. 202]. And
+the weakness itself depends on the initial condition: @hayakawa2009 shows
+that when the initial condition leaves the series' mean non-stationary and
+the effect variance is much larger than the innovation variance,
+difference GMM has no weak-instrument problem at all [@baltagi2021,
+p. 202].
+
+## Reading the diagnostics
+
+**Overidentification.** With more moment conditions than parameters, the
+conditions GMM did not need to fit can be checked. The statistic of
+@sargan1958, applied to GMM by @hansen1982, is the minimised objective of
+the two-step estimator,
+
+$$
+S = \Delta\hat\varepsilon' W \Big(\sum_i W_i'
+  \Delta\hat\varepsilon_i\Delta\hat\varepsilon_i' W_i\Big)^{-1}
+  W' \Delta\hat\varepsilon \;\sim\; \chi^2_{J - K},
+$$
+
+with $J$ the number of instrument columns and $K$ the number of
+coefficients, under the null that every moment condition holds
+[@baltagi2021, p. 191; @pesaran2015, p. 691; @croissant2019, p. 180]. A
+rejection says at least one instrument is correlated with the error. A
+non-rejection says less than it seems. @bowsher2002 fixed $N = 100$ and
+let $T$ run from 5 to 15 with the full Arellano–Bond instrument set. At
+$T = 5$ the test behaves: size 0.052 at the 5 % level, power 0.742. At
+$T = 15$ the $\chi^2_{90}$ statistic has Monte Carlo mean 91.3, close to
+its theoretical 90, but Monte Carlo variance 13.7 against a theoretical
+180, and the rejection rate is zero under the null and under the
+alternative alike. The cause is a poorly estimated weighting matrix, not
+weak instruments [@baltagi2021, p. 192; @pesaran2015, p. 691]. In applied
+work the symptom is a $p$-value near one: @roodman2009note re-ran two
+published growth regressions, and in one of them the test's $p$-value of
+0.97 fell to 0.001 once the instrument set was cut [@croissant2019,
+pp. 180–183].
+
+**Serial correlation.** Everything above assumed the innovations are
+serially uncorrelated, the property tested on static residuals in the
+[core chapter](../05-core/index.qmd#sec-core-serial). Here it is the
+condition that makes $y_{i,t-2}$ a valid instrument: consistency rests on
+$E[\Delta\varepsilon_{it}\Delta\varepsilon_{i,t-2}] = 0$ [@baltagi2021,
+p. 192; @pesaran2015, p. 685]. @arellano1991 test it on the differenced
+residuals with the statistic
+
+$$
+m_l = \frac{a_l}{\sqrt{\hat b_l}}, \qquad
+a_l = \frac{1}{N}\,\Delta\hat\varepsilon'\,\Delta\hat\varepsilon_{-l},
+$$
+
+where $\Delta\hat\varepsilon_{-l}$ is the residual lagged $l$ periods and
+$\hat b_l$ a variance that accounts for the estimated coefficients;
+$m_l$ is standard normal under no serial correlation of order $l$
+[@croissant2019, pp. 181–182]. The two orders read differently. Order one
+must reject, because $\Delta\varepsilon_{it}$ and
+$\Delta\varepsilon_{i,t-1}$ share $\varepsilon_{i,t-1}$ by construction.
+Order two must not: $\Delta\varepsilon_{it}$ and
+$\Delta\varepsilon_{i,t-2}$ are correlated only if $\varepsilon_{i,t-1}$
+and $\varepsilon_{i,t-2}$ are, that is, if the innovations in levels are
+serially correlated of order one, and then the instruments dated $t - 2$
+fail [@baltagi2021, p. 192; @croissant2019, p. 182]. The null of $m_2$ is
+also true if the innovations follow a random walk, in which case OLS on
+the differenced model is consistent as well and @arellano1991 give a
+Hausman-type test, a comparison of the two estimates, to tell the cases
+apart [@baltagi2021, p. 192].
+
+**Two-step standard errors.** The first Monte Carlo on the estimator, 100
+replications with $N = 100$ and $T = 7$, found GMM nearly unbiased and
+much more precise than Anderson–Hsiao, and its two-step standard errors
+too small [@arellano1991; @baltagi2021, p. 193]. @windmeijer2005 traced
+the shortfall to the weighting matrix: $V_N$ is built from one-step
+residuals, so the two-step estimator is a nonlinear function of the data
+through them, and the usual formula ignores that. A first-order expansion
+of the estimator in the estimated weight gives the **Windmeijer
+correction**, which adds to the conventional two-step covariance $V_2$
+the terms $V_2 D' + D V_2 + D V_1 D'$, with $D$ the gradient of the
+estimator with respect to the weight and $V_1$ the one-step covariance
+[@croissant2019, eqs. 7.27–7.29]. The correction is accurate when all the
+moment conditions are linear, as they are here; without it, Wald tests on
+two-step estimates are oversized [@baltagi2021, p. 193]. The imprecision
+is structural: the moment covariance has $J(J+1)/2$ free elements, each a
+fourth-order moment of the data, estimated from $N$ firms
+[@croissant2019, p. 178]. @bond2001 go one step further and test
+hypotheses by the difference of two Sargan statistics instead of a Wald
+statistic, with better size in their Monte Carlo [@baltagi2021, p. 193].
+
+**Too many instruments.** The count $\tfrac12(T-1)(T-2)$ is only for the
+lags of $y$; with $T = 10$ and five strictly exogenous regressors it
+reaches 500 [@baltagi2021, p. 194]. @ziliak1997 asked whether the
+bias–efficiency trade-off known from time series survives in panels with
+hundreds of units, and found that it does: on 532 men over ten years, the
+GMM estimate of the intertemporal substitution elasticity of labour supply
+moved from 0.519 to 0.093 as the moment conditions went from 9 to 212,
+while its standard error fell from 0.36 to 0.07. He attributed the
+downward bias to the correlation between the sample moments and the
+estimated weighting matrix, and recommended a sub-optimal instrument set
+over the full one [@baltagi2021, p. 194]. The mechanism is overfitting:
+the more instruments, the closer the first-stage fit, until with as many
+instruments as observations the instrumental-variables estimator is OLS
+[@croissant2019, p. 172; @roodman2009]. Two cuts are standard. Limit the
+lag depth, which at $T = 10$ and three lags gives 21 instruments instead
+of 36 [@croissant2019, pp. 172–173]. Or **collapse** the matrix, keeping one
+column per lag distance instead of one per lag and period, so that the
+$T - 2$ moments $\sum_t y_{i,t-2}\Delta\varepsilon_{it}$,
+$\sum_t y_{i,t-3}\Delta\varepsilon_{it}, \dots$ replace the full block
+diagonal [@roodman2009note; @croissant2019, eq. 7.18; @baltagi2021,
+p. 194]. A result that holds across lag depths and under collapsing is
+the result; one that moves with the instrument count, as Ziliak's did, is
+not. Large $T$ brings its own version of the problem: as $T \to \infty$
+the estimator stays asymptotically normal but carries a bias of order
+$1/N$ unless $T/N \to 0$ [@pesaran2015, p. 685].
+
+## Four notations
+
+The three anchor texts and this book each write the model differently,
+and the lag coefficient changes letter with each:
+
+| Where | Lag coefficient | Effect and innovation |
+|---|---|---|
+| @baltagi2021 [eq. 8.1] | δ | $\mu_i + \nu_{it}$ |
+| @pesaran2015 [eq. 27.1] | λ | $\alpha_i + u_{it}$ |
+| @croissant2019 [sec. 7.1] | ρ | $\eta_n + \varepsilon_{nt}$ |
+| this book | γ | $\alpha_i + \varepsilon_{it}$ |
+
+Baltagi's $T$ counts the periods observed, Pesaran's the periods in the
+regression after the initial observation, and this book follows the
+latter, so that the bias formula above is read with $T$ equal to the
+number of years that enter the regression. The estimators keep their
+names across texts: difference GMM is Arellano–Bond, system GMM is
+Blundell–Bond, and `pgmm` calls the first `transformation = "d"` and the
+second `"ld"`; the steps own every other argument.
+
+## If / then
+
+| If | Then |
+|---|---|
+| The model has a lagged outcome and $T$ is short | The within slope on the lag is biased down by about $(1 + \gamma)/T$; do not read it as the persistence [@pesaran2015, p. 679; @baltagi2021, p. 188] |
+| $T$ is 30 or less | The bias can still be 20 % of γ; use an instrumental estimator [@judson1999; @baltagi2021, p. 188] |
+| OLS and within disagree on the lag | They should: OLS above, within below. A consistent estimate lands between them [@croissant2019, p. 168] |
+| One instrument is enough | Use the level $y_{i,t-2}$, not the difference $\Delta y_{i,t-2}$ [@arellano1989; @baltagi2021, p. 188] |
+| γ is near one or $\sigma^2_\alpha$ dwarfs $\sigma^2_\varepsilon$ | Lagged levels are weak instruments for differences; difference GMM is biased and imprecise; consider system GMM [@baltagi2021, eqs. 8.34–8.35; @pesaran2015, p. 688] |
+| System GMM is used | The initial-condition restriction is assumed; test the levels moments on their own, and expect the bias to grow with the variance ratio [@pesaran2015, p. 689; @croissant2019, p. 180; @bun2010; @baltagi2021, p. 202] |
+| $m_1$ rejects and $m_2$ does not | The pattern the estimator needs [@baltagi2021, p. 192] |
+| $m_2$ rejects | The innovations are serially correlated; the instruments dated $t - 2$ are invalid [@baltagi2021, p. 192; @croissant2019, p. 182] |
+| The Sargan $p$-value is near one with many instruments | Not clean moments but the Bowsher pathology; cut the lags or collapse and test again [@baltagi2021, p. 192; @croissant2019, pp. 180–181] |
+| Two-step estimates are reported | Report Windmeijer-corrected standard errors; the conventional ones are too small and the Wald tests oversized [@windmeijer2005; @baltagi2021, p. 193] |
+| The instrument count approaches $N$ | The estimator drifts toward OLS; the coefficient that moves with the count is not a result [@croissant2019, p. 172; @baltagi2021, p. 194] |
+
+## Next
+
+[The error of a panel regression](../05-core/theory-panel-error.qmd)
+covers serial correlation in the static error, the property the
+$m$-tests above are built to check. The spatial half of a dynamic panel,
+a lag in space as well as in time, has no estimator in R; the
+[limits section](../03-spatial/index.qmd#sec-sp-dynamic) of the spatial
+chapter says what that costs.
+
+## Open
+
+- **Ahn–Schmidt moments.** Under the standard assumptions there are
+  $T - 2$ further conditions, $E(u_{iT}\Delta u_{it}) = 0$ for
+  $t = 2, \dots, T-1$, nonlinear in the parameters, and with homoskedastic
+  innovations $T - 1$ more; GMM on the full set is asymptotically efficient
+  with the same asymptotic variance as maximum likelihood under normality
+  [@ahn1995; @baltagi2021, eq. 8.26 and p. 201; @pesaran2015, eq. 27.36].
+  Not in plm; `pdynmc` runs them [@fritsch2021], and the GMM step shows
+  the fit in its pitfalls box.
+- **Bias-corrected within.** @kiviet1995 approximates the within bias
+  with exogenous regressors and subtracts a consistent estimate of it
+  [@baltagi2021, p. 188; @pesaran2015, p. 680]; balanced panels only,
+  and no endogenous regressors [@croissant2019, p. 166]. Not in R.
+  Benchmark: Stata `xtlsdvc`, deferred.
+- **Transformed likelihood.** @hsiao2002 difference the model, give the
+  first difference $\Delta y_{i1}$ its own mean and variance, and maximise
+  a likelihood in a fixed number of parameters; in their Monte Carlo it
+  dominates GMM in small samples, at the price of cross-sectionally
+  homoskedastic innovations [@pesaran2015, sec. 27.6, pp. 692–695]. Not in
+  R. Benchmark: Stata `xtdpdqml` [@kripfganz2016; @baltagi2021, p. 197],
+  deferred.
+- **Time-invariant regressors.** Differencing removes them. @arellano1995
+  recover them inside a Hausman–Taylor system with a block-diagonal
+  instrument matrix [@baltagi2021, sec. 8.3, pp. 194–198; @pesaran2015,
+  sec. 27.4.4, pp. 686–687]; @kripfganz2019 instead estimate the
+  time-varying coefficients by GMM or quasi-maximum likelihood, regress
+  the first-step residuals on the time-invariant regressors, and correct
+  the second-step standard errors [@baltagi2021, pp. 197–198]. Not in R.
+  Benchmark: Stata `xtseqreg` [@baltagi2021, p. 197], deferred.
+- **Forward filtering.** The Keane–Runkle estimator removes a general
+  serial correlation pattern by a Cholesky transform before two-stage
+  least squares with predetermined instruments [@baltagi2021, sec. 8.6,
+  p. 203; @pesaran2015, sec. 27.5, pp. 691–692]. Named only.
+- **Errors that move together across firms.** A common unobserved factor
+  in the innovations makes the GMM estimators above inconsistent; the
+  short-$T$ answers are quasi-differencing GMM and a transformed
+  quasi-likelihood [@pesaran2015, sec. 27.7, pp. 696–699]. Not in R.
