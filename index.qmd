@@ -32,19 +32,17 @@ placeholders describing what they should cover.
 
 - [x] [Explore the panel](chapters/01-explore/index.qmd) — panel shape and
   balance, which gate every method used later
-- [x] [Panel dimensions, balance,
-  variation](chapters/01-explore/index.qmd#sec-panel-shape)
+- [x] [Panel shape](chapters/01-explore/index.qmd#sec-panel-shape)
 
 ### Cross-sectional dependence
 
 - [x] [Cross-sectional dependence](chapters/02-cross-dependence/index.qmd) —
   whether units move together, how strongly, and what to do about it
-- [x] [Testing for cross-sectional
-  dependence](chapters/02-cross-dependence/index.qmd#sec-csd-tests)
-- [x] [Exponent of cross-sectional dependence
+- [x] [The CD test](chapters/02-cross-dependence/index.qmd#sec-csd-tests)
+- [x] [The exponent
   α](chapters/02-cross-dependence/index.qmd#sec-csd-exponent)
-- [x] [Strong-dependence branch:
-  CCE](chapters/02-cross-dependence/index.qmd#sec-cce)
+- [x] [Common correlated
+  effects](chapters/02-cross-dependence/index.qmd#sec-cce)
 - [x] [Cross-sectional dependence: how much, and of what
   kind](chapters/02-cross-dependence/theory-cross-sectional-dependence.qmd)
 - [x] [Common factors and CCE: what cross-section averages are
