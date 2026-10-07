@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-06
 - **Author:** Eduard Bukin
-- **Status:** active
+- **Status:** done
 
 ## Goal
 
@@ -893,21 +893,21 @@ Already present and reused: `baltagi2021`, `croissant2019`, `millo2017`,
 
 Each step ends in its own commit.
 
-- [ ] **Tooling.** `R/poolability.R`, `R/robust-se.R` with roxygen;
+- [x] **Tooling.** `R/poolability.R`, `R/robust-se.R` with roxygen;
   `references.bib` entries above; `renv::snapshot()` if needed.
-- [ ] **Chapter page.** `index.qmd` from `.docs/_templates/chapter.qmd`.
-- [ ] **Step 1, poolability.**
-- [ ] **Step 2, slope heterogeneity.**
-- [ ] **Step 3, effects tests.**
-- [ ] **Step 4, fixed or random.**
-- [ ] **Step 5, serial correlation.**
-- [ ] **Step 6, heteroskedasticity.**
-- [ ] **Step 7, robust errors.**
-- [ ] **Step 8, summary.**
-- [ ] **Theory notes.** `theory-fixed-random.qmd`, `theory-panel-error.qmd`;
+- [x] **Chapter page.** `index.qmd` from `.docs/_templates/chapter.qmd`.
+- [x] **Step 1, poolability.**
+- [x] **Step 2, slope heterogeneity.**
+- [x] **Step 3, effects tests.**
+- [x] **Step 4, fixed or random.**
+- [x] **Step 5, serial correlation.**
+- [x] **Step 6, heteroskedasticity.**
+- [x] **Step 7, robust errors.**
+- [x] **Step 8, summary.**
+- [x] **Theory notes.** `theory-fixed-random.qmd`, `theory-panel-error.qmd`;
   both listed in `_quarto.yml` under `project: render:` and the Theory
   sidebar group.
-- [ ] **Links.** Retarget the six inbound links to the anchors in the table
+- [x] **Links.** Retarget the six inbound links to the anchors in the table
   above; drop "still to come" in the road map; tick the checklist in
   `index.qmd`.
 - [ ] **Render and check.** `quarto render` from a clean `_freeze/` for the
@@ -933,4 +933,43 @@ Decided on 2026-10-06, before the tooling step:
 
 ## Outcome
 
-Filled in when the status becomes done or superseded.
+Done on 2026-10-06, through the pipeline of plan 0008: recon, tooling,
+writer, theory, six reviewers, two fix agents. `chapters/05-core/` holds
+the chapter page, eight steps and two theory notes; the chapter renders
+from its own freeze with no R error or warning; the full-book render is
+plan 0008's closing step.
+
+- **Reproduced.** Baltagi p. 80 (Chow 27.749, 5.7805, 1.1204; Roy–Zellner
+  4.3466), Table 4.2 p. 88 (ten LM statistics to every printed digit),
+  Table 4.3 p. 89 (52.362, 1.4032, 17.403), Table 4.4 p. 96 (2.3304,
+  p 0.3119), p. 95 (2.1314), Table 5.3 p. 129 (798.16, 664.95, 28.25,
+  25.79, 10.31, 808.47), Table 7.6 p. 175 (Hausman–Taylor to four
+  decimals), Table 7.5 (Amemiya–MaCurdy); CM Ex. 4.5, 4.7, 4.8 (`h0 =
+  "fe"`), 5.1, 5.3, 5.4 (45 cells), 5.5 (36 cells), 5.9, 5.11, 5.13 (with
+  `- 1`), 8.2, 8.4; RiceFarms `piest` and `aneweytest` to CM's digits.
+- **Not reproduced, both values shown.** Baltagi p. 99 two-way Hausman
+  8.842 (Wansbeek–Kapteyn, EViews) against plm's 13.46, 8.963, 14.15, 5.42
+  by `random.method`; p. 95 robust aux F 1.58 against χ²₂ 8.30 and 3.10;
+  Table 5.3 LM(λ = 0) 143.52 against a hand LM₃ of 140.30; CM Ex. 4.8
+  `pwfdtest(h0 = "fd")` 0.93 against 1.5251, which plm NEWS 1.7-0 explains
+  (first-difference intercept restored); CM Ex. 5.14 Hausman 1100 against
+  1064.6.
+- **Findings.** The audit opened every cited page: 449 citations checked,
+  112 findings (wrong pages, uncited nulls, one wrong null statement for
+  `pwtest` and the BSY `j`/`re` legs, three equation mismatches in the
+  theory notes, Millo 2017 cited under the randomisation-test key), all
+  applied. `millo2017jss` and thirteen other entries were added for papers
+  the text had named without a key.
+- **Decisions kept.** Grunfeld and house prices through every step; the
+  heteroskedasticity diagnostic is `lmtest::bptest` on within-transformed
+  data, labelled a substitute; `piest` on `Wages` is singular, so only
+  `aneweytest` runs there and `piest` is shown failing; Pesaran–Yamagata Δ
+  is a stated limitation with "Benchmark: Stata `xthst`, deferred".
+- **Tooling.** `R/poolability.R` (`roy_zellner()`), `R/robust-se.R`
+  (`vcov_menu()`, `se_table()`); 63 bibliography entries.
+- **Wiring.** Inbound links from chapters 00 and 03 point at step anchors;
+  three from chapter 04 are retargeted in the cointegration fix; the
+  checklist is ticked.
+- **Open.** The theory notes keep the house style `## N. words` headings
+  that CLAUDE.md's "no manual numbers in a heading" rule reads against; a
+  book-wide decision, recorded in plan 0008's outcome.
