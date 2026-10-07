@@ -7,9 +7,10 @@ stationary. The residuals of the CCE regression of log price on log income do
 not wander: the two are cointegrated, and the levels regression is meaningful.
 State by state, Johansen's trace test finds a shared trend in seven states
 and none in 41, so the per-state evidence is thin at T = 29. Pedroni's panel
-test, which ignores the common shock, finds nothing, and its R implementation
-is unverified. The long-run income elasticity of house prices is 1.1 to 1.2
-once the factor is out, and 0.4 if it is not.
+test, which assumes independent states and so ignores the common shock
+[@gengenbach2006; @baltagi2021, p. 362], finds nothing, and its R
+implementation is unverified. The long-run income elasticity of house prices
+is 1.1 to 1.2 once the factor is out, and 0.4 if it is not.
 
 **Decision table.**
 
@@ -46,8 +47,9 @@ plm::pcdtest(residuals(fit), test = "cd")    #    and the factor left in them
 
 ::: {.callout-note appearance="simple"}
 **Next.** If the series wander and the residuals do not, the long-run slope
-is [estimated with CCE](index.qmd#sec-ur-long-run). The error around it,
-serial correlation included, is the subject of [core panel
-models](../05-core/index.qmd); the lagged outcome as a regressor is the
-subject of [dynamic panels](../06-dynamic/index.qmd#sec-dyn-bias).
+is [estimated with CCE](index.qmd#sec-ur-long-run). The error around it is
+the subject of core panel models, starting with its [serial correlation
+step](../05-core/index.qmd#sec-core-serial); the lagged outcome as a
+regressor is the subject of [dynamic
+panels](../06-dynamic/index.qmd#sec-dyn-bias).
 :::

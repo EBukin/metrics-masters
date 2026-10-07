@@ -26,7 +26,7 @@ one, stationary only after differencing, but have a stationary linear
 combination are **cointegrated** [@engle1987; @pesaran2015, p. 523]. The
 test is to regress, take the residual, and test it for a unit root
 [@engle1987; @pesaran2015, p. 525]. In one state over 29 years that test has
-almost no power: cointegration tests on a single series are weak at short
+almost no power: cointegration tests in a single unit are weak at short
 *T* [@baltagi2021, p. 357], for the same reason the unit-root tests of
 [the unit-root note](theory-panel-unit-roots.qmd) are.
 
@@ -58,18 +58,21 @@ left, and the test can see at most one relation [@pesaran2015,
 pp. 525–526].
 
 Johansen's test removes both limits by treating the pair as a system. Stack
-$z_{it} = (y_{it}, x_{it})'$ and write its vector autoregression in error
+$z_{it} = (y_{it}, x_{it})'$, write its vector autoregression of order $p$
+in levels with coefficient matrices $\Phi_{ij}$, and rewrite it in error
 correction form,
 
-$$\Delta z_{it} = \Pi_i z_{i,t-1}
+$$\Delta z_{it} = -\Pi_i z_{i,t-1}
   + \sum_{j=1}^{p-1} \Gamma_{ij} \Delta z_{i,t-j} + u_{it},
-  \qquad \Pi_i = \alpha_i \beta_i'.$$
+  \qquad \Pi_i = I - \sum_{j=1}^{p} \Phi_{ij},$$
 
-If $z_{it}$ is I(1), the left side and the lagged differences are
-stationary, so $\Pi_i z_{i,t-1}$ must be too, and that forces $\Pi_i$ to
-have reduced rank. The **rank** $r_i$ of $\Pi_i$ is the number of stationary
-combinations, and $\beta_i$ holds them [@johansen1988; @johansen1991;
-@pesaran2015, p. 529]. With two series, $r_i = 0$ means no shared trend,
+the form of @pesaran2015 [p. 529, eq. 22.17]. If $z_{it}$ is I(1), the left
+side and the lagged differences are stationary, so $\Pi_i z_{i,t-1}$ must
+be too, and that forces $\Pi_i$ to have reduced rank, $\Pi_i = \alpha_i
+\beta_i'$ [@pesaran2015, p. 529, eq. 22.18]. The **rank** $r_i$ of $\Pi_i$
+is the number of stationary combinations, and $\beta_i$ holds them
+[@johansen1988; @johansen1991; @pesaran2015, p. 529]. With two series,
+$r_i = 0$ means no shared trend,
 $r_i = 1$ one shared trend, and $r_i = 2$ that both series are stationary,
 which contradicts the unit-root result the chapter started from. The
 **trace statistic** for rank $r$ against rank $m$ is
@@ -141,7 +144,8 @@ p. 848].
 
 **McCoskey–Kao.** The reverse null. With unit-specific slopes, the error is
 split into a random walk and a noise term, and the null of cointegration is
-that the random walk has zero variance. The statistic is the LM form
+that the random walk has zero variance [@mccoskey1998; @baltagi2021,
+p. 359]. The statistic is the LM form
 
 $$\mathrm{LM} = \frac{1}{N} \sum_{i=1}^{N} \frac{1}{T^2}
   \sum_{t=1}^{T} \frac{S_{it}^2}{\hat\sigma_e^2},
@@ -163,7 +167,7 @@ alternative does; the **panel** family sums numerator and denominator over
 units before dividing, as a test against one common alternative does
 [@baltagi2021, p. 360; @pesaran2015, pp. 848–849]. @baltagi2021
 [pp. 360–361, eqs. 12.25–12.26] prints one of each. The group-mean $\rho$
-form is a sum of unit-by-unit Phillips–Ouliaris statistics,
+form is a sum of unit-by-unit Phillips–Ouliaris statistics [@phillips1990],
 
 $$Z_{\tilde\rho} = \sum_{i=1}^{N}
   \frac{\sum_{t}(\hat e_{i,t-1}\Delta\hat e_{it} - \hat\lambda_i)}
@@ -182,7 +186,7 @@ what the null predicts [@baltagi2021, p. 361].
 
 **Larsson–Lyhagen–Löthgren.** The system test. Run Johansen's trace test in
 each unit, centre and scale each statistic by its tabulated mean and
-variance, and average. The LR-bar statistic is IPS, the mean of
+variance, and average. The LR-bar statistic is IPS [@im2003], the mean of
 unit-by-unit statistics ([first-generation
 tests](index.qmd#sec-ur-first-gen)), applied to trace statistics instead
 of ADF *t* ratios, and it is asymptotically $N(0, 1)$ [@larsson2001;
@@ -291,8 +295,9 @@ observed series; the single-series literature shows that a residual has a
 distribution of its own, which is why Engle–Granger has its own tables
 [@pesaran2015, p. 525]. @holly2010 avoid the problem by fixing the slope at
 one before testing; the residual version does not. And CIPS tests the
-alternative that a *share* of units has a stationary residual ([what a
-rejection means](index.qmd#sec-ur-alternative)), so a rejection says that
+alternative that a *share* of units has a stationary residual [@pesaran2007]
+([what a rejection means](index.qmd#sec-ur-alternative)), so a rejection
+says that
 enough states' gaps revert, not that every state's does. What the substitute
 keeps is the one thing the estimators above lack: it allows the common shock
 that the [CD test](../02-cross-dependence/index.qmd#sec-csd-tests), the

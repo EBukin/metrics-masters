@@ -13,8 +13,9 @@ estimators the literature built for cointegrated panels, FMOLS
 [@phillips1999; @pedroni2000] and DOLS [@kao2000], correct the residual for
 serial correlation and endogeneity but keep the states independent: "The
 assumption of cross-sectional independence is maintained" [@baltagi2021,
-p. 364]. The estimators that drop independence, DSUR [@mark2005;
-@pesaran2015, p. 853] and the factor estimators of Bai and Kao, Westerlund,
+p. 364]. The estimators that drop independence, DSUR, the DOLS regression
+refitted by GLS across units [@mark2005; @pesaran2015, p. 853], and the
+factor estimators of Bai and Kao, Westerlund,
 and Bai, Kao and Ng, represent dependence "by a contemporaneous correlation
 of the errors" and rule out cross-unit cointegration [@bai2006kao;
 @westerlund2007factors; @bai2009kao; @pesaran2015, p. 854]. None is in R.
@@ -35,17 +36,21 @@ instead: [cointegration in panels](theory-cointegration.qmd).
 
 **The tests.** No new test. `plm::cipstest(type = "none")` on the residuals,
 as in the [second-generation step](index.qmd#sec-ur-second-gen), says whether
-the price–income gap wanders once the averages are inside the test. Beside
-it, `plm::pcdtest(test = "cd")` on the same residuals, the CD test of
-[testing for cross-sectional
+the price–income gap wanders once the averages are inside the test. Null:
+the gap wanders in every state. A rejection means that a share of states'
+gaps revert. Beside it, `plm::pcdtest(test = "cd")` on the same residuals,
+the CD test of [testing for cross-sectional
 dependence](../02-cross-dependence/index.qmd#sec-csd-tests), which measures
 how much the states' residuals move together, says whether the regression
-left the factor in the gap. The pair is the point: a stationary gap that
-still carries the factor is not a long-run relation between price and
-income.
+left the factor in the gap. Null: the residuals are independent across
+states. A rejection means the factor is still in the gap. The pair is the
+point: a stationary gap that still carries the factor is not a long-run
+relation between price and income.
 
-**Run it.** Three treatments of the factor. First none at all, then a state
-effect:
+**Run it.** Three treatments of the factor. First none at all, the *pooled*
+fit, one intercept for all states; then a state effect, the *within* fit,
+one intercept per state ([fixed or
+random](../05-core/index.qmd#sec-core-fe-re)):
 
 ```{r}
 #| label: c04-8-pooled
@@ -98,10 +103,14 @@ fits <- list(pooled = pooled, within = within, `two-way` = twoway,
              CCEMG = ccemg, CCEP = ccep)
 est <- sapply(fits, \(f) unname(coef(f)["log(income)"]))
 se <- sapply(fits, \(f) sqrt(vcov(f)["log(income)", "log(income)"]))
-cips_verdict <- c("CIPS does not reject", rep("CIPS rejects", 4))
-cd_z <- sapply(fits, \(f) {
-  unname(plm::pcdtest(residuals(f), test = "cd")$statistic)
+checks <- sapply(fits, \(f) {
+  r <- residuals(f)
+  c(cips_p = plm::cipstest(r, type = "none")$p.value,
+    cd_z = unname(plm::pcdtest(r, test = "cd")$statistic))
 })
+cips_verdict <- ifelse(checks["cips_p", ] < 0.05, "CIPS rejects",
+                       "CIPS does not reject")
+cd_z <- checks["cd_z", ]
 y <- 5:1
 op <- graphics::par(mar = c(4.5, 6, 1, 1))
 graphics::plot(est, y, xlim = c(0, 1.7), ylim = c(0.6, 5.6), pch = 16,
@@ -113,7 +122,8 @@ graphics::abline(v = 1, lty = 3)
 graphics::text(est, y, sprintf("%s, CD z = %.2g", cips_verdict, cd_z),
                pos = 3, cex = 0.75, offset = 0.4)
 graphics::par(op)
-round(cbind(estimate = est, se = se, cd_z = cd_z), 3)
+round(cbind(estimate = est, se = se, cips_p = checks["cips_p", ],
+            cd_z = cd_z), 3)
 ```
 
 **Read it.**
@@ -139,17 +149,17 @@ round(cbind(estimate = est, se = se, cd_z = cd_z), 3)
 **Next.** The long-run slope is in hand and the residuals are stationary but
 serially correlated: ψ = 0.82 in [serial correlation
 too](../03-spatial/index.qmd#sec-sp-serial). The error around a panel
-regression, serial correlation included, is the subject of [core panel
-models](../05-core/index.qmd). The chapter closes with the
-[summary](index.qmd#sec-ur-summary).
+regression is the subject of core panel models, starting with its [serial
+correlation step](../05-core/index.qmd#sec-core-serial). The chapter closes
+with the [summary](index.qmd#sec-ur-summary).
 :::
 
 ::: {.callout-note collapse="true"}
 ## Recipe
 
 ```r
-# d: a pdata.frame; the raw data frame goes to pcce(), which needs
-# library(plm) because it builds a call to plm()
+# d_raw: the raw data frame; pcce() needs library(plm) because it builds a
+# call to plm()
 fit <- plm::pcce(log(y) ~ log(x), data = d_raw, model = "p")  # or "mg"
 summary(fit)$CoefTable                       # slope and Pesaran (2006) SE
 plm::cipstest(residuals(fit), type = "none") # does the gap wander?
@@ -167,8 +177,10 @@ read the test this way; the step does the same and says so.
 
 **The standard error is not a cointegrating one.** `pcce` reports the
 nonparametric variance of @pesaran2006 [Th. 3], built from the spread of
-the 49 state slopes [@croissant2019, pp. 199–200], not the long-run variance
-that FMOLS and DOLS use. Report it as the CCE standard error.
+the 49 state slopes [@croissant2019, pp. 199–200], not the long-run variance,
+the variance of the residual's running sums, that FMOLS and DOLS use ([the
+precondition](theory-cointegration.qmd#sec-coint-precondition)). Report it
+as the CCE standard error.
 
 **FMOLS and DOLS "may be severely biased in small samples"**, where
 Breitung's two-step estimator does better [@breitung2005; @pesaran2015,
@@ -194,7 +206,7 @@ p = 0.01; on the `ccep` residuals −2.2, p = 0.01. The chunk is
 step](index.qmd#sec-ur-second-gen): −2.6588 and −2.2049, both below 0.01.
 Reproduced. @croissant2019 [pp. 198–199]: CCEMG 1.135 (0.195), CCEP 1.199
 (0.207). Here, in `c04-8-cce`, 1.1354 (0.1955) and 1.1994 (0.2073).
-Reproduced. @baltagi2021 [Tables 12.6 and 12.7, pp. 372–373] prints FMOLS
+Reproduced. @baltagi2021 [Tables 12.6 and 12.7, pp. 373–374] prints FMOLS
 and DOLS on the R&D panel of @kao1999rd, which no R package ships: not
 reproduced. The pooled, within and two-way slopes have no printed target:
 None.

@@ -1,4 +1,4 @@
-## Do they move together in the long run? {#sec-ur-coint}
+## Cointegration {#sec-ur-coint}
 
 **Question.** Prices wander and incomes wander. Does a state's price level
 stay tied to its income level, so that the gap between them does not wander,
@@ -29,15 +29,16 @@ adds: [cointegration in panels](theory-cointegration.qmd).
 :::
 
 **The tests.** Johansen's trace test, one state at a time [@johansen1991;
-@pfaff2008]. Null: rank 0, no shared trend, against rank at least 1; if that
-rejects, null rank at most 1 against rank 2. The `ca.jo` call of
-[shared trends across units](index.qmd#sec-ur-cross-coint) on simulated pairs
-is the same test; here it runs on real states. Pedroni's seven statistics
-[@pedroni1999]. Null: no cointegration in any state. Alternative: the gap
-closes with one common speed (the four *panel* statistics) or with a speed of
-its own in each state (the three *group* statistics) [@pedroni1999;
-@baltagi2021, p. 372]. Panel *v* rejects in the right tail, the other six in
-the left [@pedroni1999].
+@pfaff2008]. Null: rank 0, no shared trend, against the full rank 2; if that
+rejects, null rank 1 against rank 2 [@johansen1991; @pesaran2015, p. 541].
+The `ca.jo` call of [shared trends across
+units](index.qmd#sec-ur-cross-coint) on simulated pairs is the same test;
+here it runs on real states. Pedroni's seven statistics [@pedroni1999].
+Null: no cointegration in any state [@pedroni1999; @baltagi2021, p. 360].
+Alternative: the gap closes with one common speed (the four *panel*
+statistics) or with a speed of its own in each state (the three *group*
+statistics) [@pedroni1999; @baltagi2021, p. 372]. Panel *v* rejects in the
+right tail, the other six in the left [@pedroni1999].
 
 Four tests from the same literature have no R implementation and are stated
 limitations. Kao's pooled Dickey–Fuller and ADF tests fix one slope for all
@@ -71,9 +72,10 @@ cbind(trace = z_tx@teststat, z_tx@cval)
 ```
 
 California rejects rank 0 (24.43 against 17.95) and not rank 1 (1.52 against
-8.18): one shared trend. Texas does not reject rank 0 (3.38). The other 47
-states go through `johansen_by_unit()` (in `R/cointegration.R`), which makes
-the same call once per state and reads the two rows at 5%:
+8.18): one shared trend. Texas does not reject rank 0 (3.38). All 49 states
+go through `johansen_by_unit()` (in `R/cointegration.R`), which makes the
+same call once per state and reads the two rows at 5%; the last line is the
+mean of the rank-0 statistic over the states:
 
 ```{r}
 #| label: c04-7-by-state
@@ -81,16 +83,26 @@ jo <- johansen_by_unit(php, c("price", "income"), log = TRUE, ecdet = "none",
                        K = 2, label = "names")
 table(rank = jo$rank)
 jo[jo$rank >= 1, c("label", "trace_r0", "trace_r1", "rank", "slope")]
+mean(jo$trace_r0)
 ```
 
 The Engle–Granger route, state by state: regress log price on log income in
 each state, then a Dickey–Fuller regression with two lags on the residual.
+California in the open first, with no constant and no trend in the test
+regression, since the residual has mean zero by construction:
+
+```{r}
+#| label: c04-7-one-state-eg
+u_ca <- residuals(lm(log(price) ~ log(income), data = ca))
+urca::ur.df(u_ca, type = "none", lags = 2)@teststat
+```
+
 The 49 state regressions are the mean-group fit of the [CCE
-step](../02-cross-dependence/index.qmd#sec-cce), and `adf_by_unit()` returns
-the 49 *t* statistics. Run it once on those residuals and once on the
-residuals of the CCEMG fit of the [second-generation
-step](index.qmd#sec-ur-second-gen), where the cross-state averages have taken
-the national factor out:
+step](../02-cross-dependence/index.qmd#sec-cce), and `adf_by_unit()` makes
+the same `ur.df` call once per state and returns the 49 *t* statistics. Run
+it once on those residuals and once on the residuals of the CCEMG fit of the
+[second-generation step](index.qmd#sec-ur-second-gen), where the cross-state
+averages have taken the national factor out:
 
 ```{r}
 #| label: c04-7-eg
@@ -101,18 +113,19 @@ c(mean_ols = mean(t_ols), mean_cce = mean(t_cce))
 c(below_ols = sum(t_ols < -3.37), below_cce = sum(t_cce < -3.37))
 ```
 
-The line −3.37 is the 5% value Engle and Granger tabulated for the
-Dickey–Fuller test on the residual of a two-variable regression
-[@engle1987]; with two lags it is a reference line, not an exact critical
-value. Pedroni's group statistics are built from these per-state residual
-statistics, and CIPS on residuals averages them after augmentation.
+California's −4.42 is below the line −3.37, the 5% value Engle and Granger
+tabulated for the Dickey–Fuller test on the residual of a two-variable
+regression [@engle1987]; with two lags it is a reference line, not an exact
+critical value. Pedroni's group statistics are built from these per-state
+residual statistics, and CIPS on residuals averages them after augmentation.
 
 Pedroni's test is in **pco** 1.0.1, archived on CRAN. Before its numbers on
 house prices can be read (they are in the Pitfalls), the implementation has
 to hold its size. 200 panels of 49 independent pairs over 29 years, random
 walks with no shared trend, then 200 where `y = 1 + x + 0.5 e` in every
-state; a 5% one-sided rule on the standardised values, right tail for panel
-*v*, left tail for the rest:
+state; a 5% one-sided rule on the standardised values, each statistic
+centred and scaled by Pedroni's tabulated moments so that it is N(0, 1)
+under the null, right tail for panel *v*, left tail for the rest:
 
 ```{r}
 #| label: c04-7-pco-size
@@ -218,7 +231,8 @@ pco::pedroni99(Y, X, type.stat = 2)$STATISTIC # five of seven usable,
 ## Pitfalls
 
 **Pedroni on house prices, unverified.** `type.stat = 2` puts an intercept in
-each state's regression; the Newey–West lag is the default
+each state's regression; the Newey–West lag, the number of autocovariances
+that enter the long-run variance estimate of each residual, is the default
 `round(4 * (29/100)^(2/9))` = 3 and the ADF lag 2:
 
 ```{r}
@@ -253,11 +267,25 @@ the other five do not move. Never report those two.
 
 **The standardised values are not N(0, 1) at this shape.** The simulation
 in the step: size 0 in 200 draws for five statistics and 1.00 for panel ADF;
-power 1.00 for six. The moments `pco` applies (for panel PP with an
-intercept, mean −2.177 and variance 0.964) differ from the one pair the
-anchor text prints for that model, $Z_{\hat t} + 1.73\sqrt{N} \to
-N(0, 0.93)$ [@baltagi2021, p. 361]. Pedroni's Table 2 [@pedroni1999] is not
-in `lit/`, so the moments are unchecked.
+power 1.00 for six. The moments `pco` applies are hard-coded in the body of
+`pedroni99` as two matrices, `statsm` and `statsv`, one column per
+deterministic case; the `intercept` column is the one `type.stat = 2` uses:
+
+```{r}
+#| label: c04-7-pco-moments
+src <- deparse(pco::pedroni99)
+pco_env <- new.env()
+eval(parse(text = src[grep("statsm <- cbind", src):grep("colnames(statsv)",
+                                                        src, fixed = TRUE)]),
+     pco_env)
+cbind(mean = pco_env$statsm[, "intercept"],
+      variance = pco_env$statsv[, "intercept"])
+```
+
+For panel PP with an intercept (`tpanel`), mean −2.177 and variance 0.964,
+against the one pair the anchor text prints for that model, $Z_{\hat t} +
+1.73\sqrt{N} \to N(0, 0.93)$ [@baltagi2021, p. 361]. Pedroni's Table 2
+[@pedroni1999] is not in `lit/`, so the moments are unchecked.
 
 **`pedroni99m` fails with one regressor.** It drops the regressor sheets of
 the array to a matrix when there is one of them:
@@ -277,18 +305,34 @@ rate T rather than √N T" [@gengenbach2006; @baltagi2021, p. 362]. The cure
 Gengenbach, Palm and Urbain propose, defactor first and test the residuals,
 is the [next step](index.qmd#sec-ur-long-run).
 
-**Cross-unit cointegration oversizes every panel cointegration test**
-[@banerjee2004; @baltagi2021, p. 362]; the trap is shown in [shared trends
-across units](index.qmd#sec-ur-cross-coint).
+**Cross-unit cointegration can substantially oversize single-equation and
+system panel cointegration tests** [@banerjee2004; @baltagi2021, p. 362]; the
+trap is shown in [shared trends across units](index.qmd#sec-ur-cross-coint).
 
-**The deterministic term decides the count.** With `ecdet = "const"` the
-ranks are 29 / 16 / 4, with `"trend"` 36 / 13 / 0, and with `K = 3` under
-`"none"` 46 / 3 / 0. The role of the constant and the trend in the long-run
-relation is in @johansen1994.
+**The deterministic term decides the count.** The same loop with a constant
+in the long-run relation, with a trend in it, and with one more lag:
+
+```{r}
+#| label: c04-7-ecdet
+jo_const <- johansen_by_unit(php, c("price", "income"), log = TRUE,
+                             ecdet = "const", K = 2)
+table(rank = jo_const$rank)
+jo_trend <- johansen_by_unit(php, c("price", "income"), log = TRUE,
+                             ecdet = "trend", K = 2)
+table(rank = jo_trend$rank)
+jo_k3 <- johansen_by_unit(php, c("price", "income"), log = TRUE,
+                          ecdet = "none", K = 3)
+table(rank = jo_k3$rank)
+```
+
+With `ecdet = "const"` the ranks are 29 / 16 / 4, with `"trend"` 36 / 13 / 0,
+and with `K = 3` under `"none"` 46 / 3 / 0. The role of the constant and the
+trend in the long-run relation is in @johansen1994.
 
 **T = 29 is below the range where these tests have power.** Wagner and
-Hlouskova find all but two of Pedroni's ADF-type tests "severely undersized",
-and power "dismal for T ≤ 25" [@wagner2010; @baltagi2021, p. 363].
+Hlouskova find that Pedroni's two ADF-type tests perform best and that every
+other single-equation test is "severely undersized", with power "dismal for
+T ≤ 25" [@wagner2010; @baltagi2021, p. 363].
 
 **Reading `ca.jo`.** `summary()` on its result prints `Length Class Mode`
 unless **urca** is attached; read `@teststat`, `@cval` and `@V` instead.
@@ -307,12 +351,13 @@ deferred.
 ::: {.callout-tip collapse="true"}
 ## Book check
 
-**Johansen.** `?ca.jo` runs the Danish money-demand example of Johansen and
-Juselius [@johansen1990] (`ecdet = "const"`, `K = 2`, quarterly dummies) and
-is written to reproduce their eigenvalues 0.4332, 0.1776, 0.1128, 0.0434 and
-their maximal-eigenvalue statistics 30.09, 10.36, 6.34, 2.35; the help page
-itself prints no numbers, and the paper is not in `lit/`, so the page is not
-checkable:
+**Johansen.** The Examples section of `?ca.jo` runs the Danish money-demand
+data of Johansen and Juselius [@johansen1990] (`ecdet = "const"`, `K = 2`,
+quarterly dummies) and prints `summary()` of the fit; the help page itself
+claims no numbers. The target numbers are the paper's: eigenvalues 0.4332,
+0.1776, 0.1128, 0.0434 and maximal-eigenvalue statistics 30.09, 10.36, 6.34,
+2.35. The paper is not in `lit/`, so its table is neither named nor checked
+here:
 
 ```{r}
 #| label: c04-7-check-denmark
@@ -324,7 +369,8 @@ round(z_dk@lambda[1:4], 4)
 round(rev(z_dk@teststat), 2)
 ```
 
-Four of four eigenvalues and four of four statistics match. **Pedroni.**
+Four of four eigenvalues and four of four statistics match the paper's
+values. **Pedroni.**
 `?pedroni99` runs the test on OECD investment and saving shares, `gdi` and
 `gds` (25 countries, 1973–2013), the panel of the Feldstein–Horioka
 regression [@feldstein1980], and prints no output; the target is "runs":

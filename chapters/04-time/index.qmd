@@ -11,8 +11,10 @@ the next does not wander, and that change is I(0). Two wandering series can
 look related when they are not, so this question comes before any estimate.
 The second half of the chapter asks whether two wandering series share one
 trend, **cointegration**, and how to estimate that long-run link. Serial
-correlation is in [core panel models](../05-core/index.qmd), and the lagged
-outcome as a regressor is in [dynamic panels](../06-dynamic/index.qmd).
+correlation is in the [serial correlation
+step](../05-core/index.qmd#sec-core-serial) of core panel models, and the
+lagged outcome as a regressor is in [dynamic
+panels](../06-dynamic/index.qmd).
 
 **The running example.** House prices in 49 US states over 29 years,
 `HousePricesUS` [@holly2010] in **pder** [@croissant2019]. The earlier chapter
@@ -32,7 +34,7 @@ flowchart TD
   G2 --> R
   R -->|"yes"| W["Which series?<br/>Hanck / Simes"]
   R -->|"no"| I1["Treat as I(1)"]
-  I1 --> C{"Do they share a trend?<br/>rank by unit, panel test"}
+  I1 --> C{"Do they share a trend?<br/>each state, then the panel"}
   C -->|"yes"| LR["Estimate the long run<br/>with the factor removed"]
   C -->|"no"| D["Difference, or model<br/>the short run"]
   W --> L["Check the traps:<br/>panel shape, spatial shocks,<br/>shared trends"]
