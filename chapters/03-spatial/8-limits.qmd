@@ -20,8 +20,9 @@ does not survive is the fixed-effects standard error. The part of the
 error that is $\eta_i x_{it}$ is heteroskedastic and, with the spatial
 shocks, correlated across units; the conventional formula assumes neither.
 The mean-group standard error, the dispersion of the N slopes, is built
-for the first problem. Driscoll–Kraay standard errors, met in the [core
-chapter](../05-core/index.qmd), are built for the second, but only as T
+for the first problem. Driscoll–Kraay standard errors, met in the core
+chapter ([robust errors](../05-core/index.qmd#sec-core-robust-se)), are
+built for the second, but only as T
 grows: with T small, "the problem of consistent nonparametric covariance
 matrix estimation is much less tractable" [@baltagi2021, p. 394].
 
@@ -156,8 +157,9 @@ sum(abs(coef(dyn)[c("lambda", "lp_t_lag")]))
 **Read it.** The time lag and the spatial lag together stay inside the
 stability bound, which is the one check that can be made. The coefficient
 on the lagged outcome is biased downward by about $(1 + \gamma) / T$
-[@baltagi2021, p. 188], the Nickell bias that the [time
-chapter](../04-time/index.qmd) will take up, and the spatial lag inherits
+[@baltagi2021, p. 188], the Nickell bias that the [dynamic
+chapter](../06-dynamic/index.qmd#sec-dyn-bias) takes up, and the spatial
+lag inherits
 the regime problem above with no correction available. *So:* write "a
 dynamic spatial specification was not estimated; no R implementation with
 a verified target exists", and give the stability check as the only

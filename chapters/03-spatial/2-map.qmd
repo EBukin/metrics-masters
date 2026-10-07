@@ -165,8 +165,8 @@ graphics::abline(v = local_cd(usaw49), lwd = 3)
 **Next.** The dependence follows the map: decide which of the two
 equations it belongs in ([lag or error](index.qmd#sec-sp-lag-or-error)).
 It does not: a spatial model buys nothing here; report standard errors
-robust to whatever dependence is left ([core
-chapter](../05-core/index.qmd)).
+robust to whatever dependence is left ([robust
+errors](../05-core/index.qmd#sec-core-robust-se)).
 :::
 
 ::: {.callout-note collapse="true"}

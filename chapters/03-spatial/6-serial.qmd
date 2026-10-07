@@ -5,8 +5,9 @@ farm effect and the village shock are allowed for? And does a state's?
 
 **Intuition.** Three things can sit in one error: a unit effect, a shock
 shared with the neighbours, and a shock that lingers from last period, the
-**serial correlation** that the [time chapter](../04-time/index.qmd) takes
-up on its own. @baltagi2007serial show that testing for any one of the
+**serial correlation** that the core chapter tests on its own ([serial
+correlation](../05-core/index.qmd#sec-core-serial)). @baltagi2007serial
+show that testing for any one of the
 three while ignoring the other two "leads to misleading results", and give
 a joint test and three conditional ones, each for one symptom allowing
 the other two. The encompassing model then estimates all three at once,
@@ -128,8 +129,8 @@ graphics::abline(h = 0, lty = 2)
   and almost every state's innovations correlate above 0.5 with last
   year's. *So:* the static two-stage model is incomplete in time. A state's
   shock is four fifths still there a year later, which is what @holly2010
-  model with lagged prices, and what the [time
-  chapter](../04-time/index.qmd) takes up for this panel.
+  model with lagged prices, and what the [dynamic
+  chapter](../06-dynamic/index.qmd#sec-dyn-bias) takes up.
 - **Misleads (the joint test).** J = 320 on rice. *So:* it rejects
   whenever any of the three is present and says nothing about which; read
   it last, if at all.
@@ -137,8 +138,10 @@ graphics::abline(h = 0, lty = 2)
 ::: {.callout-note appearance="simple"}
 **Next.** Read the spatial lag fits as effects on the map rather than as
 coefficients ([direct and indirect effects](index.qmd#sec-sp-impacts)).
-Serial correlation of this size in house prices sends the panel to
-[time dependence](../04-time/index.qmd) before any slope is reported.
+Serial correlation of this size in house prices sends the panel to the
+[serial correlation tests](../05-core/index.qmd#sec-core-serial) and then to
+[dynamic panels](../06-dynamic/index.qmd#sec-dyn-bias) before any slope is
+reported.
 :::
 
 ::: {.callout-note collapse="true"}
@@ -166,7 +169,8 @@ them from running on every render.
 
 **ψ is a nuisance parameter here, not a model.** A serial correlation of
 0.8 in the errors is a sign of omitted dynamics, not a feature to keep.
-The [time chapter](../04-time/index.qmd) owns that question.
+The [dynamic chapter](../06-dynamic/index.qmd#sec-dyn-bias) owns that
+question.
 :::
 
 ::: {.callout-tip collapse="true"}

@@ -60,8 +60,12 @@ sar_impacts(coef(sar)[["lambda"]], coef(sar)[-1], w)      # 7. effects
 ```
 
 **Next.** The [time chapter](../04-time/index.qmd) asks whether the
-series wander and, for house prices, what to do with a serial correlation
-of 0.82. The [core chapter](../05-core/index.qmd) owns the
-heteroskedasticity test that decides between the ML and GM fits here, and
-the robust standard errors that replace a spatial model when the shuffled
-maps find nothing.
+series wander. The core chapter owns the heteroskedasticity check that
+decides between the ML and GM fits here
+([heteroskedasticity](../05-core/index.qmd#sec-core-hetero)), the tests
+for a serial correlation of 0.82
+([serial correlation](../05-core/index.qmd#sec-core-serial)), and the
+robust standard errors that replace a spatial model when the shuffled maps
+find nothing ([robust errors](../05-core/index.qmd#sec-core-robust-se)).
+The [dynamic chapter](../06-dynamic/index.qmd#sec-dyn-bias) says what to
+do when last year's price belongs on the right-hand side.

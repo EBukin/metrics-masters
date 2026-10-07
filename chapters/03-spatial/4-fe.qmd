@@ -300,7 +300,8 @@ possible [@croissant2019, sec. 10.3.3.3]. With one regressor its
 
 **Heteroskedastic errors.** Spatial maximum likelihood is inconsistent
 under heteroskedasticity of unknown form [@lin2010; @pesaran2015, p. 807].
-Test for it in the [core chapter](../05-core/index.qmd) and, if it is
+Test for it as the core chapter does
+([heteroskedasticity](../05-core/index.qmd#sec-core-hetero)) and, if it is
 there, keep the GM fit.
 
 **A spatial Durbin model.** $WX$ terms are added through `splm::slag()`

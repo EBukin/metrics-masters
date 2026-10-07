@@ -81,9 +81,10 @@ Here $w_{ij}$ is the weight of state *j* in state *i*'s row of W, ρ is the
 lag parameter and λ the error parameter. This book keeps that naming
 throughout; the software does not, and the chapter says so where it bites.
 The two claims are different claims about the world, not two fits of one
-curve: under a spatial error, the fixed-effects estimator of the [core
-chapter](../05-core/index.qmd) stays consistent and loses precision; under a
-spatial lag it is biased [@pesaran2015, p. 801].
+curve: under a spatial error, the fixed-effects estimator of the core
+chapter ([fixed or random](../05-core/index.qmd#sec-core-fe-re)) stays
+consistent and loses precision; under a spatial lag it is biased
+[@pesaran2015, p. 801].
 
 **In this chapter.**
 

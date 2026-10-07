@@ -79,9 +79,9 @@ flowchart TD
   CF --> UR
   SM --> UR
   UR -->|"wander"| CO["Cointegration,<br/>or difference"]
-  UR -->|"do not wander"| SC["Serial correlation,<br/>dynamic panels"]
-  CO --> CORE["Core panel models:<br/>FE, RE, pooling"]
-  SC --> CORE
+  UR -->|"do not wander"| CORE["Core panel models:<br/>FE, RE, pooling,<br/>serial correlation"]
+  CO --> CORE
+  CORE -->|"last year's outcome<br/>on the right"| DYN["Dynamic panels:<br/>GMM"]
 ```
 
 **The chapters.**
@@ -116,8 +116,22 @@ flowchart TD
    fraction of series that reject the null needs its own test
    ([fraction](../04-time/index.qmd#sec-ur-fraction)), past a set of traps
    ([traps](../04-time/index.qmd#sec-ur-traps),
-   [summary](../04-time/index.qmd#sec-ur-summary)). Cointegration, serial
-   correlation and dynamic panels are still to come.
-5. **Core panel models.** Fixed and random effects, pooling, and the tests
-   between them close the process; still to come
-   ([core panel models](../05-core/index.qmd)).
+   [summary](../04-time/index.qmd#sec-ur-summary)). When two series wander
+   together, the question is whether they share a long run
+   ([cointegration](../04-time/index.qmd#sec-ur-coint),
+   [the long run](../04-time/index.qmd#sec-ur-long-run)).
+5. **Core panel models.** Can one regression serve every unit
+   ([poolability](../05-core/index.qmd#sec-core-pool)), is there a unit
+   effect at all ([effects tests](../05-core/index.qmd#sec-core-effects)),
+   should it be fixed or random
+   ([fixed or random](../05-core/index.qmd#sec-core-fe-re)), does the error
+   remember last year ([serial
+   correlation](../05-core/index.qmd#sec-core-serial)), and which standard
+   errors survive the dependence found earlier
+   ([robust errors](../05-core/index.qmd#sec-core-robust-se)).
+6. **Dynamic panels.** With last year's outcome among the regressors, fixed
+   effects is biased ([the bias](../06-dynamic/index.qmd#sec-dyn-bias));
+   instruments built from earlier lags repair it
+   ([difference and system GMM](../06-dynamic/index.qmd#sec-dyn-gmm)), and
+   the diagnostics say whether they did
+   ([diagnostics](../06-dynamic/index.qmd#sec-dyn-diagnostics)).
