@@ -194,12 +194,12 @@ Each step ends in its own commit.
 - [x] **Core: wire in.** `_quarto.yml`, checklist, inbound links from 00,
   02, 03 and 04 retargeted to step anchors; chapter rendered; plan 0009
   closed.
-- [ ] **Dynamic: recon.** Chapter plan 0010.
-- [ ] **Dynamic: tooling.**
-- [ ] **Dynamic: steps.**
-- [ ] **Dynamic: theory.**
-- [ ] **Dynamic: review and fix.**
-- [ ] **Dynamic: wire in.** New chapter in `project: render:` and
+- [x] **Dynamic: recon.** Chapter plan 0010.
+- [x] **Dynamic: tooling.**
+- [x] **Dynamic: steps.**
+- [x] **Dynamic: theory.**
+- [x] **Dynamic: review and fix.**
+- [x] **Dynamic: wire in.** New chapter in `project: render:` and
   `book: chapters:`; checklist; road map; plan 0010 closed.
 - [ ] **Cointegration: recon.** Chapter plan 0011.
 - [ ] **Cointegration: tooling.**

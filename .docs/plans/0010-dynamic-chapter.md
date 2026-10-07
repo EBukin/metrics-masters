@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-06
 - **Author:** Eduard Bukin
-- **Status:** active
+- **Status:** done
 
 ## Goal
 
@@ -684,23 +684,23 @@ page before the entry is committed, per rule 4 of plan 0008.
 
 Each step ends in its own commit.
 
-- [ ] **Tooling.** Bibliography entries above checked and added; the two
+- [x] **Tooling.** Bibliography entries above checked and added; the two
   helpers in `R/simulate-panels.R` with roxygen and `devtools::document()`;
   `renv::snapshot()` for `pdynmc`.
-- [ ] **Chapter page.** `chapters/06-dynamic/index.qmd` with the opener,
+- [x] **Chapter page.** `chapters/06-dynamic/index.qmd` with the opener,
   definition, picture, equation, glosses, numbered points, setup chunk,
   includes; the theory note as a placeholder so links resolve.
-- [ ] **Step 1, the bias.** `1-problem.qmd`, chunks `c06-1-*`.
-- [ ] **Step 2, Anderson–Hsiao.** `2-anderson-hsiao.qmd`, chunks `c06-2-*`.
-- [ ] **Step 3, GMM.** `3-gmm.qmd`, chunks `c06-3-*`.
-- [ ] **Step 4, diagnostics.** `4-diagnostics.qmd`, chunks `c06-4-*`.
-- [ ] **Step 5, summary.** `5-summary.qmd`, chunk `c06-5-table`.
-- [ ] **Theory note.** `theory-dynamic-gmm.qmd` written in full.
-- [ ] **Review and fix.** Citations against PDF pages; every number in
+- [x] **Step 1, the bias.** `1-problem.qmd`, chunks `c06-1-*`.
+- [x] **Step 2, Anderson–Hsiao.** `2-anderson-hsiao.qmd`, chunks `c06-2-*`.
+- [x] **Step 3, GMM.** `3-gmm.qmd`, chunks `c06-3-*`.
+- [x] **Step 4, diagnostics.** `4-diagnostics.qmd`, chunks `c06-4-*`.
+- [x] **Step 5, summary.** `5-summary.qmd`, chunk `c06-5-table`.
+- [x] **Theory note.** `theory-dynamic-gmm.qmd` written in full.
+- [x] **Review and fix.** Citations against PDF pages; every number in
   prose against chunk output; links; the "paper prints" wording settled
   once the AB and Windmeijer papers are on disk or `tests/*.Rout.save` is
   read.
-- [ ] **Wire in.** `_quarto.yml` (`project: render:`, `book: chapters:`,
+- [x] **Wire in.** `_quarto.yml` (`project: render:`, `book: chapters:`,
   the theory note under "Theory"); the checklist in `index.qmd` with a
   "Dynamic panels" group; the road map's chapter list gains item 6 and its
   "still to come" sentence and chapter 04's intro sentence retarget to
@@ -726,4 +726,38 @@ Decided on 2026-10-06, before the tooling step:
 
 ## Outcome
 
-Filled in when the status becomes done or superseded.
+Done on 2026-10-06, through the pipeline of plan 0008: recon, tooling,
+writer, theory, four reviewers, one fix agent (in two runs). The new
+`chapters/06-dynamic/` holds the chapter page, five steps and the theory
+note; it is listed in `_quarto.yml` and ticked in the checklist; the
+chapter renders from its own freeze with no R error or warning.
+
+- **Reproduced.** The `?pgmm` annotations for Arellano & Bond (1991)
+  Table 4(b): 0.474151 (0.085303), −0.052967, −0.513205, 0.224640,
+  0.292723, 0.609775, −0.446373; Sargan 30.112 (25) p 0.2201; m1 −2.4278,
+  m2 −0.3325. The `?mtest` annotations for Windmeijer (2005) Table 2:
+  robust SEs 0.185398 … 0.217302, one-step m1 −2.4934 (p 0.013) and m2
+  −0.3594 (p 0.719). System GMM 0.935605 (0.026295), Sargan 118.76 (100).
+  Every CM chapter 7 example on `DemocracyIncome` (7.2 to 7.10) to the
+  printed digits; CM p. 165 Nickell bias −0.167 at T = 10 against the
+  leading term −0.1667, the full formula −0.162 and 200 draws −0.163.
+  `pdynmc` two-step equals `pgmm` to four decimals; its Ahn–Schmidt
+  nonlinear fit (2.7 min) gives 0.665 (0.200), J 40.35 (29) p 0.078.
+- **Not reproduced, both values shown.** AB Table 4(a2) m2 −0.434 against
+  −0.4158 (`mtest` uses one-step residuals); CM's limited and collapsed
+  instrument p-values 0.071 and 0.215, which CM run on `DemocracyIncome`
+  rather than the 25-country panel.
+- **Findings.** 287 citations checked against the pages; 44 findings
+  (one equation mismatch on the level-instrument covariance of Pesaran
+  p. 682, one $a_\ell$ factor, ten terms used before their gloss, five
+  numbers no chunk printed), all applied; `keane1992` and `alvarez2003`
+  added to the bibliography.
+- **Decisions kept.** Five steps; the `pdynmc` chunk runs under the
+  freeze; Arellano & Bond, Windmeijer and Nickell are cited without a page
+  and the Book checks name the help-page annotations as the authority.
+- **Not on disk.** Arellano & Bond (1991), Windmeijer (2005), Nickell
+  (1981); adding the PDFs to `lit/` would let a later audit open their
+  tables.
+- **Tooling.** `sim_dynamic_panel()` and `nickell_bias()` in
+  `R/simulate-panels.R`; `pdynmc` installed, to be recorded in `renv.lock`
+  at plan 0008's close; 26 bibliography entries.
