@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-06
 - **Author:** Eduard Bukin
-- **Status:** active
+- **Status:** done
 
 ## Goal
 
@@ -208,7 +208,7 @@ Each step ends in its own commit.
 - [x] **Cointegration: review and fix.**
 - [x] **Cointegration: wire in.** Chapter 04 intro, map and summary;
   checklist; plan 0011 closed.
-- [ ] **Close.** Full render from a clean `_freeze/`, dead-link crawl, the
+- [x] **Close.** Full render from a clean `_freeze/`, dead-link crawl, the
   road map's "still to come" wording gone, outcome written here.
 
 ## Open questions
@@ -223,4 +223,46 @@ Each step ends in its own commit.
 
 ## Outcome
 
-Filled in when the status becomes done or superseded.
+Done on 2026-10-06. Every element of `.docs/panel-spat-PLAN.md` now has a
+home in the book: Stage 2 as two steps and a theory note in chapter 04,
+Stages 3 and 4a as chapter 05, Stage 4b as chapter 06. The book renders
+from a clean `_freeze/` in 21 pages with no R error, no warning and no
+unresolved citation; a crawl of `_book/` checked 4 697 links and found no
+dead file or anchor. The outline note records the split; `_quarto.yml`
+lists the new chapter and four theory notes; the checklist is ticked; the
+road map's "still to come" wording is gone and its diagram and points name
+the new steps. The chapter outcomes are in plans 0009, 0010 and 0011.
+
+- **The pipeline.** Each chapter went through fresh agents with bounded
+  briefs: a recon agent (every spec call run, the chapter plan drafted), a
+  tooling agent (bibliography through CrossRef, helpers in `R/`), a writer,
+  a theory agent, then three to six reviewers (one literature auditor per
+  file group, opening every cited page, and one style and numbers
+  reviewer), and a fix agent. Thirty-four agents in all; five were cut off
+  once by a session rate limit and resumed from the working tree.
+- **Literature.** 861 citations were checked against the page they cite;
+  185 findings were applied (wrong or unverifiable pages, uncited nulls
+  and rate conditions, six equation mismatches, papers named without a
+  key). The bibliography grew from 77 to 200 entries, every new one
+  resolved through CrossRef. Not on disk, cited without a page: Arellano &
+  Bond (1991), Windmeijer (2005), Nickell (1981), Pedroni (1999), Pfaff
+  (2008), Johansen & Juselius (1990).
+- **Verification.** Every published number the spec names for these
+  stages is either reproduced to the printed digit or shown beside the
+  value obtained, with the cause where known (the Wansbeek–Kapteyn two-way
+  Hausman, the first-difference intercept in plm 1.7-0, `mtest` on
+  one-step residuals). The `pco` package's Pedroni statistics are shown to
+  have size 0 or 1 by simulation and are kept out of the step body.
+- **Deferred, as instructed.** Stata benchmarks for Pesaran–Yamagata Δ
+  (`xthst`), Kao and Pedroni (`xtcointtest`), Breitung (`xtunitroot`) and
+  the dynamic spatial panel (`xsmle`); each is a stated limitation with a
+  "Benchmark: Stata `...`, deferred" line. A later plan hand-codes the
+  statistics and matches them.
+- **Open.** The theory notes use `## N. words` headings, the house style
+  of the eight earlier notes, which reads against CLAUDE.md's rule on
+  manual numbers in headings; strip the numbers across all notes in one
+  pass, or amend the rule. Clicking through the pane links by hand in a
+  browser was not done.
+- **Tooling.** `R/poolability.R`, `R/robust-se.R`, `R/cointegration.R`,
+  `sim_dynamic_panel()` and `nickell_bias()` in `R/simulate-panels.R`;
+  `pdynmc` 0.9.13 and `pco` 1.0.1 recorded in `renv.lock`.
