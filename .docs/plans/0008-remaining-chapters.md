@@ -186,12 +186,12 @@ Each step ends in its own commit.
 - [x] **Render check.** Clear `_freeze/` and `_book/`, render the whole
   book, read the log, snapshot renv. Closes plan 0007's open item. Done
   2026-10-06: 16 pages, exit 0, no R error and no warning in the log.
-- [ ] **Core: recon.** Chapter plan 0009 drafted, every call run.
-- [ ] **Core: tooling.** Bibliography, helpers, snapshot.
-- [ ] **Core: steps.** `index.qmd` and seven steps.
-- [ ] **Core: theory.** Two notes.
-- [ ] **Core: review and fix.** Findings list, fixes.
-- [ ] **Core: wire in.** `_quarto.yml`, checklist, inbound links from 00,
+- [x] **Core: recon.** Chapter plan 0009 drafted, every call run.
+- [x] **Core: tooling.** Bibliography, helpers, snapshot.
+- [x] **Core: steps.** `index.qmd` and seven steps.
+- [x] **Core: theory.** Two notes.
+- [x] **Core: review and fix.** Findings list, fixes.
+- [x] **Core: wire in.** `_quarto.yml`, checklist, inbound links from 00,
   02, 03 and 04 retargeted to step anchors; chapter rendered; plan 0009
   closed.
 - [ ] **Dynamic: recon.** Chapter plan 0010.
