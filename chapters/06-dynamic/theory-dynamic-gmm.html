@@ -1,0 +1,1999 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Appendix L — Dynamic panel GMM – Metrics Masters</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../chapters/05-core/theory-panel-error.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-46d51a135cee5df7f1a795d1c268b47f.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0694db8cd81d3598e41fbab1c9882dee.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-46d51a135cee5df7f1a795d1c268b47f.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-58d0b2ac4bab12110c46fd8e476cf6ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-2e6f9e4e64c7f0c1b63e7faead9c081c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-58d0b2ac4bab12110c46fd8e476cf6ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script>
+// A page loaded inside the right-hand pane shows its content only.
+// Runs in <head> so the page never paints its sidebar first. The pane
+// opens pages with ?tp-pane=1; the page then names its window "tp-pane",
+// so links followed inside the pane keep the mode. Any other frame (an
+// editor preview, say) gets the full layout.
+(function () {
+  if (/[?&]tp-pane=1\b/.test(location.search)) window.name = "tp-pane";
+  if (window.name === "tp-pane") {
+    document.documentElement.classList.add("tp-in-pane");
+    // ?tp-only=<id>: show only that element (a footnote, an index entry).
+    var only = /[?&]tp-only=([^&#]+)/.exec(location.search);
+    if (only) {
+      document.documentElement.classList.add("tp-only");
+      document.documentElement.setAttribute("data-tp-only",
+        decodeURIComponent(only[1]));
+    }
+  }
+})();
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const queryPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeDefault = queryPrefersDark.matches;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    queryPrefersDark.addEventListener("change", e => {
+      if(window.localStorage.getItem("quarto-color-scheme") !== null)
+        return;
+      const alternate = e.matches
+      toggleColorMode(alternate);
+      localAlternateSentinel = e.matches ? 'alternate' : 'default'; // this is used alongside local storage!
+      toggleGiscusIfUsed(alternate, darkModeDefault);
+    });
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html">Theory</a></li><li class="breadcrumb-item"><a href="../../chapters/06-dynamic/theory-dynamic-gmm.html"><span class="chapter-number">L</span>&nbsp; <span class="chapter-title">Dynamic panel GMM</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Metrics Masters</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Set-up</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/00-road-map/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Road map</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/01-explore/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Explore the panel</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Dependence</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Cross-sectional dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Spatial dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Time dependence</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Core panel models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/06-dynamic/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Dynamic panels</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Cross-sectional dependence: how much, and of what kind</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/theory-common-factors-cce.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Common factors and CCE: what cross-section averages are doing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-weights.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Spatial weights</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-dependence-tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Testing for spatial dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-model-choice.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Spatial model choice</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Fitting spatial panels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-direct-indirect-effects.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">G</span>&nbsp; <span class="chapter-title">Direct and indirect effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/theory-panel-unit-roots.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">H</span>&nbsp; <span class="chapter-title">Panel unit roots: what a rejection is worth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/theory-cointegration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">I</span>&nbsp; <span class="chapter-title">Cointegration in panels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/theory-fixed-random.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">J</span>&nbsp; <span class="chapter-title">Fixed and random effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/theory-panel-error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">K</span>&nbsp; <span class="chapter-title">The error of a panel regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/06-dynamic/theory-dynamic-gmm.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">L</span>&nbsp; <span class="chapter-title">Dynamic panel GMM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="1">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#why-the-within-estimator-breaks" id="toc-why-the-within-estimator-breaks" class="nav-link active" data-scroll-target="#why-the-within-estimator-breaks"><span class="header-section-number">L.1</span> Why the within estimator breaks</a></li>
+  <li><a href="#the-minimum-math" id="toc-the-minimum-math" class="nav-link" data-scroll-target="#the-minimum-math"><span class="header-section-number">L.2</span> The minimum math</a>
+  <ul class="collapse">
+  <li><a href="#difference-then-instrument" id="toc-difference-then-instrument" class="nav-link" data-scroll-target="#difference-then-instrument">Difference, then instrument</a></li>
+  <li><a href="#every-lag-is-an-instrument" id="toc-every-lag-is-an-instrument" class="nav-link" data-scroll-target="#every-lag-is-an-instrument">Every lag is an instrument</a></li>
+  <li><a href="#the-system-and-its-price" id="toc-the-system-and-its-price" class="nav-link" data-scroll-target="#the-system-and-its-price">The system and its price</a></li>
+  </ul></li>
+  <li><a href="#reading-the-diagnostics" id="toc-reading-the-diagnostics" class="nav-link" data-scroll-target="#reading-the-diagnostics"><span class="header-section-number">L.3</span> Reading the diagnostics</a></li>
+  <li><a href="#four-notations" id="toc-four-notations" class="nav-link" data-scroll-target="#four-notations"><span class="header-section-number">L.4</span> Four notations</a></li>
+  <li><a href="#if-then" id="toc-if-then" class="nav-link" data-scroll-target="#if-then"><span class="header-section-number">L.5</span> If / then</a></li>
+  <li><a href="#next" id="toc-next" class="nav-link" data-scroll-target="#next"><span class="header-section-number">L.6</span> Next</a></li>
+  <li><a href="#open" id="toc-open" class="nav-link" data-scroll-target="#open"><span class="header-section-number">L.7</span> Open</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html">Theory</a></li><li class="breadcrumb-item"><a href="../../chapters/06-dynamic/theory-dynamic-gmm.html"><span class="chapter-number">L</span>&nbsp; <span class="chapter-title">Dynamic panel GMM</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Appendix L — Dynamic panel GMM</h1>
+<p class="subtitle lead">Why a lagged outcome breaks fixed effects and how instruments fix it</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>Code:</strong> <a href="../../chapters/06-dynamic/index.html#sec-dyn-bias">the bias</a>, <a href="../../chapters/06-dynamic/index.html#sec-dyn-ah">difference and instrument</a>, <a href="../../chapters/06-dynamic/index.html#sec-dyn-gmm">difference and system GMM</a> and <a href="../../chapters/06-dynamic/index.html#sec-dyn-diagnostics">diagnostics</a>.</p>
+</blockquote>
+<section id="why-the-within-estimator-breaks" class="level2" data-number="L.1">
+<h2 data-number="L.1" class="anchored" data-anchor-id="why-the-within-estimator-breaks"><span class="header-section-number">L.1</span> Why the within estimator breaks</h2>
+<p>A firm does not jump to the workforce it wants. Hiring takes months and firing costs money, so this year’s employment is last year’s employment moved part of the way toward a target set by wages, capital and demand. Put last year’s outcome on the right-hand side and the panel regression is <strong>dynamic</strong>:</p>
+<p><span class="math display">\[
+y_{it} = \gamma\, y_{i,t-1} + x_{it}'\beta + \alpha_i + \varepsilon_{it},
+\qquad i = 1, \dots, N;\ t = 2, \dots, T,
+\]</span></p>
+<p>with <span class="math inline">\(\alpha_i\)</span> the firm effect and <span class="math inline">\(\varepsilon_{it}\)</span> an innovation that is serially uncorrelated and uncorrelated with <span class="math inline">\(\alpha_i\)</span> <span class="citation" data-cites="baltagi2021 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021</a>, eqs. 8.1–8.2; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, sec. 7.1</a>)</span>. The coefficient γ is the <strong>persistence</strong> of the outcome: how much of last year survives into this year. The 140 UK firms of <span class="citation" data-cites="arellano1991">Arellano and Bond (<a href="../../references.html#ref-arellano1991" role="doc-biblioref">1991</a>)</span>, observed 1976–1984, are the panel on which every method in this note was first run, and the benchmark data set of Stata and EViews <span class="citation" data-cites="baltagi2021 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 193</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 183</a>)</span>.</p>
+<p>Two things go wrong at once. The effect <span class="math inline">\(\alpha_i\)</span> is in every period’s <span class="math inline">\(y\)</span>, so it is in <span class="math inline">\(y_{i,t-1}\)</span> too: the lagged outcome is correlated with the error, and pooled OLS is biased upward, by an amount that vanishes only when <span class="math inline">\(\sigma^2_\alpha\)</span> does <span class="citation" data-cites="baltagi2021 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 187</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 163–64</a>)</span>. The obvious cure is the within transformation of the <a href="../../chapters/05-core/index.html#sec-core-fe-re">core chapter</a>, which subtracts each firm’s mean and so removes <span class="math inline">\(\alpha_i\)</span>. It trades one correlation for another. The demeaned lag <span class="math inline">\(y_{i,t-1} - \bar y_{i,-1}\)</span> contains every period’s <span class="math inline">\(y\)</span> and hence every period’s <span class="math inline">\(\varepsilon\)</span>; the demeaned error <span class="math inline">\(\varepsilon_{it} - \bar\varepsilon_i\)</span> contains every period’s <span class="math inline">\(\varepsilon\)</span> as well, among them the <span class="math inline">\(\varepsilon_{i,t-1}\)</span> that sits inside <span class="math inline">\(y_{i,t-1}\)</span>. The two share a term in every period, and the sum of those shared terms is the <strong>Nickell bias</strong>: of order <span class="math inline">\(1/T\)</span>, so it does not shrink as more firms are added, only as more years are <span class="citation" data-cites="nickell1981 baltagi2021 croissant2019">(<a href="../../references.html#ref-nickell1981" role="doc-biblioref">Nickell 1981</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 188</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 165</a>)</span>. It is a bias of demeaning, not of the fixed-effects assumption: random-effects GLS quasi-demeans and is biased the same way <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 678</a>)</span>.</p>
+<p>The size of it is known exactly. For the pure autoregression with no regressors, <span class="citation" data-cites="pesaran2015">Pesaran (<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">2015</a>, eqs. 27.7–27.11)</span> takes the large-<span class="math inline">\(N\)</span> limit of the within estimator from the moments of the demeaned lag. In the form <span class="citation" data-cites="croissant2019">Croissant and Millo (<a href="../../references.html#ref-croissant2019" role="doc-biblioref">2019, 165</a>)</span> print, with <span class="math inline">\(T\)</span> the number of periods in the regression once one lag is taken and <span class="math inline">\(A = 1 - (1 - \gamma^{T}) / \{T(1 - \gamma)\}\)</span>,</p>
+<p><span class="math display">\[
+\operatorname*{plim}_{N \to \infty}\,(\hat\gamma_{FE} - \gamma)
+= -\,\frac{1 + \gamma}{T - 1}\;
+  \frac{A}{1 - \dfrac{2\gamma A}{(1 - \gamma)(T - 1)}} .
+\]</span></p>
+<p>Compactly, the limit is <span class="math inline">\(-(1 + \gamma)/T + O(T^{-2})\)</span>: negative for <span class="math inline">\(\gamma \geq 0\)</span>, equal to <span class="math inline">\(-1/T\)</span> at <span class="math inline">\(\gamma = 0\)</span>, and large when <span class="math inline">\(T\)</span> is in the 3 to 8 range typical of household and firm panels <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 679–80</a>)</span>. At <span class="math inline">\(\gamma = 0.5\)</span> and <span class="math inline">\(T = 10\)</span>, which CM call “a fairly long time span”, the bias is <span class="math inline">\(-0.167\)</span>: a third of the coefficient <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 165</a>)</span>. Longer panels do not make it safe. In the Monte Carlo of <span class="citation" data-cites="judson1999">Judson and Owen (<a href="../../references.html#ref-judson1999" role="doc-biblioref">1999</a>)</span>, with <span class="math inline">\(N = 20\)</span> or <span class="math inline">\(100\)</span> and <span class="math inline">\(T\)</span> up to 30, the bias grows with γ, falls with <span class="math inline">\(T\)</span>, and even at <span class="math inline">\(T = 30\)</span> can still be 20 % of the true value <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 188</a>)</span>. The within estimator is consistent only as <span class="math inline">\(T \to \infty\)</span> <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 188</a>)</span>.</p>
+<p>Two numbers bracket the truth. OLS is biased up, within is biased down, so any consistent estimator should land between them <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 168</a>)</span>. The bias step draws exactly that picture. Three ways out exist: correct the within estimator for its known bias <span class="citation" data-cites="kiviet1995 baltagi2021">(<a href="../../references.html#ref-kiviet1995" role="doc-biblioref">Kiviet 1995</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 188</a>)</span>, write a likelihood that handles the initial observation <span class="citation" data-cites="hsiao2002 pesaran2015">(<a href="../../references.html#ref-hsiao2002" role="doc-biblioref">Hsiao et al. 2002</a>; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, sec. 27.6</a>)</span>, or remove <span class="math inline">\(\alpha_i\)</span> by a transformation that leaves a usable instrument behind. This note is about the third.</p>
+</section>
+<section id="the-minimum-math" class="level2" data-number="L.2">
+<h2 data-number="L.2" class="anchored" data-anchor-id="the-minimum-math"><span class="header-section-number">L.2</span> The minimum math</h2>
+<section id="difference-then-instrument" class="level3">
+<h3 class="anchored" data-anchor-id="difference-then-instrument">Difference, then instrument</h3>
+<p>First differences remove the effect without averaging over time,</p>
+<p><span class="math display">\[
+\Delta y_{it} = \gamma\, \Delta y_{i,t-1} + \Delta x_{it}'\beta
+  + \Delta\varepsilon_{it}, \qquad t = 3, \dots, T,
+\]</span></p>
+<p>and with it every time-invariant regressor <span class="citation" data-cites="baltagi2021 pesaran2015">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021</a>, eq. 8.4 and p.&nbsp;192; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015</a>, eq. 27.19)</span>. The lag is still endogenous: <span class="math inline">\(\Delta y_{i,t-1}\)</span> contains <span class="math inline">\(\varepsilon_{i,t-1}\)</span> and <span class="math inline">\(\Delta\varepsilon_{it} = \varepsilon_{it} - \varepsilon_{i,t-1}\)</span> contains it with a minus sign, so <span class="math inline">\(E[\Delta y_{i,t-1}\Delta\varepsilon_{it}] = -\sigma^2_\varepsilon\)</span> and OLS on the differenced equation is inconsistent <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 682</a>)</span>. The differenced error is also a first-order moving average: its variance is <span class="math inline">\(2\sigma^2_\varepsilon\)</span>, its first autocovariance <span class="math inline">\(-\sigma^2_\varepsilon\)</span>, and all higher ones zero <span class="citation" data-cites="pesaran2015 croissant2019">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 682</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 166</a>)</span>.</p>
+<p>An <strong>instrument</strong> is a variable correlated with the regressor that causes trouble and uncorrelated with the error. <span class="citation" data-cites="anderson1982">Anderson and Hsiao (<a href="../../references.html#ref-anderson1982" role="doc-biblioref">1982</a>)</span> saw that <span class="math inline">\(y_{i,t-2}\)</span> is one: it is correlated with <span class="math inline">\(\Delta y_{i,t-1}\)</span>, and it is uncorrelated with <span class="math inline">\(\Delta\varepsilon_{it}\)</span> as long as the innovations themselves are serially uncorrelated. The difference <span class="math inline">\(\Delta y_{i,t-2}\)</span> qualifies on the same argument <span class="citation" data-cites="baltagi2021 pesaran2015">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 188</a>; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 682</a>)</span>. Between the two, <span class="citation" data-cites="arellano1989">Arellano (<a href="../../references.html#ref-arellano1989" role="doc-biblioref">1989</a>)</span> found that the estimator on the differenced instrument has a singularity point and very large variances over a significant range of parameter values, while the one on the level has no singularity and much smaller variances, and is the one to use <span class="citation" data-cites="baltagi2021 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 188</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 167</a>)</span>. The within transformation cannot take the place of differencing here: its error <span class="math inline">\(\varepsilon_{it} - \bar\varepsilon_i\)</span> contains every realisation of <span class="math inline">\(\varepsilon\)</span>, so no lag of <span class="math inline">\(y\)</span> is uncorrelated with it <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 166</a>)</span>. (Orthogonal deviations, each observation minus the mean of those after it, are the other transformation that works, and lose one observation per gap instead of two <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 166–67</a>)</span>.)</p>
+<p>The instrument is not strong. With no regressors, <span class="math inline">\(T = 3\)</span>, and the innovations uncorrelated with <span class="math inline">\(\alpha_i\)</span> and with <span class="math inline">\(y_{i0}\)</span>, the level instrument has</p>
+<p><span class="math display">\[
+E[y_{i,t-2}\,\Delta y_{i,t-1}]
+  = -\sigma^2_\varepsilon\,(1 - \gamma)\,
+    \frac{1 - \gamma^{2(t-1)}}{1 - \gamma^2},
+\]</span></p>
+<p>non-zero for <span class="math inline">\(|\gamma| &lt; 1\)</span> but shrinking toward zero as γ approaches one, and the approach breaks down at <span class="math inline">\(\gamma = 1\)</span> <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 682</a>)</span>. Anderson–Hsiao is consistent but not efficient, for two reasons: it uses one instrument where several are valid, and it ignores the moving-average structure of the differenced error <span class="citation" data-cites="baltagi2021 pesaran2015 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 188</a>; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 682</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 168</a>)</span>.</p>
+</section>
+<section id="every-lag-is-an-instrument" class="level3">
+<h3 class="anchored" data-anchor-id="every-lag-is-an-instrument">Every lag is an instrument</h3>
+<p><span class="citation" data-cites="arellano1991">Arellano and Bond (<a href="../../references.html#ref-arellano1991" role="doc-biblioref">1991</a>)</span> fixed both. In the first usable period, <span class="math inline">\(t = 3\)</span>, the equation <span class="math inline">\(\Delta y_{i3} = \gamma \Delta y_{i2} + \Delta\varepsilon_{i3}\)</span> has one valid instrument, <span class="math inline">\(y_{i1}\)</span>. At <span class="math inline">\(t = 4\)</span> both <span class="math inline">\(y_{i1}\)</span> and <span class="math inline">\(y_{i2}\)</span> are uncorrelated with <span class="math inline">\(\Delta\varepsilon_{i4}\)</span>; one more instrument arrives with each period, until at <span class="math inline">\(t = T\)</span> the set is <span class="math inline">\(y_{i1}, \dots, y_{i,T-2}\)</span> <span class="citation" data-cites="baltagi2021 pesaran2015 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 189–90</a>; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 683</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 168</a>)</span>. Stacked, the instruments of one firm form the block-diagonal matrix</p>
+<p><span class="math display">\[
+W_i = \begin{pmatrix}
+  [y_{i1}] &amp; &amp; &amp; 0 \\
+  &amp; [y_{i1}, y_{i2}] &amp; &amp; \\
+  &amp; &amp; \ddots &amp; \\
+  0 &amp; &amp; &amp; [y_{i1}, \dots, y_{i,T-2}]
+\end{pmatrix},
+\]</span></p>
+<p>one row per differenced period, and the claim that each block is uncorrelated with its period’s error is the set of <strong>moment conditions</strong> <span class="math inline">\(E(W_i'\Delta\varepsilon_i) = 0\)</span> <span class="citation" data-cites="baltagi2021 pesaran2015 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021</a>, eq. 8.6; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015</a>, eqs. 27.27–27.28; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019</a>, eq. 7.4)</span>. <span class="citation" data-cites="holtzeakin1988">Holtz-Eakin et al. (<a href="../../references.html#ref-holtzeakin1988" role="doc-biblioref">1988</a>)</span> and <span class="citation" data-cites="ahn1995">Ahn and Schmidt (<a href="../../references.html#ref-ahn1995" role="doc-biblioref">1995</a>)</span> stated the same conditions <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 190</a>)</span>. Their number is <span class="math inline">\(\tfrac12(T-1)(T-2)\)</span> for <span class="math inline">\(T\)</span> periods: 36 at <span class="math inline">\(T = 10\)</span>, and it grows with the square of <span class="math inline">\(T\)</span> <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 172</a>)</span>.</p>
+<p>The <strong>generalised method of moments</strong> (GMM) turns the conditions into an estimator. Replace the expectation by the sample mean <span class="math inline">\(m(\theta) = N^{-1}\sum_i W_i'\Delta\varepsilon_i(\theta)\)</span>, and since there are more conditions than parameters, choose θ to make <span class="math inline">\(m(\theta)'\,A\,m(\theta)\)</span> as small as possible for a weighting matrix <span class="math inline">\(A\)</span> <span class="citation" data-cites="hansen1982 croissant2019">(<a href="../../references.html#ref-hansen1982" role="doc-biblioref">Hansen 1982</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019</a>, eqs. 7.5–7.7)</span>. The efficient weight is the inverse of the covariance of the moments <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 169</a>)</span>. If the innovations are homoskedastic and serially uncorrelated, that covariance is known up to scale, because the differenced error of a firm has <span class="math inline">\(E(\Delta\varepsilon_i\Delta\varepsilon_i') = \sigma^2_\varepsilon G\)</span> with <span class="math inline">\(G\)</span> the <span class="math inline">\((T-2) \times (T-2)\)</span> band matrix of 2 on the diagonal and <span class="math inline">\(-1\)</span> beside it <span class="citation" data-cites="baltagi2021 pesaran2015 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021</a>, eq. 8.5; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015</a>, eq. 27.33; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019</a>, eq. 7.8)</span>. Using <span class="math inline">\(A = (\sum_i W_i' G W_i)^{-1}\)</span> gives the <strong>one-step</strong> estimator,</p>
+<p><span class="math display">\[
+\hat\gamma_1 = \big[\Delta y_{-1}' W (W'(I_N \otimes G)W)^{-1}
+  W' \Delta y_{-1}\big]^{-1}
+  \big[\Delta y_{-1}' W (W'(I_N \otimes G)W)^{-1} W' \Delta y\big],
+\]</span></p>
+<p><span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021</a>, eq. 8.8)</span>. The <strong>two-step</strong> estimator replaces the assumed covariance by one built from the one-step residuals, <span class="math inline">\(V_N = \sum_i W_i'\,\Delta\hat\varepsilon_i\Delta\hat\varepsilon_i'\,W_i\)</span>,</p>
+<p><span class="math display">\[
+\hat\gamma_2 = \big[\Delta y_{-1}' W V_N^{-1} W' \Delta y_{-1}\big]^{-1}
+  \big[\Delta y_{-1}' W V_N^{-1} W' \Delta y\big],
+\qquad
+\widehat{\operatorname{var}}(\hat\gamma_2)
+  = \big[\Delta y_{-1}' W V_N^{-1} W' \Delta y_{-1}\big]^{-1},
+\]</span></p>
+<p>which is the optimal GMM estimator of <span class="citation" data-cites="hansen1982">Hansen (<a href="../../references.html#ref-hansen1982" role="doc-biblioref">1982</a>)</span> for <span class="math inline">\(N \to \infty\)</span> at fixed <span class="math inline">\(T\)</span>, needs no assumption about the initial observations or the distributions of <span class="math inline">\(\alpha_i\)</span> and <span class="math inline">\(\varepsilon_{it}\)</span>, and is robust to heteroskedasticity and serial correlation in the weight <span class="citation" data-cites="baltagi2021 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021</a>, eqs. 8.9–8.10 and pp.&nbsp;190–191; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 171</a>)</span>. The two steps are asymptotically equivalent when the innovations are IID <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 191</a>)</span>. Regressors join on the same logic: a strictly exogenous <span class="math inline">\(x_{it}\)</span> instruments itself, a predetermined one contributes its lags <span class="math inline">\(x_{i1}, \dots, x_{i,t-1}\)</span> as further columns of <span class="math inline">\(W_i\)</span> <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 683–85</a>)</span>. This is <strong>difference GMM</strong>.</p>
+</section>
+<section id="the-system-and-its-price" class="level3">
+<h3 class="anchored" data-anchor-id="the-system-and-its-price">The system and its price</h3>
+<p>Difference GMM inherits the weakness of its instruments. Take the autoregression with <span class="math inline">\(T = 3\)</span>, where the single moment condition <span class="math inline">\(E(y_{i1}\Delta\varepsilon_{i3}) = 0\)</span> just identifies γ and GMM is plain two-stage least squares. The first stage regresses <span class="math inline">\(\Delta y_{i2}\)</span> on <span class="math inline">\(y_{i1}\)</span>, and the model says <span class="math inline">\(\Delta y_{i2} = (\gamma - 1)\,y_{i1} + \alpha_i + \varepsilon_{i2}\)</span>, so with <span class="math inline">\(c = (1 - \gamma)/(1 + \gamma)\)</span> the first-stage coefficient has</p>
+<p><span class="math display">\[
+\operatorname{plim}\,\hat\pi = (\gamma - 1)\,
+  \frac{c}{c + \sigma^2_\alpha / \sigma^2_\varepsilon} ,
+\]</span></p>
+<p>which is pulled toward zero as γ approaches one or as the effect variance grows relative to the innovation variance; the first-stage <span class="math inline">\(F\)</span> converges to a non-central <span class="math inline">\(\chi^2_1\)</span> whose non-centrality goes to zero as <span class="math inline">\(\gamma \to 1\)</span> <span class="citation" data-cites="blundell1998 baltagi2021 croissant2019">(<a href="../../references.html#ref-blundell1998" role="doc-biblioref">Blundell and Bond 1998</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021</a>, eqs. 8.33–8.35; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019</a>, eq. 7.19)</span>. The series is nearly a unit root, the random walk of the <a href="../../chapters/04-time/index.html#sec-ur-why">time chapter</a>, and lagged levels then say almost nothing about current changes. The estimator is biased and imprecise, and <span class="citation" data-cites="blundell1998">Blundell and Bond (<a href="../../references.html#ref-blundell1998" role="doc-biblioref">1998</a>)</span> named the cause: <strong>weak instruments</strong> <span class="citation" data-cites="baltagi2021 pesaran2015">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 201</a>; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 685</a>)</span>.</p>
+<p><span class="citation" data-cites="arellano1995">Arellano and Bover (<a href="../../references.html#ref-arellano1995" role="doc-biblioref">1995</a>)</span> and <span class="citation" data-cites="blundell1998">Blundell and Bond (<a href="../../references.html#ref-blundell1998" role="doc-biblioref">1998</a>)</span> add a second equation. Keep the model in levels, <span class="math inline">\(y_{it} = \gamma y_{i,t-1} + \alpha_i + \varepsilon_{it}\)</span>, and instrument <span class="math inline">\(y_{i,t-1}\)</span> with the lagged difference <span class="math inline">\(\Delta y_{i,t-1}\)</span>, which carries no <span class="math inline">\(\alpha_i\)</span>. The moment conditions</p>
+<p><span class="math display">\[
+E\big[\Delta y_{i,t-1}\,(\alpha_i + \varepsilon_{it})\big] = 0,
+\qquad t = 3, \dots, T,
+\]</span></p>
+<p>are <span class="math inline">\(T - 2\)</span> in number and not redundant given the difference conditions <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 202</a>)</span>; the longer lags <span class="math inline">\(\Delta y_{i,t-s}\)</span>, <span class="math inline">\(s \geq 2\)</span>, would add nothing, since each is a combination of conditions already used <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 175–76</a>)</span>. Stacking the two sets of equations and the two sets of instruments gives <strong>system GMM</strong>, which also estimates an intercept <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 177</a>)</span>. Its price is an assumption about where each firm started. The levels conditions hold if</p>
+<p><span class="math display">\[
+E\Big[\Big(y_{i1} - \frac{\alpha_i}{1 - \gamma}\Big)\alpha_i\Big] = 0 :
+\]</span></p>
+<p>the deviation of the first observation from the firm’s long-run mean is uncorrelated with the effect, so that from the second period on each series converges toward its own mean <span class="citation" data-cites="baltagi2021 pesaran2015">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021</a>, eq. 8.36; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015</a>, eqs. 27.37–27.38)</span>. <span class="citation" data-cites="croissant2019">Croissant and Millo (<a href="../../references.html#ref-croissant2019" role="doc-biblioref">2019, 176</a>)</span> show that this <strong>initial-condition restriction</strong> either holds in every period or in none, and read it pragmatically: the deviation decays at rate γ, so a process that started long ago is near its steady state and the condition is close enough. Its validity is what the whole estimator rests on <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 689</a>)</span>, which is why the Sargan test of the next section is best run on the levels conditions alone as well as on the full set <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 180</a>)</span>.</p>
+<p>What the extra equation buys is large when the instruments of the difference equation are weak. For <span class="math inline">\(T = 4\)</span> and <span class="math inline">\(\sigma^2_\alpha / \sigma^2_\varepsilon = 1\)</span>, the asymptotic variance of difference GMM divided by that of system GMM is 1.75 at <span class="math inline">\(\gamma = 0\)</span>, 3.26 at <span class="math inline">\(\gamma = 0.5\)</span> and 55.4 at <span class="math inline">\(\gamma = 0.9\)</span> <span class="citation" data-cites="blundell1998 baltagi2021">(<a href="../../references.html#ref-blundell1998" role="doc-biblioref">Blundell and Bond 1998</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 202</a>)</span>; the Monte Carlo of <span class="citation" data-cites="blundell2000ifs">Blundell et al. (<a href="../../references.html#ref-blundell2000ifs" role="doc-biblioref">2000</a>)</span> finds the same in finite samples, especially in the weak-instrument case <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 689</a>)</span>. On a production function for 509 US firms, difference GMM gave a low capital coefficient with low precision and system GMM a reasonable one that did not reject constant returns <span class="citation" data-cites="blundell2000 baltagi2021">(<a href="../../references.html#ref-blundell2000" role="doc-biblioref">Blundell and Bond 2000</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 202</a>)</span>. Two cautions. <span class="citation" data-cites="bun2010">Bun and Windmeijer (<a href="../../references.html#ref-bun2010" role="doc-biblioref">2010</a>)</span> show that system GMM keeps a weak-instrument problem of its own: its bias and root mean squared error are smaller than difference GMM’s when the series is persistent, but both grow with <span class="math inline">\(\sigma^2_\alpha / \sigma^2_\varepsilon\)</span> and can become substantial, and its Wald test, already size-distorted for both estimators with persistent data, deteriorates further as that ratio rises <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 202</a>)</span>. And the weakness itself depends on the initial condition: <span class="citation" data-cites="hayakawa2009">Hayakawa (<a href="../../references.html#ref-hayakawa2009" role="doc-biblioref">2009</a>)</span> shows that when the initial condition leaves the series’ mean non-stationary and the effect variance is much larger than the innovation variance, difference GMM has no weak-instrument problem at all <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 202</a>)</span>.</p>
+</section>
+</section>
+<section id="reading-the-diagnostics" class="level2" data-number="L.3">
+<h2 data-number="L.3" class="anchored" data-anchor-id="reading-the-diagnostics"><span class="header-section-number">L.3</span> Reading the diagnostics</h2>
+<p><strong>Overidentification.</strong> With more moment conditions than parameters, the conditions GMM did not need to fit can be checked. The statistic of <span class="citation" data-cites="sargan1958">Sargan (<a href="../../references.html#ref-sargan1958" role="doc-biblioref">1958</a>)</span>, applied to GMM by <span class="citation" data-cites="hansen1982">Hansen (<a href="../../references.html#ref-hansen1982" role="doc-biblioref">1982</a>)</span>, is the minimised objective of the two-step estimator,</p>
+<p><span class="math display">\[
+S = \Delta\hat\varepsilon' W \Big(\sum_i W_i'
+  \Delta\hat\varepsilon_i\Delta\hat\varepsilon_i' W_i\Big)^{-1}
+  W' \Delta\hat\varepsilon \;\sim\; \chi^2_{J - K},
+\]</span></p>
+<p>with <span class="math inline">\(J\)</span> the number of instrument columns and <span class="math inline">\(K\)</span> the number of coefficients, under the null that every moment condition holds <span class="citation" data-cites="baltagi2021 pesaran2015 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 191</a>; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 691</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 180</a>)</span>. A rejection says at least one instrument is correlated with the error. A non-rejection says less than it seems. <span class="citation" data-cites="bowsher2002">Bowsher (<a href="../../references.html#ref-bowsher2002" role="doc-biblioref">2002</a>)</span> fixed <span class="math inline">\(N = 100\)</span> and let <span class="math inline">\(T\)</span> run from 5 to 15 with the full Arellano–Bond instrument set. At <span class="math inline">\(T = 5\)</span> the test behaves: size 0.052 at the 5 % level, power 0.742. At <span class="math inline">\(T = 15\)</span> the <span class="math inline">\(\chi^2_{90}\)</span> statistic has Monte Carlo mean 91.3, close to its theoretical 90, but Monte Carlo variance 13.7 against a theoretical 180, and the rejection rate is zero under the null and under the alternative alike. The cause is a poorly estimated weighting matrix, not weak instruments <span class="citation" data-cites="baltagi2021 pesaran2015">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 192</a>; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 691</a>)</span>. In applied work the symptom is a <span class="math inline">\(p\)</span>-value near one: <span class="citation" data-cites="roodman2009note">Roodman (<a href="../../references.html#ref-roodman2009note" role="doc-biblioref">2009a</a>)</span> re-ran two published growth regressions, and in one of them the test’s <span class="math inline">\(p\)</span>-value of 0.97 fell to 0.001 once the instrument set was cut <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 180–83</a>)</span>.</p>
+<p><strong>Serial correlation.</strong> Everything above assumed the innovations are serially uncorrelated, the property tested on static residuals in the <a href="../../chapters/05-core/index.html#sec-core-serial">core chapter</a>. Here it is the condition that makes <span class="math inline">\(y_{i,t-2}\)</span> a valid instrument: consistency rests on <span class="math inline">\(E[\Delta\varepsilon_{it}\Delta\varepsilon_{i,t-2}] = 0\)</span> <span class="citation" data-cites="baltagi2021 pesaran2015">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 192</a>; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 685</a>)</span>. <span class="citation" data-cites="arellano1991">Arellano and Bond (<a href="../../references.html#ref-arellano1991" role="doc-biblioref">1991</a>)</span> test it on the differenced residuals with the statistic</p>
+<p><span class="math display">\[
+m_l = \frac{a_l}{\sqrt{\hat b_l}}, \qquad
+a_l = \frac{1}{\sqrt N}\,\Delta\hat\varepsilon'\,\Delta\hat\varepsilon_{-l},
+\]</span></p>
+<p>where <span class="math inline">\(\Delta\hat\varepsilon_{-l}\)</span> is the residual lagged <span class="math inline">\(l\)</span> periods and <span class="math inline">\(\hat b_l\)</span> a variance that accounts for the estimated coefficients; <span class="math inline">\(m_l\)</span> is standard normal under no serial correlation of order <span class="math inline">\(l\)</span> <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 181–82</a>)</span>. The two orders read differently. Order one must reject, because <span class="math inline">\(\Delta\varepsilon_{it}\)</span> and <span class="math inline">\(\Delta\varepsilon_{i,t-1}\)</span> share <span class="math inline">\(\varepsilon_{i,t-1}\)</span> by construction. Order two must not: <span class="math inline">\(\Delta\varepsilon_{it}\)</span> and <span class="math inline">\(\Delta\varepsilon_{i,t-2}\)</span> are correlated only if <span class="math inline">\(\varepsilon_{i,t-1}\)</span> and <span class="math inline">\(\varepsilon_{i,t-2}\)</span> are, that is, if the innovations in levels are serially correlated of order one, and then the instruments dated <span class="math inline">\(t - 2\)</span> fail <span class="citation" data-cites="baltagi2021 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 192</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 182</a>)</span>. The null of <span class="math inline">\(m_2\)</span> is also true if the innovations follow a random walk, in which case OLS on the differenced model is consistent as well and <span class="citation" data-cites="arellano1991">Arellano and Bond (<a href="../../references.html#ref-arellano1991" role="doc-biblioref">1991</a>)</span> give a Hausman-type test, a comparison of the two estimates, to tell the cases apart <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 192</a>)</span>.</p>
+<p><strong>Two-step standard errors.</strong> The first Monte Carlo on the estimator, 100 replications with <span class="math inline">\(N = 100\)</span> and <span class="math inline">\(T = 7\)</span>, found GMM nearly unbiased and much more precise than Anderson–Hsiao, and its two-step standard errors too small <span class="citation" data-cites="arellano1991 baltagi2021">(<a href="../../references.html#ref-arellano1991" role="doc-biblioref">Arellano and Bond 1991</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 193</a>)</span>. <span class="citation" data-cites="windmeijer2005">Windmeijer (<a href="../../references.html#ref-windmeijer2005" role="doc-biblioref">2005</a>)</span> traced the shortfall to the weighting matrix: <span class="math inline">\(V_N\)</span> is built from one-step residuals, so the two-step estimator is a nonlinear function of the data through them, and the usual formula ignores that. A first-order expansion of the estimator in the estimated weight gives the <strong>Windmeijer correction</strong>, which adds to the conventional two-step covariance <span class="math inline">\(V_2\)</span> the terms <span class="math inline">\(V_2 D' + D V_2 + D V_1 D'\)</span>, with <span class="math inline">\(D\)</span> the gradient of the estimator with respect to the weight and <span class="math inline">\(V_1\)</span> the one-step covariance <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019</a>, eqs. 7.27–7.29)</span>. The correction is accurate when all the moment conditions are linear, as they are here; without it, Wald tests on two-step estimates are oversized <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 193</a>)</span>. The imprecision is structural: the moment covariance has <span class="math inline">\(J(J+1)/2\)</span> free elements, each a fourth-order moment of the data, estimated from <span class="math inline">\(N\)</span> firms <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 178</a>)</span>. <span class="citation" data-cites="bond2001">Bond et al. (<a href="../../references.html#ref-bond2001" role="doc-biblioref">2001</a>)</span> go one step further and test hypotheses by the difference of two Sargan statistics instead of a Wald statistic, with better size in their Monte Carlo <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 193</a>)</span>.</p>
+<p><strong>Too many instruments.</strong> The count <span class="math inline">\(\tfrac12(T-1)(T-2)\)</span> is only for the lags of <span class="math inline">\(y\)</span>; with <span class="math inline">\(T = 10\)</span> and five strictly exogenous regressors it reaches 500 <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 194</a>)</span>. <span class="citation" data-cites="ziliak1997">Ziliak (<a href="../../references.html#ref-ziliak1997" role="doc-biblioref">1997</a>)</span> asked whether the bias–efficiency trade-off known from time series survives in panels with hundreds of units, and found that it does: on 532 men over ten years, the GMM estimate of the intertemporal substitution elasticity of labour supply moved from 0.519 to 0.093 as the moment conditions went from 9 to 212, while its standard error fell from 0.36 to 0.07. He attributed the downward bias to the correlation between the sample moments and the estimated weighting matrix, and recommended a sub-optimal instrument set over the full one <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 194</a>)</span>. The mechanism is overfitting: the more instruments, the closer the first-stage fit, until with as many instruments as observations the instrumental-variables estimator is OLS <span class="citation" data-cites="croissant2019 roodman2009">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 172</a>; <a href="../../references.html#ref-roodman2009" role="doc-biblioref">Roodman 2009b</a>)</span>. Two cuts are standard. Limit the lag depth, which at <span class="math inline">\(T = 10\)</span> and three lags gives 21 instruments instead of 36 <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 172–73</a>)</span>. Or <strong>collapse</strong> the matrix, keeping one column per lag distance instead of one per lag and period, so that the <span class="math inline">\(T - 2\)</span> moments <span class="math inline">\(\sum_t y_{i,t-2}\Delta\varepsilon_{it}\)</span>, <span class="math inline">\(\sum_t y_{i,t-3}\Delta\varepsilon_{it}, \dots\)</span> replace the full block diagonal <span class="citation" data-cites="roodman2009note croissant2019 baltagi2021">(<a href="../../references.html#ref-roodman2009note" role="doc-biblioref">Roodman 2009a</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019</a>, eq. 7.18; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 194</a>)</span>. A result that holds across lag depths and under collapsing is the result; one that moves with the instrument count, as Ziliak’s did, is not. Large <span class="math inline">\(T\)</span> brings its own version of the problem: as <span class="math inline">\(T \to \infty\)</span> the estimator stays asymptotically normal but carries a bias of order <span class="math inline">\(1/N\)</span> unless <span class="math inline">\(T/N \to 0\)</span> <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 685</a>)</span>.</p>
+</section>
+<section id="four-notations" class="level2" data-number="L.4">
+<h2 data-number="L.4" class="anchored" data-anchor-id="four-notations"><span class="header-section-number">L.4</span> Four notations</h2>
+<p>The three anchor texts and this book each write the model differently, and the lag coefficient changes letter with each:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Where</th>
+<th>Lag coefficient</th>
+<th>Effect and innovation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="citation" data-cites="baltagi2021">Baltagi (<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">2021</a>, eq. 8.1)</span></td>
+<td>δ</td>
+<td><span class="math inline">\(\mu_i + \nu_{it}\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="citation" data-cites="pesaran2015">Pesaran (<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">2015</a>, eq. 27.1)</span></td>
+<td>λ</td>
+<td><span class="math inline">\(\alpha_i + u_{it}\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="citation" data-cites="croissant2019">Croissant and Millo (<a href="../../references.html#ref-croissant2019" role="doc-biblioref">2019, sec. 7.1</a>)</span></td>
+<td>ρ</td>
+<td><span class="math inline">\(\eta_n + \varepsilon_{nt}\)</span></td>
+</tr>
+<tr class="even">
+<td>this book</td>
+<td>γ</td>
+<td><span class="math inline">\(\alpha_i + \varepsilon_{it}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Baltagi’s <span class="math inline">\(T\)</span> counts the periods observed, Pesaran’s the periods in the regression after the initial observation, and this book follows the latter, so that the bias formula above is read with <span class="math inline">\(T\)</span> equal to the number of years that enter the regression. The estimators keep their names across texts: difference GMM is Arellano–Bond, system GMM is Blundell–Bond, and <code>pgmm</code> calls the first <code>transformation = "d"</code> and the second <code>"ld"</code>; the steps own every other argument.</p>
+</section>
+<section id="if-then" class="level2" data-number="L.5">
+<h2 data-number="L.5" class="anchored" data-anchor-id="if-then"><span class="header-section-number">L.5</span> If / then</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>If</th>
+<th>Then</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>The model has a lagged outcome and <span class="math inline">\(T\)</span> is short</td>
+<td>The within slope on the lag is biased down by about <span class="math inline">\((1 + \gamma)/T\)</span>; do not read it as the persistence <span class="citation" data-cites="pesaran2015 baltagi2021">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 679</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 188</a>)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(T\)</span> is 30 or less</td>
+<td>The bias can still be 20 % of γ; use an instrumental estimator <span class="citation" data-cites="judson1999 baltagi2021">(<a href="../../references.html#ref-judson1999" role="doc-biblioref">Judson and Owen 1999</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 188</a>)</span></td>
+</tr>
+<tr class="odd">
+<td>OLS and within disagree on the lag</td>
+<td>They should: OLS above, within below. A consistent estimate lands between them <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 168</a>)</span></td>
+</tr>
+<tr class="even">
+<td>One instrument is enough</td>
+<td>Use the level <span class="math inline">\(y_{i,t-2}\)</span>, not the difference <span class="math inline">\(\Delta y_{i,t-2}\)</span> <span class="citation" data-cites="arellano1989 baltagi2021">(<a href="../../references.html#ref-arellano1989" role="doc-biblioref">Arellano 1989</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 188</a>)</span></td>
+</tr>
+<tr class="odd">
+<td>γ is near one or <span class="math inline">\(\sigma^2_\alpha\)</span> dwarfs <span class="math inline">\(\sigma^2_\varepsilon\)</span></td>
+<td>Lagged levels are weak instruments for differences; difference GMM is biased and imprecise; consider system GMM <span class="citation" data-cites="baltagi2021 pesaran2015">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021</a>, eqs. 8.34–8.35; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 688</a>)</span></td>
+</tr>
+<tr class="even">
+<td>System GMM is used</td>
+<td>The initial-condition restriction is assumed; test the levels moments on their own, and expect the bias to grow with the variance ratio <span class="citation" data-cites="pesaran2015 croissant2019 bun2010 baltagi2021">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 689</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 180</a>; <a href="../../references.html#ref-bun2010" role="doc-biblioref">Bun and Windmeijer 2010</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 202</a>)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(m_1\)</span> rejects and <span class="math inline">\(m_2\)</span> does not</td>
+<td>The pattern the estimator needs <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 192</a>)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(m_2\)</span> rejects</td>
+<td>The innovations are serially correlated; the instruments dated <span class="math inline">\(t - 2\)</span> are invalid <span class="citation" data-cites="baltagi2021 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 192</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 182</a>)</span></td>
+</tr>
+<tr class="odd">
+<td>The Sargan <span class="math inline">\(p\)</span>-value is near one with many instruments</td>
+<td>Not clean moments but the Bowsher pathology; cut the lags or collapse and test again <span class="citation" data-cites="baltagi2021 croissant2019">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 192</a>; <a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 180–81</a>)</span></td>
+</tr>
+<tr class="even">
+<td>Two-step estimates are reported</td>
+<td>Report Windmeijer-corrected standard errors; the conventional ones are too small and the Wald tests oversized <span class="citation" data-cites="windmeijer2005 baltagi2021">(<a href="../../references.html#ref-windmeijer2005" role="doc-biblioref">Windmeijer 2005</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 193</a>)</span></td>
+</tr>
+<tr class="odd">
+<td>The instrument count approaches <span class="math inline">\(N\)</span></td>
+<td>The estimator drifts toward OLS; the coefficient that moves with the count is not a result <span class="citation" data-cites="croissant2019 baltagi2021">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 172</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 194</a>)</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="next" class="level2" data-number="L.6">
+<h2 data-number="L.6" class="anchored" data-anchor-id="next"><span class="header-section-number">L.6</span> Next</h2>
+<p><a href="../../chapters/05-core/theory-panel-error.html">The error of a panel regression</a> covers serial correlation in the static error, the property the <span class="math inline">\(m\)</span>-tests above are built to check. The spatial half of a dynamic panel, a lag in space as well as in time, has no estimator in R; the <a href="../../chapters/03-spatial/index.html#sec-sp-dynamic">limits section</a> of the spatial chapter says what that costs.</p>
+</section>
+<section id="open" class="level2" data-number="L.7">
+<h2 data-number="L.7" class="anchored" data-anchor-id="open"><span class="header-section-number">L.7</span> Open</h2>
+<ul>
+<li><strong>Ahn–Schmidt moments.</strong> Under the standard assumptions there are <span class="math inline">\(T - 2\)</span> further conditions, <span class="math inline">\(E(u_{iT}\Delta u_{it}) = 0\)</span> for <span class="math inline">\(t = 2, \dots, T-1\)</span>, nonlinear in the parameters, and with homoskedastic innovations <span class="math inline">\(T - 1\)</span> more; GMM on the full set is asymptotically efficient with the same asymptotic variance as maximum likelihood under normality <span class="citation" data-cites="ahn1995 baltagi2021 pesaran2015">(<a href="../../references.html#ref-ahn1995" role="doc-biblioref">Ahn and Schmidt 1995</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021</a>, eq. 8.26 and p.&nbsp;201; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015</a>, eq. 27.36)</span>. Not in plm; <code>pdynmc</code> runs them <span class="citation" data-cites="fritsch2021">(<a href="../../references.html#ref-fritsch2021" role="doc-biblioref">Fritsch et al. 2021</a>)</span>, and the GMM step shows the fit in its pitfalls box.</li>
+<li><strong>Bias-corrected within.</strong> <span class="citation" data-cites="kiviet1995">Kiviet (<a href="../../references.html#ref-kiviet1995" role="doc-biblioref">1995</a>)</span> approximates the within bias with exogenous regressors and subtracts a consistent estimate of it <span class="citation" data-cites="baltagi2021 pesaran2015">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 188</a>; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 680</a>)</span>; balanced panels only, and no endogenous regressors <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, 166</a>)</span>. Not in R. Benchmark: Stata <code>xtlsdvc</code>, deferred.</li>
+<li><strong>Transformed likelihood.</strong> <span class="citation" data-cites="hsiao2002">Hsiao et al. (<a href="../../references.html#ref-hsiao2002" role="doc-biblioref">2002</a>)</span> difference the model, give the first difference <span class="math inline">\(\Delta y_{i1}\)</span> its own mean and variance, and maximise a likelihood in a fixed number of parameters; in their Monte Carlo it dominates GMM in small samples, at the price of cross-sectionally homoskedastic innovations <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, sec. 27.6</a>, pp.&nbsp;692–695)</span>. Not in R. Benchmark: Stata <code>xtdpdqml</code> <span class="citation" data-cites="kripfganz2016 baltagi2021">(<a href="../../references.html#ref-kripfganz2016" role="doc-biblioref">Kripfganz 2016</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 197</a>)</span>, deferred.</li>
+<li><strong>Time-invariant regressors.</strong> Differencing removes them. <span class="citation" data-cites="arellano1995">Arellano and Bover (<a href="../../references.html#ref-arellano1995" role="doc-biblioref">1995</a>)</span> recover them inside a Hausman–Taylor <span class="citation" data-cites="hausman1981">(<a href="../../references.html#ref-hausman1981" role="doc-biblioref">Hausman and Taylor 1981</a>)</span> system, a random-effects IV estimator that uses the exogenous regressors as instruments, with a block-diagonal instrument matrix <span class="citation" data-cites="baltagi2021 pesaran2015">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, sec. 8.3</a>, pp.&nbsp;194–198; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, sec. 27.4.4</a>, pp.&nbsp;686–687)</span>; <span class="citation" data-cites="kripfganz2019">Kripfganz and Schwarz (<a href="../../references.html#ref-kripfganz2019" role="doc-biblioref">2019</a>)</span> instead estimate the time-varying coefficients by GMM or quasi-maximum likelihood, regress the first-step residuals on the time-invariant regressors, and correct the second-step standard errors <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 197–98</a>)</span>. Not in R. Benchmark: Stata <code>xtseqreg</code> <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 197</a>)</span>, deferred.</li>
+<li><strong>Forward filtering.</strong> The Keane–Runkle estimator removes a general serial correlation pattern by a Cholesky transform before two-stage least squares with predetermined instruments <span class="citation" data-cites="keane1992 baltagi2021 pesaran2015">(<a href="../../references.html#ref-keane1992" role="doc-biblioref">Keane and Runkle 1992</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, sec. 8.6</a>, p.&nbsp;203; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, sec. 27.5</a>, pp.&nbsp;691–692)</span>. Named only.</li>
+<li><strong>Errors that move together across firms.</strong> A common unobserved factor in the innovations makes the GMM estimators above inconsistent; the short-<span class="math inline">\(T\)</span> answers are quasi-differencing GMM and a transformed quasi-likelihood <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, sec. 27.7</a>, pp.&nbsp;696–699)</span>. Not in R.</li>
+</ul>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-ahn1995" class="csl-entry" role="listitem">
+Ahn, Seung C., and Peter Schmidt. 1995. <span>“Efficient Estimation of Models for Dynamic Panel Data.”</span> <em>Journal of Econometrics</em> 68 (1): 5–27. <a href="https://doi.org/10.1016/0304-4076(94)01641-c">https://doi.org/10.1016/0304-4076(94)01641-c</a>.
+</div>
+<div id="ref-anderson1982" class="csl-entry" role="listitem">
+Anderson, T. W., and Cheng Hsiao. 1982. <span>“Formulation and Estimation of Dynamic Models Using Panel Data.”</span> <em>Journal of Econometrics</em> 18 (1): 47–82. <a href="https://doi.org/10.1016/0304-4076(82)90095-1">https://doi.org/10.1016/0304-4076(82)90095-1</a>.
+</div>
+<div id="ref-arellano1989" class="csl-entry" role="listitem">
+Arellano, Manuel. 1989. <span>“A Note on the <span>A</span>nderson–<span>H</span>siao Estimator for Panel Data.”</span> <em>Economics Letters</em> 31 (4): 337–41. <a href="https://doi.org/10.1016/0165-1765(89)90025-6">https://doi.org/10.1016/0165-1765(89)90025-6</a>.
+</div>
+<div id="ref-arellano1991" class="csl-entry" role="listitem">
+Arellano, Manuel, and Stephen Bond. 1991. <span>“Some Tests of Specification for Panel Data: <span>M</span>onte <span>C</span>arlo Evidence and an Application to Employment Equations.”</span> <em>Review of Economic Studies</em> 58 (2): 277–97. <a href="https://doi.org/10.2307/2297968">https://doi.org/10.2307/2297968</a>.
+</div>
+<div id="ref-arellano1995" class="csl-entry" role="listitem">
+Arellano, Manuel, and Olympia Bover. 1995. <span>“Another Look at the Instrumental Variable Estimation of Error-Components Models.”</span> <em>Journal of Econometrics</em> 68 (1): 29–51. <a href="https://doi.org/10.1016/0304-4076(94)01642-d">https://doi.org/10.1016/0304-4076(94)01642-d</a>.
+</div>
+<div id="ref-baltagi2021" class="csl-entry" role="listitem">
+Baltagi, Badi H. 2021. <em>Econometric Analysis of Panel Data</em>. 6th ed. Springer. <a href="https://doi.org/10.1007/978-3-030-53953-5">https://doi.org/10.1007/978-3-030-53953-5</a>.
+</div>
+<div id="ref-blundell1998" class="csl-entry" role="listitem">
+Blundell, Richard, and Stephen Bond. 1998. <span>“Initial Conditions and Moment Restrictions in Dynamic Panel Data Models.”</span> <em>Journal of Econometrics</em> 87 (1): 115–43. <a href="https://doi.org/10.1016/s0304-4076(98)00009-8">https://doi.org/10.1016/s0304-4076(98)00009-8</a>.
+</div>
+<div id="ref-blundell2000" class="csl-entry" role="listitem">
+Blundell, Richard, and Stephen Bond. 2000. <span>“<span>GMM</span> Estimation with Persistent Panel Data: An Application to Production Functions.”</span> <em>Econometric Reviews</em> 19 (3): 321–40. <a href="https://doi.org/10.1080/07474930008800475">https://doi.org/10.1080/07474930008800475</a>.
+</div>
+<div id="ref-blundell2000ifs" class="csl-entry" role="listitem">
+Blundell, Richard, Stephen Bond, and Frank Windmeijer. 2000. <em>Estimation in Dynamic Panel Data Models: Improving on the Performance of the Standard <span>GMM</span> Estimator</em>. IFS Working Paper W00/12. Institute for Fiscal Studies. <a href="https://doi.org/10.1920/wp.ifs.2000.0012">https://doi.org/10.1920/wp.ifs.2000.0012</a>.
+</div>
+<div id="ref-bond2001" class="csl-entry" role="listitem">
+Bond, Stephen, Clive Bowsher, and Frank Windmeijer. 2001. <span>“Criterion-Based Inference for <span>GMM</span> in Autoregressive Panel Data Models.”</span> <em>Economics Letters</em> 73 (3): 379–88. <a href="https://doi.org/10.1016/s0165-1765(01)00507-9">https://doi.org/10.1016/s0165-1765(01)00507-9</a>.
+</div>
+<div id="ref-bowsher2002" class="csl-entry" role="listitem">
+Bowsher, Clive G. 2002. <span>“On Testing Overidentifying Restrictions in Dynamic Panel Data Models.”</span> <em>Economics Letters</em> 77 (2): 211–20. <a href="https://doi.org/10.1016/s0165-1765(02)00130-1">https://doi.org/10.1016/s0165-1765(02)00130-1</a>.
+</div>
+<div id="ref-bun2010" class="csl-entry" role="listitem">
+Bun, Maurice J. G., and Frank Windmeijer. 2010. <span>“The Weak Instrument Problem of the System <span>GMM</span> Estimator in Dynamic Panel Data Models.”</span> <em>The Econometrics Journal</em> 13 (1): 95–126. <a href="https://doi.org/10.1111/j.1368-423x.2009.00299.x">https://doi.org/10.1111/j.1368-423x.2009.00299.x</a>.
+</div>
+<div id="ref-croissant2019" class="csl-entry" role="listitem">
+Croissant, Yves, and Giovanni Millo. 2019. <em>Panel Data Econometrics with <span>R</span></em>. Wiley. <a href="https://doi.org/10.1002/9781119504641">https://doi.org/10.1002/9781119504641</a>.
+</div>
+<div id="ref-fritsch2021" class="csl-entry" role="listitem">
+Fritsch, Markus, Andrew Adrian Yu Pua, and Joachim Schnurbus. 2021. <span>“<span class="nocase">pdynmc</span>: A Package for Estimating Linear Dynamic Panel Data Models Based on Nonlinear Moment Conditions.”</span> <em>The R Journal</em> 13 (1): 218–31. <a href="https://doi.org/10.32614/RJ-2021-035">https://doi.org/10.32614/RJ-2021-035</a>.
+</div>
+<div id="ref-hansen1982" class="csl-entry" role="listitem">
+Hansen, Lars Peter. 1982. <span>“Large Sample Properties of Generalized Method of Moments Estimators.”</span> <em>Econometrica</em> 50 (4): 1029–54. <a href="https://doi.org/10.2307/1912775">https://doi.org/10.2307/1912775</a>.
+</div>
+<div id="ref-hausman1981" class="csl-entry" role="listitem">
+Hausman, Jerry A., and William E. Taylor. 1981. <span>“Panel Data and Unobservable Individual Effects.”</span> <em>Econometrica</em> 49 (6): 1377–98. <a href="https://doi.org/10.2307/1911406">https://doi.org/10.2307/1911406</a>.
+</div>
+<div id="ref-hayakawa2009" class="csl-entry" role="listitem">
+Hayakawa, Kazuhiko. 2009. <span>“On the Effect of Mean-Nonstationarity in Dynamic Panel Data Models.”</span> <em>Journal of Econometrics</em> 153 (2): 133–35. <a href="https://doi.org/10.1016/j.jeconom.2009.04.008">https://doi.org/10.1016/j.jeconom.2009.04.008</a>.
+</div>
+<div id="ref-holtzeakin1988" class="csl-entry" role="listitem">
+Holtz-Eakin, Douglas, Whitney Newey, and Harvey S. Rosen. 1988. <span>“Estimating Vector Autoregressions with Panel Data.”</span> <em>Econometrica</em> 56 (6): 1371–95. <a href="https://doi.org/10.2307/1913103">https://doi.org/10.2307/1913103</a>.
+</div>
+<div id="ref-hsiao2002" class="csl-entry" role="listitem">
+Hsiao, Cheng, M. Hashem Pesaran, and A. Kamil Tahmiscioglu. 2002. <span>“Maximum Likelihood Estimation of Fixed Effects Dynamic Panel Data Models Covering Short Time Periods.”</span> <em>Journal of Econometrics</em> 109 (1): 107–50. <a href="https://doi.org/10.1016/s0304-4076(01)00143-9">https://doi.org/10.1016/s0304-4076(01)00143-9</a>.
+</div>
+<div id="ref-judson1999" class="csl-entry" role="listitem">
+Judson, Ruth A., and Ann L. Owen. 1999. <span>“Estimating Dynamic Panel Data Models: A Guide for Macroeconomists.”</span> <em>Economics Letters</em> 65 (1): 9–15. <a href="https://doi.org/10.1016/s0165-1765(99)00130-5">https://doi.org/10.1016/s0165-1765(99)00130-5</a>.
+</div>
+<div id="ref-keane1992" class="csl-entry" role="listitem">
+Keane, Michael P., and David E. Runkle. 1992. <span>“On the Estimation of Panel-Data Models with Serial Correlation When Instruments Are Not Strictly Exogenous.”</span> <em>Journal of Business &amp; Economic Statistics</em> 10 (1): 1–9. <a href="https://doi.org/10.1080/07350015.1992.10509877">https://doi.org/10.1080/07350015.1992.10509877</a>.
+</div>
+<div id="ref-kiviet1995" class="csl-entry" role="listitem">
+Kiviet, Jan F. 1995. <span>“On Bias, Inconsistency, and Efficiency of Various Estimators in Dynamic Panel Data Models.”</span> <em>Journal of Econometrics</em> 68 (1): 53–78. <a href="https://doi.org/10.1016/0304-4076(94)01643-e">https://doi.org/10.1016/0304-4076(94)01643-e</a>.
+</div>
+<div id="ref-kripfganz2016" class="csl-entry" role="listitem">
+Kripfganz, Sebastian. 2016. <span>“Quasi-Maximum Likelihood Estimation of Linear Dynamic Short-<span>T</span> Panel-Data Models.”</span> <em>The Stata Journal</em> 16 (4): 1013–38. <a href="https://doi.org/10.1177/1536867x1601600411">https://doi.org/10.1177/1536867x1601600411</a>.
+</div>
+<div id="ref-kripfganz2019" class="csl-entry" role="listitem">
+Kripfganz, Sebastian, and Claudia Schwarz. 2019. <span>“Estimation of Linear Dynamic Panel Data Models with Time-Invariant Regressors.”</span> <em>Journal of Applied Econometrics</em> 34 (4): 526–46. <a href="https://doi.org/10.1002/jae.2681">https://doi.org/10.1002/jae.2681</a>.
+</div>
+<div id="ref-nickell1981" class="csl-entry" role="listitem">
+Nickell, Stephen. 1981. <span>“Biases in Dynamic Models with Fixed Effects.”</span> <em>Econometrica</em> 49 (6): 1417–26. <a href="https://doi.org/10.2307/1911408">https://doi.org/10.2307/1911408</a>.
+</div>
+<div id="ref-pesaran2015" class="csl-entry" role="listitem">
+Pesaran, M. Hashem. 2015. <em>Time Series and Panel Data Econometrics</em>. Oxford University Press. <a href="https://doi.org/10.1093/acprof:oso/9780198736912.001.0001">https://doi.org/10.1093/acprof:oso/9780198736912.001.0001</a>.
+</div>
+<div id="ref-roodman2009note" class="csl-entry" role="listitem">
+Roodman, David. 2009a. <span>“A Note on the Theme of Too Many Instruments.”</span> <em>Oxford Bulletin of Economics and Statistics</em> 71 (1): 135–58. <a href="https://doi.org/10.1111/j.1468-0084.2008.00542.x">https://doi.org/10.1111/j.1468-0084.2008.00542.x</a>.
+</div>
+<div id="ref-roodman2009" class="csl-entry" role="listitem">
+Roodman, David. 2009b. <span>“How to Do <span class="nocase">xtabond2</span>: An Introduction to Difference and System <span>GMM</span> in <span>S</span>tata.”</span> <em>The Stata Journal</em> 9 (1): 86–136. <a href="https://doi.org/10.1177/1536867x0900900106">https://doi.org/10.1177/1536867x0900900106</a>.
+</div>
+<div id="ref-sargan1958" class="csl-entry" role="listitem">
+Sargan, J. D. 1958. <span>“The Estimation of Economic Relationships Using Instrumental Variables.”</span> <em>Econometrica</em> 26 (3): 393–415. <a href="https://doi.org/10.2307/1907619">https://doi.org/10.2307/1907619</a>.
+</div>
+<div id="ref-windmeijer2005" class="csl-entry" role="listitem">
+Windmeijer, Frank. 2005. <span>“A Finite Sample Correction for the Variance of Linear Efficient Two-Step <span>GMM</span> Estimators.”</span> <em>Journal of Econometrics</em> 126 (1): 25–51. <a href="https://doi.org/10.1016/j.jeconom.2004.02.005">https://doi.org/10.1016/j.jeconom.2004.02.005</a>.
+</div>
+<div id="ref-ziliak1997" class="csl-entry" role="listitem">
+Ziliak, James P. 1997. <span>“Efficient Estimation with Panel Data When Instruments Are Predetermined: An Empirical Comparison of Moment-Condition Estimators.”</span> <em>Journal of Business &amp; Economic Statistics</em> 15 (4): 419–31. <a href="https://doi.org/10.1080/07350015.1997.10524720">https://doi.org/10.1080/07350015.1997.10524720</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script>
+// Nest the open page's sections under its entry in the book sidebar.
+// Quarto has no option for this: the sidebar lists pages only. The script
+// copies the top two levels of the page's own TOC (#TOC), makes groups
+// collapsible, and mirrors Quarto's scroll-spy highlight.
+document.addEventListener("DOMContentLoaded", function () {
+  var toc = document.querySelector("nav#TOC > ul");
+  var link = document.querySelector("#quarto-sidebar .sidebar-link.active");
+  if (!toc || !link) return;
+  var item = link.closest("li.sidebar-item");
+  if (!item) return;
+
+  function build(srcList, depth) {
+    var ul = document.createElement("ul");
+    Array.prototype.forEach.call(srcList.children, function (srcLi) {
+      var a = srcLi.querySelector(":scope > a");
+      if (!a) return;
+      var li = document.createElement("li");
+      var row = document.createElement("div");
+      row.className = "toc-row";
+      var copy = document.createElement("a");
+      copy.href = a.getAttribute("href");
+      copy.innerHTML = a.innerHTML;
+      row.appendChild(copy);
+      var sub = srcLi.querySelector(":scope > ul");
+      if (sub && depth < 2) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "toc-toggle";
+        btn.setAttribute("aria-label", "Toggle subsections");
+        btn.innerHTML = '<i class="bi bi-chevron-down"></i>';
+        btn.addEventListener("click", function () {
+          li.classList.toggle("collapsed");
+          btn.setAttribute("aria-expanded", !li.classList.contains("collapsed"));
+        });
+        row.appendChild(btn);
+        li.appendChild(row);
+        li.appendChild(build(sub, depth + 1));
+        li.classList.add("collapsed");
+        btn.setAttribute("aria-expanded", "false");
+      } else {
+        li.appendChild(row);
+      }
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  var nested = build(toc, 1);
+  nested.className = "sidebar-page-toc";
+  item.appendChild(nested);
+
+  // Mirror the right-hand TOC's active link; open its group.
+  function sync() {
+    var active = document.querySelectorAll("nav#TOC a.nav-link.active");
+    var target = active.length ? active[active.length - 1].getAttribute("href") : null;
+    nested.querySelectorAll("a.is-current").forEach(function (a) {
+      a.classList.remove("is-current");
+    });
+    if (!target) return;
+    var hit = nested.querySelector('a[href="' + target + '"]');
+    if (!hit) return;
+    hit.classList.add("is-current");
+    var li = hit.closest("li");
+    while (li && nested.contains(li)) {
+      if (li.querySelector(":scope > ul") && li.classList.contains("collapsed")) {
+        li.classList.remove("collapsed");
+      }
+      li = li.parentElement.closest("li");
+    }
+  }
+  new MutationObserver(sync).observe(document.querySelector("nav#TOC"), {
+    subtree: true, attributes: true, attributeFilter: ["class"]
+  });
+  sync();
+});
+</script>
+<script>
+// Two-page layout: the book page stays on the left; a cross-reference or
+// any link to another page of the book opens that page in a pane on the
+// right. The sidebar is fixed, resizable, and collapses to a rail only on
+// request. Each column has a top bar of the same height (--tp-bar).
+// Styles: assets/two-page.scss. Phones keep the normal layout.
+(function () {
+  // Wide tables scroll sideways in their own box instead of squeezing their
+  // columns or running out of the column; in the pane as on the page.
+  document.querySelectorAll("main.content table").forEach(function (t) {
+    if (t.parentElement.classList.contains("tp-table-scroll")) return;
+    var box = document.createElement("div");
+    box.className = "tp-table-scroll";
+    t.parentNode.insertBefore(box, t);
+    box.appendChild(t);
+    var row = t.querySelector("tr");
+    if (row && row.children.length > 5) t.classList.add("tp-table-wide");
+  });
+
+  if (document.documentElement.classList.contains("tp-in-pane")) {
+    inPane();
+    return;
+  }
+
+  // Inside the pane. The parent cannot read this frame on file://, so the
+  // page reports itself by postMessage: its address, page and section
+  // titles, and its contents. The parent may ask it to go to an anchor.
+  function inPane() {
+    function clean(t) { return (t || "").replace(/\s+/g, " ").trim(); }
+    var HEADS = ":scope > h1, :scope > h2, :scope > h3, :scope > h4, " +
+      ":scope > h5, :scope > h6";
+    // The heading of the section that holds el. An unnumbered subsection
+    // ("Read it") gets its parent's heading in front, so it can be told
+    // apart from its namesakes.
+    function headingOf(el) {
+      if (!el) return "";
+      var sec = el.closest("section[id]");
+      var h = /^H[1-6]$/.test(el.tagName) ? el :
+        sec && sec.querySelector(HEADS);
+      if (!h) return "";
+      var text = clean(h.textContent);
+      if (!h.querySelector(".header-section-number") && sec) {
+        var up = sec.parentElement && sec.parentElement.closest("section[id]");
+        var uh = up && up.querySelector(HEADS);
+        if (uh && uh.tagName !== "H1") {
+          text = clean(uh.textContent) + " › " + text;
+        }
+      }
+      return text;
+    }
+    var h1 = document.querySelector("main.content h1");
+    var pageTitle = h1 ? clean(h1.textContent) : clean(document.title);
+
+    // Snippet mode (?tp-only=<id>, set up by assets/in-pane.html): show only
+    // that element, a footnote or an index entry, instead of the whole page.
+    var snippet = null;
+    var only = document.documentElement.getAttribute("data-tp-only");
+    var part = only ? document.getElementById(only) : null;
+    if (part) {
+      snippet = buildSnippet(part);
+    } else {
+      document.documentElement.classList.remove("tp-only");
+    }
+    function buildSnippet(part) {
+      var box = document.createElement("div");
+      box.className = "tp-snippet";
+      var note = /^fn\d+$/.test(part.id) && part.closest("#footnotes");
+      var label = "";
+      var head = document.createElement("p");
+      head.className = "tp-snippet-head";
+      if (note) {
+        label = "Note " + part.id.slice(2);
+        head.textContent = label + ", from " + pageTitle;
+      } else {
+        var strong = part.querySelector("strong");
+        label = clean(strong ? strong.textContent : part.textContent);
+        head.textContent = "From the " + pageTitle.toLowerCase();
+      }
+      box.appendChild(head);
+      // A copy without ids, so the page keeps one element per id.
+      var body = document.createElement("div");
+      body.className = "tp-snippet-body";
+      Array.prototype.forEach.call(part.childNodes, function (c) {
+        body.appendChild(c.cloneNode(true));
+      });
+      body.querySelectorAll("[id]").forEach(function (e) {
+        e.removeAttribute("id");
+      });
+      body.querySelectorAll(".footnote-back").forEach(function (e) {
+        e.remove();
+      });
+      box.appendChild(body);
+      if (note) {
+        // The full page, at the place the note is called from.
+        var u = new URL(location.href);
+        u.searchParams.delete("tp-pane");
+        u.searchParams.delete("tp-only");
+        u.hash = "fnref" + part.id.slice(2);
+        var more = document.createElement("a");
+        more.className = "tp-snippet-more";
+        more.href = u.href;
+        more.textContent = "Show in the chapter";
+        box.appendChild(more);
+      }
+      var main = document.querySelector("main.content");
+      main.insertBefore(box, main.firstChild);
+      return { label: label };
+    }
+
+    function report() {
+      var id = decodeURIComponent(location.hash.slice(1));
+      var target = id ? document.getElementById(id) : null;
+      // The contents, with each entry's depth; none for a snippet.
+      var toc = [];
+      var links = snippet ? [] :
+        document.querySelectorAll("nav#TOC a.nav-link");
+      Array.prototype.forEach.call(links, function (a) {
+        var level = 0;
+        for (var n = a.parentElement; n && n.id !== "TOC"; n = n.parentElement) {
+          if (n.tagName === "UL") level++;
+        }
+        toc.push({ id: a.getAttribute("href").slice(1),
+                   text: clean(a.textContent), level: level });
+      });
+      var u = new URL(location.href);
+      u.searchParams.delete("tp-pane");
+      window.parent.postMessage({
+        tp: "loaded",
+        url: u.href,
+        title: pageTitle,
+        section: snippet ? snippet.label :
+          target && target !== h1 ? headingOf(target) : "",
+        toc: toc
+      }, "*");
+      // Flash the element the link pointed at.
+      if (target) {
+        target.classList.remove("tp-flash");
+        void target.offsetWidth;
+        target.classList.add("tp-flash");
+      }
+    }
+    window.addEventListener("message", function (e) {
+      if (e.source !== window.parent || !e.data || e.data.tp !== "goto") {
+        return;
+      }
+      if (document.getElementById(e.data.id)) location.hash = e.data.id;
+    });
+    window.addEventListener("hashchange", report);
+    window.addEventListener("load", report);
+  }
+
+  var root = document.documentElement;
+  var desktop = window.matchMedia("(min-width: 768px)");
+  var RAIL = 44, SB_MIN = 200, SB_MAX = 440, MAIN_MIN = 420, PANE_MIN = 320;
+  var GAP = 40;
+
+  // Per-viewer layout memory; the page works without it.
+  function load() {
+    try { return JSON.parse(localStorage.getItem("tp-layout")) || {}; }
+    catch (e) { return {}; }
+  }
+  function save() {
+    try { localStorage.setItem("tp-layout", JSON.stringify(state)); }
+    catch (e) {}
+  }
+  var state = Object.assign({ sb: 272, collapsed: false, split: 0.5 }, load());
+
+  var sidebar = document.getElementById("quarto-sidebar");
+  var main = document.querySelector("main.content");
+  if (!sidebar || !main) return;
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html) e.innerHTML = html;
+    return e;
+  }
+  function iconButton(act, icon, label) {
+    var b = el("button", "tp-icon", '<i class="bi ' + icon + '"></i>');
+    b.type = "button";
+    b.setAttribute("data-act", act);
+    b.setAttribute("aria-label", label);
+    b.title = label;
+    return b;
+  }
+
+  // Desktop moves a few of Quarto's elements into the bars; phones get them
+  // back where Quarto put them.
+  var moves = [];
+  function movable(node, target) {
+    if (node) {
+      moves.push({ node: node, home: node.parentNode,
+                   next: node.nextSibling, target: target });
+    }
+  }
+  var placed = null;
+  function place() {
+    if (placed === desktop.matches) return;
+    placed = desktop.matches;
+    moves.forEach(function (m) {
+      if (desktop.matches) m.target.appendChild(m.node);
+      else m.home.insertBefore(m.node, m.next);
+    });
+  }
+
+  // Sidebar bar: book title and the collapse toggle on one row. The dark
+  // mode and reader toggles sit beside the search box.
+  var sbBar = el("div", "tp-bar tp-sb-bar");
+  var sbTitle = el("div", "tp-bar-title");
+  var toggle = iconButton("sidebar", "bi-chevron-left", "Narrow the sidebar");
+  toggle.classList.add("tp-sb-toggle");
+  sbBar.appendChild(sbTitle);
+  sbBar.appendChild(toggle);
+  sidebar.insertBefore(sbBar, sidebar.firstChild);
+  var titleLink = sidebar.querySelector(".sidebar-title > a");
+  if (titleLink) titleLink.title = titleLink.textContent.trim();
+  movable(titleLink, sbTitle);
+  var tools = sidebar.querySelector(".sidebar-tools-main");
+  var search = sidebar.querySelector(".sidebar-search");
+  if (tools && search) movable(tools, search);
+  toggle.addEventListener("click", function () {
+    state.collapsed = !state.collapsed;
+    save();
+    layout();
+  });
+
+  // Book bar: breadcrumb on the left, "On this page" on the right.
+  var bookBar = el("div", "tp-bar tp-book-bar");
+  var crumbs = el("div", "tp-crumbs");
+  var tocSlot = el("div", "tp-toc-slot");
+  bookBar.appendChild(crumbs);
+  bookBar.appendChild(tocSlot);
+  document.body.appendChild(bookBar);
+  movable(main.querySelector(".quarto-title-breadcrumbs"), crumbs);
+  var toc = document.getElementById("quarto-margin-sidebar");
+  movable(toc, tocSlot);
+
+  // The contents is a dropdown: hover or click opens it, a click on an
+  // entry, outside, or Esc closes it.
+  var tocTitle = document.getElementById("toc-title");
+  if (toc && tocTitle) {
+    tocTitle.setAttribute("tabindex", "0");
+    tocTitle.setAttribute("role", "button");
+    tocTitle.addEventListener("click", function () {
+      toc.classList.toggle("is-open");
+    });
+    tocTitle.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toc.classList.toggle("is-open");
+      }
+    });
+    toc.addEventListener("click", function (e) {
+      if (e.target.closest("a")) {
+        toc.classList.remove("is-open");
+        toc.classList.add("is-shut");
+      }
+    });
+    toc.addEventListener("mouseleave", function () {
+      toc.classList.remove("is-shut");
+    });
+    document.addEventListener("click", function (e) {
+      if (!toc.contains(e.target)) toc.classList.remove("is-open");
+    });
+  }
+
+  // Handles.
+  function handle(cls) {
+    var h = el("div", "tp-handle " + cls);
+    document.body.appendChild(h);
+    return h;
+  }
+  var hSb = handle("tp-handle-sb");
+  var hSplit = handle("tp-handle-split");
+
+  // Pane.
+  var pane = el("div", "tp-pane");
+  pane.setAttribute("role", "complementary");
+  pane.setAttribute("aria-label", "Second page");
+  var paneBar = el("div", "tp-bar tp-pane-bar");
+  var title = el("div", "tp-bar-title tp-pane-title", "Second page");
+  title.setAttribute("aria-live", "polite");
+  var back = iconButton("back", "bi-arrow-left", "Back");
+  var fwd = iconButton("forward", "bi-arrow-right", "Forward");
+  paneBar.appendChild(back);
+  paneBar.appendChild(fwd);
+  paneBar.appendChild(title);
+  // The pane page's own contents, from its report.
+  var paneToc = el("div", "tp-menu tp-pane-toc");
+  var paneTocBtn = iconButton("toc", "bi-list-ul", "On this page");
+  paneTocBtn.setAttribute("aria-haspopup", "true");
+  paneTocBtn.setAttribute("aria-expanded", "false");
+  var paneTocList = el("ul", "tp-menu-list");
+  paneToc.appendChild(paneTocBtn);
+  paneToc.appendChild(paneTocList);
+  paneBar.appendChild(paneToc);
+  paneBar.appendChild(
+    iconButton("main", "bi-box-arrow-up-left", "Open as the main page"));
+  paneBar.appendChild(iconButton("close", "bi-x-lg", "Close (Esc)"));
+  pane.appendChild(paneBar);
+  pane.appendChild(el("div", "tp-pane-empty",
+    "Click a cross-reference or a link to another page.<br>" +
+    "It opens here, and this page stays put."));
+  var frame = el("iframe");
+  frame.title = "Second page";
+  frame.name = "tp-pane";
+  pane.appendChild(frame);
+  document.body.appendChild(pane);
+
+  function layout() {
+    place();
+    if (!desktop.matches) return;
+    var vw = root.clientWidth;
+    var sb = state.collapsed ? RAIL : state.sb;
+    var room = vw - sb - 2 * GAP;
+    var mainW = Math.max(MAIN_MIN, Math.min(room - PANE_MIN, room * state.split));
+    mainW = Math.min(mainW, 820);
+    root.classList.toggle("tp-sb-collapsed", state.collapsed);
+    root.style.setProperty("--tp-sb", sb + "px");
+    root.style.setProperty("--tp-main", mainW + "px");
+    root.style.setProperty("--tp-gap", GAP + "px");
+    var paneLeft = sb + GAP + mainW + GAP;
+    pane.style.left = paneLeft + "px";
+    hSb.style.left = sb + "px";
+    hSplit.style.left = paneLeft + "px";
+    toggle.innerHTML = '<i class="bi ' +
+      (state.collapsed ? "bi-chevron-right" : "bi-chevron-left") + '"></i>';
+    toggle.title = state.collapsed ? "Show the sidebar" : "Narrow the sidebar";
+    toggle.setAttribute("aria-label", toggle.title);
+  }
+
+  function drag(h, onMove) {
+    h.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      h.setPointerCapture(e.pointerId);
+      h.classList.add("is-active");
+      document.body.classList.add("tp-dragging");
+      function move(ev) { onMove(ev.clientX); layout(); }
+      function up() {
+        h.removeEventListener("pointermove", move);
+        h.removeEventListener("pointerup", up);
+        h.classList.remove("is-active");
+        document.body.classList.remove("tp-dragging");
+        save();
+      }
+      h.addEventListener("pointermove", move);
+      h.addEventListener("pointerup", up);
+    });
+  }
+  drag(hSb, function (x) {
+    state.sb = Math.max(SB_MIN, Math.min(SB_MAX, x));
+  });
+  drag(hSplit, function (x) {
+    var sb = state.collapsed ? RAIL : state.sb;
+    var room = root.clientWidth - sb - 2 * GAP;
+    state.split = Math.max(0.25, Math.min(0.8, (x - sb - 2 * GAP) / room));
+  });
+
+  // Open and close.
+  function setQuery(href) {
+    var u = new URL(location.href);
+    if (href) u.searchParams.set("pane", href);
+    else u.searchParams.delete("pane");
+    history.replaceState(null, "", u);
+  }
+  function setTitle(page, section) {
+    title.textContent = "";
+    title.appendChild(el("span", "tp-pane-page")).textContent = page;
+    if (section) {
+      title.appendChild(el("span", "tp-pane-sec")).textContent = section;
+    }
+    title.title = section ? page + " › " + section : page;
+  }
+  // The address of the pane page, relative to this page, for ?pane=.
+  function relative(href) {
+    var to = new URL(href), from = new URL(location.href);
+    if (to.origin !== from.origin) return href;
+    var a = from.pathname.split("/").slice(0, -1);
+    var b = to.pathname.split("/");
+    var i = 0;
+    while (i < a.length && i < b.length - 1 && a[i] === b[i]) i++;
+    var up = a.slice(i).map(function () { return ".."; });
+    return up.concat(b.slice(i)).join("/") + to.search + to.hash;
+  }
+  var current = null;   // address of the page shown in the pane
+
+  // Pane history, for this page load only: the addresses the pane has
+  // shown, and where in that list it is. A page the pane reports that is
+  // not the current entry is pushed, dropping the entries ahead of it;
+  // Back and Forward move the index and say so, so the report that
+  // follows does not push.
+  var past = [], at = -1, moving = false;
+  function syncButtons() {
+    back.disabled = at <= 0;
+    fwd.disabled = at >= past.length - 1;
+  }
+  function paneSrc(url) {
+    var src = new URL(url, location.href);
+    src.searchParams.set("tp-pane", "1");
+    return src;
+  }
+  function go(step) {
+    var i = at + step;
+    if (i < 0 || i >= past.length) return;
+    at = i;
+    moving = true;
+    var src = paneSrc(past[at]).href;
+    // replace() keeps these moves out of the browser's own history.
+    try { frame.contentWindow.location.replace(src); }
+    catch (e) { frame.src = src; }
+    syncButtons();
+  }
+  function record(url) {
+    if (moving) {
+      moving = false;
+      past[at] = url;
+    } else if (past[at] !== url) {
+      past = past.slice(0, at + 1);
+      past.push(url);
+      at = past.length - 1;
+    }
+    syncButtons();
+  }
+
+  function open(url) {
+    var src = paneSrc(url);
+    frame.src = src.href;
+    // Until the page reports its own title, show its file name.
+    setTitle(decodeURIComponent(src.pathname.replace(/^.*\//, "")),
+             decodeURIComponent(src.hash.slice(1)));
+    pane.classList.add("is-open");
+    current = new URL(url, location.href).href;
+  }
+  window.addEventListener("message", function (e) {
+    if (e.source !== frame.contentWindow) return;
+    var d = e.data;
+    if (!d || d.tp !== "loaded" || typeof d.url !== "string") return;
+    if (!pane.classList.contains("is-open")) return;
+    current = d.url;
+    record(d.url);
+    fillToc(Array.isArray(d.toc) ? d.toc : [],
+            decodeURIComponent(new URL(d.url).hash.slice(1)));
+    setTitle(String(d.title || ""), String(d.section || ""));
+    setQuery(relative(d.url));
+  });
+  function fillToc(items, here) {
+    paneTocList.textContent = "";
+    items.forEach(function (t) {
+      var li = el("li");
+      var b = el("button", "tp-menu-item");
+      b.type = "button";
+      b.textContent = String(t.text || "");
+      b.setAttribute("data-id", String(t.id || ""));
+      b.style.paddingLeft = (0.6 + 0.85 * Math.max(0, (t.level || 1) - 1)) +
+        "rem";
+      if (t.id === here) b.classList.add("is-current");
+      li.appendChild(b);
+      paneTocList.appendChild(li);
+    });
+    paneToc.hidden = items.length === 0;
+    showToc(false);
+  }
+  function showToc(on) {
+    paneToc.classList.toggle("is-open", on);
+    paneTocBtn.setAttribute("aria-expanded", on ? "true" : "false");
+  }
+  paneTocList.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-id]");
+    if (!b) return;
+    showToc(false);
+    frame.contentWindow.postMessage(
+      { tp: "goto", id: b.getAttribute("data-id") }, "*");
+  });
+  document.addEventListener("click", function (e) {
+    if (!paneToc.contains(e.target)) showToc(false);
+  });
+  // A click inside the pane page takes focus away from this window.
+  window.addEventListener("blur", function () {
+    showToc(false);
+    if (toc) toc.classList.remove("is-open");
+  });
+
+  function close() {
+    frame.removeAttribute("src");
+    current = null;
+    past = [];
+    at = -1;
+    moving = false;
+    syncButtons();
+    fillToc([], "");
+    pane.classList.remove("is-open");
+    setQuery(null);
+  }
+  pane.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    var act = b && b.getAttribute("data-act");
+    if (act === "close") close();
+    if (act === "toc") showToc(!paneToc.classList.contains("is-open"));
+    if (act === "back") go(-1);
+    if (act === "forward") go(1);
+    if (act === "main" && current) {
+      // The main window shows the whole page, at the snippet's element.
+      var u = new URL(current);
+      var part = u.searchParams.get("tp-only");
+      if (part) {
+        u.searchParams.delete("tp-only");
+        u.hash = part;
+      }
+      location.href = u.href;
+    }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (toc && toc.classList.contains("is-open")) {
+      toc.classList.remove("is-open");
+    } else if (paneToc.classList.contains("is-open")) {
+      showToc(false);
+    } else if (pane.classList.contains("is-open")) {
+      close();
+    }
+  });
+
+  // Which links open in the pane: every link in the page body to a page
+  // of this book, including anchors on this same page (the reader keeps
+  // their place on the left). The sidebar, the contents, breadcrumbs, page
+  // navigation, heading anchors, footnote back-links, tabs and external
+  // sites behave as usual.
+  function paneTarget(a) {
+    if (!a || !main.contains(a)) return null;
+    if (a.closest(".page-navigation, .quarto-title-breadcrumbs, #TOC")) {
+      return null;
+    }
+    if (a.matches(".anchorjs-link, .footnote-back, [data-bs-toggle], " +
+                  "[role=tab]")) {
+      return null;
+    }
+    if (a.target === "_blank" || a.hasAttribute("download")) return null;
+    var href = a.getAttribute("href");
+    if (!href || href === "#") return null;
+    var url = new URL(href, location.href);
+    if (url.protocol !== location.protocol || url.host !== location.host) {
+      return null;
+    }
+    if (!/\.html$/.test(url.pathname)) return null;
+    if (url.pathname === location.pathname) {
+      // This page: an anchor only, never this page's own ?pane= state.
+      if (!url.hash) return null;
+      url.search = "";
+    }
+    // A footnote shows only the note; an index term only its entry.
+    if (a.matches(".footnote-ref, .tp-term") && url.hash) asSnippet(url);
+    return url;
+  }
+  function asSnippet(url) {
+    url.searchParams.set("tp-only", decodeURIComponent(url.hash.slice(1)));
+    url.hash = "";
+  }
+  main.querySelectorAll("a[href]").forEach(function (a) {
+    if (paneTarget(a)) a.classList.add("tp-pane-link");
+  });
+  main.addEventListener("click", function (e) {
+    if (!desktop.matches) return;
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
+      return;
+    }
+    var a = e.target.closest("a[href]");
+    var url = paneTarget(a);
+    if (!url) return;
+    e.preventDefault();
+    // Quarto's smooth scroll listens on window and ignores preventDefault;
+    // without this it would also scroll the left page to the anchor.
+    e.stopPropagation();
+    open(url.href);
+  });
+
+  // Reopen the pane named in the address (shared link, reload).
+  var start = new URL(location.href).searchParams.get("pane");
+  if (start) open(start);
+
+  syncButtons();
+  fillToc([], "");
+  window.addEventListener("resize", layout);
+  desktop.addEventListener("change", layout);
+  layout();
+})();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../chapters/05-core/theory-panel-error.html" class="pagination-link" aria-label="The error of a panel regression">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">K</span>&nbsp; <span class="chapter-title">The error of a panel regression</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

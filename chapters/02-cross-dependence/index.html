@@ -1,0 +1,2458 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>3&nbsp; Cross-sectional dependence – Metrics Masters</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../chapters/03-spatial/index.html" rel="next">
+<link href="../../chapters/01-explore/index.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-46d51a135cee5df7f1a795d1c268b47f.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0694db8cd81d3598e41fbab1c9882dee.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-46d51a135cee5df7f1a795d1c268b47f.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-58d0b2ac4bab12110c46fd8e476cf6ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-2e6f9e4e64c7f0c1b63e7faead9c081c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-58d0b2ac4bab12110c46fd8e476cf6ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script>
+// A page loaded inside the right-hand pane shows its content only.
+// Runs in <head> so the page never paints its sidebar first. The pane
+// opens pages with ?tp-pane=1; the page then names its window "tp-pane",
+// so links followed inside the pane keep the mode. Any other frame (an
+// editor preview, say) gets the full layout.
+(function () {
+  if (/[?&]tp-pane=1\b/.test(location.search)) window.name = "tp-pane";
+  if (window.name === "tp-pane") {
+    document.documentElement.classList.add("tp-in-pane");
+    // ?tp-only=<id>: show only that element (a footnote, an index entry).
+    var only = /[?&]tp-only=([^&#]+)/.exec(location.search);
+    if (only) {
+      document.documentElement.classList.add("tp-only");
+      document.documentElement.setAttribute("data-tp-only",
+        decodeURIComponent(only[1]));
+    }
+  }
+})();
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const queryPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeDefault = queryPrefersDark.matches;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    queryPrefersDark.addEventListener("change", e => {
+      if(window.localStorage.getItem("quarto-color-scheme") !== null)
+        return;
+      const alternate = e.matches
+      toggleColorMode(alternate);
+      localAlternateSentinel = e.matches ? 'alternate' : 'default'; // this is used alongside local storage!
+      toggleGiscusIfUsed(alternate, darkModeDefault);
+    });
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../chapters/02-cross-dependence/index.html">Dependence</a></li><li class="breadcrumb-item"><a href="../../chapters/02-cross-dependence/index.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Cross-sectional dependence</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Metrics Masters</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Set-up</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/00-road-map/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Road map</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/01-explore/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Explore the panel</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Dependence</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Cross-sectional dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Spatial dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Time dependence</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Core panel models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/06-dynamic/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Dynamic panels</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Cross-sectional dependence: how much, and of what kind</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/theory-common-factors-cce.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Common factors and CCE: what cross-section averages are doing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-weights.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Spatial weights</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-dependence-tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Testing for spatial dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-model-choice.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Spatial model choice</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Fitting spatial panels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-direct-indirect-effects.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">G</span>&nbsp; <span class="chapter-title">Direct and indirect effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/theory-panel-unit-roots.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">H</span>&nbsp; <span class="chapter-title">Panel unit roots: what a rejection is worth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/theory-cointegration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">I</span>&nbsp; <span class="chapter-title">Cointegration in panels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/theory-fixed-random.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">J</span>&nbsp; <span class="chapter-title">Fixed and random effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/theory-panel-error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">K</span>&nbsp; <span class="chapter-title">The error of a panel regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/06-dynamic/theory-dynamic-gmm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">L</span>&nbsp; <span class="chapter-title">Dynamic panel GMM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="1">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-csd-tests" id="toc-sec-csd-tests" class="nav-link active" data-scroll-target="#sec-csd-tests"><span class="header-section-number">3.1</span> The CD test</a></li>
+  <li><a href="#sec-csd-exponent" id="toc-sec-csd-exponent" class="nav-link" data-scroll-target="#sec-csd-exponent"><span class="header-section-number">3.2</span> The exponent α</a></li>
+  <li><a href="#sec-cce" id="toc-sec-cce" class="nav-link" data-scroll-target="#sec-cce"><span class="header-section-number">3.3</span> Common correlated effects</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../chapters/02-cross-dependence/index.html">Dependence</a></li><li class="breadcrumb-item"><a href="../../chapters/02-cross-dependence/index.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Cross-sectional dependence</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Cross-sectional dependence</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>A bank pricing a thirty-year mortgage in Ohio and one in Texas does not treat them as two unrelated bets. Both react when the Federal Reserve moves, and both calm down in the same quiet years. A model that scores them as independent draws is quietly wrong about how much is actually known.</p>
+<p><strong>Cross-sectional dependence</strong> is the name for that shared shock: the error in one unit’s equation is correlated with the error in another’s, because both are exposed to a force the model has not captured. The running example is <code>HousePricesUS</code> <span class="citation" data-cites="holly2010">(<a href="../../references.html#ref-holly2010" role="doc-biblioref">Holly et al. 2010</a>)</span>, 49 US states from 1975 to 2003, shipped in <strong>pder</strong> <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019</a>)</span>.</p>
+<p>This chapter assumes the panel’s shape is already settled — how many units, how many periods, how balanced (<a href="../../chapters/01-explore/index.html#sec-panel-shape">panel shape</a>) — and asks a different question: do the states move together more than chance allows, how strongly, and what an estimate should do about it.</p>
+<p><strong>In this chapter.</strong></p>
+<ol type="1">
+<li><strong>Is it there?</strong> Test whether the states move together more than chance allows, with Pesaran’s CD and three later refinements of it (<a href="../../chapters/02-cross-dependence/index.html#sec-csd-tests">the CD test</a>; theory in <a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html">cross-sectional dependence</a>).</li>
+<li><strong>How strong?</strong> The exponent α counts how many states a shock reaches — a fixed share, or a shrinking one (<a href="../../chapters/02-cross-dependence/index.html#sec-csd-exponent">the exponent α</a>; same theory note).</li>
+<li><strong>What to do about it.</strong> Strong dependence means a common factor that fixed effects cannot remove. Proxy it with cross-state averages: common correlated effects, CCE (<a href="../../chapters/02-cross-dependence/index.html#sec-cce">CCE</a>; theory in <a href="../../chapters/02-cross-dependence/theory-common-factors-cce.html">common factors and CCE</a>).</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">load_all</span>(<span class="at">quiet =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"HousePricesUS"</span>, <span class="at">package =</span> <span class="st">"pder"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>hp <span class="ot">&lt;-</span> plm<span class="sc">::</span><span class="fu">pdata.frame</span>(HousePricesUS)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>idx <span class="ot">&lt;-</span> plm<span class="sc">::</span><span class="fu">index</span>(hp)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># plm stores a panel stacked long; tapply folds it back to N x T.</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>as_matrix <span class="ot">&lt;-</span> <span class="cf">function</span>(v) {</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">tapply</span>(<span class="fu">as.numeric</span>(v), <span class="fu">list</span>(idx[[<span class="dv">1</span>]], idx[[<span class="dv">2</span>]]), identity)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  m[, <span class="fu">colSums</span>(<span class="fu">is.na</span>(m)) <span class="sc">==</span> <span class="dv">0</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="sec-csd-tests" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="sec-csd-tests"><span class="header-section-number">3.1</span> The CD test</h2>
+<p><strong>Question.</strong> Do house prices in the 49 states move together more than chance allows?</p>
+<p><strong>Intuition.</strong> Take any two states and correlate their log prices over the 29 years. Do it for all 1 176 pairs. If the states were independent, those correlations would scatter around zero, some positive and some negative, and their average would sit close to zero. If one common force moves every state, the average sits well above zero. Pesaran’s <strong>CD</strong> statistic is that average, scaled so that it is a standard normal when the states are independent <span class="citation" data-cites="pesaran2004">(<a href="../../references.html#ref-pesaran2004" role="doc-biblioref">Pesaran 2004</a>)</span>.</p>
+<div class="callout callout-style-simple callout-tip">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p>Why the signed average is both the test’s virtue and its blind spot, and what its null really is: <a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html">cross-sectional dependence</a>.</p>
+</div>
+</div>
+</div>
+<p>With <span class="math inline">\(\hat\rho_{ij}\)</span> the correlation between units <em>i</em> and <em>j</em> over the T periods <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015</a>, eq. 29.76, p.&nbsp;786)</span>:</p>
+<p><span class="math display">\[
+CD = \sqrt{\frac{2T}{N(N-1)}} \sum_{i&lt;j} \hat\rho_{ij}
+  \;\xrightarrow{d}\; N(0,1).
+\]</span></p>
+<p>It sums the correlations with their signs, not their squares. That keeps it centred at zero for any T, however large N is. It also makes the test blind whenever positive and negative correlations cancel.</p>
+<p><strong>The test.</strong> CD <span class="citation" data-cites="pesaran2004">(<a href="../../references.html#ref-pesaran2004" role="doc-biblioref">Pesaran 2004</a>)</span>. Null: the units are independent, or more precisely, any dependence among them is too weak to survive averaging. A rejection means a pervasive, same-signed co-movement.</p>
+<p><strong>Run it.</strong> Log house prices as an N × T matrix, built with <code>as_matrix()</code> from the setup chunk. <code>dcce::pcd_test</code> <span class="citation" data-cites="wasseja2026">(<a href="../../references.html#ref-wasseja2026" role="doc-biblioref">Wasseja 2026</a>)</span> computes CD and the three refinements met later in this section:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>logp <span class="ot">&lt;-</span> <span class="fu">as_matrix</span>(<span class="fu">log</span>(hp<span class="sc">$</span>price))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(logp, <span class="at">test =</span> <span class="st">"pesaran"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+CD        statistic =  53.2625  p-value = 0.0000</code></pre>
+</div>
+</div>
+<p>Two comparison panels. First an independent one of the same shape. Then the residuals of a two-way fixed-effects regression of log price on log income, a state effect and a year effect, which removes everything fixed about a state and everything common to a year (<a href="../../chapters/00-road-map/index.html">road map</a>):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>iid <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(<span class="dv">49</span> <span class="sc">*</span> <span class="dv">29</span>), <span class="at">nrow =</span> <span class="dv">49</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fe <span class="ot">&lt;-</span> plm<span class="sc">::</span><span class="fu">plm</span>(<span class="fu">log</span>(price) <span class="sc">~</span> <span class="fu">log</span>(income), <span class="at">data =</span> HousePricesUS,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">model =</span> <span class="st">"within"</span>, <span class="at">effect =</span> <span class="st">"twoways"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> <span class="fu">as_matrix</span>(<span class="fu">residuals</span>(fe))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(iid, <span class="at">test =</span> <span class="st">"pesaran"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(e, <span class="at">test =</span> <span class="st">"pesaran"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+CD        statistic =   0.2957  p-value = 0.7675
+
+
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+CD        statistic =   0.0229  p-value = 0.9817</code></pre>
+</div>
+</div>
+<p>The 1 176 correlations that each statistic averages:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>pair_cor <span class="ot">&lt;-</span> <span class="cf">function</span>(m) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  r <span class="ot">&lt;-</span> stats<span class="sc">::</span><span class="fu">cor</span>(<span class="fu">t</span>(m))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  r[<span class="fu">lower.tri</span>(r)]</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>op <span class="ot">&lt;-</span> graphics<span class="sc">::</span><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">hist</span>(<span class="fu">pair_cor</span>(logp), <span class="at">breaks =</span> <span class="dv">30</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">main =</span> <span class="st">"Log prices"</span>, <span class="at">xlab =</span> <span class="st">"pairwise correlation"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">abline</span>(<span class="at">v =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">hist</span>(<span class="fu">pair_cor</span>(iid), <span class="at">breaks =</span> <span class="dv">30</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">main =</span> <span class="st">"Independent panel"</span>, <span class="at">xlab =</span> <span class="st">"pairwise correlation"</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">abline</span>(<span class="at">v =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">hist</span>(<span class="fu">pair_cor</span>(e), <span class="at">breaks =</span> <span class="dv">30</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>               <span class="at">main =</span> <span class="st">"Two-way FE residuals"</span>, <span class="at">xlab =</span> <span class="st">"pairwise correlation"</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">abline</span>(<span class="at">v =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/c02-1-picture-1.png" class="img-fluid figure-img" alt="Three histograms of correlations from minus one to one. Left: a wide pile leaning to the right, most of it above zero. Middle: a narrow symmetric pile centred on zero. Right: a pile as wide as the left one but symmetric around zero, with as much mass below zero as above." width="672"></p>
+<figcaption>The pairwise correlations behind each CD statistic: log prices (left), an independent panel of the same shape (middle), and the residuals of the two-way fixed-effects regression (right). Dashed line at zero.</figcaption>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">par</span>(op)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Two averages summarise each histogram: the signed mean <span class="math inline">\(\bar\rho\)</span>, which CD is built on, and the mean of absolute values <span class="math inline">\(\overline{\lvert\rho\rvert}\)</span>, which ignores sign:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>rho_bars <span class="ot">&lt;-</span> <span class="cf">function</span>(m) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  r <span class="ot">&lt;-</span> <span class="fu">pair_cor</span>(m)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">rho_bar =</span> <span class="fu">mean</span>(r), <span class="at">abs_rho_bar =</span> <span class="fu">mean</span>(<span class="fu">abs</span>(r)))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">prices =</span> <span class="fu">rho_bars</span>(logp), <span class="at">independent =</span> <span class="fu">rho_bars</span>(iid),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">fe_residuals =</span> <span class="fu">rho_bars</span>(e))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 rho_bar abs_rho_bar
+prices       0.288415690   0.5062550
+independent  0.001601068   0.1534542
+fe_residuals 0.000123939   0.4914956</code></pre>
+</div>
+</div>
+<p><strong>Read it.</strong></p>
+<ul>
+<li><strong>Rejects (log prices).</strong> z = 53.26. The pile of correlations sits to the right of zero, <span class="math inline">\(\bar\rho\)</span> = 0.29. <em>So:</em> the states share a common force, and whatever is estimated on this panel has to allow for it.</li>
+<li><strong>Does not reject (independent panel).</strong> z inside ±1.96, correlations scattered symmetrically around zero. <em>So:</em> this is what “no dependence” looks like, and CD reads it right.</li>
+<li><strong>Misleads (two-way FE residuals).</strong> z = 0.02, p = 0.98: a cleaner acceptance than the genuine null above. But the histogram is as wide as the raw one, and <span class="math inline">\(\overline{\lvert\rho\rvert}\)</span> barely moves, 0.51 to 0.49. <em>So:</em> the year effect forces the residuals to sum to zero across states in every year, which makes their correlations cancel in sign. CD sees nothing because nothing <em>signed</em> is left, not because the dependence is gone <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, sec. 10.1.2.2</a>)</span>.</li>
+</ul>
+<p><strong>Three refinements.</strong> Each attacks CD’s blindness from a different side. None is in <strong>plm</strong>; all three are in <code>dcce::pcd_test</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Test</th>
+<th>Source</th>
+<th>What it changes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CDw</td>
+<td><span class="citation" data-cites="juodis2022">Juodis and Reese (<a href="../../references.html#ref-juodis2022" role="doc-biblioref">2022</a>)</span></td>
+<td>Random ±1 weights on the units, so a model’s estimated year effects or averages cannot push CD off zero</td>
+</tr>
+<tr class="even">
+<td>PEA</td>
+<td><span class="citation" data-cites="fan2015">Fan et al. (<a href="../../references.html#ref-fan2015" role="doc-biblioref">2015</a>)</span></td>
+<td>Adds a term that fires when a few pairs are strongly correlated, however the rest cancel</td>
+</tr>
+<tr class="odd">
+<td>CD*</td>
+<td><span class="citation" data-cites="pesaran2021cd">Pesaran and Xie (<a href="../../references.html#ref-pesaran2021cd" role="doc-biblioref">2021</a>)</span></td>
+<td>Removes the bias from estimated common factors, so it stays valid on residuals</td>
+</tr>
+</tbody>
+</table>
+<p>The same three panels, one call per test. CDw draws random weights, so it is the only one that needs a seed:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(logp, <span class="at">test =</span> <span class="st">"cdw"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(logp, <span class="at">test =</span> <span class="st">"pea"</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(logp, <span class="at">test =</span> <span class="st">"cdstar"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+CDw       statistic =  -0.1153  p-value = 0.9082
+
+
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+PEA       statistic = 308.4761  p-value = 0.0000
+
+
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+CD*       statistic = 5703.2307  p-value = 0.0000</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(iid, <span class="at">test =</span> <span class="st">"cdw"</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(iid, <span class="at">test =</span> <span class="st">"pea"</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(iid, <span class="at">test =</span> <span class="st">"cdstar"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+CDw       statistic =  -0.0241  p-value = 0.9808
+
+
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+PEA       statistic =   0.2957  p-value = 0.7675
+
+
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+CD*       statistic =   0.7395  p-value = 0.4596</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(e, <span class="at">test =</span> <span class="st">"cdw"</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(e, <span class="at">test =</span> <span class="st">"pea"</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(e, <span class="at">test =</span> <span class="st">"cdstar"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+CDw       statistic =  -0.1237  p-value = 0.9016
+
+
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+PEA       statistic = 217.8910  p-value = 0.0000
+
+
+Cross-Sectional Dependence Tests
+================================
+N = 49, T = 29
+
+CD*       statistic =   6.5197  p-value = 0.0000</code></pre>
+</div>
+</div>
+<p><strong>Read them.</strong></p>
+<ul>
+<li><strong>On the independent panel</strong>, all three sit inside ±1.96, as CD did. <em>So:</em> none raises false alarms here.</li>
+<li><strong>On the FE residuals</strong>, PEA and CD* both reject while CD could not. <em>So:</em> the dependence CD lost to sign cancellation is still there, and these two see it.</li>
+<li><strong>CDw does not reject even on raw prices</strong>, where the dependence is not in doubt. <em>So:</em> read CDw as a guard against false positives, never as evidence of absence. CD* is the one that keeps power on raw series and on residuals alike.</li>
+</ul>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Next.</strong> CD rejects: ask how strong the dependence is, <a href="../../chapters/02-cross-dependence/index.html#sec-csd-exponent">the exponent α</a>. CD does not reject: do not stop. Read <span class="math inline">\(\overline{\lvert\rho\rvert}\)</span>, and if the units sit on a map, ask whether the dependence follows it (<a href="../../chapters/03-spatial/index.html#sec-sp-map">does it follow the map</a>).</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Recipe
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># m: an N x T matrix, one row per unit; y: a pseries or a one-sided formula.</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(m, <span class="at">test =</span> <span class="st">"pesaran"</span>)   <span class="co"># CD</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>plm<span class="sc">::</span><span class="fu">pcdtest</span>(y, <span class="at">test =</span> <span class="st">"cd"</span>)          <span class="co"># the same statistic in plm</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">pcd_test</span>(m, <span class="at">test =</span> <span class="st">"cdstar"</span>)    <span class="co"># on residuals from a model with</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                                      <span class="co"># time effects or CCE averages</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Caution</span>Pitfalls
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Residuals from any model with estimated period effects.</strong> Two-way FE and CCE both estimate something per period, and <span class="citation" data-cites="juodis2022">Juodis and Reese (<a href="../../references.html#ref-juodis2022" role="doc-biblioref">2022</a>)</span> show that plain CD then diverges as T grows even when the dependence has been handled. On such residuals use CD* or CDw, never CD alone.</p>
+<p><strong><code>plm::pcdtest</code> on a formula needs <code>library(plm)</code>.</strong> It builds a call to <code>plm()</code> by its bare name, which the <code>::</code> prefix does not make visible.</p>
+<p><strong>CDw depends on its seed.</strong> Its weights are random draws; set the seed and report it.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Book check
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>dcce::pcd_test(test = "pesaran")</code> should equal <code>plm::pcdtest(test = "cd")</code>, the implementation <span class="citation" data-cites="croissant2019">Croissant and Millo (<a href="../../references.html#ref-croissant2019" role="doc-biblioref">2019, sec. 4.4</a>)</span> document:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Attached because pcdtest() on a formula calls plm() by its bare name.</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plm)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>plm<span class="sc">::</span><span class="fu">pcdtest</span>(<span class="fu">log</span>(price) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> HousePricesUS, <span class="at">test =</span> <span class="st">"cd"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pesaran CD test for cross-sectional dependence in panels
+
+data:  log(price) ~ 1
+z = 53.262, p-value &lt; 2.2e-16
+alternative hypothesis: cross-sectional dependence</code></pre>
+</div>
+</div>
+<p>z = 53.26 on both, so the new package’s CD is the one the book describes, and its other three statistics are read on that credit.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-csd-exponent" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="sec-csd-exponent"><span class="header-section-number">3.2</span> The exponent α</h2>
+<p><strong>Question.</strong> The states move together. Is that a national force that reaches every state, or a local one that reaches a few neighbours?</p>
+<p><strong>Intuition.</strong> Average log prices across states. If the co-movement is national, averaging over more states does not calm the average: every state carries the same shock, so adding states adds the same thing again. If the co-movement is local, each state shares its shock with a few others only, and averaging over many states washes it out, the way averaging independent draws does. The <strong>exponent α</strong> measures how fast averaging washes the co-movement out. At α = 1 it never does: <strong>strong</strong> dependence. At α = ½ it does as fast as for independent draws: <strong>weak</strong> dependence <span class="citation" data-cites="bailey2016">(<a href="../../references.html#ref-bailey2016" role="doc-biblioref">Bailey et al. 2016</a>)</span>.</p>
+<p>Why an estimate cares: a year effect removes a shock that hits every state <em>equally</em>. A national shock that hits each state <em>to its own degree</em>, with state-specific <strong>loadings</strong>, survives it, and if that shock also moves income it biases the slope (<a href="../../chapters/00-road-map/index.html">road map</a>). α says whether such a shock is there to worry about.</p>
+<div class="callout callout-style-simple callout-tip">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p>What α counts, how to read it as an effective sample size, and why the CD test cannot stand in for it: <a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html">cross-sectional dependence</a>.</p>
+</div>
+</div>
+</div>
+<p>For the cross-section average <span class="math inline">\(\bar z_t\)</span> of N units <span class="citation" data-cites="bailey2016 pesaran2015">(<a href="../../references.html#ref-bailey2016" role="doc-biblioref">Bailey et al. 2016</a>; <a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015</a>, eq. 29.6, p.&nbsp;754)</span>:</p>
+<p><span class="math display">\[
+\operatorname{Var}(\bar z_t) = \kappa_0 N^{2(\alpha-1)} + \kappa_1 N^{-1}
+  + O(N^{\alpha-2}), \qquad \tfrac12 &lt; \alpha \le 1.
+\]</span></p>
+<p>The second term is what independence gives, <span class="math inline">\(\sigma^2/N\)</span>. The first is the co-movement. On log scales the variance of the average falls with N at slope <span class="math inline">\(2(\alpha - 1)\)</span>: flat at α = 1, as steep as independence, −1, at α = ½.</p>
+<p><strong>The estimator.</strong> Two, in <code>dcce::csd_exp</code> <span class="citation" data-cites="wasseja2026">(<a href="../../references.html#ref-wasseja2026" role="doc-biblioref">Wasseja 2026</a>)</span>. The <strong>variable</strong> method <span class="citation" data-cites="bailey2016">(<a href="../../references.html#ref-bailey2016" role="doc-biblioref">Bailey et al. 2016</a>)</span> inverts the equation above. The <strong>residual</strong> method <span class="citation" data-cites="bailey2019">(<a href="../../references.html#ref-bailey2019" role="doc-biblioref">Bailey et al. 2019</a>)</span> counts the pairwise correlations that survive a significance threshold, and is the one to use on most series (see Pitfalls). Neither is a test: α is a number to read, with a bootstrap standard error.</p>
+<p><strong>Run it.</strong> Log prices, as the N × T matrix <code>logp</code> of the <a href="../../chapters/02-cross-dependence/index.html#sec-csd-tests">previous section</a>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">csd_exp</span>(logp, <span class="at">use_residuals =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Exponent of Cross-Sectional Dependence
+======================================
+Method  : BKP (2019)
+N = 49, T = 29
+
+alpha = 0.8330  (SE = 0.0189)
+95% CI: [0.8020, 0.8729]</code></pre>
+</div>
+</div>
+<p>Now remove the national force and ask again. <strong>CCEMG</strong>, the estimator of the <a href="../../chapters/02-cross-dependence/index.html#sec-cce">next section</a>, adds cross-state averages to each state’s regression, which soaks up a common shock whatever each state’s loading. Its residuals are the panel with that shock taken out:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pcce() builds a call to plm(), so plm must be attached, not just namespaced.</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plm)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>ccemg <span class="ot">&lt;-</span> plm<span class="sc">::</span><span class="fu">pcce</span>(<span class="fu">log</span>(price) <span class="sc">~</span> <span class="fu">log</span>(income), <span class="at">data =</span> HousePricesUS,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">model =</span> <span class="st">"mg"</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>e_cce <span class="ot">&lt;-</span> <span class="fu">as_matrix</span>(<span class="fu">residuals</span>(ccemg))</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">csd_exp</span>(e_cce, <span class="at">use_residuals =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Exponent of Cross-Sectional Dependence
+======================================
+Method  : BKP (2019)
+N = 49, T = 29
+
+alpha = 0.5069  (SE = 0.0870)
+95% CI: [0.3503, 0.6988]</code></pre>
+</div>
+</div>
+<p>The variance equation can be watched directly. Average random subsets of 2 to 49 states and see how fast the variance of the average falls:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>var_avg <span class="ot">&lt;-</span> <span class="cf">function</span>(m, n, <span class="at">reps =</span> <span class="dv">200</span>) {</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(<span class="fu">replicate</span>(reps, <span class="fu">var</span>(<span class="fu">colMeans</span>(m[<span class="fu">sample</span>(<span class="fu">nrow</span>(m), n), , <span class="at">drop =</span> <span class="cn">FALSE</span>]))))</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>ns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>, <span class="dv">49</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>v <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">prices =</span> <span class="fu">sapply</span>(ns, \(n) <span class="fu">var_avg</span>(logp, n)),</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">cce_residuals =</span> <span class="fu">sapply</span>(ns, \(n) <span class="fu">var_avg</span>(e_cce, n)),</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">independent =</span> <span class="fu">sapply</span>(ns, \(n) <span class="fu">var_avg</span>(iid, n))</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"firebrick"</span>, <span class="st">"grey60"</span>)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">matplot</span>(ns, v, <span class="at">log =</span> <span class="st">"xy"</span>, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">lty =</span> <span class="dv">1</span>,</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>                  <span class="at">col =</span> cols, <span class="at">xlab =</span> <span class="st">"states averaged, N"</span>,</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ylab =</span> <span class="st">"variance of the average"</span>)</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">legend</span>(<span class="st">"bottomleft"</span>, <span class="fu">colnames</span>(v), <span class="at">col =</span> cols, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">lty =</span> <span class="dv">1</span>,</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>                 <span class="at">bty =</span> <span class="st">"n"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/c02-2-picture-1.png" class="img-fluid figure-img" alt="Three lines on log-log axes from N = 2 to N = 49. Log prices is a nearly flat line in the middle. The independent panel at the top and the CCEMG residuals at the bottom are two parallel lines falling steeply, with slope close to minus one." width="672"></p>
+<figcaption>Variance of the cross-state average against the number of states averaged, both on log scales; each point averages 200 random subsets. The slope is 2(α − 1): flat means α = 1, slope −1 means α = ½.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The slope of each line, turned into α:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>slope <span class="ot">&lt;-</span> <span class="cf">function</span>(v) <span class="fu">coef</span>(<span class="fu">lm</span>(<span class="fu">log</span>(v) <span class="sc">~</span> <span class="fu">log</span>(ns)))[[<span class="dv">2</span>]]</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">apply</span>(v, <span class="dv">2</span>, slope) <span class="sc">/</span> <span class="dv">2</span>, <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       prices cce_residuals   independent 
+         0.85          0.47          0.51 </code></pre>
+</div>
+</div>
+<p><strong>Read it.</strong></p>
+<ul>
+<li><strong>Strong (log prices).</strong> α = 0.83, far above ½, and the price line is nearly flat: averaging 49 states calms the average little more than averaging 8. <em>So:</em> a national force with state-specific loadings. Year effects will not remove it; <a href="../../chapters/02-cross-dependence/index.html#sec-cce">CCE</a> will.</li>
+<li><strong>Weak (CCEMG residuals).</strong> α = 0.51, the floor, and the line falls as steeply as the independent panel’s. <em>So:</em> once the national force is out, what is left is local. Only now is a spatial model a legitimate question (<a href="../../chapters/03-spatial/index.html#sec-sp-map">does it follow the map</a>).</li>
+<li><strong>The picture’s own estimate.</strong> The slopes give 0.85, 0.47 and 0.51, next to 0.83 and 0.51 from the residual method. <em>So:</em> α is not a black box; it is the slope of this picture with a finite-N correction, and that correction is where the variable method can fail (Pitfalls).</li>
+</ul>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Next.</strong> α near 1: <a href="../../chapters/02-cross-dependence/index.html#sec-cce">common correlated effects</a>. α near ½: fixed effects are consistent; ask whether the dependence follows a map (<a href="../../chapters/03-spatial/index.html#sec-sp-map">does it follow the map</a>). Either way, do not route on α alone: the spatial chapter’s randomised-W test is the corroboration.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Recipe
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># m: an N x T matrix, one row per unit, no missing cells.</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">csd_exp</span>(m, <span class="at">use_residuals =</span> <span class="cn">TRUE</span>)    <span class="co"># residual method, bootstrap SE</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>dcce<span class="sc">::</span><span class="fu">csd_exp</span>(m)                          <span class="co"># variable method</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Caution</span>Pitfalls
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>The variable method collapses when the average is calm.</strong> It is only informative when the common component survives averaging. <code>price</code> is an index re-based to 100 in 1980 for every state, so the cross-state average of log price moves in a band of 4.51–4.76 and its variance is small. The correction for <span class="math inline">\(\kappa_1 N^{-1}\)</span> then dominates and the estimate collapses onto ½, the opposite of what CD and the residual method report. On log real GDP in <code>pwt8</code>, whose average carries the common trend, it works:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"pwt8"</span>, <span class="at">package =</span> <span class="st">"dcce"</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>lgdp <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">by</span>(pwt8, pwt8<span class="sc">$</span>country, \(d) d<span class="sc">$</span>log_rgdpo))</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>lgdp <span class="ot">&lt;-</span> lgdp[, <span class="fu">colSums</span>(<span class="fu">is.na</span>(lgdp)) <span class="sc">==</span> <span class="dv">0</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">hpus =</span> <span class="fu">var</span>(<span class="fu">colMeans</span>(logp)), <span class="at">pwt8 =</span> <span class="fu">var</span>(<span class="fu">colMeans</span>(lgdp)))</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">hpus =</span> dcce<span class="sc">::</span><span class="fu">csd_exp</span>(logp)<span class="sc">$</span>alpha, <span class="at">pwt8 =</span> dcce<span class="sc">::</span><span class="fu">csd_exp</span>(lgdp)<span class="sc">$</span>alpha)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       hpus        pwt8 
+0.003875703 0.052595668 
+     hpus      pwt8 
+0.4997746 0.8348299 </code></pre>
+</div>
+</div>
+<p>Thirteen times more variance in the average is the whole difference. Prefer the residual method unless the series is a level whose average carries the common trend.</p>
+<p><strong>The two methods report standard errors on different footings.</strong> For the variable method <code>csd_exp</code> returns <code>se = 1/(2 ln N √N)</code>, a function of N alone: two panels with the same N get the same SE whatever they contain. The residual method bootstraps, so its SE and its asymmetric interval respond to the data, and to the seed. Read the first as a point estimate only.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Book check
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The <strong>dcce</strong> vignette <span class="citation" data-cites="wasseja2026">(<a href="../../references.html#ref-wasseja2026" role="doc-biblioref">Wasseja 2026</a>)</span> prints α = 0.8348, SE = 0.0114 and a 95% CI of [0.8124, 0.8573] for log real GDP on <code>pwt8</code>, 93 countries over 48 years, with the variable method:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> dcce<span class="sc">::</span><span class="fu">csd_exp</span>(lgdp)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">vignette =</span> <span class="fu">c</span>(<span class="fl">0.8348</span>, <span class="fl">0.0114</span>, <span class="fl">0.8124</span>, <span class="fl">0.8573</span>),</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">ours =</span> <span class="fu">c</span>(a<span class="sc">$</span>alpha, a<span class="sc">$</span>se, a<span class="sc">$</span>ci),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="fu">c</span>(<span class="st">"alpha"</span>, <span class="st">"se"</span>, <span class="st">"ci_lo"</span>, <span class="st">"ci_hi"</span>)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">4</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> <span class="fu">log</span>(a<span class="sc">$</span>N) <span class="sc">*</span> <span class="fu">sqrt</span>(a<span class="sc">$</span>N))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      vignette   ours
+alpha   0.8348 0.8348
+se      0.0114 0.0114
+ci_lo   0.8124 0.8124
+ci_hi   0.8573 0.8573
+[1] 0.01143882</code></pre>
+</div>
+</div>
+<p>The estimate reproduces to four decimals, and the last line confirms that the printed SE is exactly <span class="math inline">\(1/(2\ln N\sqrt{N})\)</span>. <span class="citation" data-cites="bailey2016">Bailey et al. (<a href="../../references.html#ref-bailey2016" role="doc-biblioref">2016</a>)</span> report α in the 0.77–0.92 range for macroeconomic series, which brackets both the 0.8348 here and the 0.83 on house prices above.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-cce" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="sec-cce"><span class="header-section-number">3.3</span> Common correlated effects</h2>
+<p><strong>Question.</strong> Income rises 10%. How much do house prices rise, once the national forces that move both are allowed for?</p>
+<p><strong>Intuition.</strong> The national force is unobserved. Its footprint is not: every state carries it, so the cross-state average of prices, and of incomes, carries it too, with the state-specific noise averaged away. Put those averages into each state’s regression as extra regressors, and the force is controlled for without ever being measured. That is <strong>common correlated effects</strong>, CCE <span class="citation" data-cites="pesaran2006">(<a href="../../references.html#ref-pesaran2006" role="doc-biblioref">Pesaran 2006</a>)</span>. Each state gets its own coefficient on the averages, so each can feel the force to its own degree, which is exactly what a year effect cannot allow.</p>
+<div class="callout callout-style-simple callout-tip">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p>Why the averages span the space of the unobserved factors, and what CCE cannot fix: <a href="../../chapters/02-cross-dependence/theory-common-factors-cce.html">common factors and CCE</a>.</p>
+</div>
+</div>
+</div>
+<p>State <em>i</em> in year <em>t</em> is fitted as</p>
+<p><span class="math display">\[
+y_{it} = \alpha_i + \beta_i x_{it} + c_i \bar y_t + d_i \bar x_t + e_{it},
+\]</span></p>
+<p>with <span class="math inline">\(\bar y_t\)</span> and <span class="math inline">\(\bar x_t\)</span> the cross-state averages. <strong>CCEMG</strong> averages the 49 slopes <span class="math inline">\(\hat\beta_i\)</span> <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015</a>, eq. 29.37, p.&nbsp;767)</span>. <strong>CCEP</strong> pools the states into one slope β, keeping the state-specific <span class="math inline">\(c_i\)</span> and <span class="math inline">\(d_i\)</span> <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015</a>, eq. 29.41, p.&nbsp;768)</span>.</p>
+<p><strong>The estimators.</strong> Three, so that the averages’ effect is visible. <strong>MG</strong>, mean group: the 49 state regressions without the averages, then the mean slope. <strong>CCEMG</strong>: the same with the averages. <strong>CCEP</strong>: the pooled version. No test here; the evidence is how the estimates move.</p>
+<p><strong>Run it.</strong> <code>plm::pmg</code> gives MG and, with <code>model = "cmg"</code>, CCEMG; <code>plm::pcce</code> gives CCEMG again and is the only way to get CCEP <span class="citation" data-cites="croissant2019">(<a href="../../references.html#ref-croissant2019" role="doc-biblioref">Croissant and Millo 2019, sec. 8.3.2.1</a>)</span>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pmg() and pcce() build a call to plm(), so plm must be attached, not just</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># namespaced.</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plm)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>mg <span class="ot">&lt;-</span> plm<span class="sc">::</span><span class="fu">pmg</span>(<span class="fu">log</span>(price) <span class="sc">~</span> <span class="fu">log</span>(income), <span class="at">data =</span> HousePricesUS, <span class="at">model =</span> <span class="st">"mg"</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>cmg <span class="ot">&lt;-</span> plm<span class="sc">::</span><span class="fu">pmg</span>(<span class="fu">log</span>(price) <span class="sc">~</span> <span class="fu">log</span>(income), <span class="at">data =</span> HousePricesUS, <span class="at">model =</span> <span class="st">"cmg"</span>)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(mg)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(cmg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) log(income) 
+  3.8498054   0.3018117 
+    (Intercept)     log(income)           y.bar log(income).bar 
+     -0.1147135       1.1354048       1.0465063      -1.1954172 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>ccemg <span class="ot">&lt;-</span> plm<span class="sc">::</span><span class="fu">pcce</span>(<span class="fu">log</span>(price) <span class="sc">~</span> <span class="fu">log</span>(income), <span class="at">data =</span> HousePricesUS, <span class="at">model =</span> <span class="st">"mg"</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>ccep <span class="ot">&lt;-</span> plm<span class="sc">::</span><span class="fu">pcce</span>(<span class="fu">log</span>(price) <span class="sc">~</span> <span class="fu">log</span>(income), <span class="at">data =</span> HousePricesUS, <span class="at">model =</span> <span class="st">"p"</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ccemg)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ccep)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Common Correlated Effects Mean Groups model
+
+Call:
+plm::pcce(formula = log(price) ~ log(income), data = HousePricesUS, 
+    model = "mg")
+
+Balanced Panel: n = 49, T = 29, N = 1421
+
+Residuals:
+      Min.    1st Qu.     Median    3rd Qu.       Max. 
+-0.2374376 -0.0354899  0.0002718  0.0363912  0.2242333 
+
+Coefficients:
+            Estimate Std. Error z-value  Pr(&gt;|z|)    
+log(income)  1.13540    0.19546   5.809 6.285e-09 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Total Sum of Squares: 47.234
+Residual Sum of Squares: 5.6567
+HPY R-squared: 0.74027
+Common Correlated Effects Pooled model
+
+Call:
+plm::pcce(formula = log(price) ~ log(income), data = HousePricesUS, 
+    model = "p")
+
+Balanced Panel: n = 49, T = 29, N = 1421
+
+Residuals:
+     Min.   1st Qu.    Median   3rd Qu.      Max. 
+-0.278833 -0.039281 -0.002089  0.039268  0.299930 
+
+Coefficients:
+            Estimate Std. Error z-value  Pr(&gt;|z|)    
+log(income)  1.19941    0.20728  5.7864 7.193e-09 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Total Sum of Squares: 47.234
+Residual Sum of Squares: 6.8851
+HPY R-squared: 0.69579</code></pre>
+</div>
+</div>
+<p>The 49 state slopes that MG and CCEMG average:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>slopes <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">MG =</span> mg<span class="sc">$</span>indcoef[<span class="st">"log(income)"</span>, ],</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">CCEMG =</span> ccemg<span class="sc">$</span>indcoef[<span class="dv">1</span>, ])</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">stripchart</span>(slopes, <span class="at">vertical =</span> <span class="cn">TRUE</span>, <span class="at">method =</span> <span class="st">"jitter"</span>, <span class="at">pch =</span> <span class="dv">16</span>,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">col =</span> <span class="st">"grey50"</span>, <span class="at">ylab =</span> <span class="st">"income elasticity, by state"</span>)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">segments</span>(<span class="fu">c</span>(<span class="fl">0.8</span>, <span class="fl">1.8</span>), <span class="fu">colMeans</span>(slopes), <span class="fu">c</span>(<span class="fl">1.2</span>, <span class="fl">2.2</span>),</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">colMeans</span>(slopes), <span class="at">lwd =</span> <span class="dv">4</span>)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>graphics<span class="sc">::</span><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/c02-3-picture-1.png" class="img-fluid figure-img" alt="Two vertical clouds of 49 points. The MG cloud is centred near 0.3 with about a quarter of its points below zero. The CCEMG cloud sits higher, centred near 1.1, and spreads more widely." width="672"></p>
+<figcaption>Income elasticity of house prices, one point per state, from the state-by-state regressions without (MG) and with (CCEMG) the cross-state averages. Thick bars: the mean of each cloud, which is the reported estimate. Dotted line at zero.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Read it.</strong></p>
+<ul>
+<li><strong>MG, without the averages: 0.30.</strong> The slopes scatter around 0.30, a quarter of them negative. <em>So:</em> with the national force left in each regression, the within-state relation between income and prices is diluted and noisy.</li>
+<li><strong>CCEMG, with the averages: 1.14.</strong> The whole cloud shifts up, and the mean is 1.14 with a standard error of 0.20. <em>So:</em> once the national force is controlled, a 10% rise in income goes with an 11% rise in prices. The gap between 0.30 and 1.14 is the leak the <a href="../../chapters/00-road-map/index.html">road map</a> described.</li>
+<li><strong>CCEP: 1.20.</strong> Pooling the states gives almost the same slope. <em>So:</em> the spread in the CCEMG cloud is noise around one slope rather than 49 different slopes, which <span class="citation" data-cites="croissant2019">Croissant and Millo (<a href="../../references.html#ref-croissant2019" role="doc-biblioref">2019, 199</a>)</span> read as support for pooling.</li>
+</ul>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Next.</strong> Two checks on the residuals. Do they still move together, now weakly (<a href="../../chapters/02-cross-dependence/index.html#sec-csd-exponent">the exponent α</a>)? Do they wander (<a href="../../chapters/04-time/index.html#sec-ur-second-gen">tests that allow a common factor</a>)? If they do not wander, the slope above is a long-run relation, not a spurious one.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Recipe
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plm)   <span class="co"># pmg() and pcce() call plm() by its bare name</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>plm<span class="sc">::</span><span class="fu">pmg</span>(y <span class="sc">~</span> x, <span class="at">data =</span> d, <span class="at">model =</span> <span class="st">"mg"</span>)     <span class="co"># MG, no averages</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>plm<span class="sc">::</span><span class="fu">pcce</span>(y <span class="sc">~</span> x, <span class="at">data =</span> d, <span class="at">model =</span> <span class="st">"mg"</span>)    <span class="co"># CCEMG</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>plm<span class="sc">::</span><span class="fu">pcce</span>(y <span class="sc">~</span> x, <span class="at">data =</span> d, <span class="at">model =</span> <span class="st">"p"</span>)     <span class="co"># CCEP</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Caution</span>Pitfalls
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>One average per variable, so k + 1 factors at most.</strong> With k regressors there are k + 1 averages, and they can proxy at most k + 1 common factors. More factors than that, or a factor that every state loads on with the same sign and size so that it averages to nothing, and CCE is incomplete; see <a href="../../chapters/02-cross-dependence/theory-common-factors-cce.html">common factors and CCE</a>.</p>
+<p><strong><code>coef()</code> of CCEMG is a plain mean.</strong> The reported slope is the mean of <code>indcoef</code>, so one state with a wild slope moves it. Look at the cloud, not only its centre.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Book check
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Slope on log(income), with book values from <span class="citation" data-cites="croissant2019">Croissant and Millo (<a href="../../references.html#ref-croissant2019" role="doc-biblioref">2019, 197–99</a>)</span>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>mods <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">MG =</span> mg, <span class="at">CCEMG =</span> ccemg, <span class="at">CCEP =</span> ccep)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">sapply</span>(mods, \(m) <span class="fu">coef</span>(m)[[<span class="st">"log(income)"</span>]])</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> <span class="fu">sapply</span>(mods, \(m) <span class="fu">sqrt</span>(<span class="fu">vcov</span>(m)[<span class="st">"log(income)"</span>, <span class="st">"log(income)"</span>]))</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">book_coef =</span> <span class="fu">c</span>(<span class="fl">0.302</span>, <span class="fl">1.135</span>, <span class="fl">1.199</span>), <span class="at">coef =</span> b,</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">book_se =</span> <span class="fu">c</span>(<span class="fl">0.093</span>, <span class="fl">0.195</span>, <span class="fl">0.207</span>), <span class="at">se =</span> se</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      book_coef  coef book_se    se
+MG        0.302 0.302   0.093 0.093
+CCEMG     1.135 1.135   0.195 0.195
+CCEP      1.199 1.199   0.207 0.207</code></pre>
+</div>
+</div>
+<p>The book also prints RSS 5.66 / R² 0.74 for CCEMG and RSS 6.89 / R² 0.696 for CCEP; compare with the summaries above.</p>
+</div>
+</div>
+</div>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-bailey2016" class="csl-entry" role="listitem">
+Bailey, Natalia, George Kapetanios, and M. Hashem Pesaran. 2016. <span>“Exponent of Cross-Sectional Dependence: Estimation and Inference.”</span> <em>Journal of Applied Econometrics</em> 31 (6): 929–60. <a href="https://doi.org/10.1002/jae.2476">https://doi.org/10.1002/jae.2476</a>.
+</div>
+<div id="ref-bailey2019" class="csl-entry" role="listitem">
+Bailey, Natalia, George Kapetanios, and M. Hashem Pesaran. 2019. <span>“Exponent of Cross-Sectional Dependence for Residuals.”</span> <em>Sankhya B</em> 81 (Suppl. 1): 46–102. <a href="https://doi.org/10.1007/s13571-019-00196-9">https://doi.org/10.1007/s13571-019-00196-9</a>.
+</div>
+<div id="ref-croissant2019" class="csl-entry" role="listitem">
+Croissant, Yves, and Giovanni Millo. 2019. <em>Panel Data Econometrics with <span>R</span></em>. Wiley. <a href="https://doi.org/10.1002/9781119504641">https://doi.org/10.1002/9781119504641</a>.
+</div>
+<div id="ref-fan2015" class="csl-entry" role="listitem">
+Fan, Jianqing, Yuan Liao, and Jiawei Yao. 2015. <span>“Power Enhancement in High-Dimensional Cross-Sectional Tests.”</span> <em>Econometrica</em> 83 (4): 1497–541. <a href="https://doi.org/10.3982/ECTA12749">https://doi.org/10.3982/ECTA12749</a>.
+</div>
+<div id="ref-holly2010" class="csl-entry" role="listitem">
+Holly, Sean, M. Hashem Pesaran, and Takashi Yamagata. 2010. <span>“A Spatio-Temporal Model of House Prices in the <span>USA</span>.”</span> <em>Journal of Econometrics</em> 158 (1): 160–73. <a href="https://doi.org/10.1016/j.jeconom.2010.03.040">https://doi.org/10.1016/j.jeconom.2010.03.040</a>.
+</div>
+<div id="ref-juodis2022" class="csl-entry" role="listitem">
+Juodis, Artūras, and Simon Reese. 2022. <span>“The Incidental Parameters Problem in Testing for Remaining Cross-Section Correlation.”</span> <em>Journal of Business and Economic Statistics</em> 40 (3): 1191–203. <a href="https://doi.org/10.1080/07350015.2021.1906687">https://doi.org/10.1080/07350015.2021.1906687</a>.
+</div>
+<div id="ref-pesaran2004" class="csl-entry" role="listitem">
+Pesaran, M. Hashem. 2004. <em>General Diagnostic Tests for Cross Section Dependence in Panels</em>. CESifo Working Paper Series No. 1229.
+</div>
+<div id="ref-pesaran2006" class="csl-entry" role="listitem">
+Pesaran, M. Hashem. 2006. <span>“Estimation and Inference in Large Heterogeneous Panels with a Multifactor Error Structure.”</span> <em>Econometrica</em> 74 (4): 967–1012. <a href="https://doi.org/10.1111/j.1468-0262.2006.00692.x">https://doi.org/10.1111/j.1468-0262.2006.00692.x</a>.
+</div>
+<div id="ref-pesaran2015" class="csl-entry" role="listitem">
+Pesaran, M. Hashem. 2015. <em>Time Series and Panel Data Econometrics</em>. Oxford University Press. <a href="https://doi.org/10.1093/acprof:oso/9780198736912.001.0001">https://doi.org/10.1093/acprof:oso/9780198736912.001.0001</a>.
+</div>
+<div id="ref-pesaran2021cd" class="csl-entry" role="listitem">
+Pesaran, M. Hashem, and Yimeng Xie. 2021. <em>A Bias-Corrected <span>CD</span> Test for Error Cross-Sectional Dependence in Panel Data Models with Latent Factors</em>. Cambridge Working Papers in Economics No. 2158. <a href="https://doi.org/10.17863/CAM.75708">https://doi.org/10.17863/CAM.75708</a>.
+</div>
+<div id="ref-wasseja2026" class="csl-entry" role="listitem">
+Wasseja, Mustapha. 2026. <em>Dcce: Dynamic Common Correlated Effects Estimation for Panel Data</em>. <a href="https://doi.org/10.32614/CRAN.package.dcce">https://doi.org/10.32614/CRAN.package.dcce</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script>
+// Nest the open page's sections under its entry in the book sidebar.
+// Quarto has no option for this: the sidebar lists pages only. The script
+// copies the top two levels of the page's own TOC (#TOC), makes groups
+// collapsible, and mirrors Quarto's scroll-spy highlight.
+document.addEventListener("DOMContentLoaded", function () {
+  var toc = document.querySelector("nav#TOC > ul");
+  var link = document.querySelector("#quarto-sidebar .sidebar-link.active");
+  if (!toc || !link) return;
+  var item = link.closest("li.sidebar-item");
+  if (!item) return;
+
+  function build(srcList, depth) {
+    var ul = document.createElement("ul");
+    Array.prototype.forEach.call(srcList.children, function (srcLi) {
+      var a = srcLi.querySelector(":scope > a");
+      if (!a) return;
+      var li = document.createElement("li");
+      var row = document.createElement("div");
+      row.className = "toc-row";
+      var copy = document.createElement("a");
+      copy.href = a.getAttribute("href");
+      copy.innerHTML = a.innerHTML;
+      row.appendChild(copy);
+      var sub = srcLi.querySelector(":scope > ul");
+      if (sub && depth < 2) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "toc-toggle";
+        btn.setAttribute("aria-label", "Toggle subsections");
+        btn.innerHTML = '<i class="bi bi-chevron-down"></i>';
+        btn.addEventListener("click", function () {
+          li.classList.toggle("collapsed");
+          btn.setAttribute("aria-expanded", !li.classList.contains("collapsed"));
+        });
+        row.appendChild(btn);
+        li.appendChild(row);
+        li.appendChild(build(sub, depth + 1));
+        li.classList.add("collapsed");
+        btn.setAttribute("aria-expanded", "false");
+      } else {
+        li.appendChild(row);
+      }
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  var nested = build(toc, 1);
+  nested.className = "sidebar-page-toc";
+  item.appendChild(nested);
+
+  // Mirror the right-hand TOC's active link; open its group.
+  function sync() {
+    var active = document.querySelectorAll("nav#TOC a.nav-link.active");
+    var target = active.length ? active[active.length - 1].getAttribute("href") : null;
+    nested.querySelectorAll("a.is-current").forEach(function (a) {
+      a.classList.remove("is-current");
+    });
+    if (!target) return;
+    var hit = nested.querySelector('a[href="' + target + '"]');
+    if (!hit) return;
+    hit.classList.add("is-current");
+    var li = hit.closest("li");
+    while (li && nested.contains(li)) {
+      if (li.querySelector(":scope > ul") && li.classList.contains("collapsed")) {
+        li.classList.remove("collapsed");
+      }
+      li = li.parentElement.closest("li");
+    }
+  }
+  new MutationObserver(sync).observe(document.querySelector("nav#TOC"), {
+    subtree: true, attributes: true, attributeFilter: ["class"]
+  });
+  sync();
+});
+</script>
+<script>
+// Two-page layout: the book page stays on the left; a cross-reference or
+// any link to another page of the book opens that page in a pane on the
+// right. The sidebar is fixed, resizable, and collapses to a rail only on
+// request. Each column has a top bar of the same height (--tp-bar).
+// Styles: assets/two-page.scss. Phones keep the normal layout.
+(function () {
+  // Wide tables scroll sideways in their own box instead of squeezing their
+  // columns or running out of the column; in the pane as on the page.
+  document.querySelectorAll("main.content table").forEach(function (t) {
+    if (t.parentElement.classList.contains("tp-table-scroll")) return;
+    var box = document.createElement("div");
+    box.className = "tp-table-scroll";
+    t.parentNode.insertBefore(box, t);
+    box.appendChild(t);
+    var row = t.querySelector("tr");
+    if (row && row.children.length > 5) t.classList.add("tp-table-wide");
+  });
+
+  if (document.documentElement.classList.contains("tp-in-pane")) {
+    inPane();
+    return;
+  }
+
+  // Inside the pane. The parent cannot read this frame on file://, so the
+  // page reports itself by postMessage: its address, page and section
+  // titles, and its contents. The parent may ask it to go to an anchor.
+  function inPane() {
+    function clean(t) { return (t || "").replace(/\s+/g, " ").trim(); }
+    var HEADS = ":scope > h1, :scope > h2, :scope > h3, :scope > h4, " +
+      ":scope > h5, :scope > h6";
+    // The heading of the section that holds el. An unnumbered subsection
+    // ("Read it") gets its parent's heading in front, so it can be told
+    // apart from its namesakes.
+    function headingOf(el) {
+      if (!el) return "";
+      var sec = el.closest("section[id]");
+      var h = /^H[1-6]$/.test(el.tagName) ? el :
+        sec && sec.querySelector(HEADS);
+      if (!h) return "";
+      var text = clean(h.textContent);
+      if (!h.querySelector(".header-section-number") && sec) {
+        var up = sec.parentElement && sec.parentElement.closest("section[id]");
+        var uh = up && up.querySelector(HEADS);
+        if (uh && uh.tagName !== "H1") {
+          text = clean(uh.textContent) + " › " + text;
+        }
+      }
+      return text;
+    }
+    var h1 = document.querySelector("main.content h1");
+    var pageTitle = h1 ? clean(h1.textContent) : clean(document.title);
+
+    // Snippet mode (?tp-only=<id>, set up by assets/in-pane.html): show only
+    // that element, a footnote or an index entry, instead of the whole page.
+    var snippet = null;
+    var only = document.documentElement.getAttribute("data-tp-only");
+    var part = only ? document.getElementById(only) : null;
+    if (part) {
+      snippet = buildSnippet(part);
+    } else {
+      document.documentElement.classList.remove("tp-only");
+    }
+    function buildSnippet(part) {
+      var box = document.createElement("div");
+      box.className = "tp-snippet";
+      var note = /^fn\d+$/.test(part.id) && part.closest("#footnotes");
+      var label = "";
+      var head = document.createElement("p");
+      head.className = "tp-snippet-head";
+      if (note) {
+        label = "Note " + part.id.slice(2);
+        head.textContent = label + ", from " + pageTitle;
+      } else {
+        var strong = part.querySelector("strong");
+        label = clean(strong ? strong.textContent : part.textContent);
+        head.textContent = "From the " + pageTitle.toLowerCase();
+      }
+      box.appendChild(head);
+      // A copy without ids, so the page keeps one element per id.
+      var body = document.createElement("div");
+      body.className = "tp-snippet-body";
+      Array.prototype.forEach.call(part.childNodes, function (c) {
+        body.appendChild(c.cloneNode(true));
+      });
+      body.querySelectorAll("[id]").forEach(function (e) {
+        e.removeAttribute("id");
+      });
+      body.querySelectorAll(".footnote-back").forEach(function (e) {
+        e.remove();
+      });
+      box.appendChild(body);
+      if (note) {
+        // The full page, at the place the note is called from.
+        var u = new URL(location.href);
+        u.searchParams.delete("tp-pane");
+        u.searchParams.delete("tp-only");
+        u.hash = "fnref" + part.id.slice(2);
+        var more = document.createElement("a");
+        more.className = "tp-snippet-more";
+        more.href = u.href;
+        more.textContent = "Show in the chapter";
+        box.appendChild(more);
+      }
+      var main = document.querySelector("main.content");
+      main.insertBefore(box, main.firstChild);
+      return { label: label };
+    }
+
+    function report() {
+      var id = decodeURIComponent(location.hash.slice(1));
+      var target = id ? document.getElementById(id) : null;
+      // The contents, with each entry's depth; none for a snippet.
+      var toc = [];
+      var links = snippet ? [] :
+        document.querySelectorAll("nav#TOC a.nav-link");
+      Array.prototype.forEach.call(links, function (a) {
+        var level = 0;
+        for (var n = a.parentElement; n && n.id !== "TOC"; n = n.parentElement) {
+          if (n.tagName === "UL") level++;
+        }
+        toc.push({ id: a.getAttribute("href").slice(1),
+                   text: clean(a.textContent), level: level });
+      });
+      var u = new URL(location.href);
+      u.searchParams.delete("tp-pane");
+      window.parent.postMessage({
+        tp: "loaded",
+        url: u.href,
+        title: pageTitle,
+        section: snippet ? snippet.label :
+          target && target !== h1 ? headingOf(target) : "",
+        toc: toc
+      }, "*");
+      // Flash the element the link pointed at.
+      if (target) {
+        target.classList.remove("tp-flash");
+        void target.offsetWidth;
+        target.classList.add("tp-flash");
+      }
+    }
+    window.addEventListener("message", function (e) {
+      if (e.source !== window.parent || !e.data || e.data.tp !== "goto") {
+        return;
+      }
+      if (document.getElementById(e.data.id)) location.hash = e.data.id;
+    });
+    window.addEventListener("hashchange", report);
+    window.addEventListener("load", report);
+  }
+
+  var root = document.documentElement;
+  var desktop = window.matchMedia("(min-width: 768px)");
+  var RAIL = 44, SB_MIN = 200, SB_MAX = 440, MAIN_MIN = 420, PANE_MIN = 320;
+  var GAP = 40;
+
+  // Per-viewer layout memory; the page works without it.
+  function load() {
+    try { return JSON.parse(localStorage.getItem("tp-layout")) || {}; }
+    catch (e) { return {}; }
+  }
+  function save() {
+    try { localStorage.setItem("tp-layout", JSON.stringify(state)); }
+    catch (e) {}
+  }
+  var state = Object.assign({ sb: 272, collapsed: false, split: 0.5 }, load());
+
+  var sidebar = document.getElementById("quarto-sidebar");
+  var main = document.querySelector("main.content");
+  if (!sidebar || !main) return;
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html) e.innerHTML = html;
+    return e;
+  }
+  function iconButton(act, icon, label) {
+    var b = el("button", "tp-icon", '<i class="bi ' + icon + '"></i>');
+    b.type = "button";
+    b.setAttribute("data-act", act);
+    b.setAttribute("aria-label", label);
+    b.title = label;
+    return b;
+  }
+
+  // Desktop moves a few of Quarto's elements into the bars; phones get them
+  // back where Quarto put them.
+  var moves = [];
+  function movable(node, target) {
+    if (node) {
+      moves.push({ node: node, home: node.parentNode,
+                   next: node.nextSibling, target: target });
+    }
+  }
+  var placed = null;
+  function place() {
+    if (placed === desktop.matches) return;
+    placed = desktop.matches;
+    moves.forEach(function (m) {
+      if (desktop.matches) m.target.appendChild(m.node);
+      else m.home.insertBefore(m.node, m.next);
+    });
+  }
+
+  // Sidebar bar: book title and the collapse toggle on one row. The dark
+  // mode and reader toggles sit beside the search box.
+  var sbBar = el("div", "tp-bar tp-sb-bar");
+  var sbTitle = el("div", "tp-bar-title");
+  var toggle = iconButton("sidebar", "bi-chevron-left", "Narrow the sidebar");
+  toggle.classList.add("tp-sb-toggle");
+  sbBar.appendChild(sbTitle);
+  sbBar.appendChild(toggle);
+  sidebar.insertBefore(sbBar, sidebar.firstChild);
+  var titleLink = sidebar.querySelector(".sidebar-title > a");
+  if (titleLink) titleLink.title = titleLink.textContent.trim();
+  movable(titleLink, sbTitle);
+  var tools = sidebar.querySelector(".sidebar-tools-main");
+  var search = sidebar.querySelector(".sidebar-search");
+  if (tools && search) movable(tools, search);
+  toggle.addEventListener("click", function () {
+    state.collapsed = !state.collapsed;
+    save();
+    layout();
+  });
+
+  // Book bar: breadcrumb on the left, "On this page" on the right.
+  var bookBar = el("div", "tp-bar tp-book-bar");
+  var crumbs = el("div", "tp-crumbs");
+  var tocSlot = el("div", "tp-toc-slot");
+  bookBar.appendChild(crumbs);
+  bookBar.appendChild(tocSlot);
+  document.body.appendChild(bookBar);
+  movable(main.querySelector(".quarto-title-breadcrumbs"), crumbs);
+  var toc = document.getElementById("quarto-margin-sidebar");
+  movable(toc, tocSlot);
+
+  // The contents is a dropdown: hover or click opens it, a click on an
+  // entry, outside, or Esc closes it.
+  var tocTitle = document.getElementById("toc-title");
+  if (toc && tocTitle) {
+    tocTitle.setAttribute("tabindex", "0");
+    tocTitle.setAttribute("role", "button");
+    tocTitle.addEventListener("click", function () {
+      toc.classList.toggle("is-open");
+    });
+    tocTitle.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toc.classList.toggle("is-open");
+      }
+    });
+    toc.addEventListener("click", function (e) {
+      if (e.target.closest("a")) {
+        toc.classList.remove("is-open");
+        toc.classList.add("is-shut");
+      }
+    });
+    toc.addEventListener("mouseleave", function () {
+      toc.classList.remove("is-shut");
+    });
+    document.addEventListener("click", function (e) {
+      if (!toc.contains(e.target)) toc.classList.remove("is-open");
+    });
+  }
+
+  // Handles.
+  function handle(cls) {
+    var h = el("div", "tp-handle " + cls);
+    document.body.appendChild(h);
+    return h;
+  }
+  var hSb = handle("tp-handle-sb");
+  var hSplit = handle("tp-handle-split");
+
+  // Pane.
+  var pane = el("div", "tp-pane");
+  pane.setAttribute("role", "complementary");
+  pane.setAttribute("aria-label", "Second page");
+  var paneBar = el("div", "tp-bar tp-pane-bar");
+  var title = el("div", "tp-bar-title tp-pane-title", "Second page");
+  title.setAttribute("aria-live", "polite");
+  var back = iconButton("back", "bi-arrow-left", "Back");
+  var fwd = iconButton("forward", "bi-arrow-right", "Forward");
+  paneBar.appendChild(back);
+  paneBar.appendChild(fwd);
+  paneBar.appendChild(title);
+  // The pane page's own contents, from its report.
+  var paneToc = el("div", "tp-menu tp-pane-toc");
+  var paneTocBtn = iconButton("toc", "bi-list-ul", "On this page");
+  paneTocBtn.setAttribute("aria-haspopup", "true");
+  paneTocBtn.setAttribute("aria-expanded", "false");
+  var paneTocList = el("ul", "tp-menu-list");
+  paneToc.appendChild(paneTocBtn);
+  paneToc.appendChild(paneTocList);
+  paneBar.appendChild(paneToc);
+  paneBar.appendChild(
+    iconButton("main", "bi-box-arrow-up-left", "Open as the main page"));
+  paneBar.appendChild(iconButton("close", "bi-x-lg", "Close (Esc)"));
+  pane.appendChild(paneBar);
+  pane.appendChild(el("div", "tp-pane-empty",
+    "Click a cross-reference or a link to another page.<br>" +
+    "It opens here, and this page stays put."));
+  var frame = el("iframe");
+  frame.title = "Second page";
+  frame.name = "tp-pane";
+  pane.appendChild(frame);
+  document.body.appendChild(pane);
+
+  function layout() {
+    place();
+    if (!desktop.matches) return;
+    var vw = root.clientWidth;
+    var sb = state.collapsed ? RAIL : state.sb;
+    var room = vw - sb - 2 * GAP;
+    var mainW = Math.max(MAIN_MIN, Math.min(room - PANE_MIN, room * state.split));
+    mainW = Math.min(mainW, 820);
+    root.classList.toggle("tp-sb-collapsed", state.collapsed);
+    root.style.setProperty("--tp-sb", sb + "px");
+    root.style.setProperty("--tp-main", mainW + "px");
+    root.style.setProperty("--tp-gap", GAP + "px");
+    var paneLeft = sb + GAP + mainW + GAP;
+    pane.style.left = paneLeft + "px";
+    hSb.style.left = sb + "px";
+    hSplit.style.left = paneLeft + "px";
+    toggle.innerHTML = '<i class="bi ' +
+      (state.collapsed ? "bi-chevron-right" : "bi-chevron-left") + '"></i>';
+    toggle.title = state.collapsed ? "Show the sidebar" : "Narrow the sidebar";
+    toggle.setAttribute("aria-label", toggle.title);
+  }
+
+  function drag(h, onMove) {
+    h.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      h.setPointerCapture(e.pointerId);
+      h.classList.add("is-active");
+      document.body.classList.add("tp-dragging");
+      function move(ev) { onMove(ev.clientX); layout(); }
+      function up() {
+        h.removeEventListener("pointermove", move);
+        h.removeEventListener("pointerup", up);
+        h.classList.remove("is-active");
+        document.body.classList.remove("tp-dragging");
+        save();
+      }
+      h.addEventListener("pointermove", move);
+      h.addEventListener("pointerup", up);
+    });
+  }
+  drag(hSb, function (x) {
+    state.sb = Math.max(SB_MIN, Math.min(SB_MAX, x));
+  });
+  drag(hSplit, function (x) {
+    var sb = state.collapsed ? RAIL : state.sb;
+    var room = root.clientWidth - sb - 2 * GAP;
+    state.split = Math.max(0.25, Math.min(0.8, (x - sb - 2 * GAP) / room));
+  });
+
+  // Open and close.
+  function setQuery(href) {
+    var u = new URL(location.href);
+    if (href) u.searchParams.set("pane", href);
+    else u.searchParams.delete("pane");
+    history.replaceState(null, "", u);
+  }
+  function setTitle(page, section) {
+    title.textContent = "";
+    title.appendChild(el("span", "tp-pane-page")).textContent = page;
+    if (section) {
+      title.appendChild(el("span", "tp-pane-sec")).textContent = section;
+    }
+    title.title = section ? page + " › " + section : page;
+  }
+  // The address of the pane page, relative to this page, for ?pane=.
+  function relative(href) {
+    var to = new URL(href), from = new URL(location.href);
+    if (to.origin !== from.origin) return href;
+    var a = from.pathname.split("/").slice(0, -1);
+    var b = to.pathname.split("/");
+    var i = 0;
+    while (i < a.length && i < b.length - 1 && a[i] === b[i]) i++;
+    var up = a.slice(i).map(function () { return ".."; });
+    return up.concat(b.slice(i)).join("/") + to.search + to.hash;
+  }
+  var current = null;   // address of the page shown in the pane
+
+  // Pane history, for this page load only: the addresses the pane has
+  // shown, and where in that list it is. A page the pane reports that is
+  // not the current entry is pushed, dropping the entries ahead of it;
+  // Back and Forward move the index and say so, so the report that
+  // follows does not push.
+  var past = [], at = -1, moving = false;
+  function syncButtons() {
+    back.disabled = at <= 0;
+    fwd.disabled = at >= past.length - 1;
+  }
+  function paneSrc(url) {
+    var src = new URL(url, location.href);
+    src.searchParams.set("tp-pane", "1");
+    return src;
+  }
+  function go(step) {
+    var i = at + step;
+    if (i < 0 || i >= past.length) return;
+    at = i;
+    moving = true;
+    var src = paneSrc(past[at]).href;
+    // replace() keeps these moves out of the browser's own history.
+    try { frame.contentWindow.location.replace(src); }
+    catch (e) { frame.src = src; }
+    syncButtons();
+  }
+  function record(url) {
+    if (moving) {
+      moving = false;
+      past[at] = url;
+    } else if (past[at] !== url) {
+      past = past.slice(0, at + 1);
+      past.push(url);
+      at = past.length - 1;
+    }
+    syncButtons();
+  }
+
+  function open(url) {
+    var src = paneSrc(url);
+    frame.src = src.href;
+    // Until the page reports its own title, show its file name.
+    setTitle(decodeURIComponent(src.pathname.replace(/^.*\//, "")),
+             decodeURIComponent(src.hash.slice(1)));
+    pane.classList.add("is-open");
+    current = new URL(url, location.href).href;
+  }
+  window.addEventListener("message", function (e) {
+    if (e.source !== frame.contentWindow) return;
+    var d = e.data;
+    if (!d || d.tp !== "loaded" || typeof d.url !== "string") return;
+    if (!pane.classList.contains("is-open")) return;
+    current = d.url;
+    record(d.url);
+    fillToc(Array.isArray(d.toc) ? d.toc : [],
+            decodeURIComponent(new URL(d.url).hash.slice(1)));
+    setTitle(String(d.title || ""), String(d.section || ""));
+    setQuery(relative(d.url));
+  });
+  function fillToc(items, here) {
+    paneTocList.textContent = "";
+    items.forEach(function (t) {
+      var li = el("li");
+      var b = el("button", "tp-menu-item");
+      b.type = "button";
+      b.textContent = String(t.text || "");
+      b.setAttribute("data-id", String(t.id || ""));
+      b.style.paddingLeft = (0.6 + 0.85 * Math.max(0, (t.level || 1) - 1)) +
+        "rem";
+      if (t.id === here) b.classList.add("is-current");
+      li.appendChild(b);
+      paneTocList.appendChild(li);
+    });
+    paneToc.hidden = items.length === 0;
+    showToc(false);
+  }
+  function showToc(on) {
+    paneToc.classList.toggle("is-open", on);
+    paneTocBtn.setAttribute("aria-expanded", on ? "true" : "false");
+  }
+  paneTocList.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-id]");
+    if (!b) return;
+    showToc(false);
+    frame.contentWindow.postMessage(
+      { tp: "goto", id: b.getAttribute("data-id") }, "*");
+  });
+  document.addEventListener("click", function (e) {
+    if (!paneToc.contains(e.target)) showToc(false);
+  });
+  // A click inside the pane page takes focus away from this window.
+  window.addEventListener("blur", function () {
+    showToc(false);
+    if (toc) toc.classList.remove("is-open");
+  });
+
+  function close() {
+    frame.removeAttribute("src");
+    current = null;
+    past = [];
+    at = -1;
+    moving = false;
+    syncButtons();
+    fillToc([], "");
+    pane.classList.remove("is-open");
+    setQuery(null);
+  }
+  pane.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    var act = b && b.getAttribute("data-act");
+    if (act === "close") close();
+    if (act === "toc") showToc(!paneToc.classList.contains("is-open"));
+    if (act === "back") go(-1);
+    if (act === "forward") go(1);
+    if (act === "main" && current) {
+      // The main window shows the whole page, at the snippet's element.
+      var u = new URL(current);
+      var part = u.searchParams.get("tp-only");
+      if (part) {
+        u.searchParams.delete("tp-only");
+        u.hash = part;
+      }
+      location.href = u.href;
+    }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (toc && toc.classList.contains("is-open")) {
+      toc.classList.remove("is-open");
+    } else if (paneToc.classList.contains("is-open")) {
+      showToc(false);
+    } else if (pane.classList.contains("is-open")) {
+      close();
+    }
+  });
+
+  // Which links open in the pane: every link in the page body to a page
+  // of this book, including anchors on this same page (the reader keeps
+  // their place on the left). The sidebar, the contents, breadcrumbs, page
+  // navigation, heading anchors, footnote back-links, tabs and external
+  // sites behave as usual.
+  function paneTarget(a) {
+    if (!a || !main.contains(a)) return null;
+    if (a.closest(".page-navigation, .quarto-title-breadcrumbs, #TOC")) {
+      return null;
+    }
+    if (a.matches(".anchorjs-link, .footnote-back, [data-bs-toggle], " +
+                  "[role=tab]")) {
+      return null;
+    }
+    if (a.target === "_blank" || a.hasAttribute("download")) return null;
+    var href = a.getAttribute("href");
+    if (!href || href === "#") return null;
+    var url = new URL(href, location.href);
+    if (url.protocol !== location.protocol || url.host !== location.host) {
+      return null;
+    }
+    if (!/\.html$/.test(url.pathname)) return null;
+    if (url.pathname === location.pathname) {
+      // This page: an anchor only, never this page's own ?pane= state.
+      if (!url.hash) return null;
+      url.search = "";
+    }
+    // A footnote shows only the note; an index term only its entry.
+    if (a.matches(".footnote-ref, .tp-term") && url.hash) asSnippet(url);
+    return url;
+  }
+  function asSnippet(url) {
+    url.searchParams.set("tp-only", decodeURIComponent(url.hash.slice(1)));
+    url.hash = "";
+  }
+  main.querySelectorAll("a[href]").forEach(function (a) {
+    if (paneTarget(a)) a.classList.add("tp-pane-link");
+  });
+  main.addEventListener("click", function (e) {
+    if (!desktop.matches) return;
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
+      return;
+    }
+    var a = e.target.closest("a[href]");
+    var url = paneTarget(a);
+    if (!url) return;
+    e.preventDefault();
+    // Quarto's smooth scroll listens on window and ignores preventDefault;
+    // without this it would also scroll the left page to the anchor.
+    e.stopPropagation();
+    open(url.href);
+  });
+
+  // Reopen the pane named in the address (shared link, reload).
+  var start = new URL(location.href).searchParams.get("pane");
+  if (start) open(start);
+
+  syncButtons();
+  fillToc([], "");
+  window.addEventListener("resize", layout);
+  desktop.addEventListener("change", layout);
+  layout();
+})();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../chapters/01-explore/index.html" class="pagination-link" aria-label="Explore the panel">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Explore the panel</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../chapters/03-spatial/index.html" class="pagination-link" aria-label="Spatial dependence">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Spatial dependence</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

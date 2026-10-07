@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Appendix H — Panel unit roots: what a rejection is worth – Metrics Masters</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../chapters/04-time/theory-cointegration.html" rel="next">
+<link href="../../chapters/03-spatial/theory-direct-indirect-effects.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-46d51a135cee5df7f1a795d1c268b47f.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0694db8cd81d3598e41fbab1c9882dee.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-46d51a135cee5df7f1a795d1c268b47f.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-58d0b2ac4bab12110c46fd8e476cf6ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-2e6f9e4e64c7f0c1b63e7faead9c081c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-58d0b2ac4bab12110c46fd8e476cf6ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script>
+// A page loaded inside the right-hand pane shows its content only.
+// Runs in <head> so the page never paints its sidebar first. The pane
+// opens pages with ?tp-pane=1; the page then names its window "tp-pane",
+// so links followed inside the pane keep the mode. Any other frame (an
+// editor preview, say) gets the full layout.
+(function () {
+  if (/[?&]tp-pane=1\b/.test(location.search)) window.name = "tp-pane";
+  if (window.name === "tp-pane") {
+    document.documentElement.classList.add("tp-in-pane");
+    // ?tp-only=<id>: show only that element (a footnote, an index entry).
+    var only = /[?&]tp-only=([^&#]+)/.exec(location.search);
+    if (only) {
+      document.documentElement.classList.add("tp-only");
+      document.documentElement.setAttribute("data-tp-only",
+        decodeURIComponent(only[1]));
+    }
+  }
+})();
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const queryPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeDefault = queryPrefersDark.matches;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    queryPrefersDark.addEventListener("change", e => {
+      if(window.localStorage.getItem("quarto-color-scheme") !== null)
+        return;
+      const alternate = e.matches
+      toggleColorMode(alternate);
+      localAlternateSentinel = e.matches ? 'alternate' : 'default'; // this is used alongside local storage!
+      toggleGiscusIfUsed(alternate, darkModeDefault);
+    });
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html">Theory</a></li><li class="breadcrumb-item"><a href="../../chapters/04-time/theory-panel-unit-roots.html"><span class="chapter-number">H</span>&nbsp; <span class="chapter-title">Panel unit roots: what a rejection is worth</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Metrics Masters</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Set-up</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/00-road-map/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Road map</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/01-explore/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Explore the panel</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Dependence</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Cross-sectional dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Spatial dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Time dependence</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Core panel models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/06-dynamic/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Dynamic panels</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Cross-sectional dependence: how much, and of what kind</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/theory-common-factors-cce.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Common factors and CCE: what cross-section averages are doing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-weights.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Spatial weights</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-dependence-tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Testing for spatial dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-model-choice.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Spatial model choice</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Fitting spatial panels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-direct-indirect-effects.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">G</span>&nbsp; <span class="chapter-title">Direct and indirect effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/theory-panel-unit-roots.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">H</span>&nbsp; <span class="chapter-title">Panel unit roots: what a rejection is worth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/theory-cointegration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">I</span>&nbsp; <span class="chapter-title">Cointegration in panels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/theory-fixed-random.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">J</span>&nbsp; <span class="chapter-title">Fixed and random effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/theory-panel-error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">K</span>&nbsp; <span class="chapter-title">The error of a panel regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/06-dynamic/theory-dynamic-gmm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">L</span>&nbsp; <span class="chapter-title">Dynamic panel GMM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="1">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#why-pool-at-all" id="toc-why-pool-at-all" class="nav-link active" data-scroll-target="#why-pool-at-all"><span class="header-section-number">H.1</span> Why pool at all</a></li>
+  <li><a href="#one-null-three-alternatives" id="toc-one-null-three-alternatives" class="nav-link" data-scroll-target="#one-null-three-alternatives"><span class="header-section-number">H.2</span> 1. One null, three alternatives</a></li>
+  <li><a href="#how-the-first-generation-builds-a-statistic" id="toc-how-the-first-generation-builds-a-statistic" class="nav-link" data-scroll-target="#how-the-first-generation-builds-a-statistic"><span class="header-section-number">H.3</span> 2. How the first generation builds a statistic</a></li>
+  <li><a href="#first-and-second-generation-one-assumption" id="toc-first-and-second-generation-one-assumption" class="nav-link" data-scroll-target="#first-and-second-generation-one-assumption"><span class="header-section-number">H.4</span> 3. First and second generation: one assumption</a></li>
+  <li><a href="#size-before-power" id="toc-size-before-power" class="nav-link" data-scroll-target="#size-before-power"><span class="header-section-number">H.5</span> 4. Size before power</a></li>
+  <li><a href="#what-a-rejection-licenses" id="toc-what-a-rejection-licenses" class="nav-link" data-scroll-target="#what-a-rejection-licenses"><span class="header-section-number">H.6</span> 5. What a rejection licenses</a></li>
+  <li><a href="#the-assumption-no-test-checks" id="toc-the-assumption-no-test-checks" class="nav-link" data-scroll-target="#the-assumption-no-test-checks"><span class="header-section-number">H.7</span> 6. The assumption no test checks</a></li>
+  <li><a href="#if-then" id="toc-if-then" class="nav-link" data-scroll-target="#if-then"><span class="header-section-number">H.8</span> 7. If / then</a></li>
+  <li><a href="#open" id="toc-open" class="nav-link" data-scroll-target="#open"><span class="header-section-number">H.9</span> 8. Open</a></li>
+  <li><a href="#next" id="toc-next" class="nav-link" data-scroll-target="#next"><span class="header-section-number">H.10</span> Next</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html">Theory</a></li><li class="breadcrumb-item"><a href="../../chapters/04-time/theory-panel-unit-roots.html"><span class="chapter-number">H</span>&nbsp; <span class="chapter-title">Panel unit roots: what a rejection is worth</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Appendix H — Panel unit roots: what a rejection is worth</h1>
+<p class="subtitle lead">The three alternatives, and size before power</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>Code:</strong> <a href="../../chapters/04-time/index.html#sec-ur-alternative">state the alternative first</a>, <a href="../../chapters/04-time/index.html#sec-ur-first-gen">first-generation tests</a>, <a href="../../chapters/04-time/index.html#sec-ur-second-gen">second-generation tests</a>, <a href="../../chapters/04-time/index.html#sec-ur-fraction">the fraction of stationary series</a>, <a href="../../chapters/04-time/index.html#sec-ur-spatial-size">size under spatial dependence</a>, <a href="../../chapters/04-time/index.html#sec-ur-cross-coint">cross-unit cointegration</a>, <a href="../../chapters/04-time/index.html#sec-ur-coint">cointegration</a> and <a href="../../chapters/04-time/index.html#sec-ur-long-run">the long run</a>. Related notes: <a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html">cross-sectional dependence</a> and <a href="../../chapters/02-cross-dependence/theory-common-factors-cce.html">common factors and CCE</a>.</p>
+</blockquote>
+<section id="why-pool-at-all" class="level2" data-number="H.1">
+<h2 data-number="H.1" class="anchored" data-anchor-id="why-pool-at-all"><span class="header-section-number">H.1</span> Why pool at all</h2>
+<p>A single unit-root test on 20 or 30 annual observations has almost no power: the Dickey–Fuller distribution is wide, and a root of 0.9 looks much like a root of 1 over that span. Panel tests buy power by adding units instead of years. <em>N</em> series of length <em>T</em> carry more evidence against a unit root than one series of length <em>T</em>, provided the series bring <em>independent</em> evidence.</p>
+<p>That proviso is the whole subject of this note. The extra power comes from averaging, and averaging only helps when the things averaged are not the same thing counted twice. Everything below is a consequence of asking what is being averaged, and over what.</p>
+</section>
+<section id="one-null-three-alternatives" class="level2" data-number="H.2">
+<h2 data-number="H.2" class="anchored" data-anchor-id="one-null-three-alternatives"><span class="header-section-number">H.2</span> 1. One null, three alternatives</h2>
+<p>Every test in <code>plm::purtest</code> and <code>plm::cipstest</code>, except Hadri’s, shares one null. Write each unit’s ADF regression as</p>
+<p><span class="math display">\[\Delta y_{it} = \alpha_i + \beta_i y_{i,t-1}
+  + \sum_{j=1}^{p_i} \gamma_{ij} \Delta y_{i,t-j} + \varepsilon_{it},
+  \qquad \beta_i = \rho_i - 1.\]</span></p>
+<p>The null is <span class="math inline">\(H_0: \beta_i = 0\)</span> for <strong>every</strong> <em>i</em>. The tests differ in what they claim when they reject <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 818–20</a>, eqs. 31.4–31.6)</span>:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Alternative</th>
+<th>In words</th>
+<th>Tests</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>H₁ₐ</td>
+<td><span class="math inline">\(\beta_i = \beta &lt; 0\)</span> for all <em>i</em></td>
+<td>one common stationary root</td>
+<td>LLC, Harris–Tzavalis, Breitung</td>
+</tr>
+<tr class="even">
+<td>H₁b</td>
+<td><span class="math inline">\(\beta_i &lt; 0\)</span> for <span class="math inline">\(N_1\)</span> units, <span class="math inline">\(N_1/N \to \kappa &gt; 0\)</span></td>
+<td>a <em>share</em> of the panel is stationary</td>
+<td>IPS, Fisher-type, CIPS</td>
+</tr>
+<tr class="odd">
+<td>H₁c</td>
+<td><span class="math inline">\(\beta_i &lt; 0\)</span> for a fixed number of units, <span class="math inline">\(\kappa = 0\)</span></td>
+<td>a <em>handful</em> is stationary</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<p>H₁ₐ is strong: it says every unit reverts, and at the same speed. Few economists believe that of 49 states or 170 regions, which is why the heterogeneous alternative H₁b became the default after <span class="citation" data-cites="im2003">Im et al. (<a href="../../references.html#ref-im2003" role="doc-biblioref">2003</a>)</span>.</p>
+<p>H₁c is the case no averaging test can see. With a fixed count of stationary units, their signal is divided by an <em>N</em> that keeps growing. The <a href="../../chapters/04-time/index.html#sec-ur-alternative">simulation in the examples</a> shows it: IPS power against two stationary series <em>falls</em> from 0.40 to 0.25 as <em>N</em> goes from 10 to 90, while power against a 40% share rises to 1.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>The printed p-value does not carry the alternative.</strong> <code>purtest</code> labels the alternative “stationarity” for LLC and IPS alike, though LLC rejects towards H₁ₐ and IPS towards H₁b. The alternative has to be written into the text by hand, every time a panel unit-root result is reported.</p>
+</div>
+</div>
+<p>Remark 8 of <span class="citation" data-cites="pesaran2015">Pesaran (<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">2015, 820</a>)</span> sets the limit on that text. When <em>T</em> is short — around 15 — a panel rejection is informative only “in an average sense”. It says the panel, taken as a whole, does not look like <em>N</em> random walks. It does not say which units are stationary.</p>
+</section>
+<section id="how-the-first-generation-builds-a-statistic" class="level2" data-number="H.3">
+<h2 data-number="H.3" class="anchored" data-anchor-id="how-the-first-generation-builds-a-statistic"><span class="header-section-number">H.3</span> 2. How the first generation builds a statistic</h2>
+<p>Each first-generation test runs the ADF regression above on every unit and then combines the results. They differ only in <em>what</em> they combine.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Family</th>
+<th>What it combines</th>
+<th>Tests in <strong>plm</strong></th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Pooled</td>
+<td>one <span class="math inline">\(\hat\beta\)</span> from all units stacked</td>
+<td><code>"levinlin"</code></td>
+<td><span class="citation" data-cites="levin2002">Levin et al. (<a href="../../references.html#ref-levin2002" role="doc-biblioref">2002</a>)</span></td>
+</tr>
+<tr class="even">
+<td>Mean of <em>t</em></td>
+<td>the average of the <em>N</em> ADF <em>t</em> statistics</td>
+<td><code>"ips"</code></td>
+<td><span class="citation" data-cites="im2003">Im et al. (<a href="../../references.html#ref-im2003" role="doc-biblioref">2003</a>)</span></td>
+</tr>
+<tr class="odd">
+<td>Fisher</td>
+<td>the <em>N</em> individual p-values</td>
+<td><code>"madwu"</code>, <code>"Pm"</code>, <code>"invnormal"</code>, <code>"logit"</code></td>
+<td><span class="citation" data-cites="maddala1999">Maddala and Wu (<a href="../../references.html#ref-maddala1999" role="doc-biblioref">1999</a>)</span>, <span class="citation" data-cites="choi2001">Choi (<a href="../../references.html#ref-choi2001" role="doc-biblioref">2001</a>)</span></td>
+</tr>
+<tr class="even">
+<td>Reversed null</td>
+<td>the <em>N</em> KPSS statistics</td>
+<td><code>"hadri"</code></td>
+<td><span class="citation" data-cites="hadri2000">Hadri (<a href="../../references.html#ref-hadri2000" role="doc-biblioref">2000</a>)</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pooled.</strong> LLC stacks all units and estimates one <span class="math inline">\(\beta\)</span>. Pooling only makes sense if <span class="math inline">\(\beta\)</span> is common, so LLC’s alternative is H₁ₐ by construction. The pooled <em>t</em> is biased because each unit has its own intercept and lag structure, and <span class="citation" data-cites="levin2002">Levin et al. (<a href="../../references.html#ref-levin2002" role="doc-biblioref">2002</a>)</span> correct it with tabulated mean and variance adjustments <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 340–43</a>)</span>. Harris–Tzavalis <span class="citation" data-cites="harris1999">(<a href="../../references.html#ref-harris1999" role="doc-biblioref">Harris and Tzavalis 1999</a>)</span> and Breitung <span class="citation" data-cites="breitung2000">(<a href="../../references.html#ref-breitung2000" role="doc-biblioref">Breitung 2000</a>)</span> are in the same family. Neither is in <strong>plm</strong>.</p>
+<p><strong>Mean of <em>t</em>.</strong> IPS averages the individual ADF statistics, <span class="math inline">\(\bar t = N^{-1}\sum_i t_i\)</span>, then standardises <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 344–45</a>)</span>. Each unit keeps its own <span class="math inline">\(\beta_i\)</span>, so the alternative is H₁b. The unstandardised <code>tbar</code> is exact for fixed <em>T</em> but is read against tabulated critical values, and only without lags.</p>
+<p><strong>Fisher.</strong> <span class="citation" data-cites="maddala1999">Maddala and Wu (<a href="../../references.html#ref-maddala1999" role="doc-biblioref">1999</a>)</span> combine the individual p-values instead of the statistics: under the null, <span class="math inline">\(-2\sum_i \ln p_i \sim \chi^2_{2N}\)</span>. <span class="citation" data-cites="choi2001">Choi (<a href="../../references.html#ref-choi2001" role="doc-biblioref">2001</a>)</span> adds three variants. <code>"invnormal"</code> sums <span class="math inline">\(\Phi^{-1}(p_i)\)</span>, <code>"logit"</code> sums <span class="math inline">\(\ln[p_i/(1-p_i)]\)</span>, and <code>"Pm"</code> standardises the Maddala–Wu statistic so that it stays valid as <span class="math inline">\(N \to \infty\)</span>. The Fisher family needs neither a balanced panel nor equal lag lengths, which is why it runs on <code>EmplUK</code> where LLC refuses <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 346–48</a>)</span>.</p>
+<p>A Fisher test is only as good as its p-values, and those come from the non-standard Dickey–Fuller distribution. <strong>plm</strong> reads them off the response surfaces of <span class="citation" data-cites="mackinnon1996">MacKinnon (<a href="../../references.html#ref-mackinnon1996" role="doc-biblioref">1996</a>)</span> through <strong>urca</strong> <span class="citation" data-cites="pfaff2008">(<a href="../../references.html#ref-pfaff2008" role="doc-biblioref">Pfaff 2008</a>)</span>. Without <strong>urca</strong> it falls back to the older approximation of <span class="citation" data-cites="mackinnon1994">MacKinnon (<a href="../../references.html#ref-mackinnon1994" role="doc-biblioref">1994</a>)</span>. On US house prices the switch moves the Maddala–Wu p-value from 0.4292 to 0.4313 — visible in the fourth decimal, irrelevant to a reading.</p>
+<p><strong>Reversed null.</strong> <span class="citation" data-cites="hadri2000">Hadri (<a href="../../references.html#ref-hadri2000" role="doc-biblioref">2000</a>)</span> tests the opposite hypothesis: every series is stationary, against a unit root in at least one. It is the panel version of the KPSS test <span class="citation" data-cites="kwiatkowski1992">(<a href="../../references.html#ref-kwiatkowski1992" role="doc-biblioref">Kwiatkowski et al. 1992</a>)</span>, an LM statistic averaged over units. Its value is corroboration. When LLC, IPS and Maddala–Wu fail to reject a unit root and Hadri rejects stationarity, two tests with opposite nulls point the same way. That is the pattern on log house prices: p = 0.10, 0.43 and 0.78 for the first three, p ≈ 0 for Hadri.</p>
+<p><strong>Lag length.</strong> Every test except Hadri needs the <span class="math inline">\(p_i\)</span> lags of the ADF regression. <code>purtest</code> fixes them by hand or chooses them per unit by AIC, SIC, or the general-to-specific rule of <span class="citation" data-cites="hall1994">Hall (<a href="../../references.html#ref-hall1994" role="doc-biblioref">1994</a>)</span>. Too few lags leave serial correlation in <span class="math inline">\(\varepsilon_{it}\)</span> and over-reject. Too many waste the short <em>T</em> the panel was meant to compensate for.</p>
+</section>
+<section id="first-and-second-generation-one-assumption" class="level2" data-number="H.4">
+<h2 data-number="H.4" class="anchored" data-anchor-id="first-and-second-generation-one-assumption"><span class="header-section-number">H.4</span> 3. First and second generation: one assumption</h2>
+<p>“Second generation” is not a date. It is one assumption dropped: that units are independent once a common time effect is removed.</p>
+<p>The first generation allows exactly one form of dependence. Subtract the cross-section mean each period and a common shock that hits every unit <em>equally</em> disappears. That is the two-way fixed-effects identity of <a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html">cross-sectional dependence</a>: a time effect is a factor model with every loading equal to one. If the loadings differ, demeaning leaves the factor in the residuals and every unit’s evidence is partly the same evidence.</p>
+<p>Pesaran’s CADF regression <span class="citation" data-cites="pesaran2007">(<a href="../../references.html#ref-pesaran2007" role="doc-biblioref">Pesaran 2007</a>)</span> allows heterogeneous loadings. It adds the cross-section averages <span class="math inline">\(\bar y_{t-1}\)</span> and <span class="math inline">\(\Delta \bar y_t\)</span> to each unit’s ADF equation:</p>
+<p><span class="math display">\[\Delta y_{it} = \alpha_i + \beta_i y_{i,t-1} + c_i \bar y_{t-1}
+  + d_i \Delta \bar y_t + \dots + e_{it}.\]</span></p>
+<p>The averages proxy the single unobserved factor, and each unit gets its own coefficients on them, so each unit gets its own loading. CIPS is the mean of the resulting <em>t</em> statistics — IPS on defactored regressions <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 352–53</a>)</span>. The idea is the same one that drives CCE estimation, in <a href="../../chapters/02-cross-dependence/theory-common-factors-cce.html">common factors and CCE</a>.</p>
+<p><code>plm::cipstest</code> exposes all three levels of this argument through <code>model</code>:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><code>model =</code></th>
+<th>Regression</th>
+<th>Handles</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>"mg"</code></td>
+<td>plain ADF per unit, averaged</td>
+<td>independence only — this is IPS</td>
+</tr>
+<tr class="even">
+<td><code>"dmg"</code></td>
+<td>ADF on cross-sectionally demeaned data</td>
+<td>one factor, equal loadings</td>
+</tr>
+<tr class="odd">
+<td><code>"cmg"</code> (default)</td>
+<td>CADF, with cross-section averages</td>
+<td>one factor, any loadings</td>
+</tr>
+</tbody>
+</table>
+<p>Nothing in <strong>plm</strong> handles more than one factor. <span class="citation" data-cites="pesaran2013">Pesaran et al. (<a href="../../references.html#ref-pesaran2013" role="doc-biblioref">2013</a>)</span> extend CIPS by adding further cross-section averages of other variables, and add the CSB statistic <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 836</a>)</span>. Moon–Perron <span class="citation" data-cites="moon2004">(<a href="../../references.html#ref-moon2004" role="doc-biblioref">Moon and Perron 2004</a>)</span>, Bai–Ng’s PANIC <span class="citation" data-cites="bai2004">(<a href="../../references.html#ref-bai2004" role="doc-biblioref">Bai and Ng 2004</a>)</span> and Phillips–Sul <span class="citation" data-cites="phillips2003">(<a href="../../references.html#ref-phillips2003" role="doc-biblioref">Phillips and Sul 2003</a>)</span> defactor by principal components first and test afterwards. None has an R implementation in this project.</p>
+<p>CIPS has a cost: its distribution is non-standard and depends on <em>N</em>, <em>T</em> and the deterministic terms. <code>cipstest</code> returns the nearest tabulated significance level, not an exact p-value. A printed <code>p-value = 0.1</code> means <em>above</em> 0.10, and <code>0.01</code> means <em>below</em> 0.01.</p>
+</section>
+<section id="size-before-power" class="level2" data-number="H.5">
+<h2 data-number="H.5" class="anchored" data-anchor-id="size-before-power"><span class="header-section-number">H.5</span> 4. Size before power</h2>
+<p>Every comparative ranking of these tests in the textbooks is a ranking of <em>power</em> — and power only means something when the test rejects a true null at its nominal rate. Both standard rankings assume that:</p>
+<ul>
+<li>LLC has higher local power than IPS <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 819</a>)</span>;</li>
+<li>LLC and Breitung have the smallest size distortions, and Fisher does at least as well as IPS <span class="citation" data-cites="pesaran2015 baltagi2021">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 838</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 348</a>)</span>.</li>
+</ul>
+<p>Two things break size in a large-<em>N</em>, short-<em>T</em> panel, and they compound.</p>
+<p><strong>The shape of the panel.</strong> LLC’s asymptotics need <em>T</em> to grow faster than <em>N</em> <span class="citation" data-cites="levin2002 baltagi2021">(<a href="../../references.html#ref-levin2002" role="doc-biblioref">Levin et al. 2002</a>; <a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 340–43</a>)</span>. On independent random walks, with no dependence at all, the <a href="../../chapters/04-time/index.html#sec-ur-spatial-size">examples’ simulation</a> gives LLC a size of 0.09 at N/T = 0.04 and 0.855 at N/T = 3.33. IPS is better but not right: 0.085 to 0.15 at T = 30. The target shape of this project is N/T ≈ 8.5, off the end of that table.</p>
+<p><strong>Cross-sectional dependence.</strong> When units move together, <em>N</em> series are worth fewer than <em>N</em> independent ones, and a test that counts them as <em>N</em> over-rejects. <span class="citation" data-cites="baltagi2007">Baltagi et al. (<a href="../../references.html#ref-baltagi2007" role="doc-biblioref">2007</a>)</span> ran 1600 experiments under spatial error dependence: distortions are largest under a spatial autoregressive error and grow with the density of W <span class="citation" data-cites="baltagi2021">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 353–54</a>)</span>.</p>
+<p><span class="citation" data-cites="pesaran2015">Pesaran (<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">2015, 839</a>)</span> draws two rules from that literature, and they pull in opposite directions:</p>
+<ul>
+<li>The CD-based approach (CIPS) is the most robust to spatial alternatives.</li>
+<li>Factor-based corrections are <em>invalid</em> under weak dependence, because they remove a “factor” that is not there.</li>
+</ul>
+<p>In the project’s own simulation, on a 7 × 7 rook W, CIPS held its size: 0.04 at λ = 0 and 0.07 at λ = 0.8. The four first-generation tests rejected a true null two and a half to twelve times too often even at λ = 0. Shape, not space, did most of the damage.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>At N/T ≫ 1, a first-generation rejection is not evidence.</strong> It is what those tests do to random walks at that shape. Report CIPS, and read every first-generation p-value as an upper bound on the evidence rather than a measurement of it.</p>
+</div>
+</div>
+</section>
+<section id="what-a-rejection-licenses" class="level2" data-number="H.6">
+<h2 data-number="H.6" class="anchored" data-anchor-id="what-a-rejection-licenses"><span class="header-section-number">H.6</span> 5. What a rejection licenses</h2>
+<p>Under H₁b, a rejection means <em>some</em> share of units is stationary. It does not say which, and it is not a licence to treat the panel as stationary and pool it.</p>
+<p><span class="citation" data-cites="hanck2013">Hanck (<a href="../../references.html#ref-hanck2013" role="doc-biblioref">2013</a>)</span> turns the rejection into a list. Take the individual p-values a Fisher-type test already computes, sort them, and apply two classical multiple-testing results:</p>
+<ul>
+<li><strong>Simes’ test</strong> <span class="citation" data-cites="simes1986">(<a href="../../references.html#ref-simes1986" role="doc-biblioref">Simes 1986</a>)</span> of the intersection null. With sorted p-values <span class="math inline">\(p_{(1)} \le \dots \le p_{(N)}\)</span>, reject when <span class="math inline">\(\min_j N p_{(j)}/j \le \alpha\)</span>. Unlike the Fisher combination, it stays valid under general cross-sectional dependence.</li>
+<li><strong>Hommel’s procedure</strong> <span class="citation" data-cites="hommel1988">(<a href="../../references.html#ref-hommel1988" role="doc-biblioref">Hommel 1988</a>)</span> for the individual hypotheses. It controls the family-wise error rate, so each unit is judged on its own without the multiplicity of <em>N</em> tests inflating false rejections.</li>
+</ul>
+<p><code>plm::phansitest</code> implements both. It accepts any <code>purtest</code> object with per-series p-values (<code>madwu</code>, <code>Pm</code>, <code>invnormal</code>, <code>logit</code>, <code>ips</code>) and refuses Hadri, whose statistic is not built from individual p-values.</p>
+<p>The two cases in the examples show both outcomes:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Panel</th>
+<th>Simes global p</th>
+<th>Units rejected (Hommel)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>19 real exchange rates <span class="citation" data-cites="hanck2013">(<a href="../../references.html#ref-hanck2013" role="doc-biblioref">Hanck 2013</a>, Table 11)</span></td>
+<td>0.0003</td>
+<td>10 of 19</td>
+</tr>
+<tr class="even">
+<td>49 US state house prices</td>
+<td>0.12</td>
+<td>0 of 49</td>
+</tr>
+</tbody>
+</table>
+<p>The exchange-rate panel rejects the intersection null <em>and</em> names the ten stationary countries — the two answers Remark 8 asks for. The house-price panel rejects neither. Note that its Simes p-value of 0.12 is far sharper than the Maddala–Wu p-value of 0.43 on the same data.</p>
+</section>
+<section id="the-assumption-no-test-checks" class="level2" data-number="H.7">
+<h2 data-number="H.7" class="anchored" data-anchor-id="the-assumption-no-test-checks"><span class="header-section-number">H.7</span> 6. The assumption no test checks</h2>
+<p>Cross-sectional <em>correlation</em> is units moving together. Cross-unit <em>cointegration</em> is stronger: a linear combination of different units’ series is stationary, so the units share a stochastic trend. <span class="citation" data-cites="pesaran2015">Pesaran (<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">2015, 836</a>)</span> warns that panel unit-root tests may be “severely biased” under the second while tolerating the first.</p>
+<p>CADF allows one common I(1) factor — that is what the cross-section averages absorb — and rules out further cointegration among what is left <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 837</a>)</span>. The subsampling test of <span class="citation" data-cites="choi2007">Choi and Chue (<a href="../../references.html#ref-choi2007" role="doc-biblioref">2007</a>)</span> allows it but needs <em>N</em> small relative to <em>T</em> <span class="citation" data-cites="pesaran2015">(<a href="../../references.html#ref-pesaran2015" role="doc-biblioref">Pesaran 2015, 838</a>)</span>, the opposite of a spatial panel.</p>
+<p>Correlation does not reveal it. In the <a href="../../chapters/04-time/index.html#sec-ur-cross-coint">examples</a>, a cointegrated pair and a pair with correlated increments have correlations of 0.90 and 0.77. A Johansen rank test separates them perfectly; no CD statistic or α could. So every CIPS result in this book holds under an assumption the book cannot test.</p>
+</section>
+<section id="if-then" class="level2" data-number="H.8">
+<h2 data-number="H.8" class="anchored" data-anchor-id="if-then"><span class="header-section-number">H.8</span> 7. If / then</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>If</th>
+<th>Then</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CD rejects, or α is near 1</td>
+<td>First-generation tests are invalid. Use CIPS.</td>
+</tr>
+<tr class="even">
+<td>N/T well above 1</td>
+<td>First-generation size is broken even without dependence. Use CIPS.</td>
+</tr>
+<tr class="odd">
+<td>CIPS rejects</td>
+<td>A share of units is stationary (H₁b). Name them with <code>phansitest</code>.</td>
+</tr>
+<tr class="even">
+<td>CIPS does not reject</td>
+<td>Treat the panel as I(1). Corroborate with Hadri’s reversed null.</td>
+</tr>
+<tr class="odd">
+<td>Dependence is weak and spatial, not factor-driven</td>
+<td>CIPS defactors needlessly. Its size survived λ ≤ 0.8 here, but that is not a general licence.</td>
+</tr>
+<tr class="even">
+<td>Several common factors are plausible</td>
+<td>Not testable in this book. State it as a limitation.</td>
+</tr>
+<tr class="odd">
+<td>The text says “the panel is stationary”</td>
+<td>Rewrite it. Say which alternative was tested, and how many units.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="open" class="level2" data-number="H.9">
+<h2 data-number="H.9" class="anchored" data-anchor-id="open"><span class="header-section-number">H.9</span> 8. Open</h2>
+<ul>
+<li><strong>Missing tests.</strong> Breitung and Harris–Tzavalis — the two tests with the best size record in the comparisons — are not in <code>purtest</code>. The benchmark is Stata’s <code>xtunitroot</code>.</li>
+<li><strong>Several factors.</strong> CIPS with multiple factors and CSB <span class="citation" data-cites="pesaran2013">(<a href="../../references.html#ref-pesaran2013" role="doc-biblioref">Pesaran et al. 2013</a>)</span>, Moon–Perron and PANIC have no R implementation and no verification target.</li>
+<li><strong>Cross-unit cointegration.</strong> No panel test exists in R. The assumption has to be carried as a stated limitation into <a href="../../chapters/04-time/theory-cointegration.html">cointegration in panels</a>.</li>
+<li><strong>The target shape.</strong> No published size table covers N ≈ 170, T ≈ 20 with a spatial W. The examples’ Monte Carlo is the only evidence, and it covers this code on one W.</li>
+<li><strong>A software trap.</strong> In <strong>plm</strong> 2.6.7, the print method of <code>phansitest</code> says “H0 rejected (globally)” whatever the result. Read <code>$rejected.no</code> and compute Simes’ p-value directly.</li>
+</ul>
+</section>
+<section id="next" class="level2" data-number="H.10">
+<h2 data-number="H.10" class="anchored" data-anchor-id="next"><span class="header-section-number">H.10</span> Next</h2>
+<p>With the unit-root question settled for a panel, the next one is whether its I(1) series are cointegrated. <a href="../../chapters/04-time/theory-cointegration.html">Cointegration in panels</a> covers it, with the code in <a href="../../chapters/04-time/index.html#sec-ur-coint">cointegration</a> and <a href="../../chapters/04-time/index.html#sec-ur-long-run">the long run</a>; the only verifiable route is the CCE-plus-CIPS substitute of <a href="../../chapters/04-time/index.html#sec-ur-second-gen">the second-generation section</a>.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-bai2004" class="csl-entry" role="listitem">
+Bai, Jushan, and Serena Ng. 2004. <span>“A <span>PANIC</span> Attack on Unit Roots and Cointegration.”</span> <em>Econometrica</em> 72 (4): 1127–77. <a href="https://doi.org/10.1111/j.1468-0262.2004.00528.x">https://doi.org/10.1111/j.1468-0262.2004.00528.x</a>.
+</div>
+<div id="ref-baltagi2021" class="csl-entry" role="listitem">
+Baltagi, Badi H. 2021. <em>Econometric Analysis of Panel Data</em>. 6th ed. Springer. <a href="https://doi.org/10.1007/978-3-030-53953-5">https://doi.org/10.1007/978-3-030-53953-5</a>.
+</div>
+<div id="ref-baltagi2007" class="csl-entry" role="listitem">
+Baltagi, Badi H., Georges Bresson, and Alain Pirotte. 2007. <span>“Panel Unit Root Tests and Spatial Dependence.”</span> <em>Journal of Applied Econometrics</em> 22 (2): 339–60. <a href="https://doi.org/10.1002/jae.950">https://doi.org/10.1002/jae.950</a>.
+</div>
+<div id="ref-breitung2000" class="csl-entry" role="listitem">
+Breitung, Jörg. 2000. <span>“The Local Power of Some Unit Root Tests for Panel Data.”</span> In <em>Nonstationary Panels, Panel Cointegration, and Dynamic Panels</em>, vol. 15. Advances in Econometrics. JAI Press. <a href="https://doi.org/10.1016/S0731-9053(00)15006-6">https://doi.org/10.1016/S0731-9053(00)15006-6</a>.
+</div>
+<div id="ref-choi2001" class="csl-entry" role="listitem">
+Choi, In. 2001. <span>“Unit Root Tests for Panel Data.”</span> <em>Journal of International Money and Finance</em> 20 (2): 249–72. <a href="https://doi.org/10.1016/S0261-5606(00)00048-6">https://doi.org/10.1016/S0261-5606(00)00048-6</a>.
+</div>
+<div id="ref-choi2007" class="csl-entry" role="listitem">
+Choi, In, and Timothy K. Chue. 2007. <span>“Subsampling Hypothesis Tests for Nonstationary Panels.”</span> <em>Journal of Applied Econometrics</em> 22 (2). <a href="https://doi.org/10.1002/jae.919">https://doi.org/10.1002/jae.919</a>.
+</div>
+<div id="ref-hadri2000" class="csl-entry" role="listitem">
+Hadri, Kaddour. 2000. <span>“Testing for Stationarity in Heterogeneous Panel Data.”</span> <em>Econometrics Journal</em> 3 (2): 148–61. <a href="https://doi.org/10.1111/1368-423X.00043">https://doi.org/10.1111/1368-423X.00043</a>.
+</div>
+<div id="ref-hall1994" class="csl-entry" role="listitem">
+Hall, Alastair. 1994. <span>“Testing for a Unit Root in Time Series with Pretest Data-Based Model Selection.”</span> <em>Journal of Business &amp; Economic Statistics</em> 12 (4): 461–70. <a href="https://doi.org/10.1080/07350015.1994.10524568">https://doi.org/10.1080/07350015.1994.10524568</a>.
+</div>
+<div id="ref-hanck2013" class="csl-entry" role="listitem">
+Hanck, Christoph. 2013. <span>“An Intersection Test for Panel Unit Roots.”</span> <em>Econometric Reviews</em> 32 (2): 183–203. <a href="https://doi.org/10.1080/07474938.2012.690693">https://doi.org/10.1080/07474938.2012.690693</a>.
+</div>
+<div id="ref-harris1999" class="csl-entry" role="listitem">
+Harris, Richard D. F., and Elias Tzavalis. 1999. <span>“Inference for Unit Roots in Dynamic Panels Where the Time Dimension Is Fixed.”</span> <em>Journal of Econometrics</em> 91 (2): 201–26. <a href="https://doi.org/10.1016/S0304-4076(98)00076-1">https://doi.org/10.1016/S0304-4076(98)00076-1</a>.
+</div>
+<div id="ref-hommel1988" class="csl-entry" role="listitem">
+Hommel, Gerhard. 1988. <span>“A Stagewise Rejective Multiple Test Procedure Based on a Modified <span>B</span>onferroni Test.”</span> <em>Biometrika</em> 75 (2): 383–86. <a href="https://doi.org/10.1093/biomet/75.2.383">https://doi.org/10.1093/biomet/75.2.383</a>.
+</div>
+<div id="ref-im2003" class="csl-entry" role="listitem">
+Im, Kyung So, M. Hashem Pesaran, and Yongcheol Shin. 2003. <span>“Testing for Unit Roots in Heterogeneous Panels.”</span> <em>Journal of Econometrics</em> 115 (1): 53–74. <a href="https://doi.org/10.1016/S0304-4076(03)00092-7">https://doi.org/10.1016/S0304-4076(03)00092-7</a>.
+</div>
+<div id="ref-kwiatkowski1992" class="csl-entry" role="listitem">
+Kwiatkowski, Denis, Peter C. B. Phillips, Peter Schmidt, and Yongcheol Shin. 1992. <span>“Testing the Null Hypothesis of Stationarity Against the Alternative of a Unit Root: How Sure Are We That Economic Time Series Have a Unit Root?”</span> <em>Journal of Econometrics</em> 54 (1–3): 159–78. <a href="https://doi.org/10.1016/0304-4076(92)90104-Y">https://doi.org/10.1016/0304-4076(92)90104-Y</a>.
+</div>
+<div id="ref-levin2002" class="csl-entry" role="listitem">
+Levin, Andrew, Chien-Fu Lin, and Chia-Shang James Chu. 2002. <span>“Unit Root Tests in Panel Data: Asymptotic and Finite-Sample Properties.”</span> <em>Journal of Econometrics</em> 108 (1): 1–24. <a href="https://doi.org/10.1016/S0304-4076(01)00098-7">https://doi.org/10.1016/S0304-4076(01)00098-7</a>.
+</div>
+<div id="ref-mackinnon1994" class="csl-entry" role="listitem">
+MacKinnon, James G. 1994. <span>“Approximate Asymptotic Distribution Functions for Unit-Root and Cointegration Tests.”</span> <em>Journal of Business &amp; Economic Statistics</em> 12 (2): 167–76. <a href="https://doi.org/10.1080/07350015.1994.10510005">https://doi.org/10.1080/07350015.1994.10510005</a>.
+</div>
+<div id="ref-mackinnon1996" class="csl-entry" role="listitem">
+MacKinnon, James G. 1996. <span>“Numerical Distribution Functions for Unit Root and Cointegration Tests.”</span> <em>Journal of Applied Econometrics</em> 11 (6): 601–18. <a href="https://doi.org/10.1002/(SICI)1099-1255(199611)11:6<601::AID-JAE417>3.0.CO;2-T">https://doi.org/10.1002/(SICI)1099-1255(199611)11:6&lt;601::AID-JAE417&gt;3.0.CO;2-T</a>.
+</div>
+<div id="ref-maddala1999" class="csl-entry" role="listitem">
+Maddala, G. S., and Shaowen Wu. 1999. <span>“A Comparative Study of Unit Root Tests with Panel Data and a New Simple Test.”</span> <em>Oxford Bulletin of Economics and Statistics</em> 61 (S1): 631–52. <a href="https://doi.org/10.1111/1468-0084.61.s1.13">https://doi.org/10.1111/1468-0084.61.s1.13</a>.
+</div>
+<div id="ref-moon2004" class="csl-entry" role="listitem">
+Moon, Hyungsik Roger, and Benoit Perron. 2004. <span>“Testing for a Unit Root in Panels with Dynamic Factors.”</span> <em>Journal of Econometrics</em> 122 (1): 81–126. <a href="https://doi.org/10.1016/j.jeconom.2003.10.020">https://doi.org/10.1016/j.jeconom.2003.10.020</a>.
+</div>
+<div id="ref-pesaran2007" class="csl-entry" role="listitem">
+Pesaran, M. Hashem. 2007. <span>“A Simple Panel Unit Root Test in the Presence of Cross-Section Dependence.”</span> <em>Journal of Applied Econometrics</em> 22 (2): 265–312. <a href="https://doi.org/10.1002/jae.951">https://doi.org/10.1002/jae.951</a>.
+</div>
+<div id="ref-pesaran2015" class="csl-entry" role="listitem">
+Pesaran, M. Hashem. 2015. <em>Time Series and Panel Data Econometrics</em>. Oxford University Press. <a href="https://doi.org/10.1093/acprof:oso/9780198736912.001.0001">https://doi.org/10.1093/acprof:oso/9780198736912.001.0001</a>.
+</div>
+<div id="ref-pesaran2013" class="csl-entry" role="listitem">
+Pesaran, M. Hashem, L. Vanessa Smith, and Takashi Yamagata. 2013. <span>“Panel Unit Root Tests in the Presence of a Multifactor Error Structure.”</span> <em>Journal of Econometrics</em> 175 (2): 94–115. <a href="https://doi.org/10.1016/j.jeconom.2013.02.001">https://doi.org/10.1016/j.jeconom.2013.02.001</a>.
+</div>
+<div id="ref-pfaff2008" class="csl-entry" role="listitem">
+Pfaff, Bernhard. 2008. <em>Analysis of Integrated and Cointegrated Time Series with <span>R</span></em>. Second. Springer. <a href="https://doi.org/10.1007/978-0-387-75967-8">https://doi.org/10.1007/978-0-387-75967-8</a>.
+</div>
+<div id="ref-phillips2003" class="csl-entry" role="listitem">
+Phillips, Peter C. B., and Donggyu Sul. 2003. <span>“Dynamic Panel Estimation and Homogeneity Testing Under Cross Section Dependence.”</span> <em>Econometrics Journal</em> 6 (1): 217–59. <a href="https://doi.org/10.1111/1368-423X.00108">https://doi.org/10.1111/1368-423X.00108</a>.
+</div>
+<div id="ref-simes1986" class="csl-entry" role="listitem">
+Simes, R. John. 1986. <span>“An Improved <span>B</span>onferroni Procedure for Multiple Tests of Significance.”</span> <em>Biometrika</em> 73 (3): 751–54. <a href="https://doi.org/10.1093/biomet/73.3.751">https://doi.org/10.1093/biomet/73.3.751</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script>
+// Nest the open page's sections under its entry in the book sidebar.
+// Quarto has no option for this: the sidebar lists pages only. The script
+// copies the top two levels of the page's own TOC (#TOC), makes groups
+// collapsible, and mirrors Quarto's scroll-spy highlight.
+document.addEventListener("DOMContentLoaded", function () {
+  var toc = document.querySelector("nav#TOC > ul");
+  var link = document.querySelector("#quarto-sidebar .sidebar-link.active");
+  if (!toc || !link) return;
+  var item = link.closest("li.sidebar-item");
+  if (!item) return;
+
+  function build(srcList, depth) {
+    var ul = document.createElement("ul");
+    Array.prototype.forEach.call(srcList.children, function (srcLi) {
+      var a = srcLi.querySelector(":scope > a");
+      if (!a) return;
+      var li = document.createElement("li");
+      var row = document.createElement("div");
+      row.className = "toc-row";
+      var copy = document.createElement("a");
+      copy.href = a.getAttribute("href");
+      copy.innerHTML = a.innerHTML;
+      row.appendChild(copy);
+      var sub = srcLi.querySelector(":scope > ul");
+      if (sub && depth < 2) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "toc-toggle";
+        btn.setAttribute("aria-label", "Toggle subsections");
+        btn.innerHTML = '<i class="bi bi-chevron-down"></i>';
+        btn.addEventListener("click", function () {
+          li.classList.toggle("collapsed");
+          btn.setAttribute("aria-expanded", !li.classList.contains("collapsed"));
+        });
+        row.appendChild(btn);
+        li.appendChild(row);
+        li.appendChild(build(sub, depth + 1));
+        li.classList.add("collapsed");
+        btn.setAttribute("aria-expanded", "false");
+      } else {
+        li.appendChild(row);
+      }
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  var nested = build(toc, 1);
+  nested.className = "sidebar-page-toc";
+  item.appendChild(nested);
+
+  // Mirror the right-hand TOC's active link; open its group.
+  function sync() {
+    var active = document.querySelectorAll("nav#TOC a.nav-link.active");
+    var target = active.length ? active[active.length - 1].getAttribute("href") : null;
+    nested.querySelectorAll("a.is-current").forEach(function (a) {
+      a.classList.remove("is-current");
+    });
+    if (!target) return;
+    var hit = nested.querySelector('a[href="' + target + '"]');
+    if (!hit) return;
+    hit.classList.add("is-current");
+    var li = hit.closest("li");
+    while (li && nested.contains(li)) {
+      if (li.querySelector(":scope > ul") && li.classList.contains("collapsed")) {
+        li.classList.remove("collapsed");
+      }
+      li = li.parentElement.closest("li");
+    }
+  }
+  new MutationObserver(sync).observe(document.querySelector("nav#TOC"), {
+    subtree: true, attributes: true, attributeFilter: ["class"]
+  });
+  sync();
+});
+</script>
+<script>
+// Two-page layout: the book page stays on the left; a cross-reference or
+// any link to another page of the book opens that page in a pane on the
+// right. The sidebar is fixed, resizable, and collapses to a rail only on
+// request. Each column has a top bar of the same height (--tp-bar).
+// Styles: assets/two-page.scss. Phones keep the normal layout.
+(function () {
+  // Wide tables scroll sideways in their own box instead of squeezing their
+  // columns or running out of the column; in the pane as on the page.
+  document.querySelectorAll("main.content table").forEach(function (t) {
+    if (t.parentElement.classList.contains("tp-table-scroll")) return;
+    var box = document.createElement("div");
+    box.className = "tp-table-scroll";
+    t.parentNode.insertBefore(box, t);
+    box.appendChild(t);
+    var row = t.querySelector("tr");
+    if (row && row.children.length > 5) t.classList.add("tp-table-wide");
+  });
+
+  if (document.documentElement.classList.contains("tp-in-pane")) {
+    inPane();
+    return;
+  }
+
+  // Inside the pane. The parent cannot read this frame on file://, so the
+  // page reports itself by postMessage: its address, page and section
+  // titles, and its contents. The parent may ask it to go to an anchor.
+  function inPane() {
+    function clean(t) { return (t || "").replace(/\s+/g, " ").trim(); }
+    var HEADS = ":scope > h1, :scope > h2, :scope > h3, :scope > h4, " +
+      ":scope > h5, :scope > h6";
+    // The heading of the section that holds el. An unnumbered subsection
+    // ("Read it") gets its parent's heading in front, so it can be told
+    // apart from its namesakes.
+    function headingOf(el) {
+      if (!el) return "";
+      var sec = el.closest("section[id]");
+      var h = /^H[1-6]$/.test(el.tagName) ? el :
+        sec && sec.querySelector(HEADS);
+      if (!h) return "";
+      var text = clean(h.textContent);
+      if (!h.querySelector(".header-section-number") && sec) {
+        var up = sec.parentElement && sec.parentElement.closest("section[id]");
+        var uh = up && up.querySelector(HEADS);
+        if (uh && uh.tagName !== "H1") {
+          text = clean(uh.textContent) + " › " + text;
+        }
+      }
+      return text;
+    }
+    var h1 = document.querySelector("main.content h1");
+    var pageTitle = h1 ? clean(h1.textContent) : clean(document.title);
+
+    // Snippet mode (?tp-only=<id>, set up by assets/in-pane.html): show only
+    // that element, a footnote or an index entry, instead of the whole page.
+    var snippet = null;
+    var only = document.documentElement.getAttribute("data-tp-only");
+    var part = only ? document.getElementById(only) : null;
+    if (part) {
+      snippet = buildSnippet(part);
+    } else {
+      document.documentElement.classList.remove("tp-only");
+    }
+    function buildSnippet(part) {
+      var box = document.createElement("div");
+      box.className = "tp-snippet";
+      var note = /^fn\d+$/.test(part.id) && part.closest("#footnotes");
+      var label = "";
+      var head = document.createElement("p");
+      head.className = "tp-snippet-head";
+      if (note) {
+        label = "Note " + part.id.slice(2);
+        head.textContent = label + ", from " + pageTitle;
+      } else {
+        var strong = part.querySelector("strong");
+        label = clean(strong ? strong.textContent : part.textContent);
+        head.textContent = "From the " + pageTitle.toLowerCase();
+      }
+      box.appendChild(head);
+      // A copy without ids, so the page keeps one element per id.
+      var body = document.createElement("div");
+      body.className = "tp-snippet-body";
+      Array.prototype.forEach.call(part.childNodes, function (c) {
+        body.appendChild(c.cloneNode(true));
+      });
+      body.querySelectorAll("[id]").forEach(function (e) {
+        e.removeAttribute("id");
+      });
+      body.querySelectorAll(".footnote-back").forEach(function (e) {
+        e.remove();
+      });
+      box.appendChild(body);
+      if (note) {
+        // The full page, at the place the note is called from.
+        var u = new URL(location.href);
+        u.searchParams.delete("tp-pane");
+        u.searchParams.delete("tp-only");
+        u.hash = "fnref" + part.id.slice(2);
+        var more = document.createElement("a");
+        more.className = "tp-snippet-more";
+        more.href = u.href;
+        more.textContent = "Show in the chapter";
+        box.appendChild(more);
+      }
+      var main = document.querySelector("main.content");
+      main.insertBefore(box, main.firstChild);
+      return { label: label };
+    }
+
+    function report() {
+      var id = decodeURIComponent(location.hash.slice(1));
+      var target = id ? document.getElementById(id) : null;
+      // The contents, with each entry's depth; none for a snippet.
+      var toc = [];
+      var links = snippet ? [] :
+        document.querySelectorAll("nav#TOC a.nav-link");
+      Array.prototype.forEach.call(links, function (a) {
+        var level = 0;
+        for (var n = a.parentElement; n && n.id !== "TOC"; n = n.parentElement) {
+          if (n.tagName === "UL") level++;
+        }
+        toc.push({ id: a.getAttribute("href").slice(1),
+                   text: clean(a.textContent), level: level });
+      });
+      var u = new URL(location.href);
+      u.searchParams.delete("tp-pane");
+      window.parent.postMessage({
+        tp: "loaded",
+        url: u.href,
+        title: pageTitle,
+        section: snippet ? snippet.label :
+          target && target !== h1 ? headingOf(target) : "",
+        toc: toc
+      }, "*");
+      // Flash the element the link pointed at.
+      if (target) {
+        target.classList.remove("tp-flash");
+        void target.offsetWidth;
+        target.classList.add("tp-flash");
+      }
+    }
+    window.addEventListener("message", function (e) {
+      if (e.source !== window.parent || !e.data || e.data.tp !== "goto") {
+        return;
+      }
+      if (document.getElementById(e.data.id)) location.hash = e.data.id;
+    });
+    window.addEventListener("hashchange", report);
+    window.addEventListener("load", report);
+  }
+
+  var root = document.documentElement;
+  var desktop = window.matchMedia("(min-width: 768px)");
+  var RAIL = 44, SB_MIN = 200, SB_MAX = 440, MAIN_MIN = 420, PANE_MIN = 320;
+  var GAP = 40;
+
+  // Per-viewer layout memory; the page works without it.
+  function load() {
+    try { return JSON.parse(localStorage.getItem("tp-layout")) || {}; }
+    catch (e) { return {}; }
+  }
+  function save() {
+    try { localStorage.setItem("tp-layout", JSON.stringify(state)); }
+    catch (e) {}
+  }
+  var state = Object.assign({ sb: 272, collapsed: false, split: 0.5 }, load());
+
+  var sidebar = document.getElementById("quarto-sidebar");
+  var main = document.querySelector("main.content");
+  if (!sidebar || !main) return;
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html) e.innerHTML = html;
+    return e;
+  }
+  function iconButton(act, icon, label) {
+    var b = el("button", "tp-icon", '<i class="bi ' + icon + '"></i>');
+    b.type = "button";
+    b.setAttribute("data-act", act);
+    b.setAttribute("aria-label", label);
+    b.title = label;
+    return b;
+  }
+
+  // Desktop moves a few of Quarto's elements into the bars; phones get them
+  // back where Quarto put them.
+  var moves = [];
+  function movable(node, target) {
+    if (node) {
+      moves.push({ node: node, home: node.parentNode,
+                   next: node.nextSibling, target: target });
+    }
+  }
+  var placed = null;
+  function place() {
+    if (placed === desktop.matches) return;
+    placed = desktop.matches;
+    moves.forEach(function (m) {
+      if (desktop.matches) m.target.appendChild(m.node);
+      else m.home.insertBefore(m.node, m.next);
+    });
+  }
+
+  // Sidebar bar: book title and the collapse toggle on one row. The dark
+  // mode and reader toggles sit beside the search box.
+  var sbBar = el("div", "tp-bar tp-sb-bar");
+  var sbTitle = el("div", "tp-bar-title");
+  var toggle = iconButton("sidebar", "bi-chevron-left", "Narrow the sidebar");
+  toggle.classList.add("tp-sb-toggle");
+  sbBar.appendChild(sbTitle);
+  sbBar.appendChild(toggle);
+  sidebar.insertBefore(sbBar, sidebar.firstChild);
+  var titleLink = sidebar.querySelector(".sidebar-title > a");
+  if (titleLink) titleLink.title = titleLink.textContent.trim();
+  movable(titleLink, sbTitle);
+  var tools = sidebar.querySelector(".sidebar-tools-main");
+  var search = sidebar.querySelector(".sidebar-search");
+  if (tools && search) movable(tools, search);
+  toggle.addEventListener("click", function () {
+    state.collapsed = !state.collapsed;
+    save();
+    layout();
+  });
+
+  // Book bar: breadcrumb on the left, "On this page" on the right.
+  var bookBar = el("div", "tp-bar tp-book-bar");
+  var crumbs = el("div", "tp-crumbs");
+  var tocSlot = el("div", "tp-toc-slot");
+  bookBar.appendChild(crumbs);
+  bookBar.appendChild(tocSlot);
+  document.body.appendChild(bookBar);
+  movable(main.querySelector(".quarto-title-breadcrumbs"), crumbs);
+  var toc = document.getElementById("quarto-margin-sidebar");
+  movable(toc, tocSlot);
+
+  // The contents is a dropdown: hover or click opens it, a click on an
+  // entry, outside, or Esc closes it.
+  var tocTitle = document.getElementById("toc-title");
+  if (toc && tocTitle) {
+    tocTitle.setAttribute("tabindex", "0");
+    tocTitle.setAttribute("role", "button");
+    tocTitle.addEventListener("click", function () {
+      toc.classList.toggle("is-open");
+    });
+    tocTitle.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toc.classList.toggle("is-open");
+      }
+    });
+    toc.addEventListener("click", function (e) {
+      if (e.target.closest("a")) {
+        toc.classList.remove("is-open");
+        toc.classList.add("is-shut");
+      }
+    });
+    toc.addEventListener("mouseleave", function () {
+      toc.classList.remove("is-shut");
+    });
+    document.addEventListener("click", function (e) {
+      if (!toc.contains(e.target)) toc.classList.remove("is-open");
+    });
+  }
+
+  // Handles.
+  function handle(cls) {
+    var h = el("div", "tp-handle " + cls);
+    document.body.appendChild(h);
+    return h;
+  }
+  var hSb = handle("tp-handle-sb");
+  var hSplit = handle("tp-handle-split");
+
+  // Pane.
+  var pane = el("div", "tp-pane");
+  pane.setAttribute("role", "complementary");
+  pane.setAttribute("aria-label", "Second page");
+  var paneBar = el("div", "tp-bar tp-pane-bar");
+  var title = el("div", "tp-bar-title tp-pane-title", "Second page");
+  title.setAttribute("aria-live", "polite");
+  var back = iconButton("back", "bi-arrow-left", "Back");
+  var fwd = iconButton("forward", "bi-arrow-right", "Forward");
+  paneBar.appendChild(back);
+  paneBar.appendChild(fwd);
+  paneBar.appendChild(title);
+  // The pane page's own contents, from its report.
+  var paneToc = el("div", "tp-menu tp-pane-toc");
+  var paneTocBtn = iconButton("toc", "bi-list-ul", "On this page");
+  paneTocBtn.setAttribute("aria-haspopup", "true");
+  paneTocBtn.setAttribute("aria-expanded", "false");
+  var paneTocList = el("ul", "tp-menu-list");
+  paneToc.appendChild(paneTocBtn);
+  paneToc.appendChild(paneTocList);
+  paneBar.appendChild(paneToc);
+  paneBar.appendChild(
+    iconButton("main", "bi-box-arrow-up-left", "Open as the main page"));
+  paneBar.appendChild(iconButton("close", "bi-x-lg", "Close (Esc)"));
+  pane.appendChild(paneBar);
+  pane.appendChild(el("div", "tp-pane-empty",
+    "Click a cross-reference or a link to another page.<br>" +
+    "It opens here, and this page stays put."));
+  var frame = el("iframe");
+  frame.title = "Second page";
+  frame.name = "tp-pane";
+  pane.appendChild(frame);
+  document.body.appendChild(pane);
+
+  function layout() {
+    place();
+    if (!desktop.matches) return;
+    var vw = root.clientWidth;
+    var sb = state.collapsed ? RAIL : state.sb;
+    var room = vw - sb - 2 * GAP;
+    var mainW = Math.max(MAIN_MIN, Math.min(room - PANE_MIN, room * state.split));
+    mainW = Math.min(mainW, 820);
+    root.classList.toggle("tp-sb-collapsed", state.collapsed);
+    root.style.setProperty("--tp-sb", sb + "px");
+    root.style.setProperty("--tp-main", mainW + "px");
+    root.style.setProperty("--tp-gap", GAP + "px");
+    var paneLeft = sb + GAP + mainW + GAP;
+    pane.style.left = paneLeft + "px";
+    hSb.style.left = sb + "px";
+    hSplit.style.left = paneLeft + "px";
+    toggle.innerHTML = '<i class="bi ' +
+      (state.collapsed ? "bi-chevron-right" : "bi-chevron-left") + '"></i>';
+    toggle.title = state.collapsed ? "Show the sidebar" : "Narrow the sidebar";
+    toggle.setAttribute("aria-label", toggle.title);
+  }
+
+  function drag(h, onMove) {
+    h.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      h.setPointerCapture(e.pointerId);
+      h.classList.add("is-active");
+      document.body.classList.add("tp-dragging");
+      function move(ev) { onMove(ev.clientX); layout(); }
+      function up() {
+        h.removeEventListener("pointermove", move);
+        h.removeEventListener("pointerup", up);
+        h.classList.remove("is-active");
+        document.body.classList.remove("tp-dragging");
+        save();
+      }
+      h.addEventListener("pointermove", move);
+      h.addEventListener("pointerup", up);
+    });
+  }
+  drag(hSb, function (x) {
+    state.sb = Math.max(SB_MIN, Math.min(SB_MAX, x));
+  });
+  drag(hSplit, function (x) {
+    var sb = state.collapsed ? RAIL : state.sb;
+    var room = root.clientWidth - sb - 2 * GAP;
+    state.split = Math.max(0.25, Math.min(0.8, (x - sb - 2 * GAP) / room));
+  });
+
+  // Open and close.
+  function setQuery(href) {
+    var u = new URL(location.href);
+    if (href) u.searchParams.set("pane", href);
+    else u.searchParams.delete("pane");
+    history.replaceState(null, "", u);
+  }
+  function setTitle(page, section) {
+    title.textContent = "";
+    title.appendChild(el("span", "tp-pane-page")).textContent = page;
+    if (section) {
+      title.appendChild(el("span", "tp-pane-sec")).textContent = section;
+    }
+    title.title = section ? page + " › " + section : page;
+  }
+  // The address of the pane page, relative to this page, for ?pane=.
+  function relative(href) {
+    var to = new URL(href), from = new URL(location.href);
+    if (to.origin !== from.origin) return href;
+    var a = from.pathname.split("/").slice(0, -1);
+    var b = to.pathname.split("/");
+    var i = 0;
+    while (i < a.length && i < b.length - 1 && a[i] === b[i]) i++;
+    var up = a.slice(i).map(function () { return ".."; });
+    return up.concat(b.slice(i)).join("/") + to.search + to.hash;
+  }
+  var current = null;   // address of the page shown in the pane
+
+  // Pane history, for this page load only: the addresses the pane has
+  // shown, and where in that list it is. A page the pane reports that is
+  // not the current entry is pushed, dropping the entries ahead of it;
+  // Back and Forward move the index and say so, so the report that
+  // follows does not push.
+  var past = [], at = -1, moving = false;
+  function syncButtons() {
+    back.disabled = at <= 0;
+    fwd.disabled = at >= past.length - 1;
+  }
+  function paneSrc(url) {
+    var src = new URL(url, location.href);
+    src.searchParams.set("tp-pane", "1");
+    return src;
+  }
+  function go(step) {
+    var i = at + step;
+    if (i < 0 || i >= past.length) return;
+    at = i;
+    moving = true;
+    var src = paneSrc(past[at]).href;
+    // replace() keeps these moves out of the browser's own history.
+    try { frame.contentWindow.location.replace(src); }
+    catch (e) { frame.src = src; }
+    syncButtons();
+  }
+  function record(url) {
+    if (moving) {
+      moving = false;
+      past[at] = url;
+    } else if (past[at] !== url) {
+      past = past.slice(0, at + 1);
+      past.push(url);
+      at = past.length - 1;
+    }
+    syncButtons();
+  }
+
+  function open(url) {
+    var src = paneSrc(url);
+    frame.src = src.href;
+    // Until the page reports its own title, show its file name.
+    setTitle(decodeURIComponent(src.pathname.replace(/^.*\//, "")),
+             decodeURIComponent(src.hash.slice(1)));
+    pane.classList.add("is-open");
+    current = new URL(url, location.href).href;
+  }
+  window.addEventListener("message", function (e) {
+    if (e.source !== frame.contentWindow) return;
+    var d = e.data;
+    if (!d || d.tp !== "loaded" || typeof d.url !== "string") return;
+    if (!pane.classList.contains("is-open")) return;
+    current = d.url;
+    record(d.url);
+    fillToc(Array.isArray(d.toc) ? d.toc : [],
+            decodeURIComponent(new URL(d.url).hash.slice(1)));
+    setTitle(String(d.title || ""), String(d.section || ""));
+    setQuery(relative(d.url));
+  });
+  function fillToc(items, here) {
+    paneTocList.textContent = "";
+    items.forEach(function (t) {
+      var li = el("li");
+      var b = el("button", "tp-menu-item");
+      b.type = "button";
+      b.textContent = String(t.text || "");
+      b.setAttribute("data-id", String(t.id || ""));
+      b.style.paddingLeft = (0.6 + 0.85 * Math.max(0, (t.level || 1) - 1)) +
+        "rem";
+      if (t.id === here) b.classList.add("is-current");
+      li.appendChild(b);
+      paneTocList.appendChild(li);
+    });
+    paneToc.hidden = items.length === 0;
+    showToc(false);
+  }
+  function showToc(on) {
+    paneToc.classList.toggle("is-open", on);
+    paneTocBtn.setAttribute("aria-expanded", on ? "true" : "false");
+  }
+  paneTocList.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-id]");
+    if (!b) return;
+    showToc(false);
+    frame.contentWindow.postMessage(
+      { tp: "goto", id: b.getAttribute("data-id") }, "*");
+  });
+  document.addEventListener("click", function (e) {
+    if (!paneToc.contains(e.target)) showToc(false);
+  });
+  // A click inside the pane page takes focus away from this window.
+  window.addEventListener("blur", function () {
+    showToc(false);
+    if (toc) toc.classList.remove("is-open");
+  });
+
+  function close() {
+    frame.removeAttribute("src");
+    current = null;
+    past = [];
+    at = -1;
+    moving = false;
+    syncButtons();
+    fillToc([], "");
+    pane.classList.remove("is-open");
+    setQuery(null);
+  }
+  pane.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    var act = b && b.getAttribute("data-act");
+    if (act === "close") close();
+    if (act === "toc") showToc(!paneToc.classList.contains("is-open"));
+    if (act === "back") go(-1);
+    if (act === "forward") go(1);
+    if (act === "main" && current) {
+      // The main window shows the whole page, at the snippet's element.
+      var u = new URL(current);
+      var part = u.searchParams.get("tp-only");
+      if (part) {
+        u.searchParams.delete("tp-only");
+        u.hash = part;
+      }
+      location.href = u.href;
+    }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (toc && toc.classList.contains("is-open")) {
+      toc.classList.remove("is-open");
+    } else if (paneToc.classList.contains("is-open")) {
+      showToc(false);
+    } else if (pane.classList.contains("is-open")) {
+      close();
+    }
+  });
+
+  // Which links open in the pane: every link in the page body to a page
+  // of this book, including anchors on this same page (the reader keeps
+  // their place on the left). The sidebar, the contents, breadcrumbs, page
+  // navigation, heading anchors, footnote back-links, tabs and external
+  // sites behave as usual.
+  function paneTarget(a) {
+    if (!a || !main.contains(a)) return null;
+    if (a.closest(".page-navigation, .quarto-title-breadcrumbs, #TOC")) {
+      return null;
+    }
+    if (a.matches(".anchorjs-link, .footnote-back, [data-bs-toggle], " +
+                  "[role=tab]")) {
+      return null;
+    }
+    if (a.target === "_blank" || a.hasAttribute("download")) return null;
+    var href = a.getAttribute("href");
+    if (!href || href === "#") return null;
+    var url = new URL(href, location.href);
+    if (url.protocol !== location.protocol || url.host !== location.host) {
+      return null;
+    }
+    if (!/\.html$/.test(url.pathname)) return null;
+    if (url.pathname === location.pathname) {
+      // This page: an anchor only, never this page's own ?pane= state.
+      if (!url.hash) return null;
+      url.search = "";
+    }
+    // A footnote shows only the note; an index term only its entry.
+    if (a.matches(".footnote-ref, .tp-term") && url.hash) asSnippet(url);
+    return url;
+  }
+  function asSnippet(url) {
+    url.searchParams.set("tp-only", decodeURIComponent(url.hash.slice(1)));
+    url.hash = "";
+  }
+  main.querySelectorAll("a[href]").forEach(function (a) {
+    if (paneTarget(a)) a.classList.add("tp-pane-link");
+  });
+  main.addEventListener("click", function (e) {
+    if (!desktop.matches) return;
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
+      return;
+    }
+    var a = e.target.closest("a[href]");
+    var url = paneTarget(a);
+    if (!url) return;
+    e.preventDefault();
+    // Quarto's smooth scroll listens on window and ignores preventDefault;
+    // without this it would also scroll the left page to the anchor.
+    e.stopPropagation();
+    open(url.href);
+  });
+
+  // Reopen the pane named in the address (shared link, reload).
+  var start = new URL(location.href).searchParams.get("pane");
+  if (start) open(start);
+
+  syncButtons();
+  fillToc([], "");
+  window.addEventListener("resize", layout);
+  desktop.addEventListener("change", layout);
+  layout();
+})();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../chapters/03-spatial/theory-direct-indirect-effects.html" class="pagination-link" aria-label="Direct and indirect effects">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">G</span>&nbsp; <span class="chapter-title">Direct and indirect effects</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../chapters/04-time/theory-cointegration.html" class="pagination-link" aria-label="Cointegration in panels">
+        <span class="nav-page-text"><span class="chapter-number">I</span>&nbsp; <span class="chapter-title">Cointegration in panels</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

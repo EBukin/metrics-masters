@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Appendix G — Direct and indirect effects – Metrics Masters</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../chapters/04-time/theory-panel-unit-roots.html" rel="next">
+<link href="../../chapters/03-spatial/theory-spatial-estimation.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-46d51a135cee5df7f1a795d1c268b47f.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0694db8cd81d3598e41fbab1c9882dee.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-46d51a135cee5df7f1a795d1c268b47f.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-58d0b2ac4bab12110c46fd8e476cf6ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-2e6f9e4e64c7f0c1b63e7faead9c081c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-58d0b2ac4bab12110c46fd8e476cf6ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script>
+// A page loaded inside the right-hand pane shows its content only.
+// Runs in <head> so the page never paints its sidebar first. The pane
+// opens pages with ?tp-pane=1; the page then names its window "tp-pane",
+// so links followed inside the pane keep the mode. Any other frame (an
+// editor preview, say) gets the full layout.
+(function () {
+  if (/[?&]tp-pane=1\b/.test(location.search)) window.name = "tp-pane";
+  if (window.name === "tp-pane") {
+    document.documentElement.classList.add("tp-in-pane");
+    // ?tp-only=<id>: show only that element (a footnote, an index entry).
+    var only = /[?&]tp-only=([^&#]+)/.exec(location.search);
+    if (only) {
+      document.documentElement.classList.add("tp-only");
+      document.documentElement.setAttribute("data-tp-only",
+        decodeURIComponent(only[1]));
+    }
+  }
+})();
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const queryPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeDefault = queryPrefersDark.matches;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    queryPrefersDark.addEventListener("change", e => {
+      if(window.localStorage.getItem("quarto-color-scheme") !== null)
+        return;
+      const alternate = e.matches
+      toggleColorMode(alternate);
+      localAlternateSentinel = e.matches ? 'alternate' : 'default'; // this is used alongside local storage!
+      toggleGiscusIfUsed(alternate, darkModeDefault);
+    });
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html">Theory</a></li><li class="breadcrumb-item"><a href="../../chapters/03-spatial/theory-direct-indirect-effects.html"><span class="chapter-number">G</span>&nbsp; <span class="chapter-title">Direct and indirect effects</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Metrics Masters</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Set-up</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/00-road-map/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Road map</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/01-explore/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Explore the panel</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Dependence</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Cross-sectional dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Spatial dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Time dependence</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Core panel models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/06-dynamic/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Dynamic panels</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Cross-sectional dependence: how much, and of what kind</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/02-cross-dependence/theory-common-factors-cce.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Common factors and CCE: what cross-section averages are doing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-weights.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Spatial weights</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-dependence-tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Testing for spatial dependence</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-model-choice.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Spatial model choice</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-spatial-estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Fitting spatial panels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/03-spatial/theory-direct-indirect-effects.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">G</span>&nbsp; <span class="chapter-title">Direct and indirect effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/theory-panel-unit-roots.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">H</span>&nbsp; <span class="chapter-title">Panel unit roots: what a rejection is worth</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/04-time/theory-cointegration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">I</span>&nbsp; <span class="chapter-title">Cointegration in panels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/theory-fixed-random.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">J</span>&nbsp; <span class="chapter-title">Fixed and random effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/05-core/theory-panel-error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">K</span>&nbsp; <span class="chapter-title">The error of a panel regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../chapters/06-dynamic/theory-dynamic-gmm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">L</span>&nbsp; <span class="chapter-title">Dynamic panel GMM</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="1">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-question-a-reader-of-an-impact-evaluation-asks" id="toc-the-question-a-reader-of-an-impact-evaluation-asks" class="nav-link active" data-scroll-target="#the-question-a-reader-of-an-impact-evaluation-asks"><span class="header-section-number">G.1</span> The question a reader of an impact evaluation asks</a></li>
+  <li><a href="#the-reduced-form" id="toc-the-reduced-form" class="nav-link" data-scroll-target="#the-reduced-form"><span class="header-section-number">G.2</span> 1. The reduced form</a></li>
+  <li><a href="#three-averages" id="toc-three-averages" class="nav-link" data-scroll-target="#three-averages"><span class="header-section-number">G.3</span> 2. Three averages</a></li>
+  <li><a href="#standard-errors" id="toc-standard-errors" class="nav-link" data-scroll-target="#standard-errors"><span class="header-section-number">G.4</span> 3. Standard errors</a></li>
+  <li><a href="#where-the-effects-live" id="toc-where-the-effects-live" class="nav-link" data-scroll-target="#where-the-effects-live"><span class="header-section-number">G.5</span> 4. Where the effects live</a></li>
+  <li><a href="#if-then" id="toc-if-then" class="nav-link" data-scroll-target="#if-then"><span class="header-section-number">G.6</span> If / then</a></li>
+  <li><a href="#open" id="toc-open" class="nav-link" data-scroll-target="#open"><span class="header-section-number">G.7</span> Open</a></li>
+  <li><a href="#next" id="toc-next" class="nav-link" data-scroll-target="#next"><span class="header-section-number">G.8</span> Next</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../chapters/02-cross-dependence/theory-cross-sectional-dependence.html">Theory</a></li><li class="breadcrumb-item"><a href="../../chapters/03-spatial/theory-direct-indirect-effects.html"><span class="chapter-number">G</span>&nbsp; <span class="chapter-title">Direct and indirect effects</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Appendix G — Direct and indirect effects</h1>
+<p class="subtitle lead">Why a spatial lag coefficient is not a marginal effect</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>Code:</strong> <a href="../../chapters/03-spatial/index.html#sec-sp-impacts">direct and indirect effects</a>. Related notes: <a href="../../chapters/03-spatial/theory-spatial-model-choice.html">spatial model choice</a> and <a href="../../chapters/03-spatial/theory-spatial-weights.html">spatial weights</a>.</p>
+</blockquote>
+<section id="the-question-a-reader-of-an-impact-evaluation-asks" class="level2" data-number="G.1">
+<h2 data-number="G.1" class="anchored" data-anchor-id="the-question-a-reader-of-an-impact-evaluation-asks"><span class="header-section-number">G.1</span> The question a reader of an impact evaluation asks</h2>
+<p>If Ohio’s income rose by 10% and nothing else changed, by how much would Ohio’s house prices rise? In a plain regression the answer is β, and the reader is done. In a spatial lag model it is not, because the model says Ohio’s price depends on Pennsylvania’s, Pennsylvania’s on Ohio’s, and the rise goes round that loop before it settles. A paper that fits <span class="math inline">\(y = \rho W y + X\beta + u\)</span> and reports β as “the effect of income” has not reported an effect of anything <span class="citation" data-cites="lesage2009">(<a href="../../references.html#ref-lesage2009" role="doc-biblioref">LeSage and Pace 2009</a>, ch.&nbsp;2)</span>.</p>
+</section>
+<section id="the-reduced-form" class="level2" data-number="G.2">
+<h2 data-number="G.2" class="anchored" data-anchor-id="the-reduced-form"><span class="header-section-number">G.2</span> 1. The reduced form</h2>
+<p>Solve the lag model for <em>y</em>, for one period:</p>
+<p><span class="math display">\[
+y = (I - \rho W)^{-1} X\beta + (I - \rho W)^{-1} u.
+\]</span></p>
+<p>The matrix <span class="math inline">\((I - \rho W)^{-1}\)</span> is the sum <span class="math inline">\(I + \rho W + \rho^2 W^2 +
+\dots\)</span>, which converges whenever ρ is inside the parameter space of the <a href="../../chapters/03-spatial/theory-spatial-weights.html">weights note</a>. Its terms are the loop: the first is the own effect, the second the neighbours’, the third the neighbours’ neighbours’, and so on without end. Differentiating with respect to regressor <em>k</em> in every unit at once gives an N × N matrix of partial effects <span class="citation" data-cites="lesage2009">(<a href="../../references.html#ref-lesage2009" role="doc-biblioref">LeSage and Pace 2009</a>, eq. 2.49)</span></p>
+<p><span class="math display">\[
+S_k = \frac{\partial y}{\partial x_k'} = (I - \rho W)^{-1}\beta_k ,
+\]</span></p>
+<p>whose <span class="math inline">\((i, j)\)</span> cell is the effect of <span class="math inline">\(x_k\)</span> in unit <em>j</em> on <em>y</em> in unit <em>i</em>. β is the value every cell would take if ρ were zero.</p>
+</section>
+<section id="three-averages" class="level2" data-number="G.3">
+<h2 data-number="G.3" class="anchored" data-anchor-id="three-averages"><span class="header-section-number">G.3</span> 2. Three averages</h2>
+<p>N² numbers per regressor are too many to report. <span class="citation" data-cites="lesage2009">LeSage and Pace (<a href="../../references.html#ref-lesage2009" role="doc-biblioref">2009, sec. 2.7</a>)</span> reduce them to three:</p>
+<ul>
+<li>the <strong>direct</strong> effect, the average diagonal cell, <span class="math inline">\(\bar S_k^{\,d} = N^{-1}\operatorname{tr}(S_k)\)</span>: a unit’s own response, including what comes back to it through its neighbours;</li>
+<li>the <strong>total</strong> effect, the average row sum, <span class="math inline">\(\bar S_k^{\,t} = N^{-1}\iota' S_k\, \iota\)</span>: the response of a typical unit when <span class="math inline">\(x_k\)</span> rises in every unit;</li>
+<li>the <strong>indirect</strong> effect, their difference: what a typical unit receives from everyone else, or equivalently what a change in one unit sends to all the others, since the average row sum and the average column sum of <span class="math inline">\(S_k\)</span> are the same number.</li>
+</ul>
+<p>With a row-standardised W the row sums of <span class="math inline">\((I - \rho W)^{-1}\)</span> all equal <span class="math inline">\(1/(1-\rho)\)</span>, so the total effect is <span class="math inline">\(\beta_k / (1 - \rho)\)</span>: the spatial multiplier. With ρ = 0.65 on house prices the multiplier is 2.8, and an income slope of 0.72 becomes a total effect of 2.0. The direct effect exceeds β by the feedback, <span class="math inline">\(\beta_k[N^{-1}\operatorname{tr}(I - \rho
+W)^{-1} - 1]\)</span>, which is 0.11 on house prices and 0.01 on rice.</p>
+</section>
+<section id="standard-errors" class="level2" data-number="G.4">
+<h2 data-number="G.4" class="anchored" data-anchor-id="standard-errors"><span class="header-section-number">G.4</span> 3. Standard errors</h2>
+<p>Each average is a nonlinear function of ρ and β, so its standard error is not read off the coefficient table. <span class="citation" data-cites="lesage2009">LeSage and Pace (<a href="../../references.html#ref-lesage2009" role="doc-biblioref">2009, sec. 5.2</a>)</span> draw (ρ, β) from the estimated asymptotic normal distribution, recompute the three averages for each draw, and take the dispersion; 200 draws give two decimals. With large N the inverse is replaced by traces of powers of W, <span class="math inline">\(\operatorname{tr}(W^q)\)</span>, computed once by <code>spatialreg::trW</code>, which is what <code>type = "MC"</code> and <code>"moments"</code> do in <code>impacts()</code>. The <code>"moments"</code> route needs a symmetric W, or the similar symmetric matrix of a row-standardised one.</p>
+</section>
+<section id="where-the-effects-live" class="level2" data-number="G.5">
+<h2 data-number="G.5" class="anchored" data-anchor-id="where-the-effects-live"><span class="header-section-number">G.5</span> 4. Where the effects live</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th><span class="math inline">\(\partial y / \partial x_k'\)</span></th>
+<th>Indirect effects</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SEM</td>
+<td><span class="math inline">\(\beta_k I\)</span></td>
+<td>none; β is the effect</td>
+</tr>
+<tr class="even">
+<td>SAR</td>
+<td><span class="math inline">\((I - \rho W)^{-1}\beta_k\)</span></td>
+<td>yes, through the multiplier</td>
+</tr>
+<tr class="odd">
+<td>SDM</td>
+<td><span class="math inline">\((I - \rho W)^{-1}(\beta_k I + \theta_k W)\)</span></td>
+<td>yes, and not proportional to the direct ones</td>
+</tr>
+<tr class="even">
+<td>SLX, <span class="math inline">\(WX\)</span> only</td>
+<td><span class="math inline">\(\beta_k I + \theta_k W\)</span></td>
+<td>yes, first neighbours only</td>
+</tr>
+</tbody>
+</table>
+<p>The spatial error model has no indirect effects at all, which is the other half of the <a href="../../chapters/03-spatial/theory-spatial-model-choice.html">choice note</a>: a reader who wants spillovers has to have put a lag in. The Durbin term breaks the shortcut <span class="math inline">\(\beta_k / (1 - \rho)\)</span>, and makes the ratio of indirect to direct effects differ across regressors <span class="citation" data-cites="baltagi2021 lesage2009">(<a href="../../references.html#ref-baltagi2021" role="doc-biblioref">Baltagi 2021, 406</a>; <a href="../../references.html#ref-lesage2009" role="doc-biblioref">LeSage and Pace 2009, sec. 2.7</a>)</span>.</p>
+</section>
+<section id="if-then" class="level2" data-number="G.6">
+<h2 data-number="G.6" class="anchored" data-anchor-id="if-then"><span class="header-section-number">G.6</span> If / then</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>If</th>
+<th>Then</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>The fitted model has <span class="math inline">\(Wy\)</span></td>
+<td>Report direct, indirect and total with Monte Carlo intervals; never β alone</td>
+</tr>
+<tr class="even">
+<td>The fitted model has only a spatial error</td>
+<td>β is the effect; say that no spillover was estimated</td>
+</tr>
+<tr class="odd">
+<td>W is row-standardised and there is no Durbin term</td>
+<td>The total effect is <span class="math inline">\(\beta_k / (1 - \rho)\)</span>; check the hand computation against it</td>
+</tr>
+<tr class="even">
+<td>N is in the thousands</td>
+<td>Use trace approximations, not the dense inverse</td>
+</tr>
+<tr class="odd">
+<td><code>splm::impacts()</code> fails</td>
+<td>The arithmetic is three lines; <code>sar_impacts()</code> does it, and <code>spatialreg::impacts()</code> on one cross-section checks it</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="open" class="level2" data-number="G.7">
+<h2 data-number="G.7" class="anchored" data-anchor-id="open"><span class="header-section-number">G.7</span> Open</h2>
+<ul>
+<li><strong>No published target.</strong> The <code>impacts()</code> example in <code>?spml</code> is commented out, and <span class="citation" data-cites="croissant2019">Croissant and Millo (<a href="../../references.html#ref-croissant2019" role="doc-biblioref">2019</a>)</span> predate the method; the only check is agreement with the cross-sectional machinery of <strong>spatialreg</strong>.</li>
+<li><strong>The method is broken in the installed versions.</strong> With <strong>splm</strong> 1.6-5 and <strong>spatialreg</strong> 1.4-3, <code>impacts()</code> on a within fit stops with <code>!is.null(have_factor_preds) is not TRUE</code> whatever the <code>type</code>.</li>
+<li><strong>Time-varying W.</strong> Everything here assumes one W for every period; a W that changes over time gives one <span class="math inline">\(S_k\)</span> per period, and the chapter’s tools do not handle it.</li>
+</ul>
+</section>
+<section id="next" class="level2" data-number="G.8">
+<h2 data-number="G.8" class="anchored" data-anchor-id="next"><span class="header-section-number">G.8</span> Next</h2>
+<p>What this chapter cannot estimate, and what to write instead: <a href="../../chapters/03-spatial/index.html#sec-sp-limits">limits</a>.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-baltagi2021" class="csl-entry" role="listitem">
+Baltagi, Badi H. 2021. <em>Econometric Analysis of Panel Data</em>. 6th ed. Springer. <a href="https://doi.org/10.1007/978-3-030-53953-5">https://doi.org/10.1007/978-3-030-53953-5</a>.
+</div>
+<div id="ref-croissant2019" class="csl-entry" role="listitem">
+Croissant, Yves, and Giovanni Millo. 2019. <em>Panel Data Econometrics with <span>R</span></em>. Wiley. <a href="https://doi.org/10.1002/9781119504641">https://doi.org/10.1002/9781119504641</a>.
+</div>
+<div id="ref-lesage2009" class="csl-entry" role="listitem">
+LeSage, James, and R. Kelley Pace. 2009. <em>Introduction to Spatial Econometrics</em>. Chapman &amp; Hall/CRC. <a href="https://doi.org/10.1201/9781420064254">https://doi.org/10.1201/9781420064254</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script>
+// Nest the open page's sections under its entry in the book sidebar.
+// Quarto has no option for this: the sidebar lists pages only. The script
+// copies the top two levels of the page's own TOC (#TOC), makes groups
+// collapsible, and mirrors Quarto's scroll-spy highlight.
+document.addEventListener("DOMContentLoaded", function () {
+  var toc = document.querySelector("nav#TOC > ul");
+  var link = document.querySelector("#quarto-sidebar .sidebar-link.active");
+  if (!toc || !link) return;
+  var item = link.closest("li.sidebar-item");
+  if (!item) return;
+
+  function build(srcList, depth) {
+    var ul = document.createElement("ul");
+    Array.prototype.forEach.call(srcList.children, function (srcLi) {
+      var a = srcLi.querySelector(":scope > a");
+      if (!a) return;
+      var li = document.createElement("li");
+      var row = document.createElement("div");
+      row.className = "toc-row";
+      var copy = document.createElement("a");
+      copy.href = a.getAttribute("href");
+      copy.innerHTML = a.innerHTML;
+      row.appendChild(copy);
+      var sub = srcLi.querySelector(":scope > ul");
+      if (sub && depth < 2) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "toc-toggle";
+        btn.setAttribute("aria-label", "Toggle subsections");
+        btn.innerHTML = '<i class="bi bi-chevron-down"></i>';
+        btn.addEventListener("click", function () {
+          li.classList.toggle("collapsed");
+          btn.setAttribute("aria-expanded", !li.classList.contains("collapsed"));
+        });
+        row.appendChild(btn);
+        li.appendChild(row);
+        li.appendChild(build(sub, depth + 1));
+        li.classList.add("collapsed");
+        btn.setAttribute("aria-expanded", "false");
+      } else {
+        li.appendChild(row);
+      }
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  var nested = build(toc, 1);
+  nested.className = "sidebar-page-toc";
+  item.appendChild(nested);
+
+  // Mirror the right-hand TOC's active link; open its group.
+  function sync() {
+    var active = document.querySelectorAll("nav#TOC a.nav-link.active");
+    var target = active.length ? active[active.length - 1].getAttribute("href") : null;
+    nested.querySelectorAll("a.is-current").forEach(function (a) {
+      a.classList.remove("is-current");
+    });
+    if (!target) return;
+    var hit = nested.querySelector('a[href="' + target + '"]');
+    if (!hit) return;
+    hit.classList.add("is-current");
+    var li = hit.closest("li");
+    while (li && nested.contains(li)) {
+      if (li.querySelector(":scope > ul") && li.classList.contains("collapsed")) {
+        li.classList.remove("collapsed");
+      }
+      li = li.parentElement.closest("li");
+    }
+  }
+  new MutationObserver(sync).observe(document.querySelector("nav#TOC"), {
+    subtree: true, attributes: true, attributeFilter: ["class"]
+  });
+  sync();
+});
+</script>
+<script>
+// Two-page layout: the book page stays on the left; a cross-reference or
+// any link to another page of the book opens that page in a pane on the
+// right. The sidebar is fixed, resizable, and collapses to a rail only on
+// request. Each column has a top bar of the same height (--tp-bar).
+// Styles: assets/two-page.scss. Phones keep the normal layout.
+(function () {
+  // Wide tables scroll sideways in their own box instead of squeezing their
+  // columns or running out of the column; in the pane as on the page.
+  document.querySelectorAll("main.content table").forEach(function (t) {
+    if (t.parentElement.classList.contains("tp-table-scroll")) return;
+    var box = document.createElement("div");
+    box.className = "tp-table-scroll";
+    t.parentNode.insertBefore(box, t);
+    box.appendChild(t);
+    var row = t.querySelector("tr");
+    if (row && row.children.length > 5) t.classList.add("tp-table-wide");
+  });
+
+  if (document.documentElement.classList.contains("tp-in-pane")) {
+    inPane();
+    return;
+  }
+
+  // Inside the pane. The parent cannot read this frame on file://, so the
+  // page reports itself by postMessage: its address, page and section
+  // titles, and its contents. The parent may ask it to go to an anchor.
+  function inPane() {
+    function clean(t) { return (t || "").replace(/\s+/g, " ").trim(); }
+    var HEADS = ":scope > h1, :scope > h2, :scope > h3, :scope > h4, " +
+      ":scope > h5, :scope > h6";
+    // The heading of the section that holds el. An unnumbered subsection
+    // ("Read it") gets its parent's heading in front, so it can be told
+    // apart from its namesakes.
+    function headingOf(el) {
+      if (!el) return "";
+      var sec = el.closest("section[id]");
+      var h = /^H[1-6]$/.test(el.tagName) ? el :
+        sec && sec.querySelector(HEADS);
+      if (!h) return "";
+      var text = clean(h.textContent);
+      if (!h.querySelector(".header-section-number") && sec) {
+        var up = sec.parentElement && sec.parentElement.closest("section[id]");
+        var uh = up && up.querySelector(HEADS);
+        if (uh && uh.tagName !== "H1") {
+          text = clean(uh.textContent) + " › " + text;
+        }
+      }
+      return text;
+    }
+    var h1 = document.querySelector("main.content h1");
+    var pageTitle = h1 ? clean(h1.textContent) : clean(document.title);
+
+    // Snippet mode (?tp-only=<id>, set up by assets/in-pane.html): show only
+    // that element, a footnote or an index entry, instead of the whole page.
+    var snippet = null;
+    var only = document.documentElement.getAttribute("data-tp-only");
+    var part = only ? document.getElementById(only) : null;
+    if (part) {
+      snippet = buildSnippet(part);
+    } else {
+      document.documentElement.classList.remove("tp-only");
+    }
+    function buildSnippet(part) {
+      var box = document.createElement("div");
+      box.className = "tp-snippet";
+      var note = /^fn\d+$/.test(part.id) && part.closest("#footnotes");
+      var label = "";
+      var head = document.createElement("p");
+      head.className = "tp-snippet-head";
+      if (note) {
+        label = "Note " + part.id.slice(2);
+        head.textContent = label + ", from " + pageTitle;
+      } else {
+        var strong = part.querySelector("strong");
+        label = clean(strong ? strong.textContent : part.textContent);
+        head.textContent = "From the " + pageTitle.toLowerCase();
+      }
+      box.appendChild(head);
+      // A copy without ids, so the page keeps one element per id.
+      var body = document.createElement("div");
+      body.className = "tp-snippet-body";
+      Array.prototype.forEach.call(part.childNodes, function (c) {
+        body.appendChild(c.cloneNode(true));
+      });
+      body.querySelectorAll("[id]").forEach(function (e) {
+        e.removeAttribute("id");
+      });
+      body.querySelectorAll(".footnote-back").forEach(function (e) {
+        e.remove();
+      });
+      box.appendChild(body);
+      if (note) {
+        // The full page, at the place the note is called from.
+        var u = new URL(location.href);
+        u.searchParams.delete("tp-pane");
+        u.searchParams.delete("tp-only");
+        u.hash = "fnref" + part.id.slice(2);
+        var more = document.createElement("a");
+        more.className = "tp-snippet-more";
+        more.href = u.href;
+        more.textContent = "Show in the chapter";
+        box.appendChild(more);
+      }
+      var main = document.querySelector("main.content");
+      main.insertBefore(box, main.firstChild);
+      return { label: label };
+    }
+
+    function report() {
+      var id = decodeURIComponent(location.hash.slice(1));
+      var target = id ? document.getElementById(id) : null;
+      // The contents, with each entry's depth; none for a snippet.
+      var toc = [];
+      var links = snippet ? [] :
+        document.querySelectorAll("nav#TOC a.nav-link");
+      Array.prototype.forEach.call(links, function (a) {
+        var level = 0;
+        for (var n = a.parentElement; n && n.id !== "TOC"; n = n.parentElement) {
+          if (n.tagName === "UL") level++;
+        }
+        toc.push({ id: a.getAttribute("href").slice(1),
+                   text: clean(a.textContent), level: level });
+      });
+      var u = new URL(location.href);
+      u.searchParams.delete("tp-pane");
+      window.parent.postMessage({
+        tp: "loaded",
+        url: u.href,
+        title: pageTitle,
+        section: snippet ? snippet.label :
+          target && target !== h1 ? headingOf(target) : "",
+        toc: toc
+      }, "*");
+      // Flash the element the link pointed at.
+      if (target) {
+        target.classList.remove("tp-flash");
+        void target.offsetWidth;
+        target.classList.add("tp-flash");
+      }
+    }
+    window.addEventListener("message", function (e) {
+      if (e.source !== window.parent || !e.data || e.data.tp !== "goto") {
+        return;
+      }
+      if (document.getElementById(e.data.id)) location.hash = e.data.id;
+    });
+    window.addEventListener("hashchange", report);
+    window.addEventListener("load", report);
+  }
+
+  var root = document.documentElement;
+  var desktop = window.matchMedia("(min-width: 768px)");
+  var RAIL = 44, SB_MIN = 200, SB_MAX = 440, MAIN_MIN = 420, PANE_MIN = 320;
+  var GAP = 40;
+
+  // Per-viewer layout memory; the page works without it.
+  function load() {
+    try { return JSON.parse(localStorage.getItem("tp-layout")) || {}; }
+    catch (e) { return {}; }
+  }
+  function save() {
+    try { localStorage.setItem("tp-layout", JSON.stringify(state)); }
+    catch (e) {}
+  }
+  var state = Object.assign({ sb: 272, collapsed: false, split: 0.5 }, load());
+
+  var sidebar = document.getElementById("quarto-sidebar");
+  var main = document.querySelector("main.content");
+  if (!sidebar || !main) return;
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html) e.innerHTML = html;
+    return e;
+  }
+  function iconButton(act, icon, label) {
+    var b = el("button", "tp-icon", '<i class="bi ' + icon + '"></i>');
+    b.type = "button";
+    b.setAttribute("data-act", act);
+    b.setAttribute("aria-label", label);
+    b.title = label;
+    return b;
+  }
+
+  // Desktop moves a few of Quarto's elements into the bars; phones get them
+  // back where Quarto put them.
+  var moves = [];
+  function movable(node, target) {
+    if (node) {
+      moves.push({ node: node, home: node.parentNode,
+                   next: node.nextSibling, target: target });
+    }
+  }
+  var placed = null;
+  function place() {
+    if (placed === desktop.matches) return;
+    placed = desktop.matches;
+    moves.forEach(function (m) {
+      if (desktop.matches) m.target.appendChild(m.node);
+      else m.home.insertBefore(m.node, m.next);
+    });
+  }
+
+  // Sidebar bar: book title and the collapse toggle on one row. The dark
+  // mode and reader toggles sit beside the search box.
+  var sbBar = el("div", "tp-bar tp-sb-bar");
+  var sbTitle = el("div", "tp-bar-title");
+  var toggle = iconButton("sidebar", "bi-chevron-left", "Narrow the sidebar");
+  toggle.classList.add("tp-sb-toggle");
+  sbBar.appendChild(sbTitle);
+  sbBar.appendChild(toggle);
+  sidebar.insertBefore(sbBar, sidebar.firstChild);
+  var titleLink = sidebar.querySelector(".sidebar-title > a");
+  if (titleLink) titleLink.title = titleLink.textContent.trim();
+  movable(titleLink, sbTitle);
+  var tools = sidebar.querySelector(".sidebar-tools-main");
+  var search = sidebar.querySelector(".sidebar-search");
+  if (tools && search) movable(tools, search);
+  toggle.addEventListener("click", function () {
+    state.collapsed = !state.collapsed;
+    save();
+    layout();
+  });
+
+  // Book bar: breadcrumb on the left, "On this page" on the right.
+  var bookBar = el("div", "tp-bar tp-book-bar");
+  var crumbs = el("div", "tp-crumbs");
+  var tocSlot = el("div", "tp-toc-slot");
+  bookBar.appendChild(crumbs);
+  bookBar.appendChild(tocSlot);
+  document.body.appendChild(bookBar);
+  movable(main.querySelector(".quarto-title-breadcrumbs"), crumbs);
+  var toc = document.getElementById("quarto-margin-sidebar");
+  movable(toc, tocSlot);
+
+  // The contents is a dropdown: hover or click opens it, a click on an
+  // entry, outside, or Esc closes it.
+  var tocTitle = document.getElementById("toc-title");
+  if (toc && tocTitle) {
+    tocTitle.setAttribute("tabindex", "0");
+    tocTitle.setAttribute("role", "button");
+    tocTitle.addEventListener("click", function () {
+      toc.classList.toggle("is-open");
+    });
+    tocTitle.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toc.classList.toggle("is-open");
+      }
+    });
+    toc.addEventListener("click", function (e) {
+      if (e.target.closest("a")) {
+        toc.classList.remove("is-open");
+        toc.classList.add("is-shut");
+      }
+    });
+    toc.addEventListener("mouseleave", function () {
+      toc.classList.remove("is-shut");
+    });
+    document.addEventListener("click", function (e) {
+      if (!toc.contains(e.target)) toc.classList.remove("is-open");
+    });
+  }
+
+  // Handles.
+  function handle(cls) {
+    var h = el("div", "tp-handle " + cls);
+    document.body.appendChild(h);
+    return h;
+  }
+  var hSb = handle("tp-handle-sb");
+  var hSplit = handle("tp-handle-split");
+
+  // Pane.
+  var pane = el("div", "tp-pane");
+  pane.setAttribute("role", "complementary");
+  pane.setAttribute("aria-label", "Second page");
+  var paneBar = el("div", "tp-bar tp-pane-bar");
+  var title = el("div", "tp-bar-title tp-pane-title", "Second page");
+  title.setAttribute("aria-live", "polite");
+  var back = iconButton("back", "bi-arrow-left", "Back");
+  var fwd = iconButton("forward", "bi-arrow-right", "Forward");
+  paneBar.appendChild(back);
+  paneBar.appendChild(fwd);
+  paneBar.appendChild(title);
+  // The pane page's own contents, from its report.
+  var paneToc = el("div", "tp-menu tp-pane-toc");
+  var paneTocBtn = iconButton("toc", "bi-list-ul", "On this page");
+  paneTocBtn.setAttribute("aria-haspopup", "true");
+  paneTocBtn.setAttribute("aria-expanded", "false");
+  var paneTocList = el("ul", "tp-menu-list");
+  paneToc.appendChild(paneTocBtn);
+  paneToc.appendChild(paneTocList);
+  paneBar.appendChild(paneToc);
+  paneBar.appendChild(
+    iconButton("main", "bi-box-arrow-up-left", "Open as the main page"));
+  paneBar.appendChild(iconButton("close", "bi-x-lg", "Close (Esc)"));
+  pane.appendChild(paneBar);
+  pane.appendChild(el("div", "tp-pane-empty",
+    "Click a cross-reference or a link to another page.<br>" +
+    "It opens here, and this page stays put."));
+  var frame = el("iframe");
+  frame.title = "Second page";
+  frame.name = "tp-pane";
+  pane.appendChild(frame);
+  document.body.appendChild(pane);
+
+  function layout() {
+    place();
+    if (!desktop.matches) return;
+    var vw = root.clientWidth;
+    var sb = state.collapsed ? RAIL : state.sb;
+    var room = vw - sb - 2 * GAP;
+    var mainW = Math.max(MAIN_MIN, Math.min(room - PANE_MIN, room * state.split));
+    mainW = Math.min(mainW, 820);
+    root.classList.toggle("tp-sb-collapsed", state.collapsed);
+    root.style.setProperty("--tp-sb", sb + "px");
+    root.style.setProperty("--tp-main", mainW + "px");
+    root.style.setProperty("--tp-gap", GAP + "px");
+    var paneLeft = sb + GAP + mainW + GAP;
+    pane.style.left = paneLeft + "px";
+    hSb.style.left = sb + "px";
+    hSplit.style.left = paneLeft + "px";
+    toggle.innerHTML = '<i class="bi ' +
+      (state.collapsed ? "bi-chevron-right" : "bi-chevron-left") + '"></i>';
+    toggle.title = state.collapsed ? "Show the sidebar" : "Narrow the sidebar";
+    toggle.setAttribute("aria-label", toggle.title);
+  }
+
+  function drag(h, onMove) {
+    h.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      h.setPointerCapture(e.pointerId);
+      h.classList.add("is-active");
+      document.body.classList.add("tp-dragging");
+      function move(ev) { onMove(ev.clientX); layout(); }
+      function up() {
+        h.removeEventListener("pointermove", move);
+        h.removeEventListener("pointerup", up);
+        h.classList.remove("is-active");
+        document.body.classList.remove("tp-dragging");
+        save();
+      }
+      h.addEventListener("pointermove", move);
+      h.addEventListener("pointerup", up);
+    });
+  }
+  drag(hSb, function (x) {
+    state.sb = Math.max(SB_MIN, Math.min(SB_MAX, x));
+  });
+  drag(hSplit, function (x) {
+    var sb = state.collapsed ? RAIL : state.sb;
+    var room = root.clientWidth - sb - 2 * GAP;
+    state.split = Math.max(0.25, Math.min(0.8, (x - sb - 2 * GAP) / room));
+  });
+
+  // Open and close.
+  function setQuery(href) {
+    var u = new URL(location.href);
+    if (href) u.searchParams.set("pane", href);
+    else u.searchParams.delete("pane");
+    history.replaceState(null, "", u);
+  }
+  function setTitle(page, section) {
+    title.textContent = "";
+    title.appendChild(el("span", "tp-pane-page")).textContent = page;
+    if (section) {
+      title.appendChild(el("span", "tp-pane-sec")).textContent = section;
+    }
+    title.title = section ? page + " › " + section : page;
+  }
+  // The address of the pane page, relative to this page, for ?pane=.
+  function relative(href) {
+    var to = new URL(href), from = new URL(location.href);
+    if (to.origin !== from.origin) return href;
+    var a = from.pathname.split("/").slice(0, -1);
+    var b = to.pathname.split("/");
+    var i = 0;
+    while (i < a.length && i < b.length - 1 && a[i] === b[i]) i++;
+    var up = a.slice(i).map(function () { return ".."; });
+    return up.concat(b.slice(i)).join("/") + to.search + to.hash;
+  }
+  var current = null;   // address of the page shown in the pane
+
+  // Pane history, for this page load only: the addresses the pane has
+  // shown, and where in that list it is. A page the pane reports that is
+  // not the current entry is pushed, dropping the entries ahead of it;
+  // Back and Forward move the index and say so, so the report that
+  // follows does not push.
+  var past = [], at = -1, moving = false;
+  function syncButtons() {
+    back.disabled = at <= 0;
+    fwd.disabled = at >= past.length - 1;
+  }
+  function paneSrc(url) {
+    var src = new URL(url, location.href);
+    src.searchParams.set("tp-pane", "1");
+    return src;
+  }
+  function go(step) {
+    var i = at + step;
+    if (i < 0 || i >= past.length) return;
+    at = i;
+    moving = true;
+    var src = paneSrc(past[at]).href;
+    // replace() keeps these moves out of the browser's own history.
+    try { frame.contentWindow.location.replace(src); }
+    catch (e) { frame.src = src; }
+    syncButtons();
+  }
+  function record(url) {
+    if (moving) {
+      moving = false;
+      past[at] = url;
+    } else if (past[at] !== url) {
+      past = past.slice(0, at + 1);
+      past.push(url);
+      at = past.length - 1;
+    }
+    syncButtons();
+  }
+
+  function open(url) {
+    var src = paneSrc(url);
+    frame.src = src.href;
+    // Until the page reports its own title, show its file name.
+    setTitle(decodeURIComponent(src.pathname.replace(/^.*\//, "")),
+             decodeURIComponent(src.hash.slice(1)));
+    pane.classList.add("is-open");
+    current = new URL(url, location.href).href;
+  }
+  window.addEventListener("message", function (e) {
+    if (e.source !== frame.contentWindow) return;
+    var d = e.data;
+    if (!d || d.tp !== "loaded" || typeof d.url !== "string") return;
+    if (!pane.classList.contains("is-open")) return;
+    current = d.url;
+    record(d.url);
+    fillToc(Array.isArray(d.toc) ? d.toc : [],
+            decodeURIComponent(new URL(d.url).hash.slice(1)));
+    setTitle(String(d.title || ""), String(d.section || ""));
+    setQuery(relative(d.url));
+  });
+  function fillToc(items, here) {
+    paneTocList.textContent = "";
+    items.forEach(function (t) {
+      var li = el("li");
+      var b = el("button", "tp-menu-item");
+      b.type = "button";
+      b.textContent = String(t.text || "");
+      b.setAttribute("data-id", String(t.id || ""));
+      b.style.paddingLeft = (0.6 + 0.85 * Math.max(0, (t.level || 1) - 1)) +
+        "rem";
+      if (t.id === here) b.classList.add("is-current");
+      li.appendChild(b);
+      paneTocList.appendChild(li);
+    });
+    paneToc.hidden = items.length === 0;
+    showToc(false);
+  }
+  function showToc(on) {
+    paneToc.classList.toggle("is-open", on);
+    paneTocBtn.setAttribute("aria-expanded", on ? "true" : "false");
+  }
+  paneTocList.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-id]");
+    if (!b) return;
+    showToc(false);
+    frame.contentWindow.postMessage(
+      { tp: "goto", id: b.getAttribute("data-id") }, "*");
+  });
+  document.addEventListener("click", function (e) {
+    if (!paneToc.contains(e.target)) showToc(false);
+  });
+  // A click inside the pane page takes focus away from this window.
+  window.addEventListener("blur", function () {
+    showToc(false);
+    if (toc) toc.classList.remove("is-open");
+  });
+
+  function close() {
+    frame.removeAttribute("src");
+    current = null;
+    past = [];
+    at = -1;
+    moving = false;
+    syncButtons();
+    fillToc([], "");
+    pane.classList.remove("is-open");
+    setQuery(null);
+  }
+  pane.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    var act = b && b.getAttribute("data-act");
+    if (act === "close") close();
+    if (act === "toc") showToc(!paneToc.classList.contains("is-open"));
+    if (act === "back") go(-1);
+    if (act === "forward") go(1);
+    if (act === "main" && current) {
+      // The main window shows the whole page, at the snippet's element.
+      var u = new URL(current);
+      var part = u.searchParams.get("tp-only");
+      if (part) {
+        u.searchParams.delete("tp-only");
+        u.hash = part;
+      }
+      location.href = u.href;
+    }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (toc && toc.classList.contains("is-open")) {
+      toc.classList.remove("is-open");
+    } else if (paneToc.classList.contains("is-open")) {
+      showToc(false);
+    } else if (pane.classList.contains("is-open")) {
+      close();
+    }
+  });
+
+  // Which links open in the pane: every link in the page body to a page
+  // of this book, including anchors on this same page (the reader keeps
+  // their place on the left). The sidebar, the contents, breadcrumbs, page
+  // navigation, heading anchors, footnote back-links, tabs and external
+  // sites behave as usual.
+  function paneTarget(a) {
+    if (!a || !main.contains(a)) return null;
+    if (a.closest(".page-navigation, .quarto-title-breadcrumbs, #TOC")) {
+      return null;
+    }
+    if (a.matches(".anchorjs-link, .footnote-back, [data-bs-toggle], " +
+                  "[role=tab]")) {
+      return null;
+    }
+    if (a.target === "_blank" || a.hasAttribute("download")) return null;
+    var href = a.getAttribute("href");
+    if (!href || href === "#") return null;
+    var url = new URL(href, location.href);
+    if (url.protocol !== location.protocol || url.host !== location.host) {
+      return null;
+    }
+    if (!/\.html$/.test(url.pathname)) return null;
+    if (url.pathname === location.pathname) {
+      // This page: an anchor only, never this page's own ?pane= state.
+      if (!url.hash) return null;
+      url.search = "";
+    }
+    // A footnote shows only the note; an index term only its entry.
+    if (a.matches(".footnote-ref, .tp-term") && url.hash) asSnippet(url);
+    return url;
+  }
+  function asSnippet(url) {
+    url.searchParams.set("tp-only", decodeURIComponent(url.hash.slice(1)));
+    url.hash = "";
+  }
+  main.querySelectorAll("a[href]").forEach(function (a) {
+    if (paneTarget(a)) a.classList.add("tp-pane-link");
+  });
+  main.addEventListener("click", function (e) {
+    if (!desktop.matches) return;
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
+      return;
+    }
+    var a = e.target.closest("a[href]");
+    var url = paneTarget(a);
+    if (!url) return;
+    e.preventDefault();
+    // Quarto's smooth scroll listens on window and ignores preventDefault;
+    // without this it would also scroll the left page to the anchor.
+    e.stopPropagation();
+    open(url.href);
+  });
+
+  // Reopen the pane named in the address (shared link, reload).
+  var start = new URL(location.href).searchParams.get("pane");
+  if (start) open(start);
+
+  syncButtons();
+  fillToc([], "");
+  window.addEventListener("resize", layout);
+  desktop.addEventListener("change", layout);
+  layout();
+})();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../chapters/03-spatial/theory-spatial-estimation.html" class="pagination-link" aria-label="Fitting spatial panels">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Fitting spatial panels</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../chapters/04-time/theory-panel-unit-roots.html" class="pagination-link" aria-label="Panel unit roots: what a rejection is worth">
+        <span class="nav-page-text"><span class="chapter-number">H</span>&nbsp; <span class="chapter-title">Panel unit roots: what a rejection is worth</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
