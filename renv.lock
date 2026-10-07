@@ -3013,6 +3013,52 @@
       "Maintainer": "R Core Team <R-core@R-project.org>",
       "Repository": "CRAN"
     },
+    "nloptr": {
+      "Package": "nloptr",
+      "Version": "2.2.1",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "R Interface to NLopt",
+      "Authors@R": "c(person(\"Jelmer\", \"Ypma\", role = \"aut\", email = \"uctpjyy@ucl.ac.uk\"), person(c(\"Steven\", \"G.\"), \"Johnson\", role = \"aut\", comment = \"author of the NLopt C library\"), person(\"Aymeric\", \"Stamm\", role = c(\"ctb\", \"cre\"), email = \"aymeric.stamm@cnrs.fr\", comment = c(ORCID = \"0000-0002-8725-3654\")), person(c(\"Hans\", \"W.\"), \"Borchers\", role = \"ctb\", email = \"hwborchers@googlemail.com\"), person(\"Dirk\", \"Eddelbuettel\", role = \"ctb\", email = \"edd@debian.org\"), person(\"Brian\", \"Ripley\", role = \"ctb\", comment = \"build process on multiple OS\"), person(\"Kurt\", \"Hornik\", role = \"ctb\", comment = \"build process on multiple OS\"), person(\"Julien\", \"Chiquet\", role = \"ctb\"), person(\"Avraham\", \"Adler\", role = \"ctb\",  email = \"Avraham.Adler@gmail.com\", comment = c(ORCID = \"0000-0002-3039-0703\")), person(\"Xiongtao\", \"Dai\", role = \"ctb\"), person(\"Jeroen\", \"Ooms\", role = \"ctb\", email = \"jeroen@berkeley.edu\"), person(\"Tomas\", \"Kalibera\", role = \"ctb\"), person(\"Mikael\", \"Jagan\", role = \"ctb\"))",
+      "Description": "Solve optimization problems using an R interface to NLopt. NLopt is a  free/open-source library for nonlinear optimization, providing a common interface for a number of different free optimization routines available online as well as original implementations of various other algorithms. See <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/> for more information on the available algorithms. Building from included sources  requires 'CMake'. On Linux and 'macOS', if a suitable system build of  NLopt (2.7.0 or later) is found, it is used; otherwise, it is built  from included sources via 'CMake'. On Windows, NLopt is obtained through  'rwinlib' for 'R <= 4.1.x' or grabbed from the appropriate toolchain for 'R >= 4.2.0'.",
+      "License": "LGPL (>= 3)",
+      "SystemRequirements": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.2",
+      "Suggests": [
+        "knitr",
+        "rmarkdown",
+        "covr",
+        "tinytest"
+      ],
+      "VignetteBuilder": "knitr",
+      "URL": "https://github.com/astamm/nloptr, https://astamm.github.io/nloptr/",
+      "BugReports": "https://github.com/astamm/nloptr/issues",
+      "NeedsCompilation": "yes",
+      "UseLTO": "yes",
+      "Author": "Jelmer Ypma [aut], Steven G. Johnson [aut] (author of the NLopt C library), Aymeric Stamm [ctb, cre] (<https://orcid.org/0000-0002-8725-3654>), Hans W. Borchers [ctb], Dirk Eddelbuettel [ctb], Brian Ripley [ctb] (build process on multiple OS), Kurt Hornik [ctb] (build process on multiple OS), Julien Chiquet [ctb], Avraham Adler [ctb] (<https://orcid.org/0000-0002-3039-0703>), Xiongtao Dai [ctb], Jeroen Ooms [ctb], Tomas Kalibera [ctb], Mikael Jagan [ctb]",
+      "Maintainer": "Aymeric Stamm <aymeric.stamm@cnrs.fr>",
+      "Repository": "CRAN"
+    },
+    "numDeriv": {
+      "Package": "numDeriv",
+      "Version": "2016.8-1.1",
+      "Source": "Repository",
+      "Title": "Accurate Numerical Derivatives",
+      "Description": "Methods for calculating (usually) accurate numerical first and second order derivatives. Accurate calculations  are done using 'Richardson''s' extrapolation or, when applicable, a complex step derivative is available. A simple difference  method is also provided. Simple difference is (usually) less accurate but is much quicker than 'Richardson''s' extrapolation and provides a  useful cross-check.  Methods are provided for real scalar and vector valued functions.",
+      "Depends": [
+        "R (>= 2.11.1)"
+      ],
+      "LazyLoad": "yes",
+      "ByteCompile": "yes",
+      "License": "GPL-2",
+      "Copyright": "2006-2011, Bank of Canada. 2012-2016, Paul Gilbert",
+      "Author": "Paul Gilbert and Ravi Varadhan",
+      "Maintainer": "Paul Gilbert <pgilbert.ttv9z@ncf.ca>",
+      "URL": "http://optimizer.r-forge.r-project.org/",
+      "NeedsCompilation": "no",
+      "Repository": "CRAN"
+    },
     "openssl": {
       "Package": "openssl",
       "Version": "2.4.2",
@@ -3044,6 +3090,46 @@
       "NeedsCompilation": "yes",
       "Author": "Jeroen Ooms [aut, cre] (ORCID: <https://orcid.org/0000-0002-4035-0289>), Oliver Keyes [ctb]",
       "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
+      "Repository": "CRAN"
+    },
+    "optimx": {
+      "Package": "optimx",
+      "Version": "2025-4.9",
+      "Source": "Repository",
+      "Date": "2025-04-09",
+      "Title": "Expanded Replacement and Extension of the 'optim' Function",
+      "Authors@R": "c( person(given = c(\"John\", \"C\"), family = \"Nash\", role = c(\"aut\", \"cre\"), email = \"profjcnash@gmail.com\"), person(given = \"Ravi\", family = \"Varadhan\", role = \"aut\", email = \"RVaradhan@jhmi.edu\"), person(given = \"Hans W\", family = \"Borchers\", role = \"ctb\", email =  \"hwborchers@gmail.com\"),   person(given = \"Gabor\", family = \"Grothendieck\", role = \"ctb\", email = \"ggrothendieck@gmail.com\") )",
+      "Maintainer": "John C Nash <profjcnash@gmail.com>",
+      "Description": "Provides a replacement and extension of the optim() function to call to several function minimization codes in R in a single statement. These methods handle smooth, possibly box constrained functions  of several or many parameters. Note that function 'optimr()' was prepared to simplify the incorporation of minimization codes going forward. Also implements some utility codes and some extra solvers, including safeguarded Newton methods. Many methods previously separate are now included here. This is the version for CRAN.",
+      "License": "GPL-2",
+      "URL": "https://github.com/nashjc/optimx",
+      "BugReports": "https://github.com/nashjc/optimx/issues",
+      "LazyLoad": "Yes",
+      "Imports": [
+        "numDeriv",
+        "nloptr",
+        "pracma"
+      ],
+      "NeedsCompilation": "no",
+      "Suggests": [
+        "knitr",
+        "rmarkdown",
+        "setRNG",
+        "BB",
+        "ucminf",
+        "minqa",
+        "dfoptim",
+        "lbfgsb3c",
+        "lbfgs",
+        "subplex",
+        "marqLevAlg",
+        "testthat (>= 3.0.0)",
+        "R.rsp"
+      ],
+      "VignetteBuilder": "R.rsp",
+      "Config/testthat/edition": "3",
+      "Config/build/clean-inst-doc": "false",
+      "Author": "John C Nash [aut, cre], Ravi Varadhan [aut], Hans W Borchers [ctb], Gabor Grothendieck [ctb]",
       "Repository": "CRAN"
     },
     "otel": {
@@ -3140,6 +3226,23 @@
       "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
       "Repository": "CRAN"
     },
+    "pco": {
+      "Package": "pco",
+      "Version": "1.0.1",
+      "Source": "Repository",
+      "Type": "Package",
+      "Date": "2015-07-26",
+      "Title": "Panel Cointegration Tests",
+      "Author": "Georgi Marinov",
+      "Maintainer": "Georgi Marinov <georgi.marinov@ue-varna.bg>",
+      "Depends": [
+        "stats"
+      ],
+      "Description": "Computation of the Pedroni (1999) panel cointegration test statistics.  Reported are the empirical and the standardized values.",
+      "License": "GPL-2",
+      "NeedsCompilation": "no",
+      "Repository": "CRAN"
+    },
     "pder": {
       "Package": "pder",
       "Version": "1.0-2",
@@ -3169,6 +3272,45 @@
       "NeedsCompilation": "no",
       "Author": "Yves Croissant [aut, cre] (<https://orcid.org/0000-0002-4857-7736>), Giovanni Millo [aut]",
       "Maintainer": "Yves Croissant <yves.croissant@univ-reunion.fr>",
+      "Repository": "CRAN"
+    },
+    "pdynmc": {
+      "Package": "pdynmc",
+      "Version": "0.9.13",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Moment Condition Based Estimation of Linear Dynamic Panel Data Models",
+      "Date": "2026-09-14",
+      "Authors@R": "c(person(\"Markus\", \"Fritsch\", role = c(\"aut\", \"cre\"), email = \"Markus.Fritsch@uni-Passau.de\"), person(\"Joachim\", \"Schnurbus\", role = c(\"aut\"), email = \"Joachim.Schnurbus@uni-Passau.de\"), person(\"Andrew Adrian Yu\", \"Pua\", role = c(\"aut\"), email = \"andrewypua@gmail.com\"))",
+      "Depends": [
+        "R (>= 3.6.0)"
+      ],
+      "Imports": [
+        "data.table (>= 1.12.2)",
+        "MASS (>= 7.3-51.4)",
+        "Matrix (>= 1.2-17)",
+        "methods(>= 3.6.2)",
+        "optimx (>= 2018-07.10)",
+        "stats (>= 3.6.0)",
+        "Rdpack (>= 0.11-0)"
+      ],
+      "Suggests": [
+        "pder (>= 1.0-1)",
+        "testthat (>= 2.3.2)",
+        "R.rsp (>= 0.43.2)"
+      ],
+      "RdMacros": "Rdpack",
+      "Description": "Linear dynamic panel data modeling based on linear and nonlinear moment conditions as proposed by Holtz-Eakin, Newey, and Rosen (1988) <doi:10.2307/1913103>, Ahn and Schmidt (1995) <doi:10.1016/0304-4076(94)01641-C>, and Arellano and Bover (1995) <doi:10.1016/0304-4076(94)01642-D>. Estimation of the model parameters relies on the Generalized Method of Moments (GMM) and instrumental variables (IV) estimation, numerical optimization (when nonlinear moment conditions are employed) and the computation of closed form solutions (when estimation is based on linear moment conditions). One-step, two-step and iterated estimation is available. For inference and specification testing, Windmeijer (2005) <doi:10.1016/j.jeconom.2004.02.005> and doubly corrected standard errors (Hwang, Kang, Lee, 2021 <doi:10.1016/j.jeconom.2020.09.010>) are available. Additionally, serial correlation tests, tests for overidentification, and Wald tests are provided. Functions for visualizing panel data structures and modeling results obtained from GMM estimation are also available. The plot methods include functions to plot unbalanced panel structure, coefficient ranges and coefficient paths across GMM iterations (the latter is implemented according to the plot shown in Hansen and Lee, 2021 <doi:10.3982/ECTA16274>). For a more detailed description of the GMM-based functionality, please see Fritsch, Pua, Schnurbus (2021) <doi:10.32614/RJ-2021-035>. For more details on the IV-based estimation routines, see Fritsch, Pua, and Schnurbus (WP, 2026) and Han and Phillips (2010) <doi:10.1017/S026646660909063X>.",
+      "License": "GPL (>= 2)",
+      "URL": "https://github.com/markusfritsch/pdynmc",
+      "BugReports": "https://github.com/markusfritsch/pdynmc/issues",
+      "VignetteBuilder": "R.rsp",
+      "Encoding": "UTF-8",
+      "Classification/JEL": "C23, C26, C87",
+      "Config/roxygen2/version": "8.1.0",
+      "NeedsCompilation": "no",
+      "Author": "Markus Fritsch [aut, cre], Joachim Schnurbus [aut], Andrew Adrian Yu Pua [aut]",
+      "Maintainer": "Markus Fritsch <Markus.Fritsch@uni-Passau.de>",
       "Repository": "CRAN"
     },
     "pillar": {
@@ -3458,6 +3600,36 @@
       "NeedsCompilation": "no",
       "Author": "Yves Croissant [aut], Giovanni Millo [aut], Kevin Tappe [aut, cre], Ott Toomet [ctb], Christian Kleiber [ctb], Achim Zeileis [ctb], Arne Henningsen [ctb], Liviu Andronic [ctb], Nina Schoenfelder [ctb]",
       "Maintainer": "Kevin Tappe <kevin.tappe@bwi.uni-stuttgart.de>",
+      "Repository": "CRAN"
+    },
+    "pracma": {
+      "Package": "pracma",
+      "Version": "2.4.6",
+      "Source": "Repository",
+      "Type": "Package",
+      "Date": "2025-10-20",
+      "Title": "Practical Numerical Math Functions",
+      "Authors@R": "person(\"Hans W.\", \"Borchers\",  email=\"hwborchers@googlemail.com\",  role=c(\"aut\", \"cre\"))",
+      "Depends": [
+        "R (>= 3.1.0)"
+      ],
+      "Imports": [
+        "graphics",
+        "grDevices",
+        "stats",
+        "utils"
+      ],
+      "Suggests": [
+        "NlcOptim",
+        "quadprog"
+      ],
+      "Description": "Provides a large number of functions from numerical analysis and linear algebra, numerical optimization, differential equations, time series, plus some well-known special mathematical functions. Uses 'MATLAB' function names where appropriate to simplify porting.",
+      "License": "GPL (>= 3)",
+      "ByteCompile": "true",
+      "LazyData": "yes",
+      "NeedsCompilation": "no",
+      "Author": "Hans W. Borchers [aut, cre]",
+      "Maintainer": "Hans W. Borchers <hwborchers@googlemail.com>",
       "Repository": "CRAN"
     },
     "praise": {
