@@ -20,8 +20,9 @@ differenced residuals is expected and second-order is not: m1 should reject
 and m2 should not [@baltagi2021, p. 192; @croissant2019, p. 182]. The
 **two-step standard errors** are built from a weight matrix estimated with
 one-step residuals and understate the variance in small samples, so Wald
-tests are oversized; @windmeijer2005 traced the bias to that estimation and
-derived the correction [@baltagi2021, p. 193; @croissant2019, p. 179].
+tests are oversized (they reject a true null more often than their nominal
+level); @windmeijer2005 traced the bias to that estimation and derived the
+correction [@baltagi2021, p. 193; @croissant2019, p. 179].
 Finally, the **instrument count** is a choice. @ziliak1997 saw an
 elasticity fall from 0.519 to 0.093 as the moment conditions rose from 9 to
 212, with the standard error dropping from 0.36 to 0.07 [@baltagi2021,
@@ -70,7 +71,8 @@ AR(1) and the instruments from $t - 2$ fail; m1 is expected to reject
 [@windmeijer2005], `plm::vcovHC` and `summary(robust = TRUE)`.
 
 **Run it.** All on `ab_two`, the two-step difference fit of the
-Arellano–Bond equation from step 3. The Sargan test:
+Arellano–Bond equation from [step 3](index.qmd#sec-dyn-gmm). The Sargan
+test:
 
 ```{r}
 #| label: c06-4-sargan
@@ -95,7 +97,7 @@ plm::mtest(ab_two, order = 2L, vcov = plm::vcovHC)
 ```
 
 The same pair on the one-step fit with the robust covariance, which is the
-form `?mtest` pairs with Windmeijer's Table 2:
+form `?mtest` pairs with Table 2 of @windmeijer2005:
 
 ```{r}
 #| label: c06-4-mtest-onestep
@@ -202,15 +204,17 @@ graphics::par(op)
   instruments, 0.36 with 35, 0.47 with 38, 0.85 with the 18 collapsed ones,
   and Sargan accepts the first four alike (p from 0.20 to 0.42); the only
   set it questions is the collapsed one (p = 0.04), which also has the
-  widest band. The two-step standard error halves as instruments are added
-  while the corrected one barely moves. *So:* the Ziliak and Bowsher
-  points at once; a Sargan p-value cannot pick the instrument set, so the
-  set is a choice to report.
+  widest band. As instruments are added the two-step standard error halves,
+  0.159 to 0.085, while the corrected one falls by a third, 0.275 to 0.185.
+  *So:* the Ziliak and Bowsher points at once; a Sargan p-value cannot pick
+  the instrument set, so the set is a choice to report.
 - **Misleads (a p-value near one).** With many instruments and few units a
   Sargan p-value near 1 is the Bowsher pathology, not a clean bill:
-  @croissant2019 [p. 181] show p = 0.919 with every lag against 0.071 with
-  three on 25 countries over seven periods. *So:* report the count beside
-  the p-value, and rerun with fewer lags before trusting either.
+  @croissant2019 [p. 181] show p = 0.919 with every lag on 25 countries
+  over seven periods, against 0.071 for their three-lag fit `diff25lim`,
+  which their code runs on `DemocracyIncome` [@croissant2019, p. 173].
+  *So:* report the count beside the p-value, and rerun with fewer lags
+  before trusting either.
 
 ::: {.callout-note appearance="simple"}
 **Next.** Report the two-step estimate with Windmeijer standard errors, the
@@ -237,9 +241,10 @@ update(m, collapse = TRUE)           # the same with collapsed instruments
 ## Pitfalls
 
 **`mtest` on a two-step fit uses one-step residuals.** The help page says
-so, and it is what DPD and Stata's `xtabond` do. On the `?pgmm` Table 4(a2)
-equation this gives m2 = −0.416 where the help page says the paper prints
-−0.434; with `vcov = plm::vcovHC` it is −0.352:
+so, and it is what DPD, Arellano and Bond's own program, and Stata's
+`xtabond` do. On the `?pgmm` Table 4(a2) equation this gives m2 = −0.416
+where the help page says the paper prints −0.434; with
+`vcov = plm::vcovHC` it is −0.352:
 
 ```{r}
 #| label: c06-4-a2
@@ -273,14 +278,17 @@ bad power of this test" and collapses the instruments.
 ## Book check
 
 `?mtest` annotates `ab.b.onestep` with `vcov = vcovHC` as "Windmeijer
-(2005), table 2, onestep with corrected std. err"; `c06-4-mtest-onestep`
-above is that pair and prints m1 = −2.4934 (p = 0.013) and m2 = −0.3594
-(p = 0.719). `?pgmm` annotates `summary(ab.b, robust = TRUE)` as the
-Windmeijer two-step corrected standard errors; `c06-4-windmeijer` above
-prints them, 0.185398 on γ₁ and the rest of the row. The paper is not in
-`lit/`, so the match is to the help-page annotation. Ziliak's 0.519 →
-0.093 [@baltagi2021, p. 194] and Bowsher's variance of 13.7 against 180
-[@baltagi2021, p. 192] are quoted; the count table above reproduces the
+(2005), table 2, onestep with corrected std. err" [@windmeijer2005];
+`c06-4-mtest-onestep` above is that pair and prints m1 = −2.4934
+(p = 0.013) and m2 = −0.3594 (p = 0.719). `?pgmm` annotates `ab.b` also as
+"Windmeijer (2005), table 2, std. err" [@windmeijer2005] and
+`summary(ab.b, robust = TRUE)` as "Windmeijer"; `c06-3-ab-twostep` with
+`robust = TRUE` prints those standard errors, 0.185398 on γ₁ and the rest
+of the row, and `c06-4-windmeijer` above repeats the row to four digits.
+The paper is not in `lit/`, so the match is to the help-page annotation.
+Ziliak's 0.519 → 0.093 [@ziliak1997; @baltagi2021, p. 194] and Bowsher's
+variance of 13.7 against 180 [@bowsher2002; @baltagi2021, p. 192] are
+quoted; the count table above reproduces the
 structure of both, γ₁ from 0.02 to 0.85 across sets with Sargan p from 0.20
 to 0.42, not their numbers.
 

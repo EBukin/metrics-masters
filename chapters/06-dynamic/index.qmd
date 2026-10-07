@@ -50,10 +50,12 @@ The whole chapter is about what to put in place of $\Delta y_{i,t-1}$.
 are the subject of the [core chapter](../05-core/index.qmd#sec-core-fe-re).
 A series with a **unit root** does not return to any level
 ([why it matters](../04-time/index.qmd#sec-ur-why)); when employment is that
-persistent, every estimator here is in trouble, and step 3 shows how. Serial
-correlation of $\varepsilon_{it}$ is what the diagnostics of step 4 test for,
-and the [serial-correlation tests](../05-core/index.qmd#sec-core-serial) of
-the core chapter are the static version of the same question.
+persistent, every estimator here is in trouble, and
+[step 3](index.qmd#sec-dyn-gmm) shows how. Serial correlation of
+$\varepsilon_{it}$ is what the diagnostics of
+[step 4](index.qmd#sec-dyn-diagnostics) test for, and the
+[serial-correlation tests](../05-core/index.qmd#sec-core-serial) of the core
+chapter are the static version of the same question.
 
 **The running example.** `EmplUK` in **plm** [@croissant2008]: 140 UK firms
 observed for 7 to 9 years between 1976 and 1984, 1031 firm-years, with
@@ -97,8 +99,9 @@ pe <- plm::pdata.frame(EmplUK, index = c("firm", "year"))
 ```
 
 The bias, drawn. The curve is the large-N limit of the within estimate of
-$\gamma = 0.5$ as a function of T, from the exact formula of step 1; the
-circles are one simulated panel of 100 firms at each T:
+$\gamma = 0.5$ as a function of T, from the exact formula of
+[step 1](index.qmd#sec-dyn-bias); the circles are one simulated panel of
+100 firms at each T:
 
 ```{r}
 #| label: c06-0-picture

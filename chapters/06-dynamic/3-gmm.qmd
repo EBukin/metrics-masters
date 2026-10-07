@@ -66,7 +66,9 @@ system estimator [@croissant2019, pp. 171, 177]. Everything in the normal
 part defaults to the regressors not used as GMM instruments.
 
 **Run it.** The Arellano–Bond equation with every lag of employment from the
-second as a GMM instrument. One-step first, with the robust covariance:
+second as a GMM instrument. One-step first, with the robust (to
+heteroskedasticity and within-firm correlation) covariance of the
+[robust errors](../05-core/index.qmd#sec-core-robust-se) step:
 
 ```{r}
 #| label: c06-3-ab-onestep
@@ -78,7 +80,8 @@ summary(ab_one, robust = TRUE)
 
 Two-step, printed twice: with the conventional two-step covariance, which is
 the paper's table, and then with the corrected one, which is the one to
-report. Step 4 is about the gap between them:
+report. [Step 4](index.qmd#sec-dyn-diagnostics) is about the gap between
+them:
 
 ```{r}
 #| label: c06-3-ab-twostep
@@ -98,8 +101,9 @@ nobs(ab_two)
 ```
 
 The weak-instrument case: the pure AR(1) of log employment, by OLS, within,
-two-step difference GMM and two-step system GMM, with a Sargan test on each
-GMM fit:
+two-step difference GMM and two-step system GMM, with a Sargan test, which
+asks whether the spare moment conditions hold
+([diagnostics](index.qmd#sec-dyn-diagnostics)), on each GMM fit:
 
 ```{r}
 #| label: c06-3-weak
@@ -147,7 +151,8 @@ ncol(ab_sys$W[[1]])
 ```
 
 The bracket on the one-lag equation: difference GMM, one-step and two-step,
-to sit beside the OLS and within fits of step 1 and the system fits above:
+to sit beside the OLS and within fits of [step 1](index.qmd#sec-dyn-bias)
+and the system fits above:
 
 ```{r}
 #| label: c06-3-bracket
@@ -259,14 +264,24 @@ plm::pgmm(f, data = d, effect = "twoways", model = "twosteps",
 **Defaults that differ from `plm`.** `pgmm(effect = )` defaults to
 `"twoways"` where `plm` defaults to `"individual"`; with
 `effect = "individual"` the Arellano–Bond equation gives γ₁ = 0.449 (0.183),
-not 0.474. `model` defaults to `"onestep"`; the paper's table is
-`"twosteps"`. And `pgmm` fails with "could not find function" unless `plm`
-is attached, because it builds and evaluates a `plm()` call.
+not 0.474:
+
+```{r}
+#| label: c06-3-individual
+ab_ind <- plm::pgmm(ab_g, data = pe, effect = "individual",
+                    model = "twosteps")
+round(coef(summary(ab_ind, robust = TRUE))[1, 1:2], 3)
+```
+
+`model` defaults to `"onestep"`; the paper's table is `"twosteps"`. And
+`pgmm` fails with "could not find function" unless `plm` is attached,
+because it builds and evaluates a `plm()` call.
 
 **Two Sargan lines on one instrument set.** The one-step summary prints
 Sargan 44.6 (p = 0.009) and the two-step summary 30.1 (p = 0.22) for the same
-38 instruments. Step 4 reads the two-step statistic, the value of the
-two-step objective function at the estimate [@croissant2019, p. 180].
+38 instruments. [Step 4](index.qmd#sec-dyn-diagnostics) reads the two-step
+statistic, the value of the two-step objective function at the estimate
+[@croissant2019, p. 180].
 
 **System counts are not difference counts.** The system fit adds an
 intercept, one more period and one level moment per period, so its
@@ -293,6 +308,7 @@ two-step on the `?pgmm` Table 4(a2) equation equals `pgmm`'s, and with
 #| label: c06-3-pdynmc
 #| results: hide
 #| message: false
+# Results hidden: pdynmc prints progress lines; the next chunk reads the fits.
 ab_a2 <- plm::pgmm(log(emp) ~ lag(log(emp), 1:2) + lag(log(wage), 0:1) +
   lag(log(capital), 0:2) + lag(log(output), 0:2) | lag(log(emp), 2:99),
   data = pe, effect = "twoways", model = "twosteps")
@@ -331,15 +347,19 @@ summary(pd_nl)
 
 Linear moments only: 0.6287 (0.1934) from both packages. With the
 Ahn–Schmidt moments added: γ₁ = 0.665 (0.200), γ₂ = −0.084 (0.052), the wage
-−0.50 (0.15), capital 0.26 (0.07), and a J test of 40.35 on 29 degrees of
-freedom, p = 0.078. The extra moments move γ₁ up by 0.04 and do not narrow
-its band.
+−0.50 (0.15), capital 0.26 (0.07), and a J test (pdynmc's name for the
+Sargan–Hansen statistic of [step 4](index.qmd#sec-dyn-diagnostics)) of
+40.35 on 29 degrees of freedom, p = 0.078. The extra moments move γ₁ up by
+0.04 and do not narrow its band.
 
 **Time-invariant regressors.** Differencing removes them with the firm
-effect. @arellano1995 set the estimator in the Hausman–Taylor frame, where
-some level instruments identify such coefficients [@baltagi2021, p. 194],
-and @kripfganz2019 give a two-step estimator for them. Neither is in this
-book's tools; benchmark: Stata `xtseqreg`.
+effect. @arellano1995 set the estimator in the Hausman–Taylor frame
+[@hausman1981], a random-effects IV estimator that uses the exogenous
+regressors as instruments
+([fixed or random](../05-core/index.qmd#sec-core-fe-re)), where some level
+instruments identify such coefficients [@baltagi2021, p. 194], and
+@kripfganz2019 give a two-step estimator for them. Neither is in this
+book's tools. Benchmark: Stata `xtseqreg`, deferred.
 :::
 
 ::: {.callout-tip collapse="true"}
@@ -347,16 +367,17 @@ book's tools; benchmark: Stata `xtseqreg`.
 
 `?pgmm` annotates `ab.b`, the two-step difference fit of the Arellano–Bond
 equation with `robust = FALSE`, as "Arellano and Bond (1991), table 4
-col. b", the table @baltagi2021 [p. 223] names as "Table 4 of Arellano and
-Bond (1991) (p. 290)"; `c06-3-ab-twostep` above is that call and prints
+col. b" [@arellano1991], the table @baltagi2021 [p. 223] names as "Table 4
+of Arellano and Bond (1991) (p. 290)"; `c06-3-ab-twostep` above is that
+call and prints
 0.474151 (0.085303), −0.052967 (0.027284), −0.513205 (0.049345), 0.224640
 (0.080063), 0.292723 (0.039463), 0.609775 (0.108524), −0.446373 (0.124815),
 Sargan 30.11 on 25 degrees of freedom. `?pgmm` annotates `bb.4`, the
 one-step system fit of the one-lag equation with `robust = TRUE`, as
-"Blundell and Bond (1998) table 4 (cf. DPD for OX p. 12 col. 4)";
-`c06-3-sys` above prints 0.935605 (0.026295). Neither paper is in `lit/`,
-so what is matched here is the help page's annotation, not a page of the
-paper.
+"Blundell and Bond (1998) table 4 (cf. DPD for OX p. 12 col. 4)"
+[@blundell1998]; `c06-3-sys` above prints 0.935605 (0.026295). Neither
+paper is in `lit/`, so what is matched here is the help page's annotation,
+not a page of the paper.
 
 Example 7.5 of @croissant2019 [pp. 171–172] prints 0.50499 (0.09049) for
 the one-step and 0.554007 (0.10783) for the two-step difference fit, and

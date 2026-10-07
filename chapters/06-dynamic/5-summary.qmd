@@ -3,19 +3,20 @@
 The recipe, in five lines.
 
 1. **Difference, do not demean.** The within estimator is biased by about
-   $(1 + \gamma)/(T - 1)$ and more firms do not help
+   $(1 + \gamma)/(T - 1)$ and more firms do not help [@nickell1981;
+   @croissant2019, p. 165; @baltagi2021, p. 188]
    ([the bias](index.qmd#sec-dyn-bias)).
 2. **Instrument the differenced lag with levels.** $y_{i,t-2}$ and earlier
-   are valid when the shocks are serially uncorrelated
-   ([difference and instrument](index.qmd#sec-dyn-ah)).
+   are valid when the shocks are serially uncorrelated [@anderson1982;
+   @baltagi2021, p. 188] ([difference and instrument](index.qmd#sec-dyn-ah)).
 3. **Use every lag, but count them.** Difference GMM with all lags, system
    GMM when the series is persistent, and the instrument count printed
    beside every estimate ([difference and system GMM](index.qmd#sec-dyn-gmm)).
 4. **Two-step with Windmeijer standard errors.** `summary(robust = TRUE)`,
    never the conventional two-step covariance.
 5. **Sargan, m1, m2 and an instrument-count table.** m1 must reject, m2 must
-   not, Sargan must not; then show how γ moves as the lags change
-   ([diagnostics](index.qmd#sec-dyn-diagnostics)).
+   not, Sargan must not [@baltagi2021, p. 192]; then show how γ moves as the
+   lags change ([diagnostics](index.qmd#sec-dyn-diagnostics)).
 
 Every estimate of the persistence of employment in this chapter, on the
 one-lag equation and on the Arellano–Bond equation. The standard error is
@@ -66,13 +67,14 @@ from it.
 and is a stated gap, with the nearest Stata benchmark named.
 
 - Kiviet's bias-corrected within estimator [@kiviet1995; @baltagi2021,
-  p. 188]: Stata `xtlsdvc`.
+  p. 188]. Benchmark: Stata `xtlsdvc`, deferred.
 - The transformed likelihood of @hsiao2002 for short panels, which
   differences the fixed effect away and models the initial condition
-  [@pesaran2015, p. 696]: Stata `xtdpdqml` [@kripfganz2016].
+  [@pesaran2015, pp. 692–693]. Benchmark: Stata `xtdpdqml` [@kripfganz2016],
+  deferred.
 - The two-step estimator of @kripfganz2019 for time-invariant regressors,
   and the Arellano–Bover system in its Hausman–Taylor form [@arellano1995;
-  @baltagi2021, p. 194]: Stata `xtseqreg`.
+  @baltagi2021, p. 194]. Benchmark: Stata `xtseqreg`, deferred.
 - The Ahn–Schmidt nonlinear moment conditions [@ahn1995; @pesaran2015,
   p. 685]: not in `plm`; **pdynmc** [@fritsch2021] runs them, shown in the
   Pitfalls box of [step 3](index.qmd#sec-dyn-gmm).
@@ -81,9 +83,10 @@ and is a stated gap, with the nearest Stata benchmark named.
   p. 696]: no tool here; the
   [CD test](../02-cross-dependence/index.qmd#sec-csd-tests) says whether
   the problem is present.
-- The dynamic spatial panel, with a time lag and a spatial lag together:
-  Stata `xsmle`, stated as a limitation in the
-  [spatial chapter](../03-spatial/index.qmd#sec-sp-dynamic).
+- The dynamic spatial panel, with a time lag and a spatial lag together,
+  stated as a limitation in the
+  [spatial chapter](../03-spatial/index.qmd#sec-sp-dynamic). Benchmark:
+  Stata `xsmle, model(sdpd)`, deferred.
 
 ::: {.callout-note appearance="simple"}
 **Next.** Back to the [road map](../00-road-map/index.qmd) for the next

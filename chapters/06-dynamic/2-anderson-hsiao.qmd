@@ -11,14 +11,15 @@ $\Delta\varepsilon_{it}$, as long as the $\varepsilon_{it}$ are not serially
 correlated [@anderson1982; @baltagi2021, p. 188; @pesaran2015, p. 682]. Use
 it as an instrument and the differenced equation can be estimated by
 two-stage least squares: one instrument, one equation, consistent but not
-efficient, because it uses one moment condition where many hold
-[@baltagi2021, p. 188]. The difference $\Delta y_{i,t-2}$ is a valid
-instrument too, but @arellano1989 found that version "has a singularity
-point and very large variances over a significant range of parameter
-values", while the level "has no singularities and much smaller variances"
-[@baltagi2021, p. 188]; @croissant2019 [p. 167] say the level "is often a
-much better instrument". The instrument weakens as γ approaches one and
-fails at γ = 1 [@pesaran2015, p. 682].
+efficient, because it uses one **moment condition**, a population average
+the estimator sets to zero, where many hold [@baltagi2021, p. 188]. The
+difference $\Delta y_{i,t-2}$ is a valid instrument too, but @arellano1989
+found that version "has a singularity point and very large variances over a
+significant range of parameter values", while the level "has no
+singularities and much smaller variances" [@baltagi2021, p. 188];
+@croissant2019 [p. 167] say the level "is often a much better instrument".
+The instrument weakens as γ approaches one and fails at γ = 1 [@pesaran2015,
+p. 682].
 
 ::: {.callout-tip appearance="simple"}
 Why the within model cannot be instrumented this way, and the orthogonal
@@ -60,6 +61,7 @@ ah_level <- plm::plm(
     diff(log(capital)) + lag(diff(log(capital))) + year - 1,
   data = pe, model = "pooling")
 coef(summary(ah_level))[1:5, ]
+nobs(ah_level)
 ```
 
 Then the difference form, the same call with `lag(diff(log(emp)), 2)` as the
@@ -78,7 +80,8 @@ coef(summary(ah_diff))[1:5, ]
 ```
 
 The Arellano–Bond equation has two lags of employment, so it needs two
-instruments, $y_{i,t-2}$ and $y_{i,t-3}$, and is exactly identified:
+instruments, $y_{i,t-2}$ and $y_{i,t-3}$, and is exactly identified (as
+many instruments as endogenous regressors, none to spare):
 
 ```{r}
 #| label: c06-2-ah-two
@@ -146,7 +149,8 @@ graphics::par(op)
   needs more instruments than years.
 - **Misleads (the pure AR(1)).** 1.18 with standard error 1.23. *So:* a
   reader who prints the point reads explosive employment; the standard
-  error says the number carries no information, and step 3 says why.
+  error says the number carries no information, and
+  [step 3](index.qmd#sec-dyn-gmm) says why.
 
 ::: {.callout-note appearance="simple"}
 **Next.** There are more valid instruments than one: every earlier level is
@@ -178,9 +182,10 @@ $\Delta y_{i,t-2}$, not the level. The only form that keeps the level is
 equation loses two observations, that year and the next [@croissant2019,
 p. 166]. The level-form fit above uses 751 firm-years of the 1031.
 
-**T must stay small relative to N.** Ignoring the MA(1) structure of the
-differenced error "leads to inconsistency of the IV estimator if
-T/N → c > 0" [@pesaran2015, p. 682], a result of Alvarez and Arellano (2003)
+**T must stay small relative to N.** The differenced error is MA(1), a
+first-order moving average: each differenced error shares one shock with
+its neighbour. Ignoring that structure "leads to inconsistency of the IV
+estimator if T/N → c > 0" [@pesaran2015, p. 682], a result of @alvarez2003
 quoted there and not reproduced here.
 :::
 
@@ -188,11 +193,11 @@ quoted there and not reproduced here.
 ## Book check
 
 @croissant2019 [p. 168, Example 7.4] print 0.4687 (0.1182) on the lagged
-difference of democracy and −0.1036 (0.3049) on lagged income for the
-Anderson–Hsiao estimator on `DemocracyIncome`; the chunk below is that call
-and reproduces both to the printed digits. No source on disk prints an
-Anderson–Hsiao estimate on `EmplUK`, so the four fits above have no
-published target.
+difference of democracy and −0.1036 (0.3049) on the lagged difference of
+income for the Anderson–Hsiao estimator on `DemocracyIncome`; the chunk
+below is that call and reproduces both to the printed digits. No source on
+disk prints an Anderson–Hsiao estimate on `EmplUK`, so the four fits above
+have no published target.
 
 ```{r}
 #| label: c06-2-cm

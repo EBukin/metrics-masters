@@ -8,7 +8,7 @@ subtitle: "Why a lagged outcome breaks fixed effects and how instruments fix it"
 > [difference and system GMM](index.qmd#sec-dyn-gmm) and
 > [diagnostics](index.qmd#sec-dyn-diagnostics).
 
-## Why last year's outcome breaks the within estimator
+## Why the within estimator breaks
 
 A firm does not jump to the workforce it wants. Hiring takes months and
 firing costs money, so this year's employment is last year's employment
@@ -18,7 +18,7 @@ Put last year's outcome on the right-hand side and the panel regression is
 
 $$
 y_{it} = \gamma\, y_{i,t-1} + x_{it}'\beta + \alpha_i + \varepsilon_{it},
-\qquad i = 1, \dots, N;\ t = 1, \dots, T,
+\qquad i = 1, \dots, N;\ t = 2, \dots, T,
 $$
 
 with $\alpha_i$ the firm effect and $\varepsilon_{it}$ an innovation that
@@ -97,10 +97,10 @@ $\Delta y_{i,t-1}$ contains $\varepsilon_{i,t-1}$ and
 $\Delta\varepsilon_{it} = \varepsilon_{it} - \varepsilon_{i,t-1}$ contains
 it with a minus sign, so
 $E[\Delta y_{i,t-1}\Delta\varepsilon_{it}] = -\sigma^2_\varepsilon$ and
-OLS on the differenced equation is inconsistent. The differenced error is
-also a first-order moving average: its variance is $2\sigma^2_\varepsilon$,
-its first autocovariance $-\sigma^2_\varepsilon$, and all higher ones zero
-[@pesaran2015, p. 682; @croissant2019, p. 166].
+OLS on the differenced equation is inconsistent [@pesaran2015, p. 682]. The
+differenced error is also a first-order moving average: its variance is
+$2\sigma^2_\varepsilon$, its first autocovariance $-\sigma^2_\varepsilon$,
+and all higher ones zero [@pesaran2015, p. 682; @croissant2019, p. 166].
 
 An **instrument** is a variable correlated with the regressor that causes
 trouble and uncorrelated with the error. @anderson1982 saw that $y_{i,t-2}$
@@ -120,14 +120,22 @@ each observation minus the mean of those after it, are the other
 transformation that works, and lose one observation per gap instead of
 two [@croissant2019, pp. 166–167].)
 
-The instrument is not strong. With no regressors,
-$E[\Delta y_{i,t-2}\,\Delta y_{i,t-1}]$ is proportional to
-$-\sigma^2_\varepsilon(1 - \gamma)$: it shrinks toward zero as γ
-approaches one, and the approach breaks down at $\gamma = 1$
-[@pesaran2015, p. 682]. Anderson–Hsiao is consistent but not efficient,
-for two reasons: it uses one instrument where several are valid, and it
-ignores the moving-average structure of the differenced error
-[@baltagi2021, p. 188; @pesaran2015, p. 682; @croissant2019, p. 168].
+The instrument is not strong. With no regressors, $T = 3$, and the
+innovations uncorrelated with $\alpha_i$ and with $y_{i0}$, the level
+instrument has
+
+$$
+E[y_{i,t-2}\,\Delta y_{i,t-1}]
+  = -\sigma^2_\varepsilon\,(1 - \gamma)\,
+    \frac{1 - \gamma^{2(t-1)}}{1 - \gamma^2},
+$$
+
+non-zero for $|\gamma| < 1$ but shrinking toward zero as γ approaches one,
+and the approach breaks down at $\gamma = 1$ [@pesaran2015, p. 682].
+Anderson–Hsiao is consistent but not efficient, for two reasons: it uses
+one instrument where several are valid, and it ignores the moving-average
+structure of the differenced error [@baltagi2021, p. 188; @pesaran2015,
+p. 682; @croissant2019, p. 168].
 
 ### Every lag is an instrument
 
@@ -152,8 +160,8 @@ $$
 one row per differenced period, and the claim that each block is
 uncorrelated with its period's error is the set of **moment conditions**
 $E(W_i'\Delta\varepsilon_i) = 0$ [@baltagi2021, eq. 8.6; @pesaran2015,
-eq. 27.27; @croissant2019, eq. 7.4]. @holtzeakin1988 and @ahn1995 stated
-the same conditions [@baltagi2021, p. 190]. Their number is
+eqs. 27.27–27.28; @croissant2019, eq. 7.4]. @holtzeakin1988 and @ahn1995
+stated the same conditions [@baltagi2021, p. 190]. Their number is
 $\tfrac12(T-1)(T-2)$ for $T$ periods: 36 at $T = 10$, and it grows with
 the square of $T$ [@croissant2019, p. 172].
 
@@ -194,7 +202,7 @@ which is the optimal GMM estimator of @hansen1982 for $N \to \infty$ at
 fixed $T$, needs no assumption about the initial observations or the
 distributions of $\alpha_i$ and $\varepsilon_{it}$, and is robust to
 heteroskedasticity and serial correlation in the weight [@baltagi2021,
-eqs. 8.9–8.10 and p. 191; @croissant2019, p. 171]. The two steps are
+eqs. 8.9–8.10 and pp. 190–191; @croissant2019, p. 171]. The two steps are
 asymptotically equivalent when the innovations are IID [@baltagi2021,
 p. 191]. Regressors join on the same logic: a strictly exogenous
 $x_{it}$ instruments itself, a predetermined one contributes its lags
@@ -322,7 +330,7 @@ residuals with the statistic
 
 $$
 m_l = \frac{a_l}{\sqrt{\hat b_l}}, \qquad
-a_l = \frac{1}{N}\,\Delta\hat\varepsilon'\,\Delta\hat\varepsilon_{-l},
+a_l = \frac{1}{\sqrt N}\,\Delta\hat\varepsilon'\,\Delta\hat\varepsilon_{-l},
 $$
 
 where $\Delta\hat\varepsilon_{-l}$ is the residual lagged $l$ periods and
@@ -455,17 +463,19 @@ chapter says what that costs.
   R. Benchmark: Stata `xtdpdqml` [@kripfganz2016; @baltagi2021, p. 197],
   deferred.
 - **Time-invariant regressors.** Differencing removes them. @arellano1995
-  recover them inside a Hausman–Taylor system with a block-diagonal
-  instrument matrix [@baltagi2021, sec. 8.3, pp. 194–198; @pesaran2015,
-  sec. 27.4.4, pp. 686–687]; @kripfganz2019 instead estimate the
-  time-varying coefficients by GMM or quasi-maximum likelihood, regress
-  the first-step residuals on the time-invariant regressors, and correct
-  the second-step standard errors [@baltagi2021, pp. 197–198]. Not in R.
-  Benchmark: Stata `xtseqreg` [@baltagi2021, p. 197], deferred.
+  recover them inside a Hausman–Taylor [@hausman1981] system, a
+  random-effects IV estimator that uses the exogenous regressors as
+  instruments, with a block-diagonal instrument matrix [@baltagi2021,
+  sec. 8.3, pp. 194–198; @pesaran2015, sec. 27.4.4, pp. 686–687];
+  @kripfganz2019 instead estimate the time-varying coefficients by GMM or
+  quasi-maximum likelihood, regress the first-step residuals on the
+  time-invariant regressors, and correct the second-step standard errors
+  [@baltagi2021, pp. 197–198]. Not in R. Benchmark: Stata `xtseqreg`
+  [@baltagi2021, p. 197], deferred.
 - **Forward filtering.** The Keane–Runkle estimator removes a general
   serial correlation pattern by a Cholesky transform before two-stage
-  least squares with predetermined instruments [@baltagi2021, sec. 8.6,
-  p. 203; @pesaran2015, sec. 27.5, pp. 691–692]. Named only.
+  least squares with predetermined instruments [@keane1992; @baltagi2021,
+  sec. 8.6, p. 203; @pesaran2015, sec. 27.5, pp. 691–692]. Named only.
 - **Errors that move together across firms.** A common unobserved factor
   in the innovations makes the GMM estimators above inconsistent; the
   short-$T$ answers are quasi-differencing GMM and a transformed

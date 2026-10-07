@@ -118,8 +118,9 @@ graphics::par(op)
 ```
 
 The same two estimators on real data, where the truth is unknown. Pooled OLS
-and the two-way within estimator, on the Arellano–Bond equation and on the
-one-lag equation:
+and the two-way (firm and year effects) within estimator of the
+[effects tests](../05-core/index.qmd#sec-core-effects), on the Arellano–Bond
+equation and on the one-lag equation:
 
 ```{r}
 #| label: c06-1-emp
@@ -143,9 +144,9 @@ round(coef(summary(one_within))[1, 1:2], 3)
   50, against the exact 0.169, 0.338 and 0.469. *So:* the formula is the
   bias, and the only cure is more years: at T = 30 the estimate is still 10%
   below the truth.
-- **OLS, flat.** 0.872 at every T. *So:* years do not help OLS at all; the
-  firm effect never leaves the error, and its share of the variance sets the
-  bias.
+- **OLS, flat.** 0.872 or 0.873 at every T. *So:* years do not help OLS at
+  all; the firm effect never leaves the error, and its share of the variance
+  sets the bias.
 - **The spread does not reach the truth.** At T = 10 the 200 within
   estimates run from 0.24 to 0.43 with standard deviation 0.031; not one
   reaches 0.5. *So:* this is bias, not noise, and averaging over draws or
@@ -190,7 +191,7 @@ the mild case.
 bias and a within estimator that subtracts it [@baltagi2021, p. 188]. It
 needs a balanced panel and treats the other regressors as exogenous
 [@croissant2019, p. 166]. There is no R implementation in this book's
-tools; benchmark: Stata `xtlsdvc`.
+tools. Benchmark: Stata `xtlsdvc`, deferred.
 
 **Random effects is no escape.** Quasi-demeaning introduces the same
 correlation of order $1/T$, so RE is biased too [@pesaran2015, p. 678].
@@ -202,7 +203,7 @@ correlation of order $1/T$, so RE is biased too [@pesaran2015, p. 678].
 @croissant2019 [p. 165] print the bias as −0.167 at T = 10 and γ = 0.5. That
 is the leading factor, −1.5/9; the full expression they print on the same
 page, `nickell_bias(0.5, 10)`, gives −0.162, and the 200-draw mean above is
-0.337 − 0.5 = −0.163. The structure of Table 1 of @nickell1981 is the
+0.337 − 0.5 = −0.163. The structure of the table of @nickell1981 is the
 `nickell` column of the grid; the paper itself is not in `lit/`, so the
 check is against the formula as @pesaran2015 [p. 679] prints it, not against
 the table.
