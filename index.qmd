@@ -92,16 +92,43 @@ placeholders describing what they should cover.
   shape and spatial shocks](chapters/04-time/index.qmd#sec-ur-spatial-size),
   [shared trends across units](chapters/04-time/index.qmd#sec-ur-cross-coint)
 - [x] [Summary](chapters/04-time/index.qmd#sec-ur-summary)
+- [x] [Do they move together in the long
+  run?](chapters/04-time/index.qmd#sec-ur-coint)
+- [x] [Estimating the long run](chapters/04-time/index.qmd#sec-ur-long-run)
 - [x] [Panel unit roots: what a rejection is
   worth](chapters/04-time/theory-panel-unit-roots.qmd)
-- [ ] Cointegration
-- [ ] Serial correlation
-- [ ] Dynamic panels
+- [x] [Cointegration in panels: one trend shared by two series, and what a
+  panel adds](chapters/04-time/theory-cointegration.qmd)
 
 ### Core panel models
 
-- [ ] [Core panel models](chapters/05-core/index.qmd) — poolability, fixed vs
-  random effects, robust standard errors; not yet written
+- [x] [Core panel models](chapters/05-core/index.qmd) — one regression for
+  all units, checked: poolability, effects, fixed or random, the error, and
+  the standard errors
+- [x] [Poolability](chapters/05-core/index.qmd#sec-core-pool)
+- [x] [Slope heterogeneity](chapters/05-core/index.qmd#sec-core-slopes)
+- [x] [Effects tests](chapters/05-core/index.qmd#sec-core-effects)
+- [x] [Fixed or random](chapters/05-core/index.qmd#sec-core-fe-re)
+- [x] [Serial correlation](chapters/05-core/index.qmd#sec-core-serial)
+- [x] [Heteroskedasticity](chapters/05-core/index.qmd#sec-core-hetero)
+- [x] [Robust errors](chapters/05-core/index.qmd#sec-core-robust-se)
+- [x] [Summary](chapters/05-core/index.qmd#sec-core-summary)
+- [x] [Fixed and random effects: the unit effect, the tests that find it,
+  and the test between them](chapters/05-core/theory-fixed-random.qmd)
+- [x] [The error of a panel regression: same slopes, same variance, no
+  memory](chapters/05-core/theory-panel-error.qmd)
+
+### Dynamic panels
+
+- [x] [Dynamic panels](chapters/06-dynamic/index.qmd) — last year's outcome
+  on the right-hand side: the bias, the instruments, the diagnostics
+- [x] [The bias](chapters/06-dynamic/index.qmd#sec-dyn-bias)
+- [x] [Difference and instrument](chapters/06-dynamic/index.qmd#sec-dyn-ah)
+- [x] [Difference and system GMM](chapters/06-dynamic/index.qmd#sec-dyn-gmm)
+- [x] [Diagnostics](chapters/06-dynamic/index.qmd#sec-dyn-diagnostics)
+- [x] [Summary](chapters/06-dynamic/index.qmd#sec-dyn-summary)
+- [x] [Dynamic panel GMM: why a lagged outcome breaks fixed effects and how
+  instruments fix it](chapters/06-dynamic/theory-dynamic-gmm.qmd)
 
 ### Beyond panels
 
