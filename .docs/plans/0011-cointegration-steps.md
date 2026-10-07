@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-06
 - **Author:** Eduard Bukin
-- **Status:** active
+- **Status:** done
 
 ## Goal
 
@@ -691,24 +691,24 @@ DOI.
 
 Each step ends in its own commit.
 
-- [ ] **Tooling.** `R/cointegration.R` with the four helpers and the
+- [x] **Tooling.** `R/cointegration.R` with the four helpers and the
   simulator; `references.bib` gains the entries above with flags settled;
   `pco` snapshotted.
-- [ ] **Step 7.** `7-cointegration.qmd` with chunks `c04-7-one-state`,
+- [x] **Step 7.** `7-cointegration.qmd` with chunks `c04-7-one-state`,
   `c04-7-by-state`, `c04-7-pedroni`, `c04-7-eg`, `c04-7-picture`,
   `c04-7-pco-trap`, `c04-7-scale-trap`, `c04-7-pco-size`; every number in
   prose from output.
-- [ ] **Step 8.** `8-long-run.qmd` with `c04-8-pooled`, `c04-8-twoway`,
+- [x] **Step 8.** `8-long-run.qmd` with `c04-8-pooled`, `c04-8-twoway`,
   `c04-8-cce`, `c04-8-picture`.
-- [ ] **Summary.** `git mv 7-summary.qmd 9-summary.qmd`; the edits listed.
-- [ ] **Intro and map.** `index.qmd` lines 12–13, the mermaid path, the
+- [x] **Summary.** `git mv 7-summary.qmd 9-summary.qmd`; the edits listed.
+- [x] **Intro and map.** `index.qmd` lines 12–13, the mermaid path, the
   theory sentence, the includes.
-- [ ] **Theory.** `theory-cointegration.qmd` written, not a placeholder;
+- [x] **Theory.** `theory-cointegration.qmd` written, not a placeholder;
   the one-line change and the "Code:" additions in
   `theory-panel-unit-roots.qmd`.
-- [ ] **Review and fix.** Every cited page opened; every number against
+- [x] **Review and fix.** Every cited page opened; every number against
   output; links crawled.
-- [ ] **Wire in.** `_quarto.yml`: `chapters/04-time/theory-cointegration.qmd`
+- [x] **Wire in.** `_quarto.yml`: `chapters/04-time/theory-cointegration.qmd`
   under `project: render:` and under `appendices:`; `index.qmd` checklist:
   the line "Cointegration" becomes the two steps and the note, ticked;
   the road map's "Cointegration, serial correlation ..." sentence
@@ -737,4 +737,41 @@ Decided on 2026-10-06, before the tooling step:
 
 ## Outcome
 
-Filled in when the status becomes done or superseded.
+Done on 2026-10-06, through the pipeline of plan 0008: recon, tooling,
+writer, theory, three reviewers, one fix agent. Chapter 04 gained
+`7-cointegration.qmd` ("Cointegration", `#sec-ur-coint`),
+`8-long-run.qmd` ("Estimating the long run", `#sec-ur-long-run`), the
+renamed `9-summary.qmd`, a rewritten intro and map, and
+`theory-cointegration.qmd`; the chapter renders from its own freeze with no
+R error or warning.
+
+- **Reproduced.** The `?ca.jo` Danish money-demand example (eigenvalues
+  0.4332, 0.1776, 0.1128, 0.0434; λ-max 30.09, 10.36, 6.34, 2.35), as the
+  help page's own output, since Johansen & Juselius (1990) is not on disk.
+  CM p. 209: CIPS on CCEMG and CCEP residuals −2.7 and −2.2 against −2.6588
+  and −2.2049; CM pp. 198–199 CCEMG 1.135 (0.195) and CCEP 1.199 (0.207)
+  against 1.1354 (0.1955) and 1.1994 (0.2073).
+- **No target.** Baltagi Tables 12.3 to 12.7 run on the Coe–Helpman panel,
+  which no R package ships; `?pedroni99` prints no numbers, so its example
+  is "runs" only.
+- **`pco`.** Archived on CRAN; `pco@1.0.1` builds from source and is
+  recorded in `renv.lock`. `pedroni99m` drops the third dimension of a
+  two-variable array and fails; `pedroni99` runs but its panel v and panel
+  ADF statistics are not scale-invariant, and a 200-draw simulation at
+  N = 49, T = 29 gives size 0 for five of the seven standardised statistics
+  and 1 for the panel ADF. The step shows the simulation as the evidence;
+  the house-price statistics sit in the Pitfalls box; the chapter calls
+  Pedroni and Kao not implemented in R with a trustworthy calibration.
+- **Per-unit rank.** With `ecdet = "none"`, K = 2, 5 %: 41 states at rank
+  0, 7 at rank 1, 1 at rank 2; the precondition for the residual-based
+  panel tests fails state by state at T = 29, which the step reads.
+- **Findings.** 125 citations checked; 29 findings (one sign in the VECM
+  equation of Pesaran eq. 22.17, uncited nulls, five numbers no chunk
+  printed, `urca::ur.df` never shown in the open, a seven-word heading),
+  all applied; the heading became "Cointegration".
+- **Deferred.** Kao, Pedroni and Westerlund hand-coded against Stata
+  `xtcointtest`: the Stata plan. Pedroni (1999) and Pfaff (2008) are cited
+  without a page because they are not in `lit/`.
+- **Tooling.** `R/cointegration.R` (`johansen_by_unit()`, `panel_wide()`,
+  `panel_array()`, `adf_by_unit()`, `sim_coint_pair_panel()`); 34
+  bibliography entries.

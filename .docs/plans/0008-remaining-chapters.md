@@ -201,12 +201,12 @@ Each step ends in its own commit.
 - [x] **Dynamic: review and fix.**
 - [x] **Dynamic: wire in.** New chapter in `project: render:` and
   `book: chapters:`; checklist; road map; plan 0010 closed.
-- [ ] **Cointegration: recon.** Chapter plan 0011.
-- [ ] **Cointegration: tooling.**
-- [ ] **Cointegration: steps.**
-- [ ] **Cointegration: theory.**
-- [ ] **Cointegration: review and fix.**
-- [ ] **Cointegration: wire in.** Chapter 04 intro, map and summary;
+- [x] **Cointegration: recon.** Chapter plan 0011.
+- [x] **Cointegration: tooling.**
+- [x] **Cointegration: steps.**
+- [x] **Cointegration: theory.**
+- [x] **Cointegration: review and fix.**
+- [x] **Cointegration: wire in.** Chapter 04 intro, map and summary;
   checklist; plan 0011 closed.
 - [ ] **Close.** Full render from a clean `_freeze/`, dead-link crawl, the
   road map's "still to come" wording gone, outcome written here.
