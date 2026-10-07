@@ -14,11 +14,13 @@ Under random effects the errors of one unit are correlated across years,
 the Chow F is no longer an F, and it rejects a true null far too often
 [@baltagi1981; @baltagi2021, p. 79]. The **Roy–Zellner test** runs the same
 F on the data after the GLS transformation, where the errors are spherical
-again [@roy1957; @zellner1962; @baltagi2021, pp. 78–79].
+(uncorrelated, with one variance) again [@roy1957; @zellner1962;
+@baltagi2021, pp. 78–79].
 
 ::: {.callout-tip appearance="simple"}
-What "one regression" assumes about the units, and why the transformation
-restores the F: [fixed and random effects](theory-fixed-random.qmd).
+What "one regression" assumes about the units: [fixed and random
+effects](theory-fixed-random.qmd). Why the transformation restores the F:
+[the error of a panel regression](theory-panel-error.qmd).
 :::
 
 With $e$ the residuals of the restricted model and $e_i$ those of unit
@@ -105,8 +107,9 @@ graphics::par(op)
   across firms, not across years.
 - **Misleads (the plain Chow F under random effects).** Roy–Zellner gives
   4.35 on F(27, 170), still a rejection, but a sixth of the plain 27.7.
-  *So:* with a firm effect this large (72 % of the error variance, step 4)
-  most of the plain F was the firm effect, not the slopes; Baltagi's Monte
+  *So:* with a firm effect this large (72 % of the error variance, [fixed
+  or random](index.qmd#sec-core-fe-re)) most of the plain F was the firm
+  effect, not the slopes; Baltagi's Monte
   Carlo shows the plain F rejecting a true null often when the variance
   components are large [@baltagi1981; @baltagi2021, p. 79].
 
@@ -148,9 +151,10 @@ estimator of the [cross-dependence
 chapter](../02-cross-dependence/index.qmd#sec-cce) and the next step.
 
 **Roy–Zellner is not in plm.** `roy_zellner()` is one-way and refuses an
-unbalanced panel. It uses the Swamy–Arora θ of `plm::ercomp()`; Baltagi's
-Monte Carlo used the Amemiya and Wallace–Hussain variance estimates, and
-both gave the test the right size [@baltagi2021, p. 79].
+unbalanced panel. It uses the Swamy–Arora θ [@swamy1972] of
+`plm::ercomp()`; Baltagi's Monte Carlo used the Amemiya [@amemiya1971] and
+Wallace–Hussain [@wallace1969] variance estimates, and both gave the test
+the right size [@baltagi2021, p. 79].
 :::
 
 ::: {.callout-tip collapse="true"}

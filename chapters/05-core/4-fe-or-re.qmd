@@ -10,7 +10,7 @@ slope. Random effects also uses the variation between units, the
 differences in their means, and that is where a correlation between the
 effect and the regressors would bite. Under the null of no correlation both
 estimators are consistent and random effects is efficient; under the
-alternative only fixed effects is consistent [@baltagi2021, p. 89]. The
+alternative only fixed effects is consistent [@baltagi2021, pp. 89–90]. The
 **Hausman test** compares the two estimates: far apart means the between
 variation carries the correlation [@hausman1978; @baltagi2021, eq. 4.41].
 The same test is an F on extra regressors in an augmented regression, which
@@ -49,15 +49,17 @@ $$
 and tests $\gamma = 0$; the coefficient on $\tilde X$ is
 $\hat\beta_{Within} - \hat\beta_{Between}$, and the three contrasts
 (GLS–within, GLS–between, within–between) give the same statistic
-[@baltagi2021, eqs. 4.46–4.48]. A robust covariance in that regression is
-the robust Hausman test [@arellano1993; @baltagi2021, p. 92].
+[@hausman1981; @baltagi2021, eqs. 4.46–4.48 and p. 91]. A robust covariance
+in that regression is the robust Hausman test [@arellano1993; @baltagi2021,
+p. 92].
 
-**The tests.** `phtest` [@croissant2019, sec. 4.2.2 and Example 5.9]:
+**The tests.** `phtest` [@croissant2019, sec. 4.2.2, Examples 5.9–5.10]:
 `method = "chisq"`, the contrast; `method = "aux"`, the augmented
 regression; `method = "aux", vcov = plm::vcovHC`, the same with clustered
 errors. Null: the unit effect is uncorrelated with the regressors, so both
-estimators are consistent. A rejection means random effects is
-inconsistent. Chamberlain's test of the fixed-effects restrictions and the
+estimators are consistent [@baltagi2021, p. 90]. A rejection means random
+effects is inconsistent. Chamberlain's test of the fixed-effects
+restrictions and the
 Angrist–Newey version are `piest` and `aneweytest` [@chamberlain1982;
 @angrist1991; @croissant2019, pp. 94–95]; Hausman–Taylor is `plm(model =
 "random", random.method = "ht", inst.method = "baltagi")`, with
@@ -108,7 +110,7 @@ plm::phtest(hp_w2, hp_re2a)
 ```
 
 **Run it, wages.** The Cornwell–Rupert equation on `Wages`, 595 workers
-over 1976–82 [@cornwell1988; @baltagi2021, p. 174]: log wage on weeks
+over 1976–82 [@cornwell1988; @baltagi2021, pp. 173–174]: log wage on weeks
 worked, region, city, marital status, experience and its square,
 occupation, industry, union, sex, race and education. The second part of
 the formula lists the exogenous regressors, time-varying and not; the
@@ -133,8 +135,11 @@ The two Hausman tests of the wage equation: GLS against within, which
 says whether the worker effect is correlated with anything; and
 Hausman–Taylor against within, which says whether the instruments chosen
 as exogenous are [@baltagi2021, p. 175]. Then the Angrist–Newey test of the
-fixed-effects restrictions themselves, on the time-varying regressors,
-which needs many units against few periods and has them here:
+fixed-effects restrictions themselves, on the time-varying regressors. Its
+restrictions multiply with $T$, and the Chamberlain test, which reaches
+the same decision, understates its own variance as $T$ grows [@baltagi2021,
+p. 93], so the seven-year wage panel suits it better than Grunfeld's twenty
+years:
 
 ```{r}
 #| label: c05-4-wages-tests
@@ -200,12 +205,17 @@ graphics::par(op)
   state) effect is correlated with the regressors; on wages the worker
   effect is correlated with education, and Hausman–Taylor recovers a
   return to schooling of 0.138 that within cannot estimate at all.
+- **Rejects (Angrist–Newey on wages).** 484.26 on 369 df, p = 5e-05.
+  *So:* the restrictions the within model imposes do not hold on the wage
+  panel either; a Hausman rejection names random effects as wrong, it does
+  not name fixed effects as right [@baltagi2021, p. 93].
 - **Misleads (the clustered `aux` test on Grunfeld).** 8.30, p = 0.016,
   a rejection where the three classical forms agree on 2.1 to 2.3. *So:*
-  ten clusters are too few for the Arellano covariance; Baltagi's own
-  robust F on the same regression is 1.58, p = 0.21 [@baltagi2021, p.
-  95]. Trust a robust test only when there are clusters enough to make it
-  robust.
+  the Arellano covariance here is an average over ten firms, and
+  clustering by unit rests on $N$-asymptotics, a large, short panel
+  [@croissant2019, p. 111]; Baltagi's own robust F on the same regression
+  is 1.58, p = 0.21 [@baltagi2021, p. 95]. Read a robust test on ten
+  clusters as a warning, not a verdict.
 
 ::: {.callout-note appearance="simple"}
 **Next.** Not rejected: random effects, and the serial-correlation tests
@@ -258,9 +268,11 @@ four have no implementation here.
 **Rejection does not validate fixed effects.** It says the random-effects
 estimator is inconsistent; whether the fixed-effects restrictions hold is a
 separate question, the one Chamberlain's and Angrist–Newey's tests ask
-[@baltagi2021, p. 93]. Both need $N$ large against $TK$: on Grunfeld
-`piest` stops with "system is computationally singular" and `aneweytest`
-returns a negative statistic; on `Wages` `piest` stops too:
+[@baltagi2021, p. 93]. Both impose a set of restrictions that grows with
+$T$, and the Chamberlain test understates its variance as $T$ grows
+[@baltagi2021, p. 93]: on Grunfeld `piest` stops with "system is
+computationally singular" and `aneweytest` returns a negative statistic; on
+`Wages` `piest` stops too:
 
 ```{r}
 #| label: c05-4-pitfall-piest
@@ -270,7 +282,7 @@ plm::piest(update(fw1, . ~ . - sex - black - ed), data = wg)
 
 **The pretest distorts the second stage.** Choosing fixed or random
 effects by a Hausman test and then testing a slope gives a two-stage test
-whose size is wrong; Guggenberger (2010) recommends fixed-effects inference
+whose size is wrong; @guggenberger2010 recommends fixed-effects inference
 without the pretest [@baltagi2021, p. 94].
 
 **Hausman–Taylor's degrees of freedom.** `phtest(ht, within)` reports 9,

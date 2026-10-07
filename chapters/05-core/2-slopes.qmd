@@ -19,8 +19,8 @@ Swamy estimator with equal weights, and the two converge as $T$ grows
 
 ::: {.callout-tip appearance="simple"}
 Random coefficients as an error-component model, and why their covariance
-can come back negative: [fixed and random
-effects](theory-fixed-random.qmd).
+can come back negative: [the error of a panel
+regression](theory-panel-error.qmd).
 :::
 
 With $\hat\beta_n$ unit $n$'s OLS slopes, $\bar\beta$ their average and
@@ -50,12 +50,13 @@ to serial correlation.
 `summary()`, the spread of the unit slopes; `pvcm(model = "random")`,
 Swamy's mean and `$Delta`, and the homogeneity test its `summary()` prints;
 `pmg(model = "mg")`, the mean-group comparison. Null, for the homogeneity
-test: the slopes are the same for every unit. A rejection means the spread
-is more than noise.
+test: the slopes are the same for every unit [@swamy1970; @baltagi2021, p.
+102]. A rejection means the spread is more than noise.
 
 ::: {.callout-important appearance="simple"}
-**Limitation.** Pesaran–Yamagata's $\Delta$ and its HAC version have no
-implementation in the packages this book uses; the Swamy test printed below
+**Limitation.** Pesaran–Yamagata's $\Delta$ and its HAC (heteroskedasticity-
+and autocorrelation-consistent) version have no implementation in the
+packages this book uses; the Swamy test printed below
 is the $N$ fixed, $T \to \infty$ statistic it was built to replace.
 Benchmark: Stata `xthst` [@bersvendsen2021], deferred.
 :::
@@ -76,8 +77,9 @@ summary(gr_sw)
 cbind(mean = coef(gr_sw), sd = sqrt(diag(gr_sw$Delta)))
 ```
 
-**Run it, house prices.** The same on the 49 state slopes from the previous
-step, with the mean-group average beside Swamy's:
+**Run it, house prices.** The same on the 49 state slopes from
+[poolability](index.qmd#sec-core-pool), with the mean-group average beside
+Swamy's:
 
 ```{r}
 #| label: c05-2-hp-np
@@ -182,9 +184,10 @@ homogeneity.
 
 @croissant2019 [sec. 8.2.2, Example 8.2, p. 190] print Swamy 0.2867 and
 mean group 0.3018 for the income elasticity: the `c05-2-hp-swamy` chunk
-gives 0.2867 and 0.3018, reproduced. Their `summary(housep.np)` [pp.
-193–194] prints mean 0.302, min −1.141, max 2.037 for the state
-elasticities: the `c05-2-hp-np` chunk gives 0.3018, −1.1409 and 2.0369,
-reproduced. Their Figure 8.1 [p. 193] is the right-hand histogram above.
+gives 0.2867 and 0.3018, reproduced. Their `summary(housep.np)`
+[@croissant2019, sec. 8.2.3, Example 8.4, pp. 193–194] prints mean 0.302,
+min −1.141, max 2.037 for the state elasticities: the `c05-2-hp-np` chunk
+gives 0.3018, −1.1409 and 2.0369, reproduced. Their Figure 8.1
+[@croissant2019, p. 193] is the right-hand histogram above.
 No target for Pesaran–Yamagata: no implementation in R.
 :::

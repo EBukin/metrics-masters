@@ -6,19 +6,19 @@ neither, so that pooled OLS would do?
 **Intuition.** If there is no firm effect, a firm's twenty pooled-OLS
 residuals are just twenty draws, and their sum is about as large as the
 square root of their sum of squares. If there is a firm effect, the twenty
-residuals share a sign and the sum is far larger. The **Breusch–Pagan LM
-test** squares the ratio of "sum of a unit's residuals" to "sum of their
-squares", summed over units [@breusch1980; @baltagi2021, eq. 4.23]. A
-variance cannot be negative, so the alternative is one-sided: **Honda's
-test** takes the signed square root, is normal, uniformly most powerful for
-this null, and robust to non-normality [@honda1985; @baltagi2021, p.
-83]. For a unit effect
-and a year effect together, **King–Wu** weights the two one-sided pieces
-[@king1997; @baltagi2021, eq. 4.30], and the **GHM test** drops a negative
-piece instead of squaring it [@gourieroux1982; @baltagi2021, eq. 4.33]. The
-**F test** asks the same question of the fixed-effects fit: whether the
-unit dummies reduce the residual sum of squares by more than chance
-[@baltagi2021, eq. 4.38].
+residuals share a sign and the sum is far larger. The **Breusch–Pagan
+Lagrange-multiplier (LM) test**, which needs only the pooled residuals,
+squares the ratio of "sum of a unit's residuals" to "sum of their squares",
+summed over units [@breusch1980; @baltagi2021, eq. 4.23]. A variance cannot
+be negative, so the alternative is one-sided: **Honda's test** takes the
+signed square root, is normal, uniformly most powerful for this null, and
+robust to non-normality [@honda1985; @baltagi2021, p. 83]. For a unit
+effect and a year effect together, **King–Wu** weights the two one-sided
+pieces [@king1997; @baltagi2021, eq. 4.30], and the **GHM
+(Gourieroux–Holly–Monfort) test** drops a negative piece instead of
+squaring it [@gourieroux1982; @baltagi2021, eq. 4.33]. The **F test** asks
+the same question of the fixed-effects fit: whether the unit dummies reduce
+the residual sum of squares by more than chance [@baltagi2021, eq. 4.38].
 
 ::: {.callout-tip appearance="simple"}
 Why the LM tests need only pooled residuals, and what the two-way versions
@@ -173,7 +173,8 @@ graphics::par(op)
   18.6 for years; F 31.6 for the state effect given the year effect and
   16.8 for the year effect given the state effect. *So:* a state effect
   and a year effect; the two-way model, and the national force the
-  cross-dependence chapter found is the year effect's first draft.
+  [cross-dependence chapter](../02-cross-dependence/index.qmd#sec-cce)
+  found is the year effect's first draft.
 - **Does not reject (year effect, Grunfeld).** Honda −2.54, p = 0.99; F
   1.40 on (19, 169) given the firm effect, p = 0.13. *So:* no year effect;
   a one-way model for Grunfeld.
@@ -237,10 +238,11 @@ an error; the one-way one-sided test is Honda's.
 ::: {.callout-tip collapse="true"}
 ## Book check
 
-@baltagi2021 [Table 4.2, p. 88] prints the twelve LM statistics for
-Grunfeld, cross-section, time and both: Breusch–Pagan 798.1615, 6.453882,
-804.6154; Honda 28.25175, −2.540449, 18.18064; King–Wu 28.25175,
-−2.540449, 21.83221; GHM 798.1615. To the printed digits:
+@baltagi2021 [Table 4.2, p. 88] prints sixteen LM statistics for Grunfeld,
+cross-section, time and both; the ten unstandardized ones are:
+Breusch–Pagan 798.1615, 6.453882, 804.6154; Honda 28.25175, −2.540449,
+18.18064; King–Wu 28.25175, −2.540449, 21.83221; GHM 798.1615. To the
+printed digits:
 
 ```{r}
 #| label: c05-3-book-lm

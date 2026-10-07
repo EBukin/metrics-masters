@@ -62,7 +62,7 @@ gr_pool1 <- plm::plm(inv ~ value, data = gr, model = "pooling")
 gr_w1 <- plm::plm(inv ~ value, data = gr, model = "within")
 firm <- plm::index(gr)[[1]]
 plot(as.numeric(gr$value), as.numeric(gr$inv), pch = 16,
-     col = grey(0.2 + 0.6 * (as.integer(firm) - 1) / 9),
+     col = grDevices::grey(0.2 + 0.6 * (as.integer(firm) - 1) / 9),
      xlab = "market value", ylab = "investment")
 graphics::abline(coef(gr_pool1), lwd = 3)
 for (a in plm::fixef(gr_w1)) graphics::abline(a, coef(gr_w1), lty = 3)
@@ -72,18 +72,18 @@ The thin lines are the one-way **error-component model**, the equation
 that organises the chapter [@baltagi2021, eqs. 2.1–2.2]:
 
 $$
-y_{it} = x_{it}'\beta + \mu_i + \nu_{it},
+y_{it} = x_{it}'\beta + \alpha_i + \varepsilon_{it},
 \qquad i = 1, \dots, N;\; t = 1, \dots, T,
 $$
 
-where $\mu_i$ is the unit effect and $\nu_{it}$ the idiosyncratic error.
-Fixed effects estimates $\beta$ from deviations around each unit's own mean,
-so $\mu_i$ drops out. Random effects treats $\mu_i + \nu_{it}$ as one error
-with a known shape and weights the within and between variation by how much
-each is worth. The chapter's tests ask, in order, whether the slopes can be
-shared at all, whether $\mu_i$ is there, whether it is a parameter or a
-draw, what else $\nu_{it}$ carries, and which standard error is honest about
-it.
+where $\alpha_i$ is the unit effect and $\varepsilon_{it}$ the idiosyncratic
+error (Baltagi writes them $\mu_i$ and $\nu_{it}$). Fixed effects estimates
+$\beta$ from deviations around each unit's own mean, so $\alpha_i$ drops out.
+Random effects treats $\alpha_i + \varepsilon_{it}$ as one error with a known
+shape and weights the within and between variation by how much each is
+worth. The chapter's tests ask, in order, whether the slopes can be shared at
+all, whether $\alpha_i$ is there, whether it is a parameter or a draw, what
+else $\varepsilon_{it}$ carries, and which standard error is honest about it.
 
 **In this chapter.**
 

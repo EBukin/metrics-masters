@@ -9,7 +9,7 @@ $(X'X)^{-1}$ on both sides, and in the middle an estimate of $X'\Omega X$
 built from the residuals. White's version puts only the squared residuals
 in the middle. A panel version adds the cross-products of residuals that
 belong to the same **cluster**, and the choice of cluster is the choice of
-what dependence to allow [@millo2017; @croissant2019, sec. 5.1.1]. Cluster
+what dependence to allow [@millo2017jss; @croissant2019, sec. 5.1.1]. Cluster
 by unit: any serial correlation inside a unit, with asymptotics in $N$.
 Cluster by year: any cross-sectional correlation inside a year, with
 asymptotics in $T$. Both at once: **double clustering**, which needs both
@@ -43,24 +43,34 @@ kernel weight, the estimators are combinations of the same blocks
 
 Set $L = 0$ and Driscoll–Kraay is time clustering; set $w_l = 1$ and it is
 time clustering with unweighted shocks [@croissant2019, p. 116]. The
-default lag is $\lfloor T^{1/4} \rfloor$ and the default kernel is
-Bartlett's.
+default kernel is Bartlett's and the default lag is $T^{1/4}$
+[@croissant2019, pp. 117, 119]; plm's code rounds it down, so $L = 2$ for
+every panel here.
 
 **The tests.** Not tests but estimators, each through `coeftest`:
-`vcovHC` [@arellano1987], cluster by unit by default; `vcovSCC`
-[@driscoll1998]; `vcovBK` [@beck1995]; `vcovNW` [@newey1987]; `vcovDC`
+`vcovHC` [@arellano1987], cluster by unit by default, `cluster = "time"`
+for the year; `vcovSCC` [@driscoll1998], and with `wj = 1` the unweighted
+shocks; `vcovBK` [@beck1995]; `vcovNW` [@newey1987]; `vcovDC`
 [@cameron2011]. `vcovG` is the parent that builds any block from a cluster
 dimension, an inner product and a lag [@croissant2019, p. 117]. The
 helper `se_table()` from `R/` then sets the nine estimators of
-@croissant2019 [Example 5.4] side by side, after every call has been shown.
+@croissant2019 [Example 5.4] side by side. On Produc every block it uses
+is shown as its own call first, the classical and White errors in
+[heteroskedasticity](index.qmd#sec-core-hetero); only $V_{cxt,L}$, the sum
+of three of them, has no call of its own.
 
 **Run it, Produc.** The within fit of the public-capital equation from
-the previous step, five covariances:
+[heteroskedasticity](index.qmd#sec-core-hetero), seven covariances:
+cluster by state, cluster by year, Driscoll–Kraay, time clustering with
+unweighted shocks, Beck–Katz, Newey–West, double clustering.
 
 ```{r}
 #| label: c05-7-pr
+one <- function(j, maxlag) 1
 lmtest::coeftest(pr_w, vcov = plm::vcovHC)
+lmtest::coeftest(pr_w, vcov = function(x) plm::vcovHC(x, cluster = "time"))
 lmtest::coeftest(pr_w, vcov = plm::vcovSCC)
+lmtest::coeftest(pr_w, vcov = function(x) plm::vcovSCC(x, wj = one))
 lmtest::coeftest(pr_w, vcov = plm::vcovBK)
 lmtest::coeftest(pr_w, vcov = plm::vcovNW)
 lmtest::coeftest(pr_w, vcov = plm::vcovDC)
@@ -93,8 +103,14 @@ round(se_table(hp_w), 4)
 round(se_table(hp_w, ratio = TRUE), 2)
 ```
 
-**Run it, Grunfeld.** The table only, as the cautionary case: ten
-clusters.
+**Run it, Grunfeld.** The cautionary case, ten clusters: cluster by firm
+and Driscoll–Kraay, then the table.
+
+```{r}
+#| label: c05-7-gr
+lmtest::coeftest(gr_w, vcov = plm::vcovHC)
+lmtest::coeftest(gr_w, vcov = plm::vcovSCC)
+```
 
 ```{r}
 #| label: c05-7-gr-table
@@ -102,50 +118,50 @@ round(se_table(gr_w), 4)
 round(se_table(gr_w, ratio = TRUE), 2)
 ```
 
-The bands, drawn: one slope per panel under the nine estimators.
+The inflation, drawn: for one slope per panel, each estimator's standard
+error as a multiple of the classical one.
 
 ```{r}
 #| label: c05-7-picture
-#| fig-cap: "The coefficient on log employment in Produc (left) and the
-#|   income elasticity in house prices (right), with 95 % bands under the
-#|   nine covariance estimators, classical at the top."
-#| fig-alt: "Two dot-and-whisker charts with nine rows each. In both the
-#|   dot is at the same place in every row and the whiskers grow from
-#|   short at the top (OLS, White) to several times longer for the
-#|   clustered and kernel rows below, the longest in the last row."
-se_band <- function(fit, term, main) {
-  b <- coef(fit)[term]
-  se <- se_table(fit)[, term]
-  k <- length(se)
-  plot(rep(b, k), k:1, xlim = b + c(-2, 2) * max(se), ylim = c(0.5, k + 0.5),
-       pch = 16, yaxt = "n", ylab = "", xlab = "estimate", main = main)
-  graphics::segments(b - 1.96 * se, k:1, b + 1.96 * se, k:1)
-  graphics::axis(2, at = k:1, labels = names(se), las = 1, cex.axis = 0.8)
-}
-op <- graphics::par(mfrow = c(1, 2), mar = c(4, 5, 2, 1))
-se_band(pr_w, "log(emp)", "Produc: log(emp)")
-se_band(hp_w, "li", "House prices: income")
-graphics::par(op)
+#| fig-cap: "Standard error of the coefficient on log employment in Produc
+#|   (dark) and of the income elasticity in house prices (light) under the
+#|   nine covariance estimators, as ratios to the classical standard
+#|   error. The dotted line is one."
+#| fig-alt: "A grouped bar chart with nine pairs of bars, one pair per
+#|   estimator from OLS to Vcxt.L. Both bars stand at one for OLS and a
+#|   little higher for White. Newey-West is the shortest robust bar in
+#|   both, 1.9 and 1.6; the other clustered and kernel bars rise to
+#|   between 2.1 and 3.5 for Produc and between 2.8 and 5.5 for house
+#|   prices, double clustering with shocks the tallest, at 3.5 and 5.5."
+ratios <- rbind(
+  Produc = se_table(pr_w, ratio = TRUE)[, "log(emp)"],
+  `House prices` = se_table(hp_w, ratio = TRUE)[, "li"]
+)
+graphics::barplot(ratios, beside = TRUE, col = c("grey30", "grey80"),
+                  las = 2, ylab = "ratio to the classical error",
+                  legend.text = TRUE, args.legend = list(x = "topleft"))
+graphics::abline(h = 1, lty = 3)
 ```
 
 **Read it.**
 
 - **Produc.** On `log(emp)`, classical 0.030; Arellano 0.082,
   Driscoll–Kraay 0.083, double clustering 0.095, double clustering with
-  shocks 0.105. *So:* serial correlation inside a state is the main cost,
-  2.7 times the classical error on its own; cross-sectional correlation
-  adds another sixth on top; the classical $t$ statistics were three
-  times too large.
+  shocks 0.105. Beck–Katz gives 0.067: one within-state covariance,
+  averaged over the 48 states, in place of each state's own. *So:* serial
+  correlation inside a state is the main cost, 2.7 times the classical
+  error on its own; cross-sectional correlation adds another sixth on
+  top; the classical $t$ statistics were three times too large.
 - **House prices.** On the income elasticity, classical 0.027; Arellano
-  0.089, Driscoll–Kraay 0.109, double clustering 0.113, with shocks
-  0.148. *So:* 3.3 to 5.5 times the classical error, the bill for the
-  0.82 serial correlation and the cross-state co-movement of the
+  0.089, Beck–Katz 0.090, Driscoll–Kraay 0.109, double clustering 0.113,
+  with shocks 0.148. *So:* 3.3 to 5.5 times the classical error, the bill
+  for the 0.82 serial correlation and the cross-state co-movement of the
   [spatial chapter](../03-spatial/index.qmd#sec-sp-map) together. Read
   the blocks the way @petersen2009 does [@croissant2019, p. 119]: time
   clustering with shocks (0.130) is well above plain time clustering
-  (0.076), so the cross-serial correlation is real, and double clustering
-  (0.113) sits above both one-way clusterings, so neither dimension alone
-  is enough.
+  (0.076), so the cross-serial correlation (correlation between different
+  states in different years) is real, and double clustering (0.113) sits
+  above both one-way clusterings, so neither dimension alone is enough.
 - **Grunfeld.** On `value`, Arellano 0.014 against 0.012 classical,
   and double clustering with shocks 0.008, *below* the classical error.
   *So:* with ten clusters the Arellano estimator is itself noisy, and the
@@ -197,11 +213,11 @@ are inappropriate [@croissant2019, p. 121].
 
 **`vcovBK` defaults to `cluster = "group"`.** Beck–Katz's own setting is
 time clustering with a common cross-sectional covariance; read `?vcovBK`
-before calling the default PCSE.
+before calling the default panel-corrected standard errors (PCSE).
 
 **Bester–Conley–Hansen is not implemented.** Clustering by spatial blocks
-when the dependence follows a map has no function here; the spatial
-chapter's `cortab` supports its precondition only.
+when the dependence follows a map [@bester2011] has no function here; the
+spatial chapter's `cortab` supports its precondition only.
 :::
 
 ::: {.callout-tip collapse="true"}
