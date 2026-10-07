@@ -92,8 +92,7 @@ placeholders describing what they should cover.
   shape and spatial shocks](chapters/04-time/index.qmd#sec-ur-spatial-size),
   [shared trends across units](chapters/04-time/index.qmd#sec-ur-cross-coint)
 - [x] [Summary](chapters/04-time/index.qmd#sec-ur-summary)
-- [x] [Do they move together in the long
-  run?](chapters/04-time/index.qmd#sec-ur-coint)
+- [x] [Cointegration](chapters/04-time/index.qmd#sec-ur-coint)
 - [x] [Estimating the long run](chapters/04-time/index.qmd#sec-ur-long-run)
 - [x] [Panel unit roots: what a rejection is
   worth](chapters/04-time/theory-panel-unit-roots.qmd)
